@@ -1,0 +1,1792 @@
+:root {
+  --bg: #14110e;
+  --panel: #1c1814;
+  --paper: #231e18;
+  --raised: #2a241c;
+  --border: #3a3228;
+  --border-soft: #2e281f;
+  --text: #f3eadc;
+  --text-dim: #9a8f82;
+  --text-faint: #6e655b;
+  --ink: #d06a48;
+  --sage: #7ea394;
+  --ai: #b392c4;
+  --flag: #d4a054;
+  --danger: #c97872;
+  --font-ui: "Figtree", system-ui, sans-serif;
+  --font-prose: "Newsreader", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.prose:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.crash {
+  max-width: 36rem;
+  margin: 12vh auto;
+  padding: 0 1.5rem;
+}
+
+.crash pre {
+  white-space: pre-wrap;
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.text-button,
+.icon-button {
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  padding: 0.25rem 0.4rem;
+}
+
+.text-button:hover,
+.icon-button:hover {
+  color: var(--text);
+}
+
+.text-button.danger:hover {
+  color: var(--danger);
+}
+
+button.primary {
+  background: var(--ink);
+  border: 0;
+  color: #fff8f3;
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+button.primary:disabled,
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Home */
+
+.home {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 12vh 1.5rem 4rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.home h1 {
+  font-family: var(--font-prose);
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+}
+
+.lede {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0 0 2.5rem;
+  max-width: 32rem;
+}
+
+.field-label,
+.voice-field span,
+.craft-field > span:first-child,
+.brief-field span,
+.model-field span,
+.add-fact h3,
+.pending h3 {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.new-book-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-book input,
+.add-fact input,
+.add-fact textarea,
+.add-fact select,
+.voice-field textarea,
+.craft-field select,
+.craft-field input,
+.brief-field textarea,
+.title-input,
+.chapter-title,
+.model-field select {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+}
+
+.new-book button {
+  background: var(--ink);
+  border: 0;
+  color: #fff8f3;
+  padding: 0 1.1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.book-shelf {
+  margin-top: 3rem;
+}
+
+.empty-shelf {
+  color: var(--text-dim);
+}
+
+.book-shelf ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.book-shelf li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.book-card {
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.book-card:hover {
+  border-color: var(--border);
+}
+
+.book-card strong {
+  font-family: var(--font-prose);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.book-card span {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.dot {
+  margin: 0 0.35rem;
+  color: var(--text-faint);
+}
+
+/* Editor */
+
+.editor {
+  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--panel);
+  flex: 0 0 auto;
+}
+
+.title-input {
+  font-family: var(--font-prose);
+  font-size: 1.15rem;
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0.2rem;
+}
+
+.title-input:hover,
+.title-input:focus {
+  border-color: var(--border);
+  background: var(--paper);
+}
+
+.model-fields {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.model-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.model-field span {
+  margin: 0;
+}
+
+.model-field select {
+  width: auto;
+  min-width: 10rem;
+}
+
+.banner {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  background: #2a1c16;
+  color: #f0c9b0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+
+.editor-body {
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr) 20rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  padding: 1rem 0.9rem 1.2rem;
+}
+
+.rail-left {
+  border-right: 1px solid var(--border-soft);
+}
+
+.rail-right {
+  border-left: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+.synopsis-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.45rem 0.35rem;
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-family: var(--font-prose);
+  font-size: 1.08rem;
+  font-weight: 500;
+  margin-bottom: 0.15rem;
+}
+
+.synopsis-item.is-active {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.rail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 0.55rem;
+  margin-bottom: 0.7rem;
+}
+
+.rail h2,
+.rail h3 {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 650;
+}
+
+.quiet {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.chapter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  flex: 1;
+}
+
+.chapter-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  gap: 0.15rem;
+}
+
+.chapter-item {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr;
+  gap: 0.35rem;
+  align-items: baseline;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.4rem 0.35rem;
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+.chapter-item.is-active {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.chapter-index {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
+.chapter-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chapter-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-cue {
+  flex: 0 0 auto;
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.voice-field {
+  margin-top: 0.75rem;
+  display: block;
+}
+
+.voice-field textarea {
+  resize: vertical;
+  min-height: 4.2rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.craft-fields {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.craft-field {
+  display: grid;
+  margin: 0;
+}
+
+.craft-field > span:first-child {
+  grid-area: 1 / 1;
+  z-index: 1;
+  align-self: start;
+  margin: 0;
+  padding: 0.38rem 0.7rem 0;
+  pointer-events: none;
+}
+
+.craft-field > select,
+.craft-field > input,
+.craft-field > .chapter-viewpoint-row {
+  grid-area: 1 / 1;
+}
+
+.craft-field select,
+.craft-field input {
+  font-size: 0.88rem;
+  padding: 1.42rem 0.7rem 0.4rem;
+}
+
+.craft-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path fill='none' stroke='%236e655b' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' d='M1.5 1.8 6 6.2 10.5 1.8'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem bottom 0.55rem;
+  background-size: 0.7rem 0.45rem;
+  padding-right: 1.7rem;
+}
+
+.craft-field select::-ms-expand {
+  display: none;
+}
+
+.manuscript {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background:
+    radial-gradient(1200px 400px at 50% -10%, rgb(208 106 72 / 0.07), transparent 50%),
+    var(--bg);
+  padding: 1.5rem 8% 1rem;
+}
+
+.chapter-title {
+  font-family: var(--font-prose);
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 0;
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+}
+
+.synopsis-lede {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  max-width: 38rem;
+}
+
+.brief-field {
+  display: block;
+  margin: 0.4rem 0 1.4rem;
+}
+
+.brief-field textarea {
+  resize: vertical;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  background: var(--paper);
+}
+
+.chapter-head {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.chapter-craft {
+  margin: 0 0 0.9rem;
+}
+
+.chapter-craft-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.55rem 0.7rem;
+  align-items: start;
+}
+
+.chapter-craft-grid > .craft-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.chapter-craft-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.chapter-craft-actions {
+  margin-top: 0.55rem;
+}
+
+.chapter-viewpoint-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.chapter-viewpoint-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapter-viewpoint-row .text-button {
+  align-self: end;
+  margin-bottom: 0.35rem;
+}
+
+.prose-wrap {
+  flex: 1 1 auto;
+  align-self: center;
+  width: 100%;
+  min-height: 12rem;
+  max-width: 54rem;
+  margin-top: 1.35rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.prose {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  resize: none;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-prose);
+  font-size: 1.2rem;
+  line-height: 1.65;
+  padding: 0.2rem 0 1rem;
+}
+
+.prose p,
+.prose-rare p {
+  margin: 0;
+}
+
+.prose p + p,
+.prose-rare p + p,
+.prose div + div,
+.prose p + div,
+.prose div + p {
+  margin-top: 0.8em;
+}
+
+.prose[data-empty="true"]::before {
+  content: attr(data-placeholder);
+  color: var(--text-faint);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.prose-rare {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  font-family: var(--font-prose);
+  font-size: 1.2rem;
+  line-height: 1.65;
+  padding: 0.2rem 0 1rem;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  color: var(--text);
+}
+
+.prose-rare mark {
+  background: rgb(208 106 72 / 0.32);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.prose-wrap.is-rare .prose {
+  position: relative;
+  z-index: 1;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: var(--text);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.prose-wrap.is-rare .prose-rare {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.selection-menu {
+  position: fixed;
+  z-index: 40;
+  min-width: 11.5rem;
+  padding: 0.3rem;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+  display: grid;
+}
+
+.selection-menu-label {
+  margin: 0;
+  padding: 0.35rem 0.65rem 0.15rem;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+.alts-menu {
+  min-width: 12.5rem;
+}
+
+.alts-menu .quiet {
+  padding: 0.35rem 0.65rem 0.5rem;
+  margin: 0;
+}
+
+.selection-menu button {
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--text);
+  padding: 0.45rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.92rem;
+}
+
+.selection-menu button:hover,
+.selection-menu button:focus-visible {
+  background: var(--paper);
+}
+
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(10 8 6 / 0.55);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.edit-card {
+  width: min(36rem, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1.15rem 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.edit-card h2 {
+  margin: 0;
+  font-family: var(--font-prose);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.edit-card textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 10rem;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.65rem 0.7rem;
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.marked-passage {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  background: var(--paper);
+  border-left: 2px solid var(--sage);
+  border-radius: 0 4px 4px 0;
+  color: var(--text-dim);
+  font-family: var(--font-prose);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  max-height: 8rem;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.edit-card textarea[rows="4"] {
+  min-height: 6rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.manuscript-foot {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.word-count {
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-trigger {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  padding: 0.1rem 0.15rem;
+}
+
+.stats-cluster {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.stats-trigger-label {
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+.stats-trigger:hover .word-count,
+.stats-trigger:hover .stats-trigger-label,
+.stats-trigger:focus-visible .word-count,
+.stats-trigger:focus-visible .stats-trigger-label {
+  color: var(--text);
+}
+
+.stats-trigger.is-on .stats-trigger-label {
+  color: var(--ink);
+}
+
+.stats-card {
+  width: min(42rem, 100%);
+  max-height: min(90vh, 48rem);
+  overflow: auto;
+  align-content: start;
+}
+
+.stats-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stats-card-head .chapter-craft-label {
+  margin: 0;
+}
+
+.stats-card h2 {
+  margin-top: -0.25rem;
+}
+
+.stats-title-score {
+  margin-left: 0.55rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.stats-gauges {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+.stats-accordion {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+.stats-accordion.is-open {
+  border-color: var(--border);
+}
+
+.stats-gauge {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+}
+
+.stats-accordion.is-open .stats-gauge {
+  border-radius: 6px 6px 0 0;
+}
+
+.stats-gauge:hover .stats-info,
+.stats-gauge:focus-visible .stats-info,
+.stats-accordion.is-open .stats-info {
+  border-color: var(--sage);
+  color: var(--text);
+}
+
+.stats-gauge-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.stats-gauge-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.stats-gauge-score {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.stats-info {
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+}
+
+.stats-foot {
+  margin: 0.15rem 0 0;
+}
+
+.stats-detail {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.15rem 0.7rem 0.8rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.stats-detail section p,
+.stats-detail section ul {
+  margin: 0.35rem 0 0;
+}
+
+.stats-detail section p,
+.stats-detail section li {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+.stats-detail ul {
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.stats-genres {
+  margin: -0.45rem 0 0;
+}
+
+.stats-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 3.1rem;
+  padding: 0.15rem 0 0;
+}
+
+.stats-spark button {
+  flex: 1 1 0;
+  min-width: 3px;
+  max-width: 9px;
+  min-height: 0;
+  align-self: flex-end;
+  padding: 0;
+  border: 0;
+  background: var(--border);
+  border-radius: 1px 1px 0 0;
+}
+
+.stats-spark button.is-long {
+  background: var(--ink);
+}
+
+.stats-spark button.is-selected {
+  background: var(--sage);
+}
+
+.stats-spark-hint {
+  margin: 0.15rem 0 0;
+}
+
+.stats-sentence {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--paper);
+  border-radius: 6px;
+}
+
+.stats-sentence .chapter-craft-label {
+  margin: 0;
+}
+
+.stats-sentence blockquote {
+  margin: 0;
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.stats-sentence textarea.stats-split {
+  min-height: 4.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--sage);
+  border-radius: 0 4px 4px 0;
+  padding: 0.45rem 0.6rem;
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.stats-sentence .stats-split.is-break {
+  min-height: 8.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--sage);
+  border-radius: 0 4px 4px 0;
+  padding: 0.45rem 0.6rem;
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  overflow: auto;
+}
+
+.stats-sentence .stats-split.is-break p {
+  margin: 0;
+}
+
+.stats-sentence .stats-split.is-break p + p {
+  margin-top: 0.7em;
+}
+
+.stats-sentence-actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.stats-long-pick {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+.stats-long-pick:hover {
+  color: var(--text);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1.15rem;
+  margin: 0.15rem 0 0;
+}
+
+.stats-grid dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-bottom: 0.22rem;
+}
+
+.stats-grid dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.stats-grid .quiet {
+  display: block;
+  margin-top: 0.22rem;
+}
+
+.stats-long {
+  margin-top: 0.25rem;
+}
+
+.stats-long ul {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.stats-long li {
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--ink);
+}
+
+.stats-packed li {
+  border-left-color: var(--sage);
+}
+
+.stats-packed li.is-selected {
+  color: var(--text);
+}
+
+.stats-packed > .quiet {
+  margin: 0.35rem 0 0;
+}
+
+.stats-rare-list {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
+}
+
+.stats-rare-list li {
+  padding: 0.2rem 0.45rem;
+  background: var(--paper);
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.stats-card .edit-actions {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.actions button:not(.primary) {
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.45rem 0.8rem;
+}
+
+.actions button.maximize-btn {
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  padding: 0.45rem 0.55rem;
+}
+
+.actions button.maximize-btn:hover,
+.actions button.maximize-btn:focus-visible {
+  color: var(--text);
+}
+
+.editor.is-maximized .editor-top {
+  display: none;
+}
+
+.editor.is-maximized .editor-body {
+  grid-template-columns: minmax(0, 0) minmax(0, 1fr) minmax(0, 0);
+}
+
+.editor.is-maximized .rail-left,
+.editor.is-maximized .rail-right {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.editor.is-maximized .rail-left {
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.editor.is-maximized .rail-right {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.editor.is-maximized .rail-right > :not(.edit-overlay) {
+  display: none;
+}
+
+.editor.is-maximized .rail-right .edit-overlay {
+  pointer-events: auto;
+}
+
+.editor.is-maximized .chapter-head,
+.editor.is-maximized .manuscript > .chapter-title,
+.editor.is-maximized .manuscript > .synopsis-lede {
+  display: none;
+}
+
+.editor.is-maximized .manuscript {
+  padding: 2.25rem 8% 1.25rem;
+}
+
+.editor.is-maximized .prose-wrap {
+  margin-top: 0;
+}
+
+.editor.is-maximized .manuscript-foot {
+  align-self: center;
+  width: 100%;
+  max-width: 54rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bible-search {
+  display: block;
+  margin: 0 0 0.65rem;
+}
+
+.bible-search input {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.45rem 0.65rem;
+  width: 100%;
+  font-size: 0.88rem;
+}
+
+.bible-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin: 0 0 0.75rem;
+}
+
+.bible-tab {
+  background: none;
+  border: 0;
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+  padding: 0.35rem 0.4rem;
+  border-radius: 4px;
+}
+
+.bible-tab.is-active {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.bible-tab-count {
+  margin-left: 0.25rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.bible-review-btn.is-flagged {
+  color: var(--flag);
+}
+
+.bible-roster {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.bible-names {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bible-name {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.42rem 0.4rem;
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.bible-name.has-thumb,
+.bible-name.is-hidden-from-model {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bible-name.is-hidden-from-model {
+  color: var(--text-dim);
+}
+
+.bible-hidden-mark {
+  margin-left: auto;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--text-faint);
+}
+
+.bible-card-head-actions {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.bible-hidden-note {
+  margin: 0 0 0.7rem;
+}
+
+.bible-vis.is-hidden {
+  color: var(--text-faint);
+}
+
+.bible-name-thumb {
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: cover;
+  border-radius: 3px;
+  flex: 0 0 auto;
+  background: var(--paper);
+}
+
+.bible-name:hover,
+.bible-name:focus-visible {
+  background: var(--raised);
+}
+
+.bible-new {
+  margin-top: 0.85rem;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  width: 100%;
+}
+
+.bible-card {
+  width: min(28rem, 100%);
+  max-height: min(82vh, 42rem);
+  overflow: auto;
+  align-content: start;
+}
+
+.bible-card.is-character {
+  width: min(42rem, 100%);
+  max-height: min(92vh, 63rem);
+}
+
+.bible-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.bible-card-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0.1rem 0.3rem;
+  font-family: var(--font-prose);
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.2;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.bible-card-title:hover,
+.bible-card-title:focus {
+  border-color: var(--border);
+  background: var(--paper);
+}
+
+.bible-card-facts,
+.bible-review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bible-card-add {
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.bible-pictures {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bible-pictures-head h3 {
+  margin: 0;
+}
+
+.bible-card-fields {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.75rem 0 0.85rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.bible-field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.bible-field-row {
+  grid-template-columns: minmax(0, 1fr) 5.5rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bible-field-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--text-faint);
+}
+
+.bible-field input,
+.bible-field textarea,
+.bible-field select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.bible-kind-field {
+  grid-template-columns: minmax(0, 1fr) minmax(8.5rem, 0.75fr);
+  margin: 0 0 0.55rem;
+}
+
+.bible-field textarea {
+  resize: vertical;
+}
+
+.bible-card .bible-looks,
+.bible-card .bible-personality {
+  min-height: 5rem;
+}
+
+.bible-field-aside {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.bible-field .quiet {
+  margin: 0;
+}
+
+.bible-pronoun-age {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.75rem;
+  align-items: start;
+}
+
+.bible-age-field input {
+  width: 5.5rem;
+}
+
+.bible-pronouns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.bible-pronoun {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.bible-pronoun.is-on,
+.bible-pronoun[aria-pressed="true"] {
+  background: var(--raised);
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+.bible-picture-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bible-picture-list li {
+  position: relative;
+  min-width: 0;
+}
+
+.bible-picture-list img,
+.bible-picture-add {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--paper);
+}
+
+.bible-picture-list img {
+  display: block;
+  object-fit: cover;
+}
+
+.bible-picture-add {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--border);
+  color: var(--text-faint);
+  font-size: 1.55rem;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0;
+}
+
+.bible-picture-add:hover:not(:disabled),
+.bible-picture-add:focus-visible {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+.bible-picture-remove {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: rgb(20 17 14 / 0.72);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.bible-picture-remove:hover,
+.bible-picture-remove:focus-visible {
+  background: rgb(20 17 14 / 0.92);
+}
+
+.bible-kind h3 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+
+.pending ul,
+.bible-list ul,
+.add-fact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.proposal {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.7rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.proposal.is-flagged {
+  border-color: var(--flag);
+}
+
+.proposal p {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.conflict-note {
+  color: var(--flag);
+  font-size: 0.8rem !important;
+}
+
+.proposal-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.45rem;
+}
+
+.proposal textarea,
+.locked-fact textarea {
+  width: 100%;
+  resize: vertical;
+  margin: 0.2rem 0 0.35rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.bible-kind {
+  margin-bottom: 1.35rem;
+}
+
+.bible-kind > h3 {
+  margin-bottom: 0.65rem;
+}
+
+.bible-kind > h3 .quiet {
+  font-size: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.entity {
+  margin-bottom: 1.1rem;
+}
+
+.entity-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.entity-head h4 {
+  margin: 0;
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--sage);
+  font-weight: 500;
+}
+
+.locked-fact {
+  position: relative;
+  padding-right: 6.4rem;
+}
+
+.locked-fact.is-hidden-from-model {
+  color: var(--text-dim);
+}
+
+.fact-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 0.15rem;
+  align-items: center;
+}
+
+.fact-edit-btn {
+  font-size: 0.75rem;
+}
+
+.entity li {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.pred {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.add-fact {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.add-fact textarea {
+  resize: vertical;
+}
+
+.bible-card .add-fact textarea {
+  min-height: 5rem;
+}
+
+@media (max-width: 960px) {
+  .editor-body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .rail,
+  .manuscript {
+    min-height: 24rem;
+  }
+
+  .editor.is-maximized .editor-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .editor.is-maximized .rail-left {
+    display: none;
+  }
+
+  .editor.is-maximized .rail-right {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    min-height: 0;
+    z-index: 50;
+  }
+
+  .editor.is-maximized .manuscript {
+    min-height: 0;
+  }
+}
