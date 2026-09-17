@@ -1,7 +1,20 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.4
+Status: living document, v0.5
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.4 → v0.5:** skrivloopen har två modeller. **Writing**
+(Stheno som default) tar Draft, Recast, Extend, Elaborate, Rewrite och
+Brainstorm Ask. **Review** (Qwen-instruct som default) tar Extract, word
+swap, menings- och styckebrytning, och **Analyze**. Analyze är opt-in,
+aldrig omskrivning, aldrig Brainstorm, aldrig faktamutation. Flaggar
+citat i fyra kategorier (show vs tell, dialogue, voice, character).
+Statsytan har Directness / Pacing / Vocabulary plus Echo, POV-läcka och
+packade stycken. Rare-markering + högerklick för synonymförslag mot
+Review. Apparna ligger som syskon på GitHub
+(`ocedo-apps/StoryBook-AI`, `ocedo-apps/Sandbox-AI`). Inga molnnycklar —
+lokal Ollama. Manus bor i IndexedDB, inte i git. Parkerat: manusexport,
+sök/ersätt, Reader.
 
 **Ändringslogg v0.3 → v0.4:** skrivloopen har en kamera och en
 explicit recast. Manuset har POV, tempus och viewpoint; kapitlet kan
@@ -113,7 +126,10 @@ aldrig in under den.
 bokverktygets Story Bible. Mot Sandbox förblir den en exportprojektion vid
 ett explicit senare steg. Asymmetrin är avsiktlig.
 
-Apparna är syskon, inte ett repo. StoryBook AI körs fristående (port 5175).
+Apparna är syskon, två repon. StoryBook AI körs fristående (port 5175):
+https://github.com/ocedo-apps/StoryBook-AI
+Sandbox AI (port 5173):
+https://github.com/ocedo-apps/Sandbox-AI
 Sandbox anropas inte förrän exporten byggs.
 
 ---
@@ -200,25 +216,27 @@ Körs per kandidatfakta efter Pass 2-extraktion, innan commit:
 
 ## 6. Modellstrategi (lokal-first)
 
-- **Generator** (t.ex. Stheno eller motsvarande narrativ finetune) —
-  optimerad för prosaröst och kreativ flyt, INTE för strikt
-  instruktionsföljsamhet.
-- **Extraktor/Granskare** — separat modell optimerad för
-  schema-följsamhet och resonemang (Qwen-familjen för ren
-  JSON-extraktion, Phi-4 om konflikt-resonemang väger tyngre; Mistral
-  Nemo som bekant fallback, men inte förstaval 2026).
-- Sekventiell modellkörning (ladda/avlasta), inte simultan — motiverat
-  av att bokverktyget är draft-and-review, inte live-streaming. Sänker
-  hårdvarukravet betydligt jämfört med RPG-motorns live-krav.
-- Deterministisk pre-filtrering (ConsistencyGate steg 1–2) minskar
-  antalet LLM-anrop per kapitel. Steg 3 (LLM-resonemang) är inte kopplat
-  i v0.1 av skrivappen — motsägelser är samma entity + predikat + annat värde.
+Två dropdowns i headern, implementerat:
+
+- **Writing / Generator** (default `stheno-custom:latest`) — Draft,
+  Recast, Extend, Elaborate, Rewrite, Brainstorm Ask. Optimerad för
+  prosaröst, inte för strikt JSON.
+- **Review / Extraktor-Granskare** (default `qwen2.5-coder:7b`, väljer
+  Qwen-instruct om den finns i listan) — Extract facts, word swap,
+  menings- och styckebrytning, Analyze. Optimerad för schema och
+  omdöme.
+
+Sekventiell körning, inte simultan — bokverktyget är draft-and-review,
+inte live-streaming. Inga moln-API-nycklar. Deterministisk
+pre-filtrering (ConsistencyGate steg 1–2) minskar antalet LLM-anrop per
+kapitel. Steg 3 (LLM-resonemang) är inte kopplat i v1 av skrivappen —
+motsägelser är samma entity + predikat + annat värde.
 
 ---
 
 ## 7. Pipelines
 
-**Skrivloopen (v1, det som byggs nu):**
+**Skrivloopen (v1, det som finns nu):**
 Generatorn skriver prosa mot synops, låsta `core.*`-fakta, kapitelbrief,
 löst kamera (POV / tempus / viewpoint) och — vid Draft — slutet av det
 kapitel **Continues from** pekar på. Brainstorm läses aldrig. Författaren
@@ -226,15 +244,23 @@ redigerar. **Recast prose** är ett separat, opt-in jobb: samma kapitel,
 ny kamera, ingen ny plot. `extractFactsFromProse` föreslår kandidater.
 `ConsistencyGate` (steg 1–2) auto-godkänner dubbletter, föreslår ny fakta,
 flaggar motsägelser. Författaren låser eller avvisar. Avvisade förslag som
-aldrig blev sanning tas bort; låsta rader efterträds.
+aldrig blev sanning tas bort; låsta rader efterträds. **Analyze** är en
+tyngre Review-pass på det öppna kapitlet: citat + note, ingen omskrivning.
 
-Tre olika jobb mot prosa, plus export senare:
+Jobb mot prosa, plus export senare:
 
-- `draftChapter` / passage-rewrite (Extend, Elaborate, Rewrite) — ny eller
-  fortsatt text mot kameran.
-- `recastChapter` — befintlig kapitelprosa till den *aktuella* kameran.
-  Körs inte när dropdowns ändras.
-- `extractFactsFromProse` — LLM, bara i bokappen, efter accepterad prosa.
+- `draftChapter` / passage-rewrite (Extend, Elaborate, Rewrite) — Writing.
+- `recastChapter` — Writing. Befintlig kapitelprosa till den *aktuella*
+  kameran. Körs inte när dropdowns ändras.
+- Word swap, sentence split, paragraph break — Review, punktoperationer.
+  Författaren redigerar förslaget och klickar Use. Ingen statisk tesaurus.
+- `analyzeChapter` — Review, opt-in. Fyra kategorier: `show_vs_tell`,
+  `dialogue_purpose`, `voice_drift` (hoppas över om Voice är tom),
+  `character_fidelity`. Aldrig Brainstorm. Aldrig faktarader. Inverterade
+  flaggor (noten medger att raden redan visar / avslöjar karaktär) slängs.
+- `extractFactsFromProse` — Review, efter accepterad prosa.
+- Stats (Tier 1) — deterministiskt: Directness, Pacing, Vocabulary,
+  Echo, POV-läcka, packade stycken, Rare-markering. Ingen modell.
 - `projectFactsToCampaign` — senare. Läser `core.*`, föreslår `rpg.*`,
   skriver hyllor + Campaign Builder-utkast. Aldrig en live-`Session`.
 
@@ -328,7 +354,11 @@ Dokumenterade här så de inte glöms bort eller omprövas av misstag:
   Omskrivning kräver Recast, per kapitel. Samma skäl som mot osynlig
   auto-omskrivning i ConsistencyGate: författaren har sista ordet.
 - **Brainstorm är privat.** Ask och Lift to synopsis är författarens
-  scratch. Draft, Recast och Extract läser det aldrig.
+  scratch. Draft, Recast, Extract och Analyze läser det aldrig.
+- **Analyze skriver inte om.** Citat + note. Författaren har sista ordet.
+  Introt i notes-rutan: *The review tries to find lines that neither
+  reveal the character’s personality nor drive the scene forward.*
+- **Inga molnnycklar.** Lokal Ollama. Manus i IndexedDB, inte i git.
 
 ---
 
@@ -356,9 +386,14 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 - **Flaggningströskel** i praktiken: extraktorn är snäv (bara påstådda
   fakta). Empiri mot riktiga kapitel avgör om den är för tyst eller för
-  högljudd.
+  högljudd. Analyze mot Qwen är densamma frågan — filter fångar inverterade
+  flaggor, inte dåligt hantverksomdöme i grunden.
 - **LLM-steg 3 i ConsistencyGate** (semantiska motsägelser som inte är
   samma predikat+värde) — inte v1.
+- **Manusexport / backup** ur IndexedDB (markdown eller text av kapitel
+  + Story Bible). Inte kampanjexport. Högsta riskhålet mot dataförlust.
+- **Sök/ersätt** för valfri prosa. Namnbyte på kortet finns redan.
+- **Reader** (senare) — se §7.1. Inte nu.
 - **Bok → kampanjgrund:** UI för *redan hänt / spelbar scen / låt bli*,
   och mapping mot realm/landmark/focal. Inte nu.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
@@ -368,12 +403,11 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 ## 12. Nästa steg
 
-Skrivappen är igång som fristående Vite/React-app (port 5175). Kamera,
-Recast och Continues from finns. Nästa produktsteg inuti StoryBook, inte
-export:
+Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
+Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats och
+Analyze finns. Nästa produktsteg inuti StoryBook, inte kampanjexport:
 
-- Skriva på riktigt och se hur Story Bible, kameran och Recast beter sig
-  mot längre kapitel.
-- Eventuellt separat extraktormodell när generatorn och JSON-följsamhet
-  krockar.
+- Manusexport / backup ur IndexedDB.
+- Sök/ersätt för valfri text.
+- Därefter Reader, om empirin mot barn-/YA-prosa behöver den.
 - Först därefter `projectFactsToCampaign`.

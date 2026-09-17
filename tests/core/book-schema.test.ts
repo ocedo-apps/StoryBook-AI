@@ -102,6 +102,17 @@ describe("chapters", () => {
     expect(Object.prototype.hasOwnProperty.call(book.chapters[1], "viewpoint")).toBe(false);
   });
 
+  it("lets a chapter override Voice and then inherit again", () => {
+    let book = addChapter({ ...createBook("X"), voice: "Dry, maritime, short sentences" });
+    const second = book.chapters[1]!.id;
+    book = updateChapter(book, second, { voice: "Closer, more interior" });
+    expect(book.chapters[1]?.voice).toBe("Closer, more interior");
+    expect(book.chapters[0]?.voice).toBeUndefined();
+    book = updateChapter(book, second, { voice: undefined });
+    expect(book.chapters[1]?.voice).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(book.chapters[1], "voice")).toBe(false);
+  });
+
   it("loads older chapters that have no craft fields", () => {
     const book = createBook("Legacy");
     const chapter = book.chapters[0]!;
@@ -120,6 +131,7 @@ describe("chapters", () => {
     expect(parsed.chapters[0]?.pov).toBeUndefined();
     expect(parsed.chapters[0]?.tense).toBeUndefined();
     expect(parsed.chapters[0]?.viewpoint).toBeUndefined();
+    expect(parsed.chapters[0]?.voice).toBeUndefined();
     expect(parsed.chapters[0]?.continues_from).toBeUndefined();
   });
 });

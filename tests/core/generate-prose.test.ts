@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, updateChapter } from "@core/BookSchema";
-import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt } from "@core/generateProse";
+import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, formatVoiceForPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
 
 describe("draftUserPrompt", () => {
   it("includes the synopsis as the story map", () => {
@@ -172,11 +172,33 @@ describe("draftUserPrompt", () => {
     expect(prompt).not.toContain("different camera");
   });
 
+  it("uses a chapter Voice when set, and the manuscript Voice when not", () => {
+    let book = { ...createBook("The Salt Road"), voice: "Dry, maritime, short sentences" };
+    const inherited = draftUserPrompt(book, book.chapters[0]!);
+    expect(inherited).toContain("Dry, maritime, short sentences");
+    expect(inherited).not.toContain("different voice");
+    book = updateChapter(book, book.chapters[0]!.id, { voice: "Closer, more interior" });
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("Closer, more interior");
+    expect(prompt).toContain("different voice");
+    expect(prompt).not.toContain("Dry, maritime, short sentences");
+  });
+
   it("still names the chapter after the synopsis", () => {
     let book = { ...createBook("The Salt Road"), synopsis: "A debt in salt." };
     book = updateChapter(book, book.chapters[0]!.id, { title: "The last key" });
     const prompt = draftUserPrompt(book, book.chapters[0]!);
     expect(prompt.indexOf("A debt in salt.")).toBeLessThan(prompt.indexOf("The last key"));
+  });
+});
+
+describe("resolveVoice", () => {
+  it("prefers the chapter field and treats missing as manuscript", () => {
+    expect(resolveVoice({ voice: "Dry" }, {})).toBe("Dry");
+    expect(resolveVoice({ voice: "Dry" }, { voice: "Closer" })).toBe("Closer");
+    expect(formatVoiceForPrompt("Closer", "Dry")).toContain("different voice");
+    expect(formatVoiceForPrompt("Dry", "Dry")).toBe("Voice:\nDry");
+    expect(formatVoiceForPrompt("")).toBe("");
   });
 });
 

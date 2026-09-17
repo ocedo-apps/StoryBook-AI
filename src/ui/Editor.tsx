@@ -30,6 +30,7 @@ import { characterCast } from "@core/characterProfile";
 import { ANALYZE_INTRO } from "@core/chapterFeedback";
 import { addChapter, removeChapter, sortedChapters, updateChapter, useBookStore } from "./BookStore";
 import { BiblePanel } from "./BiblePanel";
+import { ThemeToggle } from "./ThemeToggle";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ProseCanvas } from "./ProseCanvas";
 import { ProseStatsCard } from "./ProseStatsCard";
@@ -167,6 +168,7 @@ export function Editor() {
         <div className="model-fields">
           <ModelSelect label="Writing" value={model} models={models} onChange={store.setModel} />
           <ModelSelect label="Review" value={reviewModel} models={models} onChange={store.setReviewModel} />
+          <ThemeToggle />
         </div>
       </header>
 
@@ -213,6 +215,7 @@ export function Editor() {
                   <span className="chapter-name">
                     <span className="chapter-name-text">{item.title.trim() || "Untitled"}</span>
                     {cue ? <span className="chapter-cue">{cue}</span> : null}
+                    {item.voice !== undefined && item.voice.trim() ? <span className="chapter-cue">Voice</span> : null}
                     {continues ? <span className="chapter-cue">{continues}</span> : null}
                   </span>
                 </button>
@@ -405,17 +408,48 @@ export function Editor() {
                 }
                 aria-label="Chapter title"
               />
-              <label className="brief-field">
-                <span>Brief</span>
-                <textarea
-                  value={chapter.brief}
-                  onChange={(event) =>
-                    void store.patchBook((current) => updateChapter(current, chapter.id, { brief: event.target.value }))
-                  }
-                  placeholder="What this chapter must do. A writing instruction, not canon."
-                  rows={3}
-                />
-              </label>
+              <div className="chapter-head-top">
+                <label className="craft-field">
+                  <span>Brief</span>
+                  <textarea
+                    value={chapter.brief}
+                    onChange={(event) =>
+                      void store.patchBook((current) =>
+                        updateChapter(current, chapter.id, { brief: event.target.value })
+                      )
+                    }
+                    placeholder="What this chapter must do. A writing instruction, not canon."
+                    rows={1}
+                    aria-label="Chapter brief"
+                  />
+                </label>
+                <div className="craft-field">
+                  <span>Voice</span>
+                  {chapter.voice !== undefined ? (
+                    <button
+                      type="button"
+                      className="text-button chapter-voice-reset"
+                      onClick={() =>
+                        void store.patchBook((current) => updateChapter(current, chapter.id, { voice: undefined }))
+                      }
+                    >
+                      Manuscript
+                    </button>
+                  ) : null}
+                  <textarea
+                    value={chapter.voice ?? ""}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      void store.patchBook((current) =>
+                        updateChapter(current, chapter.id, { voice: next.trim() === "" ? undefined : next })
+                      );
+                    }}
+                    placeholder={book.voice.trim() ? "Manuscript voice" : "Dry, maritime, short sentences"}
+                    rows={1}
+                    aria-label="Chapter voice"
+                  />
+                </div>
+              </div>
               <ChapterCraftFields
                 bookPov={book.pov}
                 bookTense={book.tense}
@@ -641,7 +675,6 @@ function ChapterCraftFields({
 
   return (
     <div className="chapter-craft">
-      <p className="chapter-craft-label">This chapter</p>
       <div className="chapter-craft-grid">
         <label className="craft-field">
           <span>POV</span>

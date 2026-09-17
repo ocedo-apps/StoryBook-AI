@@ -17,6 +17,8 @@ export const ChapterSchema = z.object({
   pov: z.enum(POV_MODES).optional(),
   tense: z.enum(TENSES).optional(),
   viewpoint: z.string().optional(),
+  /** Optional register for this chapter. Missing inherits the manuscript Voice. */
+  voice: z.string().optional(),
   /**
    * Which chapter this one continues. Missing = previous in the list.
    * `"none"` opens a new strand. A chapter id jumps to that strand.
@@ -160,7 +162,7 @@ export function updateChapter(book: Book, chapterId: string, patch: Partial<Omit
     chapters: book.chapters.map((chapter) => {
       if (chapter.id !== chapterId) return chapter;
       const next: Chapter = { ...chapter, ...patch };
-      for (const key of ["pov", "tense", "viewpoint", "continues_from"] as const) {
+      for (const key of ["pov", "tense", "viewpoint", "continues_from", "voice"] as const) {
         if (Object.prototype.hasOwnProperty.call(patch, key) && patch[key] === undefined) {
           delete next[key];
         }

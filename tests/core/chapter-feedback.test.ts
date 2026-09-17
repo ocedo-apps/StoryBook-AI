@@ -62,6 +62,17 @@ describe("analyzeUserPrompt", () => {
     expect(prompt).toContain("Dry, maritime, short sentences");
     expect(prompt).not.toContain("Skip voice_drift");
   });
+
+  it("uses the chapter Voice when it overrides the manuscript", () => {
+    const { book, chapterId } = bookWithProse("Emma locked the quay door.");
+    const withVoice = { ...book, voice: "Dry, maritime, short sentences" };
+    const chaptered = updateChapter(withVoice, chapterId, { voice: "Closer, more interior" });
+    const chapter = chaptered.chapters.find((item) => item.id === chapterId)!;
+    const prompt = analyzeUserPrompt(chaptered, chapter);
+    expect(prompt).toContain("Closer, more interior");
+    expect(prompt).not.toContain("Dry, maritime, short sentences");
+    expect(prompt).not.toContain("Skip voice_drift");
+  });
 });
 
 describe("ANALYZE_SYSTEM", () => {

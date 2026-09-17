@@ -37,6 +37,7 @@ export function manuscriptNameHits(book: Book, from: string): number {
     total += nameHitCount(chapter.brief, from);
     total += nameHitCount(chapter.prose, from);
     total += nameHitCount(chapter.viewpoint ?? "", from);
+    total += nameHitCount(chapter.voice ?? "", from);
   }
   for (const fact of book.facts) {
     total += nameHitCount(fact.value, from);
@@ -72,7 +73,8 @@ export function replaceNameInManuscript(book: Book, from: string, to: string): B
       prose: replaceWholeName(chapter.prose, source, target),
       ...(chapter.viewpoint !== undefined
         ? { viewpoint: replaceWholeName(chapter.viewpoint, source, target) }
-        : {})
+        : {}),
+      ...(chapter.voice !== undefined ? { voice: replaceWholeName(chapter.voice, source, target) } : {})
     }))
   });
 }

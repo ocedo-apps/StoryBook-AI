@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useBookStore } from "./BookStore";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Home() {
   const { summaries, newBook, openBook, deleteBook } = useBookStore();
@@ -13,12 +14,15 @@ export function Home() {
   return (
     <div className="home">
       <header className="home-brand">
-        <p className="eyebrow">StoryBook AI</p>
-        <h1>Write the prose. The Story Bible keeps the truth.</h1>
-        <p className="lede">
-          A local manuscript tool. Title the book, work the story in brainstorm, lift a synopsis, then write the
-          chapters. The model drafts. You decide.
-        </p>
+        <div className="home-brand-copy">
+          <p className="eyebrow">StoryBook AI</p>
+          <h1>Write the prose. The Story Bible keeps the truth.</h1>
+          <p className="lede">
+            A local manuscript tool. Title the book, work the story in brainstorm, lift a synopsis, then write the
+            chapters. The model drafts. You decide.
+          </p>
+        </div>
+        <ThemeToggle />
       </header>
 
       <form className="new-book" action="#" onSubmit={submitNew}>

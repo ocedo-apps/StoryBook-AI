@@ -15,7 +15,7 @@ import { BRAINSTORM_ASK_SYSTEM, BRAINSTORM_PASSAGE_SYSTEM, brainstormAskUserProm
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
-import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt } from "@core/generateProse";
+import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
 import { applyExtend, applyReplace, selectedText, surroundingPassage, type TextSpan } from "@core/textSpan";
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
 import { BREAK_SYSTEM, breakUserPrompt, parseParagraphBreak } from "@core/paragraphBreak";
@@ -101,6 +101,12 @@ function ollamaHint(error: unknown): string {
   return message;
 }
 
+function activeVoice(book: Book, surface: EditorSurface, chapterId: string | null): string {
+  if (surface !== "chapter") return book.voice.trim();
+  const chapter = book.chapters.find((item) => item.id === chapterId);
+  return resolveVoice(book, chapter);
+}
+
 export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const repo = useMemo(() => new BookRepository(), []);
   const [summaries, setSummaries] = useState<BookSummary[]>([]);
@@ -118,11 +124,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [chapterFeedback, setChapterFeedback] = useState<ChapterFeedback | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
+  const surfaceRef = useRef<EditorSurface>("brainstorm");
   const abortRef = useRef<AbortController | null>(null);
   const saveTimer = useRef<number | null>(null);
 
   bookRef.current = book;
   chapterRef.current = chapterId;
+  surfaceRef.current = surface;
 
   const persist = useCallback(
     async (next: Book) => {
@@ -606,10 +614,15 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             { role: "system", content: ALTERNATIVES_SYSTEM },
             {
               role: "user",
-              content: alternativesUserPrompt(args.word, args.sentence, bookRef.current?.voice ?? "", {
-                ...(args.before ? { before: args.before } : {}),
-                ...(args.after ? { after: args.after } : {})
-              })
+              content: alternativesUserPrompt(
+                args.word,
+                args.sentence,
+                bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "",
+                {
+                  ...(args.before ? { before: args.before } : {}),
+                  ...(args.after ? { after: args.after } : {})
+                }
+              )
             }
           ],
           temperature: 0.3,
@@ -638,7 +651,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           model: reviewModel,
           messages: [
             { role: "system", content: SPLIT_SYSTEM },
-            { role: "user", content: splitUserPrompt(sentence, bookRef.current?.voice ?? "") }
+            { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "") }
           ],
           temperature: 0.55,
           maxTokens: 280,
@@ -668,7 +681,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           model: reviewModel,
           messages: [
             { role: "system", content: BREAK_SYSTEM },
-            { role: "user", content: breakUserPrompt(paragraph, bookRef.current?.voice ?? "") }
+            { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "") }
           ],
           temperature: 0.4,
           maxTokens: 700,
@@ -755,7 +768,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         maxTokens: 1800,
         signal: abort.signal
       });
-      const items = parseChapterFeedback(raw, chapter.prose, { voice: current.voice });
+      const items = parseChapterFeedback(raw, chapter.prose, { voice: resolveVoice(current, chapter) });
       setChapterFeedback({ chapterId: id, items });
       return true;
     } catch (err) {

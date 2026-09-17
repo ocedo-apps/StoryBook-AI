@@ -6,6 +6,20 @@ import { sortedChapters } from "./BookSchema";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
 import { visibleLockedFacts } from "./visibility";
 
+/** Chapter Voice, if set, wins. Empty after trim still counts as unset. */
+export function resolveVoice(book: { voice: string }, chapter?: { voice?: string | undefined } | null): string {
+  const raw = chapter?.voice !== undefined ? chapter.voice : book.voice;
+  return raw.trim();
+}
+
+export function formatVoiceForPrompt(voice: string, manuscriptVoice?: string): string {
+  if (!voice) return "";
+  if (manuscriptVoice !== undefined && manuscriptVoice.trim() && voice !== manuscriptVoice.trim()) {
+    return `Voice:\n${voice}\nThis chapter uses a different voice from the rest of the manuscript. Stay with this chapter’s register.`;
+  }
+  return `Voice:\n${voice}`;
+}
+
 export function formatBibleForPrompt(
   book: Book,
   empty = "No established facts yet. You may introduce named people and places if the brief asks for them. Do not invent a secret history."
@@ -23,7 +37,7 @@ The Story Bible is established truth. You may depict freely. You must not contra
 The synopsis is the intended shape of the whole story — honor its turns. It is not locked fact.
 A chapter brief, if present, is the tighter instruction for this pass.
 New details are allowed; they are proposals, not canon, until the author accepts them.
-Honor this chapter’s point of view and tense. Voice describes tone, not camera.
+Honor this chapter’s point of view and tense. Voice describes tone, not camera. A chapter Voice overrides the manuscript Voice for this pass.
 Write in the same language as the synopsis, the chapter brief, and any existing prose.
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 No title, no chapter heading, no analysis — only the prose.`;
@@ -35,7 +49,7 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
   const parts = [
     `Manuscript: ${book.title}`,
     formatCraftForDraft(resolveCraft(book, chapter), book),
-    book.voice.trim() ? `Voice:\n${book.voice.trim()}` : "",
+    formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
     book.synopsis.trim()
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
@@ -70,7 +84,7 @@ export function recastUserPrompt(book: Book, chapter: Chapter): string {
   const parts = [
     `Manuscript: ${book.title}`,
     formatCraftForDraft(craft, book),
-    book.voice.trim() ? `Voice:\n${book.voice.trim()}` : "",
+    formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
     `Story Bible:\n${formatBibleForPrompt(book)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
@@ -101,7 +115,7 @@ export function passageUserPrompt(args: {
   const parts = [
     `Manuscript: ${args.book.title}`,
     formatCraftForDraft(resolveCraft(args.book, args.chapter), args.chapter ? args.book : undefined),
-    args.book.voice.trim() ? `Voice:\n${args.book.voice.trim()}` : "",
+    formatVoiceForPrompt(resolveVoice(args.book, args.chapter), args.chapter ? args.book.voice : undefined),
     args.book.synopsis.trim() ? `Synopsis:\n${args.book.synopsis.trim()}` : "",
     `Story Bible:\n${formatBibleForPrompt(args.book)}`,
     args.chapter

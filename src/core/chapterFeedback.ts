@@ -1,6 +1,6 @@
 import type { Book, Chapter } from "./BookSchema";
 import { recoverJsonObject } from "./extractFacts";
-import { formatBibleForPrompt } from "./generateProse";
+import { formatBibleForPrompt, resolveVoice } from "./generateProse";
 import { splitFlowParagraphs } from "./proseFlow";
 
 export const FEEDBACK_CATEGORIES = [
@@ -63,7 +63,7 @@ Rules:
 - If you catch yourself writing that the quote already shows something, delete that item.`;
 
 export function analyzeUserPrompt(book: Book, chapter: Chapter): string {
-  const voice = book.voice.trim();
+  const voice = resolveVoice(book, chapter);
   const parts = [
     `Manuscript: ${book.title}`,
     `Story Bible:\n${formatBibleForPrompt(book, "No locked facts yet. Skip character_fidelity.")}`,

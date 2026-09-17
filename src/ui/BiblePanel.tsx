@@ -37,7 +37,9 @@ import { touch } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
 import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
 import { picturesFromFile } from "./entityImage";
+import { downloadJson } from "./downloadJson";
 import { useBookStore } from "./BookStore";
+import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
 
 type Overlay =
   | { type: "review" }
@@ -54,6 +56,11 @@ export function BiblePanel() {
   const sections = useMemo(() => (book ? groupBibleEntities(book.facts, book.entity_kinds) : []), [book]);
   const pending = book ? activeFacts(book.facts).filter((fact) => fact.status !== "locked") : [];
   const flagged = pending.some((fact) => fact.status === "flagged");
+  const canExportCards = sections.some(
+    (section) =>
+      (section.kind === "characters" || section.kind === "locations" || section.kind === "objects") &&
+      section.entities.length > 0
+  );
 
   useEffect(() => {
     if (pending.length > pendingSeen.current) setOverlay({ type: "review" });
@@ -87,17 +94,34 @@ export function BiblePanel() {
     <aside className="rail rail-right">
       <div className="rail-head">
         <h2>Story Bible</h2>
-        {pending.length > 0 ? (
+        <div className="bible-head-tools">
+          {pending.length > 0 ? (
+            <button
+              type="button"
+              className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
+              onClick={() => setOverlay({ type: "review" })}
+            >
+              Review · {pending.length}
+            </button>
+          ) : (
+            <span className="quiet">
+              {book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length} locked
+            </span>
+          )}
           <button
             type="button"
-            className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
-            onClick={() => setOverlay({ type: "review" })}
+            className="text-button"
+            onClick={() => {
+              const payload = exportSandboxCards(book);
+              if (sandboxCardCount(payload) === 0) return;
+              downloadJson(sandboxExportFilename(book), payload);
+            }}
+            disabled={!canExportCards}
+            title="Download characters, places, and objects for Sandbox"
           >
-            Review · {pending.length}
+            Export cards
           </button>
-        ) : (
-          <span className="quiet">{book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length} locked</span>
-        )}
+        </div>
       </div>
 
       <label className="bible-search">
