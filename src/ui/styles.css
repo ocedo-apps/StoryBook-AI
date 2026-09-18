@@ -180,8 +180,38 @@ button:disabled {
   padding: 0.35rem 0.45rem;
 }
 
-.theme-toggle.is-on {
+.backup-cue.is-due,
+.backup-cue.is-due:hover {
   color: var(--ink);
+}
+
+.setup-file {
+  display: none;
+}
+
+.home-restore {
+  margin: 0.75rem 0 0;
+}
+
+.home-banner {
+  margin: 0 0 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.backup-card textarea {
+  min-height: 4.2rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.backup-card input[type="text"] {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
 }
 
 .eyebrow {
@@ -899,6 +929,7 @@ button:disabled {
 
 .edit-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
   align-items: center;

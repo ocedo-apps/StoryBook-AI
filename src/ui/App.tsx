@@ -1,10 +1,11 @@
-import React, { Component, type ErrorInfo, type ReactNode } from "react";
-import { BookStoreProvider, useBookStore } from "./BookStore";
+import React, { Component, Fragment, type ErrorInfo, type ReactNode } from "react";
+import { BookStoreProvider } from "./BookStore";
+import { useBookStore } from "./useBookStore";
 import { Editor } from "./Editor";
 import { Home } from "./Home";
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { message: string | null }> {
-  override state: { message: string | null } = { message: null };
+class ErrorBoundary extends Component<{ children: ReactNode }, { message: string | null; retry: number }> {
+  override state: { message: string | null; retry: number } = { message: null, retry: 0 };
 
   static getDerivedStateFromError(error: Error) {
     return { message: error.message };
@@ -20,13 +21,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { message: string
         <div className="crash">
           <p>The app hit an error.</p>
           <pre>{this.state.message}</pre>
-          <button type="button" onClick={() => this.setState({ message: null })}>
+          <button type="button" onClick={() => this.setState((s) => ({ message: null, retry: s.retry + 1 }))}>
             Try again
           </button>
         </div>
       );
     }
-    return this.props.children;
+    return <Fragment key={this.state.retry}>{this.props.children}</Fragment>;
   }
 }
 

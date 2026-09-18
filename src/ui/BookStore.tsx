@@ -1,9 +1,7 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  addChapter,
   createBook,
   openingSurface,
-  removeChapter,
   sortedChapters,
   touch,
   updateChapter,
@@ -32,66 +30,18 @@ import {
   pickListedOllamaModel,
   pickListedReviewModel
 } from "@llm/ollama";
-import { BookRepository } from "@persistence/Repository";
+import { BookNotFoundError, BookRepository } from "@persistence/Repository";
+import {
+  ManuscriptBackupError,
+  manuscriptReplaceWarning,
+  parseManuscriptBackup
+} from "@core/manuscriptBackup";
+import { forgetLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
+import { BookStoreContext, type BookStoreValue, type Busy } from "./useBookStore";
 
 const MODEL_KEY = "storybook-ai.model";
 const REVIEW_MODEL_KEY = "storybook-ai.review-model";
 const LAST_BOOK_KEY = "storybook-ai.last-book";
-
-type Busy = "draft" | "extract" | "extend" | "elaborate" | "instruct" | "ask" | "recast" | "analyze" | null;
-
-type BookStoreValue = {
-  summaries: BookSummary[];
-  book: Book | null;
-  chapterId: string | null;
-  surface: EditorSurface;
-  models: string[];
-  model: string;
-  reviewModel: string;
-  ollamaError: string | null;
-  busy: Busy;
-  error: string | null;
-  chapterFeedback: ChapterFeedback | null;
-  refresh: () => Promise<void>;
-  openBook: (id: string) => Promise<void>;
-  closeBook: () => void;
-  newBook: (title: string) => Promise<void>;
-  deleteBook: (id: string) => Promise<void>;
-  patchBook: (mutate: (book: Book) => Book) => Promise<void>;
-  setChapterId: (id: string) => void;
-  showBrainstorm: () => void;
-  showSynopsis: () => void;
-  setModel: (name: string) => void;
-  setReviewModel: (name: string) => void;
-  draftChapter: () => Promise<void>;
-  recastChapter: () => Promise<void>;
-  rewriteSpan: (args: {
-    target: "prose" | "synopsis" | "brainstorm";
-    mode: "extend" | "elaborate" | "instruct";
-    span: TextSpan;
-    instruction?: string;
-  }) => Promise<void>;
-  askBrainstorm: (instruction: string) => Promise<void>;
-  liftToSynopsis: (span: TextSpan) => Promise<void>;
-  suggestAlternatives: (args: {
-    word: string;
-    sentence: string;
-    before?: string;
-    after?: string;
-    signal?: AbortSignal;
-  }) => Promise<string[]>;
-  suggestSentenceSplit: (sentence: string, signal?: AbortSignal) => Promise<string>;
-  suggestParagraphBreak: (paragraph: string, signal?: AbortSignal) => Promise<string>;
-  stopDraft: () => void;
-  extractChapter: () => Promise<void>;
-  analyzeChapter: () => Promise<boolean>;
-  addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
-  reviseFact: (factId: string, value: string) => Promise<void>;
-  approve: (factId: string, value?: string) => Promise<void>;
-  reject: (factId: string) => Promise<void>;
-};
-
-const BookStoreContext = createContext<BookStoreValue | null>(null);
 
 function ollamaHint(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -263,9 +213,61 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [repo]
   );
 
+  const importManuscript = useCallback(
+    async (file: File) => {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(await file.text()) as unknown;
+      } catch {
+        setError("That file is not JSON.");
+        return;
+      }
+      let backup;
+      try {
+        backup = parseManuscriptBackup(parsed);
+      } catch (err) {
+        setError(err instanceof ManuscriptBackupError ? err.message : "Could not read that backup.");
+        return;
+      }
+      let exists = false;
+      try {
+        await repo.get(backup.book.id);
+        exists = true;
+      } catch (err) {
+        if (!(err instanceof BookNotFoundError)) {
+          setError(err instanceof Error ? err.message : "Could not read the shelf.");
+          return;
+        }
+      }
+      if (exists && !window.confirm(manuscriptReplaceWarning(backup.book.title))) return;
+      const current = bookRef.current;
+      if (current && current.id !== backup.book.id) {
+        if (saveTimer.current !== null) {
+          window.clearTimeout(saveTimer.current);
+          saveTimer.current = null;
+        }
+        await persist(current);
+      }
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setBusy(null);
+      await repo.save(backup.book);
+      setSummaries(await repo.list());
+      setBook(backup.book);
+      setChapterIdState(sortedChapters(backup.book)[0]?.id ?? null);
+      setSurface(openingSurface(backup.book));
+      setChapterFeedback(null);
+      localStorage.setItem(LAST_BOOK_KEY, backup.book.id);
+      recordLastJsonBackup(backup.book.id, new Date().toISOString());
+      setError(null);
+    },
+    [persist, repo]
+  );
+
   const deleteBook = useCallback(
     async (id: string) => {
       await repo.delete(id);
+      forgetLastJsonBackup(id);
       if (bookRef.current?.id === id) {
         setBook(null);
         setChapterIdState(null);
@@ -844,6 +846,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     openBook,
     closeBook,
     newBook,
+    importManuscript,
     deleteBook,
     patchBook,
     setChapterId,
@@ -870,17 +873,3 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
   return <BookStoreContext.Provider value={value}>{children}</BookStoreContext.Provider>;
 }
-
-export function useBookStore(): BookStoreValue {
-  const value = useContext(BookStoreContext);
-  if (!value) throw new Error("useBookStore must be used inside BookStoreProvider");
-  return value;
-}
-
-export function useChapter() {
-  const { book, chapterId } = useBookStore();
-  if (!book || !chapterId) return null;
-  return book.chapters.find((chapter) => chapter.id === chapterId) ?? null;
-}
-
-export { addChapter, removeChapter, updateChapter, sortedChapters };

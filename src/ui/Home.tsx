@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { useBookStore } from "./BookStore";
+import React, { useRef, useState } from "react";
+import { useBookStore } from "./useBookStore";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Home() {
-  const { summaries, newBook, openBook, deleteBook } = useBookStore();
+  const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
   const [title, setTitle] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function submitNew(event?: React.SyntheticEvent) {
     event?.preventDefault();
@@ -25,6 +26,12 @@ export function Home() {
         <ThemeToggle />
       </header>
 
+      {error ? (
+        <p className="banner home-banner" role="status">
+          {error}
+        </p>
+      ) : null}
+
       <form className="new-book" action="#" onSubmit={submitNew}>
         <label className="field-label" htmlFor="new-title">
           New manuscript
@@ -42,6 +49,23 @@ export function Home() {
           </button>
         </div>
       </form>
+
+      <p className="home-restore">
+        <input
+          ref={fileRef}
+          className="setup-file"
+          type="file"
+          accept="application/json,.json"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (file) void importManuscript(file);
+          }}
+        />
+        <button type="button" className="text-button" onClick={() => fileRef.current?.click()}>
+          Import backup
+        </button>
+      </p>
 
       <section className="book-shelf" aria-label="Manuscripts">
         {summaries.length === 0 ? (

@@ -28,13 +28,24 @@ import {
 } from "@core/craft";
 import { characterCast } from "@core/characterProfile";
 import { ANALYZE_INTRO } from "@core/chapterFeedback";
-import { addChapter, removeChapter, sortedChapters, updateChapter, useBookStore } from "./BookStore";
+import {
+  formatManuscriptMarkdown,
+  manuscriptBackupBasename,
+  manuscriptExportBasename,
+  manuscriptNeedsJsonBackup,
+  packManuscriptBackup,
+  ensureDownloadFilename
+} from "@core/manuscriptBackup";
+import { buildManuscriptExport, formatExportRtf, packOdt } from "@core/manuscriptExport";
+import { addChapter, removeChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
+import { useBookStore } from "./useBookStore";
+import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
+import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ProseCanvas } from "./ProseCanvas";
 import { ProseStatsCard } from "./ProseStatsCard";
-import type { Chapter } from "@core/BookSchema";
 
 function ModelSelect({
   label,
@@ -132,11 +143,36 @@ export function Editor() {
   const [maximized, setMaximized] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
+  const [backupNote, setBackupNote] = useState("");
+  const [backupFilename, setBackupFilename] = useState("");
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportFilename, setExportFilename] = useState("");
+  const [lastJsonBackupAt, setLastJsonBackupAt] = useState(() => readLastJsonBackup(book.id));
   const [highlightRare, setHighlightRare] = useState(false);
   const names = entityLabels(book.facts, book.entity_kinds);
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
 
   const partnerBusy = busy === "extend" || busy === "elaborate" || busy === "instruct" || busy === "ask";
+  const jsonBackupDue = manuscriptNeedsJsonBackup(book.updated_at, lastJsonBackupAt);
+
+  function saveExport(kind: "md" | "rtf" | "odt") {
+    if (!book) return;
+    const packed = packManuscriptBackup(book);
+    const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
+    if (kind === "md") {
+      downloadText(ensureDownloadFilename(exportFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
+    } else if (kind === "rtf") {
+      downloadText(ensureDownloadFilename(exportFilename, "rtf"), formatExportRtf(doc), "application/rtf");
+    } else {
+      downloadBytes(
+        ensureDownloadFilename(exportFilename, "odt"),
+        packOdt(doc),
+        "application/vnd.oasis.opendocument.text"
+      );
+    }
+    setExportOpen(false);
+  }
 
   useEffect(() => {
     if (!maximized) return;
@@ -148,6 +184,21 @@ export function Editor() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [maximized]);
+
+  useEffect(() => {
+    if (!backupOpen && !exportOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setBackupOpen(false);
+      setExportOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [backupOpen, exportOpen]);
+
+  useEffect(() => {
+    setLastJsonBackupAt(readLastJsonBackup(book.id));
+  }, [book.id]);
 
   useEffect(() => {
     setNotesOpen(false);
@@ -169,6 +220,34 @@ export function Editor() {
           <ModelSelect label="Writing" value={model} models={models} onChange={store.setModel} />
           <ModelSelect label="Review" value={reviewModel} models={models} onChange={store.setReviewModel} />
           <ThemeToggle />
+          <button
+            type="button"
+            className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
+            title={
+              jsonBackupDue
+                ? "This manuscript has changed since the last JSON backup"
+                : "Backup"
+            }
+            onClick={() => {
+              setExportOpen(false);
+              setBackupNote("");
+              setBackupFilename(manuscriptBackupBasename(book));
+              setBackupOpen(true);
+            }}
+          >
+            {jsonBackupDue ? "! Backup" : "Backup"}
+          </button>
+          <button
+            type="button"
+            className="text-button theme-toggle"
+            onClick={() => {
+              setBackupOpen(false);
+              setExportFilename(manuscriptExportBasename(book));
+              setExportOpen(true);
+            }}
+          >
+            Export
+          </button>
         </div>
       </header>
 
@@ -551,6 +630,98 @@ export function Editor() {
         />
       ) : null}
       {notesOpen && notes ? <ChapterFeedbackCard items={notes.items} onClose={() => setNotesOpen(false)} /> : null}
+      {backupOpen ? (
+        <div className="edit-overlay" role="presentation" onClick={() => setBackupOpen(false)}>
+          <form
+            className="edit-card backup-card"
+            action="#"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const packed = packManuscriptBackup(book, backupNote);
+              downloadJson(ensureDownloadFilename(backupFilename, "json"), packed);
+              recordLastJsonBackup(book.id, packed.exportedAt);
+              setLastJsonBackupAt(packed.exportedAt);
+              setBackupOpen(false);
+            }}
+            aria-labelledby="backup-title"
+          >
+            <h2 id="backup-title">Backup</h2>
+            <p className="quiet">
+              A JSON copy this app can read back. Import backup on the shelf restores it. Anything written since that
+              file will be lost.
+            </p>
+            <label className="field-label" htmlFor="backup-note">
+              What happened
+            </label>
+            <textarea
+              id="backup-note"
+              rows={2}
+              value={backupNote}
+              onChange={(event) => setBackupNote(event.target.value)}
+              placeholder="Optional. Recast chapter 2, new Voice on 3."
+            />
+            <label className="field-label" htmlFor="backup-filename">
+              Document name
+            </label>
+            <input
+              id="backup-filename"
+              type="text"
+              value={backupFilename}
+              onChange={(event) => setBackupFilename(event.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setBackupOpen(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="primary">
+                Backup
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+      {exportOpen ? (
+        <div className="edit-overlay" role="presentation" onClick={() => setExportOpen(false)}>
+          <form
+            className="edit-card backup-card"
+            action="#"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={(event) => event.preventDefault()}
+            aria-labelledby="export-title"
+          >
+            <h2 id="export-title">Export</h2>
+            <p className="quiet">A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener.</p>
+            <label className="field-label" htmlFor="export-filename">
+              Document name
+            </label>
+            <input
+              id="export-filename"
+              type="text"
+              value={exportFilename}
+              onChange={(event) => setExportFilename(event.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setExportOpen(false)}>
+                Cancel
+              </button>
+              <button type="button" className="primary" onClick={() => saveExport("md")}>
+                Markdown
+              </button>
+              <button type="button" className="primary" onClick={() => saveExport("rtf")}>
+                RTF
+              </button>
+              <button type="button" className="primary" onClick={() => saveExport("odt")}>
+                ODT
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </div>
   );
 }

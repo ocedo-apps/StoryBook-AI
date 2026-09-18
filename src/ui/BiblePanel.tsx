@@ -38,7 +38,7 @@ import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "
 import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
 import { picturesFromFile } from "./entityImage";
 import { downloadJson } from "./downloadJson";
-import { useBookStore } from "./BookStore";
+import { useBookStore } from "./useBookStore";
 import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
 
 type Overlay =
