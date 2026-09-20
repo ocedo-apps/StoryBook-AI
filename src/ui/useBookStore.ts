@@ -27,6 +27,7 @@ export type BookStoreValue = {
   deleteBook: (id: string) => Promise<void>;
   patchBook: (mutate: (book: Book) => Book) => Promise<void>;
   setChapterId: (id: string) => void;
+  selectChapter: (id: string) => void;
   showBrainstorm: () => void;
   showSynopsis: () => void;
   setModel: (name: string) => void;
@@ -40,7 +41,8 @@ export type BookStoreValue = {
     instruction?: string;
   }) => Promise<void>;
   askBrainstorm: (instruction: string) => Promise<void>;
-  liftToSynopsis: (span: TextSpan) => Promise<void>;
+  liftToSynopsis: (fragment: string) => Promise<void>;
+  sendBrainstormToSynopsis: () => Promise<void>;
   suggestAlternatives: (args: {
     word: string;
     sentence: string;

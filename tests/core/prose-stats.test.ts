@@ -98,6 +98,13 @@ describe("analyzeProse", () => {
     expect(stats.longCount).toBe(1);
     expect(stats.longSentences[0]).toContain("Odyssey");
   });
+
+  it("can lower the long-sentence line for a younger reader", () => {
+    const words = Array.from({ length: 22 }, (_, i) => (i === 0 ? "Emma" : "waited")).join(" ");
+    expect(countWords(words)).toBe(22);
+    expect(analyzeProse(words).longCount).toBe(0);
+    expect(analyzeProse(words, [], { longSentence: 20 }).longCount).toBe(1);
+  });
 });
 
 describe("countSyllables", () => {

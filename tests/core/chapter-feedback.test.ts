@@ -73,6 +73,15 @@ describe("analyzeUserPrompt", () => {
     expect(prompt).not.toContain("Dry, maritime, short sentences");
     expect(prompt).not.toContain("Skip voice_drift");
   });
+
+  it("sends Reader to Analyze without asking to bowdlerize", () => {
+    const { book, chapterId } = bookWithProse("Emma locked the quay door.");
+    const withReader = { ...book, reader_age: 12 };
+    const chapter = withReader.chapters.find((item) => item.id === chapterId)!;
+    const prompt = analyzeUserPrompt(withReader, chapter);
+    expect(prompt).toContain("about 12");
+    expect(prompt).toContain("bowdlerize");
+  });
 });
 
 describe("ANALYZE_SYSTEM", () => {
@@ -81,6 +90,8 @@ describe("ANALYZE_SYSTEM", () => {
     expect(ANALYZE_SYSTEM).toContain("dialogue_purpose");
     expect(ANALYZE_SYSTEM).toContain("voice_drift");
     expect(ANALYZE_SYSTEM).toContain("character_fidelity");
+    expect(ANALYZE_SYSTEM).toContain("child_agency");
+    expect(ANALYZE_SYSTEM).toContain("lecture");
     expect(ANALYZE_SYSTEM).toMatch(/do not write prose/i);
     expect(ANALYZE_SYSTEM).toMatch(/not a rewrite/i);
     expect(ANALYZE_SYSTEM).toContain("symphony of machinery");
@@ -129,6 +140,29 @@ describe("parseChapterFeedback", () => {
       prose
     );
     expect(items).toEqual([]);
+  });
+
+  it("keeps agency and lecture only when Reader is a child audience", () => {
+    const payload = JSON.stringify({
+      items: [
+        {
+          category: "child_agency",
+          quote: "Her father opened the quay door for her.",
+          observation: "An adult takes the last step."
+        },
+        {
+          category: "lecture",
+          quote: "Always tell the truth, Emma, he said.",
+          observation: "The moral is stated, not earned."
+        }
+      ]
+    });
+    const prose = "Her father opened the quay door for her. Always tell the truth, Emma, he said.";
+    expect(parseChapterFeedback(payload, prose)).toEqual([]);
+    expect(parseChapterFeedback(payload, prose, { kidlit: true }).map((item) => item.category)).toEqual([
+      "child_agency",
+      "lecture"
+    ]);
   });
 
   it("keeps dialogue with quotation marks and drops narration posing as talk", () => {

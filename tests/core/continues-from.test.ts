@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, createBook, removeChapter, updateChapter } from "@core/BookSchema";
+import { addChapter, createBook, discardChapter, updateChapter } from "@core/BookSchema";
 import {
   CONTINUES_NONE,
   chapterContinuesCue,
   defaultPredecessor,
   formatPredecessorForDraft,
-  resolvePredecessor
+  moveChapter,
+  namedStrandLinks,
+  reorderDropIndex,
+  resolvePredecessor,
+  strandLinksForChapter
 } from "@core/continuesFrom";
 import { draftUserPrompt } from "@core/generateProse";
 
@@ -52,7 +56,7 @@ describe("resolvePredecessor", () => {
     const first = book.chapters[0]!;
     const third = book.chapters[2]!;
     book = updateChapter(book, third.id, { continues_from: first.id });
-    book = removeChapter(book, first.id);
+    book = discardChapter(book, first.id);
     const still = book.chapters.find((chapter) => chapter.title === "The keys again")!;
     expect(still.continues_from).toBeUndefined();
     expect(resolvePredecessor(book.chapters, still)?.title).toBe("The stranger");
@@ -94,5 +98,98 @@ describe("draftUserPrompt continues from", () => {
     const prompt = draftUserPrompt(book, book.chapters[2]!);
     expect(prompt).toContain("not the immediately previous chapter");
     expect(prompt).toContain("Emma locked the Aurora Room.");
+  });
+});
+
+describe("moveChapter", () => {
+  it("reindexes list order without rewriting a pin that still points backward", () => {
+    let book = withFourChapters();
+    const first = book.chapters[0]!;
+    const third = book.chapters[2]!;
+    book = updateChapter(book, third.id, { continues_from: first.id });
+    const moved = moveChapter(book, first.id, 1);
+    expect(moved.cleared).toEqual([]);
+    const still = moved.book.chapters.find((chapter) => chapter.id === third.id)!;
+    expect(still.continues_from).toBe(first.id);
+    expect(still.sequence_index).toBe(2);
+    expect(moved.book.chapters.find((chapter) => chapter.id === first.id)?.sequence_index).toBe(1);
+    expect(chapterContinuesCue(moved.book.chapters, still)).toBe("← 2");
+  });
+
+  it("clears a pin when the named chapter moves after the continuer", () => {
+    let book = withFourChapters();
+    const first = book.chapters[0]!;
+    const third = book.chapters[2]!;
+    book = updateChapter(book, third.id, { continues_from: first.id });
+    const moved = moveChapter(book, first.id, 3);
+    const still = moved.book.chapters.find((chapter) => chapter.id === third.id)!;
+    expect(still.continues_from).toBeUndefined();
+    expect(moved.book.chapters.find((chapter) => chapter.id === first.id)?.sequence_index).toBe(3);
+    expect(moved.cleared).toEqual([
+      { chapterId: third.id, title: third.title, fromTitle: first.title }
+    ]);
+    expect(resolvePredecessor(moved.book.chapters, still)?.title).toBe("The stranger");
+  });
+
+  it("clears a pin when the continuer moves before the named chapter", () => {
+    let book = withFourChapters();
+    const first = book.chapters[0]!;
+    const third = book.chapters[2]!;
+    book = updateChapter(book, third.id, { continues_from: first.id });
+    const moved = moveChapter(book, third.id, 0);
+    const still = moved.book.chapters.find((chapter) => chapter.id === third.id)!;
+    expect(still.sequence_index).toBe(0);
+    expect(still.continues_from).toBeUndefined();
+    expect(moved.cleared[0]?.chapterId).toBe(third.id);
+  });
+
+  it("keeps a new strand through a move", () => {
+    let book = withFourChapters();
+    const third = book.chapters[2]!;
+    book = updateChapter(book, third.id, { continues_from: CONTINUES_NONE });
+    const moved = moveChapter(book, third.id, 1);
+    const still = moved.book.chapters.find((chapter) => chapter.id === third.id)!;
+    expect(still.continues_from).toBe(CONTINUES_NONE);
+    expect(moved.cleared).toEqual([]);
+  });
+
+  it("does nothing when the chapter is already at that index", () => {
+    const book = withFourChapters();
+    const first = book.chapters[0]!;
+    const moved = moveChapter(book, first.id, 0);
+    expect(moved.book).toBe(book);
+    expect(moved.cleared).toEqual([]);
+  });
+});
+
+describe("reorderDropIndex", () => {
+  it("puts a chapter after the last row when dropping on its lower half", () => {
+    expect(reorderDropIndex(1, 2, true)).toBe(2);
+  });
+
+  it("keeps the neighbour in place when dropping on the last row's upper half", () => {
+    expect(reorderDropIndex(1, 2, false)).toBe(1);
+  });
+
+  it("moves the first chapter to the end when dropping after the last row", () => {
+    expect(reorderDropIndex(0, 2, true)).toBe(2);
+  });
+
+  it("moves a later chapter to the top when dropping before the first row", () => {
+    expect(reorderDropIndex(2, 0, false)).toBe(0);
+  });
+});
+
+describe("namedStrandLinks", () => {
+  it("keeps only a named skip, not list neighbours or a new strand", () => {
+    let book = withFourChapters();
+    const first = book.chapters[0]!;
+    const third = book.chapters[2]!;
+    book = updateChapter(book, third.id, { continues_from: first.id });
+    book = updateChapter(book, book.chapters[3]!.id, { continues_from: CONTINUES_NONE });
+    expect(namedStrandLinks(book.chapters)).toEqual([{ sourceId: first.id, continuerId: third.id }]);
+    expect(strandLinksForChapter(book.chapters, first.id)).toHaveLength(1);
+    expect(strandLinksForChapter(book.chapters, third.id)).toHaveLength(1);
+    expect(strandLinksForChapter(book.chapters, book.chapters[1]!.id)).toEqual([]);
   });
 });

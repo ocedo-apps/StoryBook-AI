@@ -14,10 +14,20 @@ export type ManuscriptBackup = {
   book: Book;
 };
 
+export type ManuscriptBackupErrorCode =
+  | "not-backup"
+  | "sandbox-export"
+  | "not-manuscript"
+  | "newer-format"
+  | "unreadable";
+
 export class ManuscriptBackupError extends Error {
-  constructor(message: string) {
+  readonly code: ManuscriptBackupErrorCode;
+
+  constructor(code: ManuscriptBackupErrorCode, message: string) {
     super(message);
     this.name = "ManuscriptBackupError";
+    this.code = code;
   }
 }
 
@@ -33,24 +43,24 @@ export function packManuscriptBackup(book: Book, note = "", exportedAt = new Dat
 
 export function parseManuscriptBackup(input: unknown): ManuscriptBackup {
   if (!input || typeof input !== "object") {
-    throw new ManuscriptBackupError("That file is not a manuscript backup.");
+    throw new ManuscriptBackupError("not-backup", "That file is not a manuscript backup.");
   }
   const row = input as Record<string, unknown>;
   if (row.kind === SANDBOX_LIBRARY_KIND) {
-    throw new ManuscriptBackupError("That file is a Sandbox card export. Import it in Sandbox, not here.");
+    throw new ManuscriptBackupError("sandbox-export", "That file is a Sandbox card export. Import it in Sandbox, not here.");
   }
   if (row.kind !== MANUSCRIPT_BACKUP_KIND) {
-    throw new ManuscriptBackupError("That file is not a StoryBook manuscript backup.");
+    throw new ManuscriptBackupError("not-manuscript", "That file is not a StoryBook manuscript backup.");
   }
   const format = typeof row.format === "number" ? row.format : MANUSCRIPT_BACKUP_FORMAT;
   if (format > MANUSCRIPT_BACKUP_FORMAT) {
-    throw new ManuscriptBackupError("This backup is from a newer StoryBook. Update the app, then try again.");
+    throw new ManuscriptBackupError("newer-format", "This backup is from a newer StoryBook. Update the app, then try again.");
   }
   let book: Book;
   try {
     book = parseBook(row.book);
   } catch {
-    throw new ManuscriptBackupError("The manuscript inside this file could not be read.");
+    throw new ManuscriptBackupError("unreadable", "The manuscript inside this file could not be read.");
   }
   return {
     kind: MANUSCRIPT_BACKUP_KIND,

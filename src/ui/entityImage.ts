@@ -1,7 +1,12 @@
+export type EntityImageErrorCode = "choose" | "read";
+
 export class EntityImageError extends Error {
-  constructor(message: string) {
+  readonly code: EntityImageErrorCode;
+
+  constructor(code: EntityImageErrorCode, message: string) {
     super(message);
     this.name = "EntityImageError";
+    this.code = code;
   }
 }
 
@@ -17,7 +22,7 @@ function jpegFromBitmap(bitmap: ImageBitmap, maxEdge: number, quality: number): 
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new EntityImageError("Could not read that image.");
+  if (!ctx) throw new EntityImageError("read", "Could not read that image.");
   ctx.drawImage(bitmap, 0, 0, width, height);
   return canvas.toDataURL("image/jpeg", quality);
 }
@@ -29,7 +34,7 @@ function jpegFromBitmap(bitmap: ImageBitmap, maxEdge: number, quality: number): 
 export async function picturesFromFile(file: File): Promise<{ thumbDataUrl: string; imageDataUrl: string }> {
   const namedPng = file.name.toLowerCase().endsWith(".png");
   if (!file.type.startsWith("image/") && !namedPng) {
-    throw new EntityImageError("Choose an image file.");
+    throw new EntityImageError("choose", "Choose an image file.");
   }
   const bitmap = await createImageBitmap(file);
   try {

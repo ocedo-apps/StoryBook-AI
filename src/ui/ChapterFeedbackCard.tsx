@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { ANALYZE_INTRO, FEEDBACK_BLURBS, FEEDBACK_CATEGORIES, FEEDBACK_LABELS, type FeedbackItem } from "@core/chapterFeedback";
+import { FEEDBACK_CATEGORIES, type FeedbackItem } from "@core/chapterFeedback";
+import { readerCategory } from "@core/reader";
+import { useLocale, format } from "./i18n";
 
 export function ChapterFeedbackCard({
   items,
+  readerAge,
   onClose
 }: {
   items: FeedbackItem[];
+  readerAge?: number;
   onClose: () => void;
 }) {
+  const { messages: m } = useLocale();
   const [selected, setSelected] = useState<number | null>(null);
   const current = selected !== null ? (items[selected] ?? null) : null;
 
@@ -36,35 +41,45 @@ export function ChapterFeedbackCard({
     >
       <div className="edit-card stats-card" role="dialog" aria-modal="true" aria-labelledby="notes-title">
         <div className="stats-card-head">
-          <p className="chapter-craft-label">Review</p>
+          <p className="chapter-craft-label">{m.notes.review}</p>
           <button type="button" className="text-button" onClick={onClose}>
-            Close
+            {m.common.close}
           </button>
         </div>
-        <h2 id="notes-title">{items.length > 0 ? "Chapter notes" : "Nothing to flag"}</h2>
-        <p className="quiet">{ANALYZE_INTRO}</p>
+        <h2 id="notes-title">{items.length > 0 ? m.notes.title : m.notes.emptyTitle}</h2>
+        <p className="quiet">
+          {m.notes.intro}
+          {readerAge !== undefined && readerAge < 18
+            ? ` ${format(m.notes.introReader, {
+                age: readerAge,
+                category: m.editor.readerCategories[readerCategory(readerAge)]
+              })}`
+            : ""}
+        </p>
 
         {current ? (
           <div className="stats-sentence">
             <p className="chapter-craft-label">
-              {FEEDBACK_LABELS[current.category]}
-              {current.paragraphIndex !== null ? ` · Paragraph ${current.paragraphIndex + 1}` : ""}
+              {m.notes.categories[current.category].label}
+              {current.paragraphIndex !== null
+                ? ` · ${format(m.notes.paragraph, { n: current.paragraphIndex + 1 })}`
+                : ""}
             </p>
             <blockquote>{current.quote}</blockquote>
-            <p className="chapter-craft-label">Note</p>
+            <p className="chapter-craft-label">{m.notes.note}</p>
             <p className="quiet">{current.observation}</p>
             {current.relatedFact ? <p className="quiet">{current.relatedFact}</p> : null}
           </div>
         ) : items.length > 0 ? (
-          <p className="quiet stats-spark-hint">Click a note to read the quote. Notes are not rewrites.</p>
+          <p className="quiet stats-spark-hint">{m.notes.clickHint}</p>
         ) : (
-          <p className="quiet">The Review model found nothing solid in this pass.</p>
+          <p className="quiet">{m.notes.nothingSolid}</p>
         )}
 
         {groups.map((group) => (
           <div key={group.category} className="stats-long stats-packed">
-            <p className="chapter-craft-label">{FEEDBACK_LABELS[group.category]}</p>
-            <p className="quiet">{FEEDBACK_BLURBS[group.category]}</p>
+            <p className="chapter-craft-label">{m.notes.categories[group.category].label}</p>
+            <p className="quiet">{m.notes.categories[group.category].blurb}</p>
             <ul>
               {group.rows.map(({ item, index }) => (
                 <li key={`${item.category}-${index}`} className={selected === index ? "is-selected" : undefined}>
@@ -77,7 +92,7 @@ export function ChapterFeedbackCard({
           </div>
         ))}
 
-        <p className="quiet stats-foot">Notes flag a spot. They do not rewrite the chapter or touch the Story Bible.</p>
+        <p className="quiet stats-foot">{m.notes.foot}</p>
       </div>
     </div>
   );

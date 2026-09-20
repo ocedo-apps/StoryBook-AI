@@ -1,4 +1,10 @@
 import type { Book } from "./BookSchema";
+import {
+  compileNotesToText,
+  ensureBrainstormNotes,
+  removeBrainstormNotes,
+  sendNotes
+} from "./brainstormNotes";
 import { formatCraftForBrainstorm } from "./craft";
 import { formatBibleForPrompt, type PassageMode } from "./generateProse";
 
@@ -21,9 +27,24 @@ export function liftFragmentToSynopsis(synopsis: string, fragment: string): stri
   if (!piece) return synopsis;
   const current = synopsis.trimEnd();
   if (!current) return piece;
+  if (current === piece || current.endsWith(`\n\n${piece}`)) return current;
   const last = current.split(/\n\s*\n/).at(-1)?.trim() ?? "";
   if (last === piece) return synopsis;
   return `${current}\n\n${piece}`;
+}
+
+/** Tray notes with text become synopsis paragraphs, then leave Brainstorm. Empty tray notes stay. */
+export function sendStagedNotesToSynopsis(book: Book): Book {
+  const current = ensureBrainstormNotes(book);
+  const ids = sendNotes(current.brainstorm_notes)
+    .filter((note) => note.text.trim())
+    .map((note) => note.id);
+  if (ids.length === 0) return current;
+  const compiled = compileNotesToText(current.brainstorm_notes, ids);
+  return removeBrainstormNotes(
+    { ...current, synopsis: liftFragmentToSynopsis(current.synopsis, compiled) },
+    ids
+  );
 }
 
 export function appendBrainstormReply(notes: string, reply: string): string {

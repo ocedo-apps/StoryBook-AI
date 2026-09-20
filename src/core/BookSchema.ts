@@ -5,6 +5,7 @@ import { EntityKindSchema } from "./bibleGroups";
 import { EntityMediaSchema } from "./entityMedia";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
+import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 
 export const ChapterSchema = z.object({
   id: z.string().min(1),
@@ -19,14 +20,30 @@ export const ChapterSchema = z.object({
   viewpoint: z.string().optional(),
   /** Optional register for this chapter. Missing inherits the manuscript Voice. */
   voice: z.string().optional(),
+  /** Optional intended reader age for this chapter. Missing inherits the manuscript Reader. */
+  reader_age: z.number().int().min(1).max(99).optional(),
   /**
    * Which chapter this one continues. Missing = previous in the list.
    * `"none"` opens a new strand. A chapter id jumps to that strand.
    * Missing on older saves — default keeps IndexedDB loadable.
    */
-  continues_from: z.string().min(1).optional()
+  continues_from: z.string().min(1).optional(),
+  /**
+   * When set, the chapter sits in Discarded chapters until restored or thrown away.
+   * Missing on older saves — live chapters stay loadable.
+   */
+  discarded_at: z.string().min(1).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
+
+export const BrainstormNoteSchema = z.object({
+  id: z.string().min(1),
+  text: z.string(),
+  x: z.number(),
+  y: z.number(),
+  color: z.enum(NOTE_COLORS).default("paper"),
+  send_index: z.number().int().nonnegative().optional()
+});
 
 export const BookSchema = z.object({
   id: z.string().min(1),
@@ -40,10 +57,20 @@ export const BookSchema = z.object({
   /** How the prose should sound. Writing instruction, not a world fact. */
   voice: z.string(),
   /**
+   * Intended reader age. Writing instruction, not a world fact.
+   * Missing on older saves — empty keeps the adult Dale–Chall baseline.
+   */
+  reader_age: z.number().int().min(1).max(99).optional(),
+  /**
    * Private scratch before (and beside) the map. Draft never reads this.
    * Missing on older saves — default keeps IndexedDB loadable.
    */
   brainstorm: z.string().default(""),
+  /**
+   * Free notes on the Brainstorm surface. Missing on older saves.
+   * The running `brainstorm` string stays in sync for prompts and find.
+   */
+  brainstorm_notes: z.array(BrainstormNoteSchema).default([]),
   /**
    * Short-form story. A writing map for Draft, not locked canon.
    * Missing on older saves — default keeps IndexedDB loadable.
@@ -91,7 +118,7 @@ export function summarizeBook(book: Book): BookSummary {
   return {
     id: book.id,
     title: book.title,
-    chapterCount: book.chapters.length,
+    chapterCount: sortedChapters(book).length,
     factCount: book.facts.filter((fact) => fact.superseded_by === undefined && fact.status === "locked")
       .length,
     updated_at: book.updated_at
@@ -99,7 +126,7 @@ export function summarizeBook(book: Book): BookSummary {
 }
 
 export function parseBook(input: unknown): Book {
-  return BookSchema.parse(input);
+  return ensureBrainstormNotes(BookSchema.parse(input));
 }
 
 export function createBook(title: string): Book {
@@ -114,6 +141,7 @@ export function createBook(title: string): Book {
     viewpoint: "",
     voice: "",
     brainstorm: "",
+    brainstorm_notes: [],
     synopsis: "",
     chapters: [chapter],
     facts: [],
@@ -133,7 +161,7 @@ export type EditorSurface = "brainstorm" | "synopsis" | "chapter";
  * opens on the map. Once a chapter has prose, reopen on the chapter.
  */
 export function openingSurface(book: Book): EditorSurface {
-  if (book.chapters.some((chapter) => chapter.prose.trim().length > 0)) return "chapter";
+  if (sortedChapters(book).some((chapter) => chapter.prose.trim().length > 0)) return "chapter";
   if (book.synopsis.trim().length > 0) return "synopsis";
   return "brainstorm";
 }
@@ -152,17 +180,58 @@ export function touch(book: Book, patch: Partial<Book>): Book {
   return { ...book, ...patch, updated_at: nowIso() };
 }
 
+export function isLiveChapter(chapter: Chapter): boolean {
+  return chapter.discarded_at === undefined;
+}
+
+export function sortedChapters(book: Book): Chapter[] {
+  return book.chapters.filter(isLiveChapter).sort((a, b) => a.sequence_index - b.sequence_index);
+}
+
+export function discardedChapters(book: Book): Chapter[] {
+  return book.chapters
+    .filter((chapter) => chapter.discarded_at !== undefined)
+    .sort((a, b) => (b.discarded_at ?? "").localeCompare(a.discarded_at ?? ""));
+}
+
+function reindexLive(chapters: Chapter[]): Chapter[] {
+  let index = 0;
+  const nextIndex = new Map<string, number>();
+  for (const chapter of [...chapters].filter(isLiveChapter).sort((a, b) => a.sequence_index - b.sequence_index)) {
+    nextIndex.set(chapter.id, index);
+    index += 1;
+  }
+  return chapters.map((chapter) => {
+    const sequence_index = nextIndex.get(chapter.id);
+    if (sequence_index === undefined || chapter.sequence_index === sequence_index) return chapter;
+    return { ...chapter, sequence_index };
+  });
+}
+
+function clearPointersTo(chapters: Chapter[], chapterId: string): Chapter[] {
+  return chapters.map((chapter) => {
+    if (chapter.continues_from !== chapterId) return chapter;
+    const next: Chapter = { ...chapter };
+    delete next.continues_from;
+    return next;
+  });
+}
+
 export function addChapter(book: Book): Book {
-  const nextIndex = book.chapters.reduce((max, chapter) => Math.max(max, chapter.sequence_index), -1) + 1;
+  const nextIndex = sortedChapters(book).length;
   return touch(book, { chapters: [...book.chapters, createChapter(nextIndex)] });
 }
 
-export function updateChapter(book: Book, chapterId: string, patch: Partial<Omit<Chapter, "id" | "sequence_index">>): Book {
+export function updateChapter(
+  book: Book,
+  chapterId: string,
+  patch: Partial<Omit<Chapter, "id" | "sequence_index" | "discarded_at">>
+): Book {
   return touch(book, {
     chapters: book.chapters.map((chapter) => {
       if (chapter.id !== chapterId) return chapter;
       const next: Chapter = { ...chapter, ...patch };
-      for (const key of ["pov", "tense", "viewpoint", "continues_from", "voice"] as const) {
+      for (const key of ["pov", "tense", "viewpoint", "continues_from", "voice", "reader_age"] as const) {
         if (Object.prototype.hasOwnProperty.call(patch, key) && patch[key] === undefined) {
           delete next[key];
         }
@@ -172,20 +241,44 @@ export function updateChapter(book: Book, chapterId: string, patch: Partial<Omit
   });
 }
 
-export function removeChapter(book: Book, chapterId: string): Book {
-  if (book.chapters.length <= 1) return book;
-  const remaining = book.chapters
-    .filter((chapter) => chapter.id !== chapterId)
-    .map((chapter, index) => {
-      const next: Chapter = { ...chapter, sequence_index: index };
-      if (next.continues_from === chapterId) delete next.continues_from;
+export function discardChapter(book: Book, chapterId: string): Book {
+  const live = sortedChapters(book);
+  if (live.length <= 1 || !live.some((chapter) => chapter.id === chapterId)) return book;
+  const stamped = nowIso();
+  const chapters = clearPointersTo(
+    book.chapters.map((chapter) => {
+      if (chapter.id !== chapterId) return chapter;
+      const next: Chapter = { ...chapter, discarded_at: stamped };
+      delete next.continues_from;
       return next;
-    });
-  return touch(book, { chapters: remaining });
+    }),
+    chapterId
+  );
+  return touch(book, { chapters: reindexLive(chapters) });
 }
 
-export function sortedChapters(book: Book): Chapter[] {
-  return [...book.chapters].sort((a, b) => a.sequence_index - b.sequence_index);
+export function restoreChapter(book: Book, chapterId: string): Book {
+  const target = book.chapters.find((chapter) => chapter.id === chapterId);
+  if (!target || target.discarded_at === undefined) return book;
+  const nextIndex = sortedChapters(book).length;
+  const chapters = book.chapters.map((chapter) => {
+    if (chapter.id !== chapterId) return chapter;
+    const next: Chapter = { ...chapter, sequence_index: nextIndex };
+    delete next.discarded_at;
+    return next;
+  });
+  return touch(book, { chapters });
+}
+
+export function removeChapter(book: Book, chapterId: string): Book {
+  const target = book.chapters.find((chapter) => chapter.id === chapterId);
+  if (!target) return book;
+  if (isLiveChapter(target) && sortedChapters(book).length <= 1) return book;
+  const remaining = clearPointersTo(
+    book.chapters.filter((chapter) => chapter.id !== chapterId),
+    chapterId
+  );
+  return touch(book, { chapters: reindexLive(remaining) });
 }
 
 export function entityRefFromLabel(label: string): string {

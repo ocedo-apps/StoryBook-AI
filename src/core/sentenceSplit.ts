@@ -4,9 +4,12 @@ Do not add facts, commentary, or quotation marks around the result.
 Return JSON only, shaped as: {"split":"..."}
 The split field is the replacement prose, with the new sentence breaks already in it.`;
 
-export function splitUserPrompt(sentence: string, voice = ""): string {
+export function splitUserPrompt(sentence: string, voice = "", readerAge?: number): string {
   const parts = [`Sentence:\n${sentence}`];
   if (voice.trim()) parts.push(`Voice: ${voice.trim()}`);
+  if (readerAge !== undefined && readerAge < 18) {
+    parts.push(`The intended reader is about ${readerAge}. Prefer a split that reader can follow. Do not simplify meaning.`);
+  }
   return parts.join("\n");
 }
 

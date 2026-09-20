@@ -3,8 +3,10 @@ import {
   appendBrainstormReply,
   brainstormAskUserPrompt,
   brainstormPassageUserPrompt,
-  liftFragmentToSynopsis
+  liftFragmentToSynopsis,
+  sendStagedNotesToSynopsis
 } from "@core/brainstorm";
+import { addBrainstormNote, boardNotes, sendNotes, stageBrainstormNote } from "@core/brainstormNotes";
 import { createBook } from "@core/BookSchema";
 
 describe("liftFragmentToSynopsis", () => {
@@ -18,9 +20,29 @@ describe("liftFragmentToSynopsis", () => {
     );
   });
 
-  it("does not double-append the same last paragraph", () => {
-    const once = liftFragmentToSynopsis("", "A stranger pays in salt.");
-    expect(liftFragmentToSynopsis(once, "A stranger pays in salt.")).toBe(once);
+  it("does not double-append the same compiled block", () => {
+    const map = "Emma keeps the night keys.\n\nA stranger pays in salt.";
+    expect(liftFragmentToSynopsis(map, "A stranger pays in salt.")).toBe(map);
+    expect(liftFragmentToSynopsis(map, map)).toBe(map);
+  });
+});
+
+describe("sendStagedNotesToSynopsis", () => {
+  it("appends tray notes in tray order and removes only those with text", () => {
+    let book = { ...createBook("Night Keys"), synopsis: "Emma keeps the night keys." };
+    book = addBrainstormNote(book, { id: "sister", text: "She may be the captain’s sister." });
+    book = addBrainstormNote(book, { id: "salt", text: "Salt on the quay." });
+    book = addBrainstormNote(book, { id: "blank", text: "" });
+    book = addBrainstormNote(book, { id: "quay", text: "The canal takes the bar." });
+    book = stageBrainstormNote(book, "salt");
+    book = stageBrainstormNote(book, "quay");
+    book = stageBrainstormNote(book, "blank");
+    const next = sendStagedNotesToSynopsis(book);
+    expect(next.synopsis).toBe(
+      "Emma keeps the night keys.\n\nSalt on the quay.\n\nThe canal takes the bar."
+    );
+    expect(boardNotes(next.brainstorm_notes).map((note) => note.id)).toEqual(["sister"]);
+    expect(sendNotes(next.brainstorm_notes).map((note) => note.id)).toEqual(["blank"]);
   });
 });
 

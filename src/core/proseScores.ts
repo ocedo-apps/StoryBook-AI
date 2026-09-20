@@ -1,6 +1,5 @@
 import type { PacingProfile, ProseStats, SentenceMix } from "./proseStats";
-
-const LONG_SENTENCE = 30;
+import { DEFAULT_LONG_SENTENCE } from "./proseStats";
 
 export type GaugeId = "directness" | "pacing" | "vocabulary";
 
@@ -30,7 +29,7 @@ export const GAUGE_DETAILS: Record<GaugeId, GaugeDetail> = {
     measures:
       "How much sentence length varies, and whether long lines stack. A mix of short and long usually keeps momentum.",
     raise: [
-      "Break a run of 30+ word sentences. Click a tall bar to inspect one.",
+      "Break a run of {n}+ word sentences. Click a tall bar to inspect one.",
       "Follow a long line with a short hit, or the other way around.",
       "If every sentence is the same length, vary one."
     ],
@@ -52,34 +51,58 @@ export const GAUGE_DETAILS: Record<GaugeId, GaugeDetail> = {
   }
 };
 
-export function scoreDirectness(stats: ProseStats): number | null {
+export function scoreDirectness(stats: ProseStats, weight = 1): number | null {
   if (stats.words < 12) return null;
   const passivesPerThousand = (stats.passiveCount / stats.words) * 1000;
-  return clampScore(100 - stats.adverbPerThousand - passivesPerThousand);
+  return clampScore(100 - weight * (stats.adverbPerThousand + passivesPerThousand));
 }
 
-export function scorePacing(stats: ProseStats): number | null {
+export function scorePacing(
+  stats: ProseStats,
+  longSentence = DEFAULT_LONG_SENTENCE,
+  longRun = 5
+): number | null {
   if (stats.sentences < 3) return null;
   const mean = stats.meanSentence;
   const cv = mean > 0 ? stats.sentenceStdev / mean : 0;
   const variation = 40 + 60 * clamp01(cv / 0.42);
-  const run = longestLongSentenceRun(stats.sentenceLengths);
-  const runPenalty = run >= 5 ? Math.min(40, (run - 4) * 10) : 0;
+  const run = longestLongSentenceRun(stats.sentenceLengths, longSentence);
+  const runPenalty = run >= longRun ? Math.min(40, (run - (longRun - 1)) * 10) : 0;
   const span = stats.sentenceMax - stats.sentenceMin;
   const equalPenalty = span <= 2 ? 20 : 0;
-  return clampScore(variation - runPenalty - equalPenalty);
+  const longShare = stats.sentenceLengths.filter((n) => n >= longSentence).length / stats.sentences;
+  const sharePenalty = longSentence < DEFAULT_LONG_SENTENCE ? Math.round(longShare * 40) : 0;
+  const meanPenalty =
+    longSentence < DEFAULT_LONG_SENTENCE && mean > longSentence
+      ? Math.min(25, Math.round((mean - longSentence) * 2))
+      : 0;
+  return clampScore(variation - runPenalty - equalPenalty - sharePenalty - meanPenalty);
 }
 
-export function scoreVocabulary(stats: ProseStats, rareCount: number): number | null {
+export function scoreVocabulary(
+  stats: ProseStats,
+  rareCount: number,
+  rarePeak = 0.03,
+  plainScore = 55
+): number | null {
   if (stats.words < 40) return null;
   const rareShare = rareCount / stats.words;
-  const rareScore = tent(rareShare, 0, 0.03, 0.1, 0.28, 55, 100, 50);
+  const rareScore = tent(
+    rareShare,
+    0,
+    rarePeak,
+    rarePeak * 3.3,
+    Math.max(rarePeak * 9, 0.12),
+    plainScore,
+    100,
+    50
+  );
   const ttr = stats.typeTokenRatio;
   const ttrScore = tent(ttr, 0.28, 0.42, 0.72, 0.92, 50, 100, 70);
   return clampScore(0.55 * rareScore + 0.45 * ttrScore);
 }
 
-export function longestLongSentenceRun(lengths: number[], long = LONG_SENTENCE): number {
+export function longestLongSentenceRun(lengths: number[], long = DEFAULT_LONG_SENTENCE): number {
   let best = 0;
   let run = 0;
   for (const length of lengths) {

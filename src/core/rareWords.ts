@@ -1,5 +1,5 @@
 import { daleChall } from "dale-chall";
-import { entityNameTokens, normalizeWord } from "./proseStats";
+import { countSyllables, entityNameTokens, normalizeWord } from "./proseStats";
 
 const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 const FAMILIAR = new Set(daleChall.map((word) => word.toLowerCase()));
@@ -15,6 +15,11 @@ export type RareEntry = {
   count: number;
 };
 
+export type RareOptions = {
+  /** Also treat familiar words with this many syllables as rare. */
+  extraSyllables?: number;
+};
+
 export function isFamiliarWord(token: string): boolean {
   const word = normalizeWord(token);
   if (!word || word.length <= 1 || /[0-9]/.test(word)) return true;
@@ -22,8 +27,9 @@ export function isFamiliarWord(token: string): boolean {
   return inflections(word).some((form) => FAMILIAR.has(form));
 }
 
-export function findRareHits(text: string, names: Iterable<string> = []): RareHit[] {
+export function findRareHits(text: string, names: Iterable<string> = [], options?: RareOptions): RareHit[] {
   const nameSet = names instanceof Set ? names : entityNameTokens([...names]);
+  const extra = options?.extraSyllables;
   const hits: RareHit[] = [];
   for (const match of text.matchAll(WORD_RE)) {
     const word = match[0];
@@ -33,10 +39,16 @@ export function findRareHits(text: string, names: Iterable<string> = []): RareHi
     if (!token) continue;
     if (nameSet.has(token) || nameSet.has(stem)) continue;
     if (isProperName(word, start, text)) continue;
-    if (isFamiliarWord(word)) continue;
+    if (!isRareForReader(word, extra)) continue;
     hits.push({ start, end: start + word.length, word });
   }
   return hits;
+}
+
+function isRareForReader(word: string, extraSyllables: number | undefined): boolean {
+  if (!isFamiliarWord(word)) return true;
+  if (extraSyllables === undefined) return false;
+  return countSyllables(word) >= extraSyllables;
 }
 
 /** Jeff's, Odyssey's, and other mid-sentence capitals are names, not rare diction. */
@@ -58,16 +70,16 @@ function possessiveStem(token: string): string {
   return token;
 }
 
-export function rareHitAt(text: string, offset: number, names: Iterable<string> = []): RareHit | null {
+export function rareHitAt(text: string, offset: number, names: Iterable<string> = [], options?: RareOptions): RareHit | null {
   const clamped = Math.max(0, Math.min(offset, text.length));
-  return findRareHits(text, names).find((hit) => clamped >= hit.start && clamped <= hit.end) ?? null;
+  return findRareHits(text, names, options).find((hit) => clamped >= hit.start && clamped <= hit.end) ?? null;
 }
 
-export function tallyRareWords(text: string, names: Iterable<string> = []): {
+export function tallyRareWords(text: string, names: Iterable<string> = [], options?: RareOptions): {
   count: number;
   unique: RareEntry[];
 } {
-  const hits = findRareHits(text, names);
+  const hits = findRareHits(text, names, options);
   const counts = new Map<string, number>();
   for (const hit of hits) {
     const key = normalizeWord(hit.word);

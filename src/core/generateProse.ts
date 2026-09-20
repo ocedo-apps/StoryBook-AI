@@ -4,6 +4,7 @@ import { PREDICATE_LABELS } from "./predicates";
 import type { Book, Chapter } from "./BookSchema";
 import { sortedChapters } from "./BookSchema";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
+import { formatReaderForPrompt, resolveReader } from "./reader";
 import { visibleLockedFacts } from "./visibility";
 
 /** Chapter Voice, if set, wins. Empty after trim still counts as unset. */
@@ -38,6 +39,7 @@ The synopsis is the intended shape of the whole story — honor its turns. It is
 A chapter brief, if present, is the tighter instruction for this pass.
 New details are allowed; they are proposals, not canon, until the author accepts them.
 Honor this chapter’s point of view and tense. Voice describes tone, not camera. A chapter Voice overrides the manuscript Voice for this pass.
+Reader, if set, is who the prose is for. It retunes diction and sentence length. It does not rewrite the story into a children's book. A chapter Reader overrides the manuscript Reader for this pass.
 Write in the same language as the synopsis, the chapter brief, and any existing prose.
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 No title, no chapter heading, no analysis — only the prose.`;
@@ -50,6 +52,7 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
     `Manuscript: ${book.title}`,
     formatCraftForDraft(resolveCraft(book, chapter), book),
     formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
+    formatReaderForPrompt(resolveReader(book, chapter), book.reader_age),
     book.synopsis.trim()
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
@@ -69,12 +72,14 @@ The Story Bible is established truth. Do not contradict it.
 The synopsis is the intended shape of the story, not locked fact.
 Honor the point of view and tense of this chapter unless the author instruction explicitly asks to change them.
 Write in the same language and voice as the passage.
+Reader, if set, retunes diction and sentence length. It does not rewrite the story into a children's book.
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 Output only the requested prose — no title, quotes, or commentary.`;
 
 export const RECAST_SYSTEM = `You recast existing chapter prose to a new camera.
 Keep the same events, order, names, and meaning. Do not add scenes or facts. Do not cut plot.
 Honor the requested point of view and tense. Voice describes tone, not camera.
+Reader, if set, retunes diction and sentence length. It does not rewrite the story into a children's book.
 Write in the same language as the existing prose.
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 No title, no chapter heading, no analysis — only the recast prose.`;
@@ -85,6 +90,7 @@ export function recastUserPrompt(book: Book, chapter: Chapter): string {
     `Manuscript: ${book.title}`,
     formatCraftForDraft(craft, book),
     formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
+    formatReaderForPrompt(resolveReader(book, chapter), book.reader_age),
     `Story Bible:\n${formatBibleForPrompt(book)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
@@ -116,6 +122,10 @@ export function passageUserPrompt(args: {
     `Manuscript: ${args.book.title}`,
     formatCraftForDraft(resolveCraft(args.book, args.chapter), args.chapter ? args.book : undefined),
     formatVoiceForPrompt(resolveVoice(args.book, args.chapter), args.chapter ? args.book.voice : undefined),
+    formatReaderForPrompt(
+      resolveReader(args.book, args.chapter),
+      args.chapter ? args.book.reader_age : undefined
+    ),
     args.book.synopsis.trim() ? `Synopsis:\n${args.book.synopsis.trim()}` : "",
     `Story Bible:\n${formatBibleForPrompt(args.book)}`,
     args.chapter

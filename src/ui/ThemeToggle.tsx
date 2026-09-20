@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { applyTheme, readTheme } from "./theme";
+import { useLocale } from "./i18n";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState(readTheme);
+  const { messages } = useLocale();
   const light = theme === "light";
 
   return (
@@ -15,9 +17,9 @@ export function ThemeToggle() {
         setTheme(next);
       }}
       aria-pressed={light}
-      title={light ? "Use a dark page" : "Use a light page"}
+      title={light ? messages.chrome.darkTitle : messages.chrome.lightTitle}
     >
-      {light ? "Dark" : "Light"}
+      {light ? messages.chrome.dark : messages.chrome.light}
     </button>
   );
 }

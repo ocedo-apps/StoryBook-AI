@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, createBook, updateChapter } from "@core/BookSchema";
+import { addChapter, createBook, updateChapter, type Book } from "@core/BookSchema";
 import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, formatVoiceForPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
 
 describe("draftUserPrompt", () => {
@@ -182,6 +182,24 @@ describe("draftUserPrompt", () => {
     expect(prompt).toContain("Closer, more interior");
     expect(prompt).toContain("different voice");
     expect(prompt).not.toContain("Dry, maritime, short sentences");
+  });
+
+  it("sends Reader age to draft and does not feed it as canon", () => {
+    const book = { ...createBook("The Salt Road"), reader_age: 12 };
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("about 12 years old");
+    expect(prompt).toContain("not canon");
+    expect(prompt).not.toContain("children's book");
+  });
+
+  it("uses a chapter Reader when set", () => {
+    let book: Book = { ...createBook("The Salt Road"), reader_age: 12 };
+    expect(draftUserPrompt(book, book.chapters[0]!)).toContain("about 12 years old");
+    book = updateChapter(book, book.chapters[0]!.id, { reader_age: 16 });
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("about 16 years old");
+    expect(prompt).toContain("different reader");
+    expect(prompt).not.toContain("about 12 years old");
   });
 
   it("still names the chapter after the synopsis", () => {

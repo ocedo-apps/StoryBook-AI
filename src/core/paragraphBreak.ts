@@ -8,9 +8,12 @@ You must return at least two paragraphs, separated by a blank line.
 Return JSON only. Example:
 {"split":"He walked to the ship.\\n\\nHis life's work had taken decades.\\n\\nThe cold and the silence stayed."}`;
 
-export function breakUserPrompt(paragraph: string, voice = ""): string {
+export function breakUserPrompt(paragraph: string, voice = "", readerAge?: number): string {
   const parts = [`Paragraph:\n${paragraph}`];
   if (voice.trim()) parts.push(`Voice: ${voice.trim()}`);
+  if (readerAge !== undefined && readerAge < 18) {
+    parts.push(`The intended reader is about ${readerAge}. Prefer breaks that reader can follow. Do not simplify meaning.`);
+  }
   parts.push("Re-paragraph this block. JSON only.");
   return parts.join("\n");
 }

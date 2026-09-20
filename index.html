@@ -10,6 +10,11 @@
           document.documentElement.dataset.theme = "light";
           document.documentElement.style.colorScheme = "light";
         }
+        var loc = localStorage.getItem("storybook-ai.locale");
+        if (loc) {
+          document.documentElement.lang = loc.split("-")[0];
+          document.documentElement.dataset.locale = loc;
+        }
       } catch (e) {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

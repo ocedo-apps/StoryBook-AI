@@ -105,7 +105,8 @@ export function alternativesUserPrompt(
   word: string,
   sentence: string,
   voice = "",
-  neighbors?: { before?: string; after?: string }
+  neighbors?: { before?: string; after?: string },
+  readerAge?: number
 ): string {
   const parts = [`Word: ${word}`, `Sentence: ${sentence}`];
   const before = neighbors?.before?.trim() ?? "";
@@ -113,6 +114,9 @@ export function alternativesUserPrompt(
   if (before) parts.push(`Previous sentence: ${before}`);
   if (after) parts.push(`Next sentence: ${after}`);
   if (voice.trim()) parts.push(`Voice: ${voice.trim()}`);
+  if (readerAge !== undefined && readerAge < 18) {
+    parts.push(`The intended reader is about ${readerAge}. Prefer a word that reader would know. Keep the same sense.`);
+  }
   parts.push("Keep this sense of the word. Same part of speech.");
   return parts.join("\n");
 }

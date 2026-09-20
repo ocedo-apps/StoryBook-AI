@@ -3,6 +3,7 @@ import { applyReplace, isNonEmptySpan, selectedText, type TextSpan } from "@core
 import { htmlFromProse, splitFlowParagraphs } from "@core/proseFlow";
 import { matchWordCase, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
+import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
   isCaretAtEnd,
   offsetFromPoint,
@@ -10,6 +11,7 @@ import {
   proseFromElement,
   spanFromSelection
 } from "./proseDom";
+import { useLocale, format } from "./i18n";
 
 type RewriteMenu = { kind: "rewrite"; x: number; y: number; span: TextSpan };
 type AltsMenu = {
@@ -34,15 +36,19 @@ export function ProseCanvas({
   disabled,
   highlightRare = false,
   names = [],
+  extraSyllables,
+  findNeedle,
+  findFlags,
+  findActiveStart,
   onExtend,
   onElaborate,
   onInstruct,
   onLift,
   onSuggestAlternatives,
-  instructTitle = "Rewrite",
-  instructHint = "Tell the model how to change the marked passage. Only that span is replaced.",
-  instructPlaceholder = "Shorter. More tension. In Emma’s voice. Cut the metaphor.",
-  instructAction = "Rewrite"
+  instructTitle,
+  instructHint,
+  instructPlaceholder,
+  instructAction
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -50,6 +56,10 @@ export function ProseCanvas({
   disabled?: boolean;
   highlightRare?: boolean;
   names?: string[];
+  extraSyllables?: number;
+  findNeedle?: string;
+  findFlags?: FindFlags;
+  findActiveStart?: number;
   onExtend: (span: TextSpan) => void;
   onElaborate: (span: TextSpan) => void;
   onInstruct: (span: TextSpan, instruction: string) => void;
@@ -66,6 +76,11 @@ export function ProseCanvas({
   instructPlaceholder?: string;
   instructAction?: string;
 }) {
+  const { messages: m } = useLocale();
+  const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
+  const rewriteHint = instructHint ?? m.canvas.rewriteHint;
+  const rewritePlaceholder = instructPlaceholder ?? m.canvas.rewritePlaceholder;
+  const rewriteAction = instructAction ?? m.canvas.rewriteAction;
   const areaRef = useRef<HTMLDivElement>(null);
   const rareRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -114,7 +129,7 @@ export function ProseCanvas({
 
     if (highlightRare && onSuggestAlternatives) {
       const offset = offsetFromPoint(area, event.clientX, event.clientY);
-      const hit = rareHitAt(value, offset, names);
+      const hit = rareHitAt(value, offset, names, extraSyllables !== undefined ? { extraSyllables } : undefined);
       if (hit) {
         event.preventDefault();
         const at = placeMenu(event, 260, 24);
@@ -224,7 +239,19 @@ export function ProseCanvas({
 
   useEffect(() => {
     syncRareScroll();
-  }, [highlightRare, value]);
+  }, [findActiveStart, findNeedle, highlightRare, value]);
+
+  useEffect(() => {
+    if (!findNeedle?.trim() || findActiveStart === undefined) return;
+    const area = areaRef.current;
+    const overlay = rareRef.current;
+    const mark = overlay?.querySelector("mark.is-current");
+    if (!area || !overlay || !(mark instanceof HTMLElement)) return;
+    const markRect = mark.getBoundingClientRect();
+    const areaRect = area.getBoundingClientRect();
+    area.scrollTop += markRect.top - areaRect.top - area.clientHeight / 3;
+    overlay.scrollTop = area.scrollTop;
+  }, [findActiveStart, findNeedle, value]);
 
   useEffect(() => {
     const area = areaRef.current;
@@ -248,11 +275,25 @@ export function ProseCanvas({
     onChange(proseFromElement(area));
   }
 
+  const findOn = Boolean(findNeedle?.trim());
+  const overlayOn = findOn || highlightRare;
+
   return (
-    <div className={highlightRare ? "prose-wrap is-rare" : "prose-wrap"}>
-      {highlightRare ? (
+    <div className={overlayOn ? findOn ? "prose-wrap is-rare is-find" : "prose-wrap is-rare" : "prose-wrap"}>
+      {overlayOn ? (
         <div ref={rareRef} className="prose-rare" aria-hidden="true">
-          <ProseMarkup text={value} names={names} />
+          <ProseMarkup
+            text={value}
+            names={names}
+            {...(extraSyllables !== undefined ? { extraSyllables } : {})}
+            {...(findOn && findNeedle && findFlags
+              ? {
+                  findNeedle,
+                  findFlags,
+                  ...(findActiveStart !== undefined ? { findActiveStart } : {})
+                }
+              : {})}
+          />
         </div>
       ) : null}
       <div
@@ -288,21 +329,21 @@ export function ProseCanvas({
           role="menu"
         >
           <button type="button" role="menuitem" onClick={() => run("extend")}>
-            Extend
+            {m.canvas.extend}
           </button>
           <button type="button" role="menuitem" onClick={() => run("elaborate")}>
-            Elaborate
+            {m.canvas.elaborate}
           </button>
           <button type="button" role="menuitem" onClick={() => run("instruct")}>
-            {instructAction}…
+            {rewriteAction}…
           </button>
           {onLift ? (
             <button type="button" role="menuitem" onClick={() => run("lift")}>
-              Lift to synopsis
+              {m.canvas.lift}
             </button>
           ) : null}
           <button type="button" role="menuitem" onClick={() => run("manual")}>
-            Manual Edit
+            {m.canvas.manual}
           </button>
         </div>
       ) : null}
@@ -313,17 +354,17 @@ export function ProseCanvas({
           style={{ left: menu.x, top: menu.y }}
           role="menu"
         >
-          <p className="selection-menu-label">Instead of “{menu.word}”</p>
-          {menu.status === "loading" ? <p className="quiet">Looking…</p> : null}
+          <p className="selection-menu-label">{format(m.canvas.insteadOf, { word: menu.word })}</p>
+          {menu.status === "loading" ? <p className="quiet">{m.canvas.looking}</p> : null}
           {menu.status === "error" ? (
             <>
-              <p className="quiet">No alternatives this time.</p>
+              <p className="quiet">{m.canvas.noAlts}</p>
               <button
                 type="button"
                 role="menuitem"
                 onClick={() => setMenu({ ...menu, status: "loading", options: [] })}
               >
-                Retry
+                {m.canvas.retry}
               </button>
             </>
           ) : null}
@@ -343,8 +384,8 @@ export function ProseCanvas({
           }}
         >
           <form className="edit-card" action="#" onSubmit={applyManual} aria-labelledby="manual-edit-title">
-            <h2 id="manual-edit-title">Manual Edit</h2>
-            <p className="quiet">Rewrite only the marked passage. The rest of the text stays put.</p>
+            <h2 id="manual-edit-title">{m.canvas.manualTitle}</h2>
+            <p className="quiet">{m.canvas.manualBody}</p>
             <textarea
               value={manual.draft}
               onChange={(event) => setManual({ ...manual, draft: event.target.value })}
@@ -353,10 +394,10 @@ export function ProseCanvas({
             />
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setManual(null)}>
-                Cancel
+                {m.common.cancel}
               </button>
               <button type="submit" className="primary">
-                Apply
+                {m.canvas.apply}
               </button>
             </div>
           </form>
@@ -371,23 +412,23 @@ export function ProseCanvas({
           }}
         >
           <form className="edit-card" action="#" onSubmit={applyInstruct} aria-labelledby="rewrite-title">
-            <h2 id="rewrite-title">{instructTitle}</h2>
-            <p className="quiet">{instructHint}</p>
+            <h2 id="rewrite-title">{rewriteTitle}</h2>
+            <p className="quiet">{rewriteHint}</p>
             <blockquote className="marked-passage">{instruct.marked}</blockquote>
             <textarea
               value={instruct.instruction}
               onChange={(event) => setInstruct({ ...instruct, instruction: event.target.value })}
-              placeholder={instructPlaceholder}
+              placeholder={rewritePlaceholder}
               rows={4}
               autoFocus
               required
             />
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setInstruct(null)}>
-                Cancel
+                {m.common.cancel}
               </button>
               <button type="submit" className="primary" disabled={!instruct.instruction.trim()}>
-                {instructAction}
+                {rewriteAction}
               </button>
             </div>
           </form>
@@ -397,22 +438,81 @@ export function ProseCanvas({
   );
 }
 
-function ProseMarkup({ text, names }: { text: string; names: string[] }) {
+function ProseMarkup({
+  text,
+  names,
+  extraSyllables,
+  findNeedle,
+  findFlags,
+  findActiveStart
+}: {
+  text: string;
+  names: string[];
+  extraSyllables?: number;
+  findNeedle?: string;
+  findFlags?: FindFlags;
+  findActiveStart?: number;
+}) {
   const paras = splitFlowParagraphs(text);
+  const findMarks =
+    findNeedle && findFlags
+      ? findMarksByParagraph(
+          text,
+          findNeedle,
+          findFlags,
+          findActiveStart
+        )
+      : [];
   if (paras.length === 0) return <p><br /></p>;
   return (
     <>
       {paras.map((block, index) => (
         <p key={index}>
-          <RareMarkup text={block} names={names} />
+          {findNeedle && findFlags ? (
+            <FindMarkup text={block} marks={findMarks[index] ?? []} />
+          ) : (
+            <RareMarkup
+              text={block}
+              names={names}
+              {...(extraSyllables !== undefined ? { extraSyllables } : {})}
+            />
+          )}
         </p>
       ))}
     </>
   );
 }
 
-function RareMarkup({ text, names }: { text: string; names: string[] }) {
-  const hits = useMemo(() => findRareHits(text, names), [names, text]);
+function FindMarkup({ text, marks }: { text: string; marks: { start: number; end: number; current: boolean }[] }) {
+  if (marks.length === 0) return <>{text}</>;
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  for (const mark of marks) {
+    if (mark.start > cursor) parts.push(text.slice(cursor, mark.start));
+    parts.push(
+      <mark key={mark.start} {...(mark.current ? { className: "is-current" } : {})}>
+        {text.slice(mark.start, mark.end)}
+      </mark>
+    );
+    cursor = mark.end;
+  }
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
+
+function RareMarkup({
+  text,
+  names,
+  extraSyllables
+}: {
+  text: string;
+  names: string[];
+  extraSyllables?: number;
+}) {
+  const hits = useMemo(
+    () => findRareHits(text, names, extraSyllables !== undefined ? { extraSyllables } : undefined),
+    [extraSyllables, names, text]
+  );
   if (hits.length === 0) return <>{text}</>;
   const parts: React.ReactNode[] = [];
   let cursor = 0;

@@ -14,7 +14,8 @@ packade stycken. Rare-markering + högerklick för synonymförslag mot
 Review. Apparna ligger som syskon på GitHub
 (`ocedo-apps/StoryBook-AI`, `ocedo-apps/Sandbox-AI`). Inga molnnycklar —
 lokal Ollama. Manus bor i IndexedDB, inte i git. Parkerat: manusexport,
-sök/ersätt, Reader.
+sök/ersätt, Reader. Borttagna kapitel ligger kvar i manuset tills de
+återställs eller kastas för gott.
 
 **Ändringslogg v0.3 → v0.4:** skrivloopen har en kamera och en
 explicit recast. Manuset har POV, tempus och viewpoint; kapitlet kan
@@ -394,6 +395,8 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
   + Story Bible). Inte kampanjexport. Högsta riskhålet mot dataförlust.
 - **Sök/ersätt** för valfri prosa. Namnbyte på kortet finns redan.
 - **Reader** (senare) — se §7.1. Inte nu.
+- **Borttagna kapitel:** X flyttar kapitlet till en sektion i manuset.
+  Återställ tar tillbaka det. Ett andra kast tar bort det för gott.
 - **Bok → kampanjgrund:** UI för *redan hänt / spelbar scen / låt bli*,
   och mapping mot realm/landmark/focal. Inte nu.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
@@ -410,4 +413,6 @@ Analyze finns. Nästa produktsteg inuti StoryBook, inte kampanjexport:
 - Manusexport / backup ur IndexedDB.
 - Sök/ersätt för valfri text.
 - Därefter Reader, om empirin mot barn-/YA-prosa behöver den.
+- **Borttagna kapitel:** kapitlet lämnar listan men ligger kvar under
+  Borttagna kapitel tills det återställs eller kastas för gott.
 - Först därefter `projectFactsToCampaign`.

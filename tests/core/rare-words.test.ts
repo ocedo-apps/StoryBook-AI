@@ -34,6 +34,14 @@ describe("findRareHits", () => {
   it("finds nothing in plain familiar prose", () => {
     expect(findRareHits("The cat sat on the mat.").length).toBe(0);
   });
+
+  it("can treat long familiar words as rare for younger readers", () => {
+    const text = "The family sat on the mat.";
+    expect(findRareHits(text).some((hit) => hit.word.toLowerCase() === "family")).toBe(false);
+    expect(findRareHits(text, [], { extraSyllables: 3 }).some((hit) => hit.word.toLowerCase() === "family")).toBe(
+      true
+    );
+  });
 });
 
 describe("tallyRareWords", () => {

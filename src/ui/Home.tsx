@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { ThemeToggle } from "./ThemeToggle";
+import { LocaleSelect } from "./LocaleSelect";
+import { count, format, translateError, useLocale } from "./i18n";
 
 export function Home() {
   const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
+  const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -15,37 +18,39 @@ export function Home() {
   return (
     <div className="home">
       <header className="home-brand">
-        <div className="home-brand-copy">
-          <p className="eyebrow">StoryBook AI</p>
-          <h1>Write the prose. The Story Bible keeps the truth.</h1>
-          <p className="lede">
-            A local manuscript tool. Title the book, work the story in brainstorm, lift a synopsis, then write the
-            chapters. The model drafts. You decide.
-          </p>
+        <p className="eyebrow">StoryBook AI</p>
+        <div className="home-chrome">
+          <LocaleSelect />
+          <ThemeToggle />
         </div>
-        <ThemeToggle />
+        <h1>
+          {m.home.headline}
+          <br />
+          {m.home.truth}
+        </h1>
+        <p className="lede">{m.home.lede}</p>
       </header>
 
       {error ? (
         <p className="banner home-banner" role="status">
-          {error}
+          {translateError(error, m)}
         </p>
       ) : null}
 
       <form className="new-book" action="#" onSubmit={submitNew}>
         <label className="field-label" htmlFor="new-title">
-          New manuscript
+          {m.home.newManuscript}
         </label>
         <div className="new-book-row">
           <input
             id="new-title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Title"
+            placeholder={m.home.titlePlaceholder}
             autoComplete="off"
           />
           <button type="button" onClick={() => submitNew()}>
-            Open
+            {m.home.open}
           </button>
         </div>
       </form>
@@ -63,13 +68,13 @@ export function Home() {
           }}
         />
         <button type="button" className="text-button" onClick={() => fileRef.current?.click()}>
-          Import backup
+          {m.home.importBackup}
         </button>
       </p>
 
-      <section className="book-shelf" aria-label="Manuscripts">
+      <section className="book-shelf" aria-label={m.home.shelf}>
         {summaries.length === 0 ? (
-          <p className="empty-shelf">No manuscripts yet. A title is enough to start.</p>
+          <p className="empty-shelf">{m.home.emptyShelf}</p>
         ) : (
           <ul>
             {summaries.map((item) => (
@@ -77,21 +82,21 @@ export function Home() {
                 <button type="button" className="book-card" onClick={() => void openBook(item.id)}>
                   <strong>{item.title}</strong>
                   <span>
-                    {item.chapterCount} {item.chapterCount === 1 ? "chapter" : "chapters"}
+                    {count(item.chapterCount, m.home.chapters)}
                     <span className="dot">·</span>
-                    {item.factCount} locked {item.factCount === 1 ? "fact" : "facts"}
+                    {count(item.factCount, m.home.facts)}
                   </span>
                 </button>
                 <button
                   type="button"
                   className="text-button danger"
                   onClick={() => {
-                    if (window.confirm(`Delete “${item.title}”? This cannot be undone.`)) {
+                    if (window.confirm(format(m.home.deleteConfirm, { title: item.title }))) {
                       void deleteBook(item.id);
                     }
                   }}
                 >
-                  Delete
+                  {m.home.delete}
                 </button>
               </li>
             ))}

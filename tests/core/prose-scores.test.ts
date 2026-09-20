@@ -21,6 +21,16 @@ describe("scoreDirectness", () => {
     );
     expect(scoreDirectness(padded)).toBeLessThan(scoreDirectness(lean) ?? 0);
   });
+
+  it("penalizes the same adverbs more for a younger reader", () => {
+    const padded = analyzeProse(
+      "Emma slowly locked the door and waited on the quay. She quickly counted the night keys. The tide quietly pulled at the piles while the last boat left and fog sat on the water. Nobody else came down the stone steps that night."
+    );
+    const adult = scoreDirectness(padded, 1);
+    const early = scoreDirectness(padded, 2);
+    expect(adult).toBeGreaterThan(0);
+    expect(early).toBeLessThan(adult ?? 0);
+  });
 });
 
 describe("scorePacing", () => {
@@ -34,6 +44,13 @@ describe("scorePacing", () => {
     );
     const choppy = analyzeProse("He ran. She hid. Doors slammed. Lights died. Nobody spoke. The quay waited.");
     expect(scorePacing(mixed)).toBeGreaterThan(scorePacing(choppy) ?? 0);
+  });
+
+  it("drops when mid-length lines count as long for a younger reader", () => {
+    const even = analyzeProse(
+      "Emma waited by the quay and watched the tide pull at the old stone piles there. She counted the night keys and locked the door before the last boat left home. Fog sat on the water and nobody else came down the steps that night."
+    );
+    expect(scorePacing(even, 12, 3)).toBeLessThan(scorePacing(even) ?? 0);
   });
 });
 
@@ -58,5 +75,12 @@ describe("scoreVocabulary", () => {
     const score = scoreVocabulary(stats, rare.count);
     expect(score).not.toBeNull();
     expect(score).toBeGreaterThanOrEqual(70);
+  });
+
+  it("scores plain diction higher when the reader is young", () => {
+    const text =
+      "Emma walked the quay at dusk and watched the tide. She kept the night keys and waited for the last boat. Fog sat on the water. Nobody else came down the stone steps that night. The door stayed shut until morning came.";
+    const stats = analyzeProse(text);
+    expect(scoreVocabulary(stats, 0, 0.01, 100)).toBeGreaterThan(scoreVocabulary(stats, 0) ?? 0);
   });
 });

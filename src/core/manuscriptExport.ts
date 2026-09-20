@@ -26,6 +26,7 @@ export type ManuscriptExport = {
   note: string;
   voice: string;
   viewpoint: string;
+  readerAge?: number;
   synopsis: string;
   chapters: ManuscriptExportChapter[];
   bible: ManuscriptExportSection[];
@@ -56,6 +57,7 @@ export function buildManuscriptExport(book: Book, note = "", exportedAt = new Da
     note: note.trim(),
     voice: book.voice.trim(),
     viewpoint: book.viewpoint.trim(),
+    ...(book.reader_age !== undefined ? { readerAge: book.reader_age } : {}),
     synopsis: book.synopsis.trim(),
     chapters: sortedChapters(book).map((chapter) => ({
       heading: `${chapter.sequence_index + 1}. ${chapter.title.trim() || `Chapter ${chapter.sequence_index + 1}`}`,
@@ -72,10 +74,11 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   if (doc.note) {
     lines.push("", doc.note);
   }
-  if (doc.voice || doc.viewpoint) {
+  if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
     lines.push("");
     if (doc.voice) lines.push(`Voice: ${doc.voice}`);
     if (doc.viewpoint) lines.push(`Viewpoint: ${doc.viewpoint}`);
+    if (doc.readerAge !== undefined) lines.push(`Reader: ${doc.readerAge}`);
   }
   if (doc.synopsis) {
     lines.push("", "## Synopsis", "", doc.synopsis);
@@ -120,6 +123,7 @@ export function formatExportRtf(doc: ManuscriptExport): string {
   }
   if (doc.voice) parts.push(`${rtfEscape(`Voice: ${doc.voice}`)}\\par`);
   if (doc.viewpoint) parts.push(`${rtfEscape(`Viewpoint: ${doc.viewpoint}`)}\\par`);
+  if (doc.readerAge !== undefined) parts.push(`${rtfEscape(`Reader: ${doc.readerAge}`)}\\par`);
   if (doc.synopsis) {
     parts.push("\\par", `{\\fs32\\b ${rtfEscape("Synopsis")}}\\par`, "\\par", `${rtfBlock(doc.synopsis)}`);
   }
@@ -202,6 +206,7 @@ function odtContentXml(doc: ManuscriptExport): string {
   if (doc.note) body.push(odtParagraphs(doc.note));
   if (doc.voice) body.push(odtParagraphs(`Voice: ${doc.voice}`));
   if (doc.viewpoint) body.push(odtParagraphs(`Viewpoint: ${doc.viewpoint}`));
+  if (doc.readerAge !== undefined) body.push(odtParagraphs(`Reader: ${doc.readerAge}`));
   if (doc.synopsis) {
     body.push(odtHeading(2, "Synopsis"), odtParagraphs(doc.synopsis));
   }

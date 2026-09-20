@@ -1,30 +1,84 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { analyzeProse, entityNameTokens, type ProseStats } from "@core/proseStats";
 import {
-  GAUGE_DETAILS,
-  mixLabel,
-  profileLine,
   scoreDirectness,
   scorePacing,
   scoreVocabulary,
   type GaugeId
 } from "@core/proseScores";
+import { readerTuning } from "@core/reader";
 import type { CastMember } from "@core/characterProfile";
 import type { CraftFields } from "@core/craft";
 import { flagEchoes } from "@core/echoDetect";
 import { htmlFromProse } from "@core/proseFlow";
-import { flagPovLeaks, povLeakBlurb } from "@core/povLeak";
+import { flagPovLeaks } from "@core/povLeak";
 import { tallyRareWords } from "@core/rareWords";
 import { proseFromElement } from "./proseDom";
+import { useLocale, format, count, type Messages } from "./i18n";
 
 const MIN_SPLIT_WORDS = 12;
 const GAUGE_ORDER: GaugeId[] = ["directness", "pacing", "vocabulary"];
+
+function leakBlurb(craft: CraftFields, m: Messages): string {
+  if (craft.pov === "objective") return m.stats.leakObjective;
+  const who = craft.viewpoint.trim();
+  if (craft.pov === "first") {
+    return who ? format(m.stats.leakFirstNamed, { who }) : m.stats.leakOther;
+  }
+  return who ? format(m.stats.leakLimitedNamed, { who }) : m.stats.leakOther;
+}
+
+function mixCopy(mix: ProseStats["mix"], m: Messages): string {
+  return m.stats.mix[mix];
+}
+
+function profileCopy(stats: ProseStats, m: Messages): string {
+  if (stats.profile.id === "short") return mixCopy(stats.mix, m);
+  const profile = m.stats.profiles[stats.profile.id as keyof Messages["stats"]["profiles"]];
+  if (!profile) return stats.profile.label;
+  return profile.genres ? `${profile.label} · ${profile.genres}` : profile.label;
+}
+
+function readout(
+  id: GaugeId,
+  stats: ProseStats,
+  rareCount: number,
+  longSentence: number,
+  plainVocabulary: boolean,
+  m: Messages
+): string {
+  if (id === "directness") {
+    const passivesPerThousand = stats.words ? (stats.passiveCount / stats.words) * 1000 : 0;
+    return format(m.stats.directnessReadout, {
+      adverbs: fmt(stats.adverbPerThousand),
+      passives: fmt(passivesPerThousand)
+    });
+  }
+  if (id === "pacing") {
+    const span =
+      stats.sentenceMin === stats.sentenceMax
+        ? format(m.stats.pacingSpanSame, { count: stats.sentenceMin })
+        : format(m.stats.pacingSpanRange, { min: stats.sentenceMin, max: stats.sentenceMax });
+    return format(m.stats.pacingReadout, {
+      mix: mixCopy(stats.mix, m),
+      mean: fmt(stats.meanSentence),
+      span,
+      n: longSentence
+    });
+  }
+  const share = stats.words ? Math.round((rareCount / stats.words) * 100) : 0;
+  return format(plainVocabulary ? m.stats.vocabularyReadoutKid : m.stats.vocabularyReadout, {
+    share,
+    ttr: stats.typeTokenRatio.toFixed(2)
+  });
+}
 
 export function ProseStatsCard({
   text,
   names,
   craft,
   cast = [],
+  readerAge,
   highlighting,
   onHighlight,
   onSuggestSplit,
@@ -36,6 +90,7 @@ export function ProseStatsCard({
   names: string[];
   craft?: CraftFields;
   cast?: CastMember[];
+  readerAge?: number;
   highlighting: boolean;
   onHighlight: () => void;
   onSuggestSplit: (sentence: string, signal: AbortSignal) => Promise<string>;
@@ -43,17 +98,25 @@ export function ProseStatsCard({
   onApplySplit: (sentence: string, split: string) => boolean;
   onClose: () => void;
 }) {
-  const stats = useMemo(() => analyzeProse(text, entityNameTokens(names)), [names, text]);
-  const rare = useMemo(() => tallyRareWords(text, names), [names, text]);
+  const { messages: m } = useLocale();
+  const tuning = useMemo(() => readerTuning(readerAge), [readerAge]);
+  const stats = useMemo(
+    () => analyzeProse(text, entityNameTokens(names), { longSentence: tuning.longSentence }),
+    [names, text, tuning.longSentence]
+  );
+  const rare = useMemo(
+    () => tallyRareWords(text, names, tuning.extraSyllables !== undefined ? { extraSyllables: tuning.extraSyllables } : undefined),
+    [names, text, tuning.extraSyllables]
+  );
   const echoes = useMemo(() => flagEchoes(text, names), [names, text]);
   const leaks = useMemo(() => flagPovLeaks(text, craft, cast), [cast, craft, text]);
   const gauges = useMemo(
     () => ({
-      directness: scoreDirectness(stats),
-      pacing: scorePacing(stats),
-      vocabulary: scoreVocabulary(stats, rare.count)
+      directness: scoreDirectness(stats, tuning.directnessWeight),
+      pacing: scorePacing(stats, tuning.longSentence, tuning.longRun),
+      vocabulary: scoreVocabulary(stats, rare.count, tuning.rarePeak, tuning.plainScore)
     }),
-    [rare.count, stats]
+    [rare.count, stats, tuning]
   );
   const [detail, setDetail] = useState<GaugeId | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -197,8 +260,6 @@ export function ProseStatsCard({
     setSuggestion("");
   }
 
-  const open = detail ? GAUGE_DETAILS[detail] : null;
-
   function toggleDetail(id: GaugeId) {
     setDetail((current) => (current === id ? null : id));
   }
@@ -213,49 +274,52 @@ export function ProseStatsCard({
     >
       <div className="edit-card stats-card" role="dialog" aria-modal="true" aria-labelledby="stats-title">
         <div className="stats-card-head">
-          <p className="chapter-craft-label">Stats</p>
+          <p className="chapter-craft-label">{m.stats.label}</p>
           <button type="button" className="text-button" onClick={onClose}>
-            Close
+            {m.common.close}
           </button>
         </div>
-        <h2 id="stats-title">{stats.words > 0 ? "How it reads" : "No prose yet"}</h2>
+        <h2 id="stats-title">{stats.words > 0 ? m.stats.title : m.stats.emptyTitle}</h2>
 
         {stats.sentenceLengths.length > 0 ? (
           <SentenceSparkline stats={stats} selected={selected} onSelect={pickBar} />
         ) : (
-          <p className="quiet">Write some prose to see how it reads.</p>
+          <p className="quiet">{m.stats.writeSome}</p>
         )}
 
         {sentence ? (
           <div className="stats-sentence">
             <p className="chapter-craft-label">
-              Sentence {selected === null ? 0 : selected + 1} · {sentenceWords} word{sentenceWords === 1 ? "" : "s"}
+              {format(m.stats.sentence, {
+                n: selected === null ? 0 : selected + 1,
+                words: count(sentenceWords, m.stats.wordsShort)
+              })}
             </p>
             <blockquote>{sentence}</blockquote>
             {sentenceWords < MIN_SPLIT_WORDS ? (
-              <p className="quiet">Already short.</p>
+              <p className="quiet">{m.stats.alreadyShort}</p>
             ) : (
               <div className="stats-sentence-actions">
                 <button type="button" onClick={() => void suggestSplit()} disabled={splitBusy}>
-                  {splitBusy ? "Looking…" : "Suggest a split"}
+                  {splitBusy ? m.stats.looking : m.stats.suggestSplit}
                 </button>
               </div>
             )}
-            {splitError ? <p className="quiet">No split this time.</p> : null}
+            {splitError ? <p className="quiet">{m.stats.noSplit}</p> : null}
             {suggestion ? (
               <>
-                <p className="chapter-craft-label">Split</p>
+                <p className="chapter-craft-label">{m.stats.split}</p>
                 <textarea
                   className="stats-split"
                   value={suggestion}
                   onChange={(event) => setSuggestion(event.target.value)}
                   rows={3}
                   autoFocus
-                  aria-label="Edit split"
+                  aria-label={m.stats.editSplit}
                 />
                 <div className="stats-sentence-actions">
                   <button type="button" className="primary" onClick={applySplit} disabled={!suggestion.trim()}>
-                    Use this split
+                    {m.stats.useSplit}
                   </button>
                 </div>
               </>
@@ -264,37 +328,40 @@ export function ProseStatsCard({
         ) : packedFlag ? (
           <div className="stats-sentence">
             <p className="chapter-craft-label">
-              Paragraph {packedFlag.index + 1} · {packedFlag.words} word{packedFlag.words === 1 ? "" : "s"}
+              {format(m.stats.paragraph, {
+                n: packedFlag.index + 1,
+                words: count(packedFlag.words, m.stats.wordsShort)
+              })}
             </p>
             <blockquote>{packedFlag.text}</blockquote>
-            <p className="quiet">Action, a long look back, and stacked senses in this block.</p>
+            <p className="quiet">{m.stats.packedHint}</p>
             <div className="stats-sentence-actions">
               <button type="button" onClick={() => void suggestBreak()} disabled={splitBusy}>
-                {splitBusy ? "Looking…" : "Suggest a break"}
+                {splitBusy ? m.stats.looking : m.stats.suggestBreak}
               </button>
             </div>
-            {splitError ? <p className="quiet">No break this time.</p> : null}
+            {splitError ? <p className="quiet">{m.stats.noBreak}</p> : null}
             {suggestion ? (
               <>
-                <p className="chapter-craft-label">Break</p>
+                <p className="chapter-craft-label">{m.stats.break}</p>
                 <BreakDraft value={suggestion} onChange={setSuggestion} />
                 <div className="stats-sentence-actions">
                   <button type="button" className="primary" onClick={applyBreak} disabled={!suggestion.trim()}>
-                    Use this break
+                    {m.stats.useBreak}
                   </button>
                 </div>
               </>
             ) : null}
           </div>
         ) : stats.sentenceLengths.length > 0 ? (
-          <p className="quiet stats-spark-hint">Click a bar to read that sentence.</p>
+          <p className="quiet stats-spark-hint">{m.stats.clickBar}</p>
         ) : null}
 
         {stats.words > 0 ? (
           <>
             <div className="stats-gauges">
               {GAUGE_ORDER.map((id) => {
-                const copy = GAUGE_DETAILS[id];
+                const copy = m.stats.gauges[id];
                 const expanded = detail === id;
                 return (
                   <div key={id} className={expanded ? "stats-accordion is-open" : "stats-accordion"}>
@@ -304,8 +371,7 @@ export function ProseStatsCard({
                       score={gauges[id]}
                       {...(id === "pacing"
                         ? {
-                            note:
-                              stats.profile.id === "short" ? mixLabel(stats.mix) : profileLine(stats.profile)
+                            note: stats.profile.id === "short" ? mixCopy(stats.mix, m) : profileCopy(stats, m)
                           }
                         : {})}
                       expanded={expanded}
@@ -313,9 +379,12 @@ export function ProseStatsCard({
                     />
                     {expanded ? (
                       <GaugeDetail
+                        id={id}
                         detail={copy}
                         stats={stats}
                         rare={rare}
+                        longSentence={tuning.longSentence}
+                        plainVocabulary={tuning.plainScore >= 85}
                         highlighting={highlighting}
                         onHighlight={() => {
                           onHighlight();
@@ -330,11 +399,9 @@ export function ProseStatsCard({
             </div>
             {stats.mixedParagraphs.length > 0 ? (
               <div className="stats-long stats-packed">
-                <p className="chapter-craft-label">Mixed focus</p>
+                <p className="chapter-craft-label">{m.stats.mixedFocus}</p>
                 <p className="quiet">
-                  {stats.mixedParagraphs.length === 1
-                    ? "This block mixes present action, a long look back, and stacked senses."
-                    : "These blocks mix present action, a long look back, and stacked senses."}
+                  {stats.mixedParagraphs.length === 1 ? m.stats.mixedOne : m.stats.mixedMany}
                 </p>
                 <ul>
                   {stats.mixedParagraphs.map((item, index) => (
@@ -349,10 +416,8 @@ export function ProseStatsCard({
             ) : null}
             {echoes.length > 0 ? (
               <div className="stats-long stats-packed">
-                <p className="chapter-craft-label">Echo</p>
-                <p className="quiet">
-                  The same word or phrase repeats in a short span. A refrain can be the point.
-                </p>
+                <p className="chapter-craft-label">{m.stats.echo}</p>
+                <p className="quiet">{m.stats.echoBody}</p>
                 <ul>
                   {echoes.map((hit) => (
                     <li
@@ -373,8 +438,8 @@ export function ProseStatsCard({
             ) : null}
             {leaks.length > 0 && craft ? (
               <div className="stats-long stats-packed">
-                <p className="chapter-craft-label">POV leak</p>
-                <p className="quiet">{povLeakBlurb(craft)}</p>
+                <p className="chapter-craft-label">{m.stats.povLeak}</p>
+                <p className="quiet">{leakBlurb(craft, m)}</p>
                 <ul>
                   {leaks.map((hit) => (
                     <li key={`${hit.sentenceIndex}-${hit.who}`} className={selected === hit.sentenceIndex ? "is-selected" : undefined}>
@@ -387,7 +452,11 @@ export function ProseStatsCard({
               </div>
             ) : null}
             <p className="quiet stats-foot">
-              {stats.words} words · {stats.sentences} sentences · {Math.round(stats.dialogueShare * 100)}% spoken
+              {format(m.stats.foot, {
+                words: stats.words,
+                sentences: stats.sentences,
+                spoken: Math.round(stats.dialogueShare * 100)
+              })}
             </p>
             <div className="edit-actions">
               <button
@@ -399,7 +468,7 @@ export function ProseStatsCard({
                 }}
                 disabled={rare.count === 0 && !highlighting}
               >
-                {highlighting ? "Keep highlighting" : "Highlight in text"}
+                {highlighting ? m.stats.keepHighlight : m.stats.highlight}
               </button>
             </div>
           </>
@@ -424,6 +493,7 @@ function GaugeRow({
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const { messages: m } = useLocale();
   return (
     <button
       type="button"
@@ -431,7 +501,11 @@ function GaugeRow({
       onClick={onToggle}
       aria-expanded={expanded}
       aria-controls={`stats-panel-${id}`}
-      aria-label={`${label} ${fmtScore(score)}. ${expanded ? "Hide" : "About"} this gauge.`}
+      aria-label={format(m.stats.gaugeAria, {
+        label,
+        score: fmtScore(score),
+        detail: expanded ? m.stats.hideGauge : m.stats.aboutGauge
+      })}
     >
       <span className="stats-gauge-copy">
         <span className="stats-gauge-label">{label}</span>
@@ -446,42 +520,49 @@ function GaugeRow({
 }
 
 function GaugeDetail({
+  id,
   detail,
   stats,
   rare,
+  longSentence,
+  plainVocabulary,
   highlighting,
   onHighlight,
   onShowSentence
 }: {
-  detail: (typeof GAUGE_DETAILS)[GaugeId];
+  id: GaugeId;
+  detail: Messages["stats"]["gauges"][GaugeId];
   stats: ProseStats;
   rare: ReturnType<typeof tallyRareWords>;
+  longSentence: number;
+  plainVocabulary: boolean;
   highlighting: boolean;
   onHighlight: () => void;
   onShowSentence: (index: number) => void;
 }) {
+  const { messages: m } = useLocale();
   return (
-    <div className="stats-detail" id={`stats-panel-${detail.id}`} role="region" aria-label={detail.label}>
+    <div className="stats-detail" id={`stats-panel-${id}`} role="region" aria-label={detail.label}>
       <section>
-        <p className="chapter-craft-label">What this measures</p>
+        <p className="chapter-craft-label">{m.stats.measures}</p>
         <p>{detail.measures}</p>
       </section>
       <section>
-        <p className="chapter-craft-label">How to raise it</p>
+        <p className="chapter-craft-label">{m.stats.raise}</p>
         <ul>
           {detail.raise.map((item) => (
-            <li key={item}>{item}</li>
+            <li key={item}>{format(item, { n: longSentence })}</li>
           ))}
         </ul>
       </section>
       <section>
-        <p className="chapter-craft-label">Remember</p>
+        <p className="chapter-craft-label">{m.stats.remember}</p>
         <p>{detail.remember}</p>
       </section>
-      <p className="quiet">{detailReadout(detail.id, stats, rare.count)}</p>
-      {detail.id === "pacing" && stats.longSentences.length > 0 ? (
+      <p className="quiet">{readout(id, stats, rare.count, longSentence, plainVocabulary, m)}</p>
+      {id === "pacing" && stats.longSentences.length > 0 ? (
         <div className="stats-long">
-          <p className="chapter-craft-label">30+ words</p>
+          <p className="chapter-craft-label">{format(m.stats.longSentences, { n: longSentence })}</p>
           <ul>
             {stats.longSentences.map((item, index) => {
               const bar = stats.sentenceTexts.indexOf(item);
@@ -496,9 +577,9 @@ function GaugeDetail({
           </ul>
         </div>
       ) : null}
-      {detail.id === "vocabulary" && rare.unique.length > 0 ? (
+      {id === "vocabulary" && rare.unique.length > 0 ? (
         <div className="stats-rare">
-          <p className="chapter-craft-label">Off the familiar list</p>
+          <p className="chapter-craft-label">{m.stats.rareList}</p>
           <ul className="stats-rare-list">
             {rare.unique.slice(0, 24).map((entry) => (
               <li key={entry.word}>
@@ -509,7 +590,7 @@ function GaugeDetail({
           </ul>
           <div className="edit-actions">
             <button type="button" className="primary" onClick={onHighlight} disabled={rare.count === 0 && !highlighting}>
-              {highlighting ? "Keep highlighting" : "Highlight in text"}
+              {highlighting ? m.stats.keepHighlight : m.stats.highlight}
             </button>
           </div>
         </div>
@@ -527,6 +608,7 @@ function SentenceSparkline({
   selected: number | null;
   onSelect: (index: number) => void;
 }) {
+  const { messages: m } = useLocale();
   const peak = Math.max(LONG_BAR, ...stats.sentenceLengths);
   return (
     <div className="stats-spark" role="list">
@@ -539,8 +621,8 @@ function SentenceSparkline({
             .filter(Boolean)
             .join(" ")}
           style={{ height: `${Math.max(12, Math.round((length / peak) * 100))}%` }}
-          title={`${length} words`}
-          aria-label={`Sentence ${index + 1}, ${length} words`}
+          title={format(m.stats.sparkTitle, { count: length })}
+          aria-label={format(m.stats.sparkAria, { n: index + 1, count: length })}
           aria-pressed={selected === index}
           onClick={() => onSelect(index)}
         />
@@ -550,22 +632,6 @@ function SentenceSparkline({
 }
 
 const LONG_BAR = 30;
-
-function detailReadout(id: GaugeId, stats: ProseStats, rareCount: number): string {
-  if (id === "directness") {
-    const passivesPerThousand = stats.words ? (stats.passiveCount / stats.words) * 1000 : 0;
-    return `${fmt(stats.adverbPerThousand)} -ly / 1k · ${fmt(passivesPerThousand)} possible passives / 1k · start at 100, minus those two.`;
-  }
-  if (id === "pacing") {
-    const span =
-      stats.sentenceMin === stats.sentenceMax
-        ? `${stats.sentenceMin} words each`
-        : `${stats.sentenceMin}–${stats.sentenceMax} words`;
-    return `${mixLabel(stats.mix)} · ${fmt(stats.meanSentence)} words typical · ${span}. Variation raises it; a stack of 30+ lines or a monotone lowers it.`;
-  }
-  const share = stats.words ? Math.round((rareCount / stats.words) * 100) : 0;
-  return `${share}% uncommon · variety ${stats.typeTokenRatio.toFixed(2)}. A mix scores higher than all-plain or all-rare.`;
-}
 
 function fmtScore(score: number | null): string {
   return score === null ? "—" : String(score);
@@ -583,6 +649,7 @@ function clip(text: string, max: number): string {
 
 function BreakDraft({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const { messages: m } = useLocale();
 
   useEffect(() => {
     const el = ref.current;
@@ -600,7 +667,7 @@ function BreakDraft({ value, onChange }: { value: string; onChange: (next: strin
       contentEditable
       role="textbox"
       aria-multiline="true"
-      aria-label="Edit paragraph break"
+      aria-label={m.stats.editBreak}
       suppressContentEditableWarning
       onInput={(event) => onChange(proseFromElement(event.currentTarget))}
       onKeyDown={(event) => {

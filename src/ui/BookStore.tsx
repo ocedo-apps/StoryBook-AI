@@ -9,16 +9,24 @@ import {
   type BookSummary,
   type EditorSurface
 } from "@core/BookSchema";
-import { BRAINSTORM_ASK_SYSTEM, BRAINSTORM_PASSAGE_SYSTEM, brainstormAskUserPrompt, brainstormPassageUserPrompt, liftFragmentToSynopsis } from "@core/brainstorm";
+import { BRAINSTORM_ASK_SYSTEM, BRAINSTORM_PASSAGE_SYSTEM, brainstormAskUserPrompt, brainstormPassageUserPrompt, liftFragmentToSynopsis, sendStagedNotesToSynopsis } from "@core/brainstorm";
+import {
+  addBrainstormNote,
+  applyAssembledBrainstorm,
+  ensureBrainstormNotes,
+  nextNotePosition,
+  updateBrainstormNote
+} from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
-import { applyExtend, applyReplace, selectedText, surroundingPassage, type TextSpan } from "@core/textSpan";
+import { resolveReader, kidlitReader } from "@core/reader";
+import { applyExtend, applyReplace, surroundingPassage, type TextSpan } from "@core/textSpan";
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
 import { BREAK_SYSTEM, breakUserPrompt, parseParagraphBreak } from "@core/paragraphBreak";
 import { SPLIT_SYSTEM, parseSplitSuggestion, splitUserPrompt } from "@core/sentenceSplit";
-import { slugify } from "@core/ids";
+import { newId, slugify } from "@core/ids";
 import type { CorePredicate } from "@core/predicates";
 import type { FactDraft } from "@core/NarrativeFact";
 import {
@@ -33,11 +41,11 @@ import {
 import { BookNotFoundError, BookRepository } from "@persistence/Repository";
 import {
   ManuscriptBackupError,
-  manuscriptReplaceWarning,
   parseManuscriptBackup
 } from "@core/manuscriptBackup";
 import { forgetLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BookStoreContext, type BookStoreValue, type Busy } from "./useBookStore";
+import { format, getMessages, STORE_ERROR } from "./i18n";
 
 const MODEL_KEY = "storybook-ai.model";
 const REVIEW_MODEL_KEY = "storybook-ai.review-model";
@@ -46,7 +54,7 @@ const LAST_BOOK_KEY = "storybook-ai.last-book";
 function ollamaHint(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (/failed to fetch|networkerror|load failed/i.test(message)) {
-    return "Ollama did not accept the browser. Start it with OLLAMA_ORIGINS=http://localhost:5175";
+    return STORE_ERROR.ollamaOrigins;
   }
   return message;
 }
@@ -55,6 +63,12 @@ function activeVoice(book: Book, surface: EditorSurface, chapterId: string | nul
   if (surface !== "chapter") return book.voice.trim();
   const chapter = book.chapters.find((item) => item.id === chapterId);
   return resolveVoice(book, chapter);
+}
+
+function activeReader(book: Book, surface: EditorSurface, chapterId: string | null): number | undefined {
+  if (surface !== "chapter") return book.reader_age;
+  const chapter = book.chapters.find((item) => item.id === chapterId);
+  return resolveReader(book, chapter);
 }
 
 export function BookStoreProvider({ children }: { children: React.ReactNode }) {
@@ -219,14 +233,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       try {
         parsed = JSON.parse(await file.text()) as unknown;
       } catch {
-        setError("That file is not JSON.");
+        setError(STORE_ERROR.notJson);
         return;
       }
       let backup;
       try {
         backup = parseManuscriptBackup(parsed);
       } catch (err) {
-        setError(err instanceof ManuscriptBackupError ? err.message : "Could not read that backup.");
+        setError(err instanceof ManuscriptBackupError ? err.code : STORE_ERROR.backupUnreadable);
         return;
       }
       let exists = false;
@@ -235,11 +249,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         exists = true;
       } catch (err) {
         if (!(err instanceof BookNotFoundError)) {
-          setError(err instanceof Error ? err.message : "Could not read the shelf.");
+          setError(err instanceof Error ? err.message : STORE_ERROR.shelfUnreadable);
           return;
         }
       }
-      if (exists && !window.confirm(manuscriptReplaceWarning(backup.book.title))) return;
+      if (exists && !window.confirm(format(getMessages().home.replaceConfirm, { title: backup.book.title }))) return;
       const current = bookRef.current;
       if (current && current.id !== backup.book.id) {
         if (saveTimer.current !== null) {
@@ -294,6 +308,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setSurface("chapter");
   }, []);
 
+  const selectChapter = useCallback((id: string) => {
+    setChapterIdState(id);
+  }, []);
+
   const showBrainstorm = useCallback(() => {
     setSurface("brainstorm");
   }, []);
@@ -309,7 +327,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     const chapter = current.chapters.find((item) => item.id === id);
     if (!chapter) return;
     if (models.length === 0) {
-      setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+      setError(ollamaError ?? STORE_ERROR.noModel);
       return;
     }
 
@@ -363,11 +381,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     if (!current || !id || busy) return;
     const chapter = current.chapters.find((item) => item.id === id);
     if (!chapter?.prose.trim()) {
-      setError("Write or draft some prose before recasting the camera.");
+      setError(STORE_ERROR.recastEmpty);
       return;
     }
     if (models.length === 0) {
-      setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+      setError(ollamaError ?? STORE_ERROR.noModel);
       return;
     }
 
@@ -427,7 +445,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       if (!current || busy) return;
       if (args.target === "prose" && !id) return;
       if (models.length === 0) {
-        setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+        setError(ollamaError ?? STORE_ERROR.noModel);
         return;
       }
 
@@ -458,7 +476,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         if (args.target === "brainstorm") {
-          setBook((prev) => (prev ? { ...prev, brainstorm: next } : prev));
+          setBook((prev) => (prev ? applyAssembledBrainstorm(prev, next) : prev));
           return;
         }
         setBook((prev) => (prev && id ? updateChapter(prev, id, { prose: next }) : prev));
@@ -469,7 +487,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
       const persistAssembled = async (latest: Book, assembled: string) => {
         if (args.target === "synopsis") await flushSave(touch(latest, { synopsis: assembled }));
-        else if (args.target === "brainstorm") await flushSave(touch(latest, { brainstorm: assembled }));
+        else if (args.target === "brainstorm") {
+          const patched = applyAssembledBrainstorm(latest, assembled);
+          await flushSave(touch(latest, { brainstorm: patched.brainstorm, brainstorm_notes: patched.brainstorm_notes }));
+        }
         else if (id) await flushSave(updateChapter(latest, id, { prose: assembled }));
       };
 
@@ -536,7 +557,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const question = instruction.trim();
       if (!current || !question || busy) return;
       if (models.length === 0) {
-        setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+        setError(ollamaError ?? STORE_ERROR.noModel);
         return;
       }
 
@@ -546,11 +567,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy("ask");
       setError(null);
 
-      const prefix = current.brainstorm.trim() ? `${current.brainstorm.replace(/\s+$/, "")}\n\n` : "";
-      let assembled = prefix;
+      const noteId = newId();
+      const pos = nextNotePosition(ensureBrainstormNotes(current).brainstorm_notes);
+      let assembled = "";
+
+      const persistNote = async (latest: Book) => {
+        const patched = updateBrainstormNote(latest, noteId, { text: assembled });
+        await flushSave(touch(latest, { brainstorm: patched.brainstorm, brainstorm_notes: patched.brainstorm_notes }));
+      };
 
       try {
-        await patchBook((book) => ({ ...book, brainstorm: assembled }));
+        await patchBook((book) => addBrainstormNote(book, { id: noteId, text: "", x: pos.x, y: pos.y }));
         const provider = new OllamaProvider({ model });
         for await (const chunk of provider.streamCompletion({
           messages: [
@@ -563,17 +590,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         })) {
           if (chunk.type === "text_delta") {
             assembled += chunk.text;
-            setBook((prev) => (prev ? { ...prev, brainstorm: assembled } : prev));
+            setBook((prev) => (prev ? updateBrainstormNote(prev, noteId, { text: assembled }) : prev));
           } else if (chunk.type === "error") {
             throw new Error(chunk.message);
           }
         }
         const latest = bookRef.current;
-        if (latest) await flushSave(touch(latest, { brainstorm: assembled }));
+        if (latest) await persistNote(latest);
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") {
           const latest = bookRef.current;
-          if (latest) await flushSave(touch(latest, { brainstorm: assembled }));
+          if (latest) await persistNote(latest);
         } else {
           setError(ollamaHint(err));
         }
@@ -586,15 +613,31 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const liftToSynopsis = useCallback(
-    async (span: TextSpan) => {
+    async (fragment: string) => {
       const current = bookRef.current;
       if (!current) return;
-      const next = liftFragmentToSynopsis(current.synopsis, selectedText(current.brainstorm, span));
+      const next = liftFragmentToSynopsis(current.synopsis, fragment);
       if (next === current.synopsis) return;
       await flushSave(touch(current, { synopsis: next }));
     },
     [flushSave]
   );
+
+  const sendBrainstormToSynopsis = useCallback(async () => {
+    const current = bookRef.current;
+    if (!current) return;
+    const next = sendStagedNotesToSynopsis(current);
+    if (next !== current) {
+      await flushSave(
+        touch(current, {
+          synopsis: next.synopsis,
+          brainstorm: next.brainstorm,
+          brainstorm_notes: next.brainstorm_notes
+        })
+      );
+    }
+    setSurface("synopsis");
+  }, [flushSave]);
 
   const suggestAlternatives = useCallback(
     async (args: {
@@ -605,7 +648,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       signal?: AbortSignal;
     }) => {
       if (models.length === 0) {
-        const message = ollamaError ?? "No local model. Start Ollama, then reload.";
+        const message = ollamaError ?? STORE_ERROR.noModel;
         setError(message);
         throw new Error(message);
       }
@@ -623,7 +666,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
                 {
                   ...(args.before ? { before: args.before } : {}),
                   ...(args.after ? { after: args.after } : {})
-                }
+                },
+                bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined
               )
             }
           ],
@@ -644,7 +688,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const suggestSentenceSplit = useCallback(
     async (sentence: string, signal?: AbortSignal) => {
       if (models.length === 0) {
-        const message = ollamaError ?? "No local model. Start Ollama, then reload.";
+        const message = ollamaError ?? STORE_ERROR.noModel;
         setError(message);
         throw new Error(message);
       }
@@ -653,7 +697,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           model: reviewModel,
           messages: [
             { role: "system", content: SPLIT_SYSTEM },
-            { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "") }
+            { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
           ],
           temperature: 0.55,
           maxTokens: 280,
@@ -674,7 +718,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const suggestParagraphBreak = useCallback(
     async (paragraph: string, signal?: AbortSignal) => {
       if (models.length === 0) {
-        const message = ollamaError ?? "No local model. Start Ollama, then reload.";
+        const message = ollamaError ?? STORE_ERROR.noModel;
         setError(message);
         throw new Error(message);
       }
@@ -683,7 +727,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           model: reviewModel,
           messages: [
             { role: "system", content: BREAK_SYSTEM },
-            { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "") }
+            { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
           ],
           temperature: 0.4,
           maxTokens: 700,
@@ -709,11 +753,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     if (!current || !id || busy) return;
     const chapter = current.chapters.find((item) => item.id === id);
     if (!chapter?.prose.trim()) {
-      setError("Write or draft some prose before extracting facts.");
+      setError(STORE_ERROR.extractEmpty);
       return;
     }
     if (models.length === 0) {
-      setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+      setError(ollamaError ?? STORE_ERROR.noModel);
       return;
     }
     setBusy("extract");
@@ -732,7 +776,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const latest = bookRef.current ?? current;
       const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id);
       await flushSave(touch(latest, { facts: nextFacts }));
-      if (drafts.length === 0) setError("Extractor found no stated facts in this chapter.");
+      if (drafts.length === 0) setError(STORE_ERROR.extractorNone);
     } catch (err) {
       setError(ollamaHint(err));
     } finally {
@@ -746,11 +790,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     if (!current || !id || busy) return false;
     const chapter = current.chapters.find((item) => item.id === id);
     if (!chapter?.prose.trim()) {
-      setError("Write or draft some prose before analyzing the chapter.");
+      setError(STORE_ERROR.analyzeEmpty);
       return false;
     }
     if (models.length === 0) {
-      setError(ollamaError ?? "No local model. Start Ollama, then reload.");
+      setError(ollamaError ?? STORE_ERROR.noModel);
       return false;
     }
 
@@ -770,7 +814,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         maxTokens: 1800,
         signal: abort.signal
       });
-      const items = parseChapterFeedback(raw, chapter.prose, { voice: resolveVoice(current, chapter) });
+      const items = parseChapterFeedback(raw, chapter.prose, {
+        voice: resolveVoice(current, chapter),
+        ...(kidlitReader(resolveReader(current, chapter)) ? { kidlit: true } : {})
+      });
       setChapterFeedback({ chapterId: id, items });
       return true;
     } catch (err) {
@@ -850,6 +897,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     deleteBook,
     patchBook,
     setChapterId,
+    selectChapter,
     showBrainstorm,
     showSynopsis,
     setModel,
@@ -859,6 +907,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     rewriteSpan,
     askBrainstorm,
     liftToSynopsis,
+    sendBrainstormToSynopsis,
     suggestAlternatives,
     suggestSentenceSplit,
     suggestParagraphBreak,

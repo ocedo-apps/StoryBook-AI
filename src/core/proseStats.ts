@@ -99,7 +99,7 @@ const PARTICIPLES = new Set([
 const BE = new Set(["am", "is", "are", "was", "were", "be", "been", "being"]);
 
 const SHORT_SENTENCE = 8;
-const LONG_SENTENCE = 30;
+export const DEFAULT_LONG_SENTENCE = 30;
 
 export type PacingProfileId = "empty" | "short" | "breezy" | "brisk" | "balanced" | "atmospheric" | "heavy";
 
@@ -151,7 +151,12 @@ export function entityNameTokens(labels: string[]): Set<string> {
   return tokens;
 }
 
-export function analyzeProse(text: string, names: Iterable<string> = []): ProseStats {
+export function analyzeProse(
+  text: string,
+  names: Iterable<string> = [],
+  options?: { longSentence?: number }
+): ProseStats {
+  const longSentence = options?.longSentence ?? DEFAULT_LONG_SENTENCE;
   const nameSet = names instanceof Set ? names : entityNameTokens([...names]);
   const trimmed = text.trim();
   if (!trimmed) return emptyStats();
@@ -181,10 +186,10 @@ export function analyzeProse(text: string, names: Iterable<string> = []): ProseS
     sentenceMin: sentenceCount ? Math.min(...sentenceLengths) : 0,
     sentenceMax: sentenceCount ? Math.max(...sentenceLengths) : 0,
     shortShare: sentenceCount ? sentenceLengths.filter((n) => n <= SHORT_SENTENCE).length / sentenceCount : 0,
-    longCount: sentenceLengths.filter((n) => n >= LONG_SENTENCE).length,
+    longCount: sentenceLengths.filter((n) => n >= longSentence).length,
     sentenceLengths,
     sentenceTexts: sentences,
-    longSentences: sentences.filter((_, i) => (sentenceLengths[i] ?? 0) >= LONG_SENTENCE).slice(0, 6),
+    longSentences: sentences.filter((_, i) => (sentenceLengths[i] ?? 0) >= longSentence).slice(0, 6),
     dialogueShare: wordCount ? dialogueWords / wordCount : 0,
     adverbCount,
     adverbPerThousand: wordCount ? (adverbCount / wordCount) * 1000 : 0,

@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   BIBLE_KIND_DEFAULT_PREDICATE,
-  BIBLE_KIND_LABELS,
-  BIBLE_KIND_NEW_LABEL,
-  BIBLE_KIND_SINGULAR,
   BIBLE_KINDS,
   classifyEntity,
   entityMatchesQuery,
@@ -13,11 +10,10 @@ import {
   type BibleKind
 } from "@core/bibleGroups";
 import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
-import { CORE_PREDICATES, PREDICATE_LABELS, type CorePredicate } from "@core/predicates";
+import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
 import { slugify } from "@core/ids";
 import {
   CHARACTER_PRONOUNS,
-  PRONOUN_LABELS,
   formatTagList,
   parseTagList,
   profileFor,
@@ -36,7 +32,8 @@ import {
 import { touch } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
 import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
-import { picturesFromFile } from "./entityImage";
+import { count, format, useLocale } from "./i18n";
+import { picturesFromFile, EntityImageError } from "./entityImage";
 import { downloadJson } from "./downloadJson";
 import { useBookStore } from "./useBookStore";
 import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
@@ -48,6 +45,7 @@ type Overlay =
 
 export function BiblePanel() {
   const { book, approve, reject, addFact, reviseFact, patchBook } = useBookStore();
+  const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
   const [overlay, setOverlay] = useState<Overlay | null>(null);
@@ -93,7 +91,7 @@ export function BiblePanel() {
   return (
     <aside className="rail rail-right">
       <div className="rail-head">
-        <h2>Story Bible</h2>
+        <h2>{m.bible.title}</h2>
         <div className="bible-head-tools">
           {pending.length > 0 ? (
             <button
@@ -101,11 +99,13 @@ export function BiblePanel() {
               className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
               onClick={() => setOverlay({ type: "review" })}
             >
-              Review · {pending.length}
+              {format(m.bible.reviewCount, { count: pending.length })}
             </button>
           ) : (
             <span className="quiet">
-              {book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length} locked
+              {format(m.bible.lockedCount, {
+                count: book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length
+              })}
             </span>
           )}
           <button
@@ -117,24 +117,24 @@ export function BiblePanel() {
               downloadJson(sandboxExportFilename(book), payload);
             }}
             disabled={!canExportCards}
-            title="Download characters, places, and objects for Sandbox"
+            title={m.bible.exportCardsTitle}
           >
-            Export cards
+            {m.bible.exportCards}
           </button>
         </div>
       </div>
 
       <label className="bible-search">
-        <span className="visually-hidden">Search Story Bible</span>
+        <span className="visually-hidden">{m.bible.search}</span>
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Find a name or claim"
-          aria-label="Search Story Bible"
+          placeholder={m.bible.searchPlaceholder}
+          aria-label={m.bible.search}
         />
       </label>
 
-      <div className="bible-tabs" role="tablist" aria-label="Story Bible shelves">
+      <div className="bible-tabs" role="tablist" aria-label={m.bible.shelves}>
         {BIBLE_KINDS.map((item) => {
           const count = sections.find((section) => section.kind === item)?.entities.length ?? 0;
           return (
@@ -149,7 +149,7 @@ export function BiblePanel() {
                 setQuery("");
               }}
             >
-              {BIBLE_KIND_LABELS[item]}
+              {m.bible.kinds[item]}
               {count ? <span className="bible-tab-count">{count}</span> : null}
             </button>
           );
@@ -159,12 +159,12 @@ export function BiblePanel() {
       <section className="bible-roster">
         {visibleSections.length === 0 ? (
           <p className="quiet">
-            {searching ? "Nothing matches." : `No ${BIBLE_KIND_LABELS[kind].toLowerCase()} yet.`}
+            {searching ? m.bible.nothingMatches : m.bible.empty[kind]}
           </p>
         ) : searching ? (
           visibleSections.map((section) => (
             <div key={section.kind} className="bible-kind">
-              <h3>{section.label}</h3>
+              <h3>{m.bible.kinds[section.kind]}</h3>
               <RosterList
                 entities={section.entities}
                 thumbs={book.media}
@@ -184,7 +184,7 @@ export function BiblePanel() {
       </section>
 
       <button type="button" className="bible-new" onClick={() => setOverlay({ type: "new", kind })}>
-        {BIBLE_KIND_NEW_LABEL[kind]}
+        {m.bible.newLabel[kind]}
       </button>
 
       {overlay?.type === "review" ? (
@@ -280,6 +280,7 @@ function RosterList({
   hiddenEntities: string[];
   onOpen: (ref: string) => void;
 }) {
+  const { messages: m } = useLocale();
   return (
     <ul className="bible-names">
       {entities.map((entity) => {
@@ -296,7 +297,7 @@ function RosterList({
             >
               {thumb ? <img className="bible-name-thumb" src={thumb} alt="" /> : null}
               <span>{entity.entity_label}</span>
-              {hidden ? <span className="bible-hidden-mark">Hidden</span> : null}
+              {hidden ? <span className="bible-hidden-mark">{m.bible.hidden}</span> : null}
             </button>
           </li>
         );
@@ -326,6 +327,7 @@ function OverlayCard({
 }) {
   const [draft, setDraft] = useState(title);
   const dismiss = onEscape ?? onClose;
+  const { messages: m } = useLocale();
 
   useEffect(() => {
     setDraft(title);
@@ -385,7 +387,7 @@ function OverlayCard({
                   (event.target as HTMLInputElement).blur();
                 }
               }}
-              aria-label="Name"
+              aria-label={m.bible.name}
             />
           ) : (
             <h2 id={titleId}>{title}</h2>
@@ -393,7 +395,7 @@ function OverlayCard({
           <div className="bible-card-head-actions">
             {actions}
             <button type="button" className="text-button" onClick={onClose}>
-              Close
+              {m.bible.close}
             </button>
           </div>
         </div>
@@ -416,9 +418,10 @@ function ReviewOverlay({
   onReject: (id: string) => void;
   onClose: () => void;
 }) {
+  const { messages: m } = useLocale();
   return (
-    <OverlayCard titleId="bible-review-title" title="Review" onClose={onClose}>
-      <p className="quiet">Proposed Story Bible rows. Thicken them, then lock — or reject.</p>
+    <OverlayCard titleId="bible-review-title" title={m.bible.review} onClose={onClose}>
+      <p className="quiet">{m.bible.reviewBody}</p>
       <ul className="bible-review-list">
         {pending.map((fact) => {
           const conflict = fact.conflict_with ? against(fact.conflict_with) : undefined;
@@ -478,6 +481,7 @@ function EntityOverlay({
   const [imageBusy, setImageBusy] = useState(false);
   const [nameOffer, setNameOffer] = useState<{ from: string; to: string; hits: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { messages: m } = useLocale();
 
   return (
     <>
@@ -504,17 +508,17 @@ function EntityOverlay({
           aria-pressed={hidden}
           onClick={onToggleHidden}
         >
-          {hidden ? "Show to Draft" : "Hide from Draft"}
+          {hidden ? m.bible.showToDraft : m.bible.hideFromDraft}
         </button>
       }
     >
-      {hidden ? <p className="quiet bible-hidden-note">The model cannot see this card until you show it again.</p> : null}
+      {hidden ? <p className="quiet bible-hidden-note">{m.bible.hiddenNote}</p> : null}
       <label className="bible-field bible-field-row bible-kind-field">
-        <span className="bible-field-label">This is a</span>
-        <select value={kind} onChange={(event) => onKind(event.target.value as BibleKind)} aria-label="This is a">
+        <span className="bible-field-label">{m.bible.thisIsA}</span>
+        <select value={kind} onChange={(event) => onKind(event.target.value as BibleKind)} aria-label={m.bible.thisIsA}>
           {BIBLE_KINDS.map((item) => (
             <option key={item} value={item}>
-              {BIBLE_KIND_SINGULAR[item]}
+              {m.bible.singular[item]}
             </option>
           ))}
         </select>
@@ -522,7 +526,7 @@ function EntityOverlay({
       <section className="bible-pictures">
         <div className="bible-pictures-head">
           <h3 className="bible-field-label">
-            Pictures <span className="bible-field-aside">(For later export. Draft never sees these.)</span>
+            {m.bible.pictures} <span className="bible-field-aside">{m.bible.picturesAside}</span>
           </h3>
         </div>
         <ul className="bible-picture-list">
@@ -532,7 +536,7 @@ function EntityOverlay({
               <button
                 type="button"
                 className="bible-picture-remove"
-                aria-label={`Remove picture ${index + 1}`}
+                aria-label={format(m.bible.removePicture, { n: index + 1 })}
                 onClick={() => onRemovePicture(index)}
               >
                 ×
@@ -544,7 +548,7 @@ function EntityOverlay({
               <button
                 type="button"
                 className="bible-picture-add"
-                aria-label={imageBusy ? "Adding image" : "Add image"}
+                aria-label={imageBusy ? m.bible.addingImage : m.bible.addImage}
                 disabled={imageBusy}
                 onClick={() => fileRef.current?.click()}
               >
@@ -566,7 +570,13 @@ function EntityOverlay({
             setImageBusy(true);
             void onAddPicture(file)
               .catch((err) => {
-                setImageError(err instanceof Error ? err.message : "Could not add that image.");
+                setImageError(
+                  err instanceof EntityImageError
+                    ? err.code === "choose"
+                      ? m.errors.imageChoose
+                      : m.errors.imageRead
+                    : m.errors.imageAdd
+                );
               })
               .finally(() => setImageBusy(false));
           }}
@@ -595,17 +605,17 @@ function EntityOverlay({
           setValue("");
         }}
       >
-        <h3>Add fact</h3>
+        <h3>{m.bible.addFact}</h3>
         <select value={predicate} onChange={(event) => setPredicate(event.target.value as CorePredicate)}>
           {CORE_PREDICATES.map((item) => (
             <option key={item} value={item}>
-              {PREDICATE_LABELS[item]}
+              {m.bible.predicates[item]}
             </option>
           ))}
         </select>
-        <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder="The claim, in one line" rows={1} required />
+        <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={m.bible.claimPlaceholder} rows={1} required />
         <button type="submit" className="primary" disabled={!value.trim()}>
-          Lock into Story Bible
+          {m.bible.lockInto}
         </button>
       </form>
     </OverlayCard>
@@ -618,14 +628,17 @@ function EntityOverlay({
         }}
       >
         <div className="edit-card" role="dialog" aria-modal="true" aria-labelledby="rename-texts-title">
-          <h2 id="rename-texts-title">Replace in manuscript?</h2>
+          <h2 id="rename-texts-title">{m.bible.replaceTitle}</h2>
           <p className="quiet">
-            Replace “{nameOffer.from}” with “{nameOffer.to}” in {nameOffer.hits}{" "}
-            {nameOffer.hits === 1 ? "place" : "places"}. Brainstorm is left alone.
+            {format(m.bible.replaceBody, {
+              from: nameOffer.from,
+              to: nameOffer.to,
+              places: count(nameOffer.hits, m.bible.places)
+            })}
           </p>
           <div className="edit-actions">
             <button type="button" className="text-button" onClick={() => setNameOffer(null)}>
-              Keep texts
+              {m.bible.keepTexts}
             </button>
             <button
               type="button"
@@ -635,7 +648,7 @@ function EntityOverlay({
                 setNameOffer(null);
               }}
             >
-              Replace
+              {m.bible.replace}
             </button>
           </div>
         </div>
@@ -659,6 +672,7 @@ function CharacterFields({
   const onChangeRef = useRef(onChange);
   const timerRef = useRef<number>(0);
   const dirtyRef = useRef(false);
+  const { messages: m } = useLocale();
 
   onChangeRef.current = onChange;
   draftRef.current = draft;
@@ -704,7 +718,7 @@ function CharacterFields({
       <div className="bible-pronoun-age">
         <div className="bible-field">
           <span className="bible-field-label" id="bible-pronoun-label">
-            Pronoun
+            {m.bible.pronoun}
           </span>
           <div className="bible-pronouns" role="group" aria-labelledby="bible-pronoun-label">
             {CHARACTER_PRONOUNS.map((item) => {
@@ -717,14 +731,14 @@ function CharacterFields({
                   aria-pressed={on}
                   onClick={() => commit({ ...draft, pronoun: on ? undefined : item })}
                 >
-                  {PRONOUN_LABELS[item]}
+                  {m.bible.pronouns[item]}
                 </button>
               );
             })}
           </div>
         </div>
         <label className="bible-field bible-age-field">
-          <span className="bible-field-label">Approximate age</span>
+          <span className="bible-field-label">{m.bible.age}</span>
           <input
             type="number"
             min={1}
@@ -748,18 +762,18 @@ function CharacterFields({
         </label>
       </div>
       <label className="bible-field">
-        <span className="bible-field-label">Looks</span>
+        <span className="bible-field-label">{m.bible.looks}</span>
         <textarea
           className="bible-looks"
           value={draft.looks}
           onChange={(event) => commit({ ...draft, looks: event.target.value })}
-          placeholder="Body and face. Not clothes."
+          placeholder={m.bible.looksPlaceholder}
           rows={1}
         />
       </label>
       <label className="bible-field">
         <span className="bible-field-label">
-          Tags <span className="bible-field-aside">(Shelf only. Draft never sees these.)</span>
+          {m.bible.tags} <span className="bible-field-aside">{m.bible.tagsAside}</span>
         </span>
         <input
           value={tagsText}
@@ -775,16 +789,16 @@ function CharacterFields({
             }, 160);
           }}
           onBlur={flush}
-          placeholder="middle-aged, double nature"
+          placeholder={m.bible.tagsPlaceholder}
         />
       </label>
       <label className="bible-field">
-        <span className="bible-field-label">Personality</span>
+        <span className="bible-field-label">{m.bible.personality}</span>
         <textarea
           className="bible-personality"
           value={draft.personality}
           onChange={(event) => commit({ ...draft, personality: event.target.value })}
-          placeholder="How they tend to be"
+          placeholder={m.bible.personalityPlaceholder}
           rows={1}
         />
       </label>
@@ -804,9 +818,10 @@ function NewEntityOverlay({
   const [label, setLabel] = useState("");
   const [predicate, setPredicate] = useState<CorePredicate>(BIBLE_KIND_DEFAULT_PREDICATE[kind]);
   const [value, setValue] = useState("");
+  const { messages: m } = useLocale();
 
   return (
-    <OverlayCard titleId="bible-new-title" title={BIBLE_KIND_NEW_LABEL[kind]} onClose={onClose}>
+    <OverlayCard titleId="bible-new-title" title={m.bible.newLabel[kind]} onClose={onClose}>
       <form
         className="add-fact bible-card-add"
         action="#"
@@ -818,21 +833,21 @@ function NewEntityOverlay({
           void onCreate(nextLabel, predicate, nextValue);
         }}
       >
-        <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Name" required autoFocus />
+        <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder={m.bible.namePlaceholder} required autoFocus />
         <select value={predicate} onChange={(event) => setPredicate(event.target.value as CorePredicate)}>
           {CORE_PREDICATES.map((item) => (
             <option key={item} value={item}>
-              {PREDICATE_LABELS[item]}
+              {m.bible.predicates[item]}
             </option>
           ))}
         </select>
-        <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder="The claim, in one line" rows={1} required />
+        <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={m.bible.claimPlaceholder} rows={1} required />
         <div className="edit-actions">
           <button type="button" className="text-button" onClick={onClose}>
-            Cancel
+            {m.common.cancel}
           </button>
           <button type="submit" className="primary" disabled={!label.trim() || !value.trim()}>
-            Lock into Story Bible
+            {m.bible.lockInto}
           </button>
         </div>
       </form>
@@ -852,20 +867,21 @@ function PendingFact({
   onReject: () => void;
 }) {
   const [draft, setDraft] = useState(fact.value);
+  const { messages: m } = useLocale();
   return (
     <li className={fact.status === "flagged" ? "proposal is-flagged" : "proposal"}>
       <p>
         <strong>{fact.entity_label}</strong>
-        <span className="quiet"> {PREDICATE_LABELS[fact.predicate]}</span>
+        <span className="quiet"> {m.bible.predicates[fact.predicate]}</span>
       </p>
-      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label="Fact text" />
-      {against ? <p className="conflict-note">Conflicts with: {against.value}</p> : null}
+      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label={m.bible.factText} />
+      {against ? <p className="conflict-note">{format(m.bible.conflictsWith, { value: against.value })}</p> : null}
       <div className="proposal-actions">
         <button type="button" className="primary" onClick={() => onLock(draft)} disabled={!draft.trim()}>
-          Lock
+          {m.bible.lock}
         </button>
         <button type="button" className="text-button" onClick={onReject}>
-          Reject
+          {m.bible.reject}
         </button>
       </div>
     </li>
@@ -884,6 +900,7 @@ function LockedFact({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(fact.value);
   const hidden = fact.hidden_from_ai === true;
+  const { messages: m } = useLocale();
 
   function save() {
     if (!draft.trim()) return;
@@ -894,20 +911,20 @@ function LockedFact({
   if (!editing) {
     return (
       <li className={hidden ? "locked-fact is-hidden-from-model" : "locked-fact"}>
-        <span className="pred">{PREDICATE_LABELS[fact.predicate]}</span>
+        <span className="pred">{m.bible.predicates[fact.predicate]}</span>
         {fact.value}
         <div className="fact-actions">
           <button
             type="button"
             className={hidden ? "text-button bible-vis is-hidden" : "text-button bible-vis"}
             aria-pressed={hidden}
-            aria-label={hidden ? "Show this claim to Draft" : "Hide this claim from Draft"}
+            aria-label={hidden ? m.bible.showClaim : m.bible.hideClaim}
             onClick={onToggleHidden}
           >
-            {hidden ? "Show" : "Hide"}
+            {hidden ? m.bible.show : m.bible.hide}
           </button>
           <button type="button" className="text-button fact-edit-btn" onClick={() => setEditing(true)}>
-            Edit
+            {m.bible.edit}
           </button>
         </div>
       </li>
@@ -916,11 +933,11 @@ function LockedFact({
 
   return (
     <li className="locked-fact is-editing">
-      <span className="pred">{PREDICATE_LABELS[fact.predicate]}</span>
-      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label="Edit fact" />
+      <span className="pred">{m.bible.predicates[fact.predicate]}</span>
+      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label={m.bible.editFact} />
       <div className="proposal-actions">
         <button type="button" className="primary" onClick={save} disabled={!draft.trim()}>
-          Save
+          {m.bible.save}
         </button>
         <button
           type="button"
@@ -930,7 +947,7 @@ function LockedFact({
             setEditing(false);
           }}
         >
-          Cancel
+          {m.common.cancel}
         </button>
       </div>
     </li>

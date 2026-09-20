@@ -1,0 +1,506 @@
+import type { Messages } from "./en";
+
+export const nb: Messages = {
+  common: {
+    cancel: "Avbryt",
+    close: "Lukk",
+    stop: "Stopp",
+    save: "Lagre"
+  },
+  app: {
+    crash: "Appen støtte på en feil.",
+    tryAgain: "Prøv på nytt",
+    missingRoot: "Mangler elementet #root"
+  },
+  chrome: {
+    language: "Språk",
+    light: "Lyst",
+    dark: "Mørkt",
+    lightTitle: "Bruk en lys side",
+    darkTitle: "Bruk en mørk side"
+  },
+  home: {
+    headline: "Skriv prosaen.",
+    truth: "Story Bible holder sanning.",
+    lede:
+      "Et lokalt manuskriptverktøy. Gi boken en tittel, vek fram fortellingen i Brainstorm, og løft en Synopsis når den er klar. Modellen tar fram utkast til kapitlene — du bestemmer.",
+    newManuscript: "Nytt manuskript",
+    titlePlaceholder: "Tittel",
+    open: "Åpne",
+    importBackup: "Importer sikkerhetskopi",
+    shelf: "Manuskripter",
+    emptyShelf: "Ingen manuskripter ennå. En tittel er nok til å starte.",
+    delete: "Slett",
+    deleteConfirm: "Slett “{title}”? Dette kan ikke angres.",
+    replaceConfirm: "Erstatt “{title}” med denne sikkerhetskopien? Alt som er skrevet siden den filen går tapt.",
+    chapters: { one: "{count} kapittel", other: "{count} kapitler" },
+    facts: { one: "{count} låst faktum", other: "{count} låste fakta" }
+  },
+  editor: {
+    allManuscripts: "Alle manuskripter",
+    manuscriptTitle: "Manuskripttittel",
+    writing: "Skriving",
+    review: "Gjennomgang",
+    noModels: "Ingen Ollama-modeller",
+    backup: "Sikkerhetskopi",
+    backupDue: "! Sikkerhetskopi",
+    backupDueTitle: "Manuskriptet har endret seg siden siste JSON-sikkerhetskopi",
+    backupTitle: "Sikkerhetskopi",
+    export: "Eksporter",
+    brainstorm: "Brainstorm",
+    synopsis: "Synopsis",
+    briefs: "Disposisjoner",
+    briefsLede:
+      "Hvert kort er et kapittel. Dra et kort så følger det med, og de andre glir unna. Dobbeltklikk på en tittel for å skrive kapittelet.",
+    reorderBriefs: "Kapitteldisposisjoner. Dra for å endre rekkefølgen.",
+    openChapter: "Skriv {title}",
+    chapters: "Kapitler",
+    add: "Legg til",
+    untitled: "Uten tittel",
+    removeChapter: "Slett {title}",
+    removeChapterFallback: "kapittel",
+    discardChapterConfirm: "Flytt “{title}” til Forkastede kapitler?",
+    discardedChapters: "Forkastede kapitler",
+    restoreChapter: "Gjenopprett {title}",
+    restoreDiscarded: "Gjenopprett",
+    throwAwayChapter: "Kast {title}",
+    throwAwayConfirm: "Kast “{title}” for godt? Kapittelet forsvinner. Dette kan ikke angres.",
+    reorderChapters: "Kapitler. Dra for å endre rekkefølgen.",
+    showBrief: "Vis brief for {title}",
+    hideBrief: "Skjul brief for {title}",
+    continuesCleared:
+      "{title} fortsetter ikke lenger fra “{from}”, fordi det kapittelet kommer senere. Nå følger det forrige kapittel i listen.",
+    voice: "Forfatterstemme",
+    voicePlaceholder: "Tørr, maritim, korte setninger",
+    chapterVoiceInherit: "Manuskriptets stemme",
+    manuscript: "Manuskript",
+    brief: "Brief",
+    briefPlaceholder: "Hva kapitlet må gjøre. En skriveinstruksjon, ikke kanon.",
+    chapterTitle: "Kapitteltittel",
+    chapterBrief: "Kapittelbrief",
+    chapterVoice: "Kapitlets forfatterstemme",
+    voiceCue: "Forfatterstemme",
+    reader: "Leser",
+    readerPlaceholder: "Alder",
+    readerTitle: "Hvem prosaen stilles mot. Tomt lar dagens voksne bas stå.",
+    readerCategories: {
+      board: "Pekebok",
+      early: "Lettlest",
+      chapter: "Kapittelbok",
+      middle: "Mellomalder",
+      ya: "Ungdom",
+      adult: "Voksen"
+    },
+    chapterReader: "Kapitlets leser",
+    chapterReaderInherit: "{age} (manuskript)",
+    readerCue: "Leser",
+    newStrand: "ny tråd",
+    startChapter: "Start kapittel {n}",
+    draft: "Lag utkast",
+    extract: "Hent ut fakta",
+    extracting: "Henter ut…",
+    analyze: "Analyser",
+    notes: "Notater",
+    recast: "Omskriv prosa",
+    recasting: "Omskriver…",
+    recastTitle: "Omskriv kapitlet til gjeldende perspektiv, tempus og synsvinkel",
+    stop: "Stopp",
+    ask: "Spør…",
+    askTitle: "Spør",
+    askBody: "Svaret legges til i notatene dine. Det er ikke kanon, og kapittelutkastet ser det ikke.",
+    askPlaceholder: "Hvem er blindpassasjeren? Gi tre alternativer og trykk på det svakeste.",
+    askAction: "Spør",
+    openSynopsis: "Åpne synopsis",
+    maximize: "Maksimer",
+    restore: "Gjenopprett",
+    maximizeTitle: "Skjul paneler og skriv",
+    restoreTitle: "Vis paneler (Esc)",
+    brainstormLede:
+      "Privat kladd. En lapp per idé. Dra dem fritt — det finnes ingen rekkefølge ennå. Dra en lapp til kolonnen til høyre når den skal bli handling.",
+    brainstormPlaceholder:
+      "En mystisk blindpassasjer. Som kjenner skipet. Mannskapet gjør det ikke. Tenk om hun er kapteinens søster — eller noen de aldri har møtt?",
+    synopsisLede:
+      "Historien i kortform: hvem som er med, hva som skjer og hvordan den ender. Utkastene tar alltid utgangspunkt i denne oppsummeringen – men ingenting blir bindende før du fastslår det som fakta.",
+    synopsisPlaceholder:
+      "Emma har nattnøklene. En fremmed betaler med salt. Til vinteren må hun forlate kaien, ellers tar kanalen baren.",
+    chapterPlaceholder: "Kapitlet lever her. Skriv utkast, skriv om til det er ditt.",
+    instructTitle: "Endre dette notatet",
+    instructHint: "Si til modellen hva den skal gjøre med det markerte notatet. Bare det spannet byttes ut.",
+    instructPlaceholder: "Gi to slutter. Trykk på hvorfor hun blir. Tre navn på blindpassasjeren.",
+    instructAction: "Skriv om",
+    addNote: "Ny lapp",
+    removeNote: "Fjern lapp",
+    removeNoteConfirm: "Kast denne lappen?",
+    noteLabel: "Brainstorm-lapp",
+    reorderNotes: "Dra for å flytte lappen",
+    noteColor: "Lappens farge",
+    noteColors: {
+      paper: "Papir",
+      rust: "Rust",
+      sage: "Salvie",
+      gold: "Gull",
+      lilac: "Lilla"
+    },
+    sendLane: "Til synopsis",
+    sendLaneLede: "Slipp lapper her. Rekkefølgen i kolonnen er rekkefølgen de lander som avsnitt.",
+    sendLaneEmpty: "Slipp lapper her",
+    sendToSynopsis: "Send til synopsis"
+  },
+  backup: {
+    title: "Sikkerhetskopi",
+    body: "En JSON-kopi appen kan lese tilbake. Importer sikkerhetskopi på hyllen gjenoppretter den. Alt som er skrevet siden den filen går tapt.",
+    whatHappened: "Historikk",
+    whatHappenedPlaceholder: "Valgfritt. Omskriv kapittel 2, ny forfatterstemme på 3.",
+    documentName: "Dokumentnavn",
+    action: "Sikkerhetskopi",
+    errors: {
+      "not-backup": "Den filen er ikke en manuskriptsikkerhetskopi.",
+      "sandbox-export": "Den filen er en karteksport fra Sandbox. Importer den i Sandbox, ikke her.",
+      "not-manuscript": "Den filen er ikke en StoryBook-manuskriptsikkerhetskopi.",
+      "newer-format": "Denne sikkerhetskopien kommer fra en nyere StoryBook. Oppdater appen og prøv på nytt.",
+      unreadable: "Manuskriptet i filen kunne ikke leses."
+    }
+  },
+  export: {
+    title: "Eksporter",
+    body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener.",
+    documentName: "Dokumentnavn",
+    markdown: "Markdown",
+    rtf: "RTF",
+    odt: "ODT"
+  },
+  find: {
+    action: "Søk",
+    title: "Søk og erstatt",
+    body: "Treffene markeres i tekstfeltet. Pilene hopper til neste eller forrige. Story Bible blir liggende. Brainstorm blir liggende med mindre du tar den med.",
+    find: "Søk",
+    replaceWith: "Erstatt med",
+    matchCase: "Skill store og små",
+    wholeWord: "Hele ord",
+    includeBrainstorm: "Ta med brainstorm",
+    here: "Denne siden",
+    none: "Ingenting matcher.",
+    hits: { one: "{count} treff", other: "{count} treff" },
+    snippetHint: "Linjene under en overskrift er ordet med teksten rundt. Søkevinduet ligger oppå siden, så stedene listes her.",
+    moreSnippets: "Og {count} til på dette stedet.",
+    fields: {
+      title: "Tittel",
+      brief: "Brief",
+      voice: "Forfatterstemme",
+      viewpoint: "Synsvinkel"
+    },
+    replace: "Erstatt",
+    replaceCount: "Erstatt {count}",
+    showHit: "Vis {place}",
+    untitled: "Uten tittel",
+    prev: "Forrige treff",
+    next: "Neste treff",
+    position: "{current} av {total}"
+  },
+  craft: {
+    pov: "Perspektiv",
+    povAria: "Fortellerperspektiv",
+    chapterPov: "Kapitlets fortellerperspektiv",
+    tense: "Tempus",
+    tenseAria: "Tempus",
+    chapterTense: "Kapitlets tempus",
+    viewpoint: "Synsvinkel",
+    viewpointPlaceholder: "Hvem er i fokus?",
+    viewpointAria: "Synsvinkelkarakter",
+    chapterViewpoint: "Kapitlets synsvinkelkarakter",
+    viewpointInherit: "{name} (manuskript)",
+    usual: "Vanlige",
+    more: "Flere",
+    inheritPov: "Manuskript · {label}",
+    inheritTense: "Manuskript · {label}",
+    continuesFrom: "Fortsetter fra",
+    previousChapter: "Forrige kapittel",
+    previousChapterNamed: "Forrige kapittel · {label}",
+    noneStrand: "Ingen · ny tråd",
+    modes: {
+      limited: "Tredje person begrenset",
+      first: "Første person",
+      omniscient: "Tredje person allvitende",
+      objective: "Tredje person objektiv",
+      second: "Andre person"
+    },
+    tenses: {
+      past: "Fortid",
+      present: "Nåtid"
+    }
+  },
+  bible: {
+    title: "Story Bible",
+    search: "Søk i Story Bible",
+    searchPlaceholder: "Finn et navn eller en påstand",
+    shelves: "Story Bible-hyller",
+    review: "Gjennomgang",
+    reviewCount: "Gjennomgang · {count}",
+    lockedCount: "{count} låste",
+    exportCards: "Eksporter kort",
+    exportCardsTitle: "Last ned karakterer, steder og gjenstander til Sandbox",
+    nothingMatches: "Ingenting matcher.",
+    hidden: "Skjult",
+    name: "Navn",
+    close: "Lukk",
+    reviewBody: "Foreslåtte rader i Story Bible. Gjør dem tydeligere, lås — eller avvis.",
+    hideFromDraft: "Skjul for utkast",
+    showToDraft: "Vis for utkast",
+    hiddenNote: "Modellen ser ikke dette kortet før du viser det igjen.",
+    thisIsA: "Dette er en",
+    pictures: "Bilder",
+    picturesAside: "(Til senere eksport. Utkast ser aldri disse.)",
+    removePicture: "Slett bilde {n}",
+    addImage: "Legg til bilde",
+    addingImage: "Legger til bilde",
+    addFact: "Legg til fakta",
+    claimPlaceholder: "Påstanden, på én linje",
+    lockInto: "Lås til Story Bible",
+    replaceTitle: "Erstatt i manuskriptet?",
+    replaceBody: "Erstatt “{from}” med “{to}” på {places}. Brainstorm blir liggende urørt.",
+    places: { one: "{count} sted", other: "{count} steder" },
+    keepTexts: "Behold tekstene",
+    replace: "Erstatt",
+    pronoun: "Pronomen",
+    age: "Omtrentlig alder",
+    looks: "Utseende",
+    looksPlaceholder: "Kropp og ansikt. Ikke klær.",
+    tags: "Tagger",
+    tagsAside: "(Bare hyllen. Utkast ser aldri disse.)",
+    tagsPlaceholder: "middelaldrende, dobbel natur",
+    personality: "Personlighet",
+    personalityPlaceholder: "Hvordan de pleier å være",
+    namePlaceholder: "Navn",
+    factText: "Faktatekst",
+    conflictsWith: "Kolliderer med: {value}",
+    lock: "Lås",
+    reject: "Avvis",
+    show: "Vis",
+    hide: "Skjul",
+    showClaim: "Vis denne påstanden for utkast",
+    hideClaim: "Skjul denne påstanden for utkast",
+    edit: "Rediger",
+    editFact: "Rediger fakta",
+    save: "Lagre",
+    kinds: {
+      characters: "Karakterer",
+      locations: "Steder",
+      objects: "Gjenstander",
+      groups: "Grupper",
+      events: "Hendelser"
+    },
+    singular: {
+      characters: "Karakter",
+      locations: "Sted",
+      objects: "Gjenstand",
+      groups: "Gruppe",
+      events: "Hendelse"
+    },
+    newLabel: {
+      characters: "Ny karakter",
+      locations: "Nytt sted",
+      objects: "Ny gjenstand",
+      groups: "Ny gruppe",
+      events: "Ny hendelse"
+    },
+    empty: {
+      characters: "Ingen karakterer ennå.",
+      locations: "Ingen steder ennå.",
+      objects: "Ingen gjenstander ennå.",
+      groups: "Ingen grupper ennå.",
+      events: "Ingen hendelser ennå."
+    },
+    predicates: {
+      "core.identity": "Identitet",
+      "core.trait": "Karaktertrekk",
+      "core.place": "Sted",
+      "core.object": "Gjenstand",
+      "core.group": "Gruppe",
+      "core.relationship": "Relasjon",
+      "core.event": "Hendelse"
+    },
+    pronouns: {
+      she: "Hun",
+      he: "Han",
+      it: "Hen"
+    }
+  },
+  canvas: {
+    extend: "Forleng",
+    elaborate: "Utdyp",
+    rewriteMenu: "Skriv om…",
+    lift: "Løft til synopsis",
+    manual: "Manuell redigering",
+    insteadOf: "I stedet for “{word}”",
+    looking: "Søker…",
+    noAlts: "Ingen alternativer denne gangen.",
+    retry: "Prøv på nytt",
+    manualTitle: "Manuell redigering",
+    manualBody: "Skriv om bare det markerte avsnittet. Resten av teksten blir liggende.",
+    apply: "Bruk",
+    rewriteTitle: "Skriv om",
+    rewriteHint: "Si til modellen hvordan det markerte avsnittet skal endres. Bare det spannet byttes ut.",
+    rewritePlaceholder: "Kortere. Mer spenning. I Emmas stemme. Skjær bort metaforen.",
+    rewriteAction: "Skriv om"
+  },
+  stats: {
+    label: "Statistikk",
+    wordsShort: { one: "{count} ord", other: "{count} ord" },
+    rareOn: "Sjeldne ord på",
+    rareOff: "Sjeldne ord av",
+    rareOnTitle: "Skjul uvanlige ord",
+    rareOffTitle: "Merk uvanlige ord",
+    title: "Slik leses det",
+    emptyTitle: "Ingen prosa ennå",
+    writeSome: "Skriv litt prosa for å se hvordan det leses.",
+    sentence: "Setning {n} · {words}",
+    alreadyShort: "Allerede kort.",
+    suggestSplit: "Foreslå en deling",
+    looking: "Søker…",
+    noSplit: "Ingen deling denne gangen.",
+    split: "Deling",
+    editSplit: "Rediger deling",
+    useSplit: "Bruk denne delingen",
+    paragraph: "Avsnitt {n} · {words}",
+    packedHint: "Handling, et langt blikk bakover og stablede sanser i denne blokken.",
+    suggestBreak: "Foreslå et brudd",
+    noBreak: "Ingen brudd denne gangen.",
+    break: "Brudd",
+    editBreak: "Rediger avsnittsbrudd",
+    useBreak: "Bruk dette bruddet",
+    clickBar: "Klikk på en stolpe for å lese setningen.",
+    mixedFocus: "Blandet fokus",
+    mixedOne: "Denne blokken blander nåtidig handling, et langt blikk bakover og stablede sanser.",
+    mixedMany: "Disse blokkene blander nåtidig handling, et langt blikk bakover og stablede sanser.",
+    echo: "Gjentakelser",
+    echoBody: "Samme ord eller frase gjentas på kort avstand. Et omkved kan være poenget.",
+    povLeak: "Perspektivbrudd",
+    foot: "{words} ord · {sentences} setninger · {spoken}% tale",
+    highlight: "Merk i teksten",
+    keepHighlight: "Behold merking",
+    measures: "Hva dette måler",
+    raise: "Hvordan du hever det",
+    remember: "Husk",
+    longSentences: "{n}+ ord",
+    rareList: "Utenfor den kjente listen",
+    hideGauge: "Skjul denne måleren.",
+    aboutGauge: "Om denne måleren.",
+    gaugeAria: "{label} {score}. {detail}",
+    sparkTitle: "{count} ord",
+    sparkAria: "Setning {n}, {count} ord",
+    leakObjective: "Disse linjene ligner tanke. Objektiv viser bare det et kamera ville sett. Et forslag, ikke en dom.",
+    leakFirstNamed: "Disse linjene ligner et annet sinn enn {who}. Et forslag, ikke en dom.",
+    leakOther: "Disse linjene ligner et annet sinn. Et forslag, ikke en dom.",
+    leakLimitedNamed: "Begrenset til {who} — disse linjene ligner et annet sinn. Et forslag, ikke en dom.",
+    directnessReadout:
+      "{adverbs} -t-adverb / 1 000 · {passives} mulige passiver / 1 000 · starter på 100, minus de to.",
+    pacingSpanSame: "{count} ord hver",
+    pacingSpanRange: "{min}–{max} ord",
+    pacingReadout:
+      "{mix} · {mean} ord typisk · {span}. Variasjon hever; en stabel av {n}+-setninger eller en monoton senker.",
+    vocabularyReadout: "{share}% uvanlige · variasjon {ttr}. En mix scorer høyere enn bare enkelt eller bare sjeldent.",
+    vocabularyReadoutKid: "{share}% uvanlige · variasjon {ttr}. Kjente ord scorer høyere for denne leseren.",
+    mix: {
+      mixed: "Blandet",
+      choppy: "Kort og jevnt",
+      sweeping: "Langt og jevnt",
+      even: "Jevnt"
+    },
+    profiles: {
+      empty: { label: "Ingen prosa ennå", genres: "" },
+      short: { label: "For kort å måle", genres: "Skriv litt mer" },
+      breezy: { label: "Raskt og lett", genres: "Thriller / YA" },
+      brisk: { label: "Rørlig", genres: "Eventyr / romantikk" },
+      balanced: { label: "Balansert", genres: "Allmenn fiksjon" },
+      atmospheric: { label: "Tett og atmosfærisk", genres: "Litterært / episk fantasy" },
+      heavy: { label: "Tungt", genres: "Litterært / eksperimentelt" }
+    },
+    gauges: {
+      directness: {
+        label: "Direkthet",
+        measures: "Hvor direkte du skriver, ut fra andelen måtesadverb og mulige passiver.",
+        raise: [
+          "Bytt et svakt verb pluss adverb mot et sterkere verb (løp fort → stormet).",
+          "Gjør om en mulig passiv til aktiv (døren ble åpnet av henne → hun åpnet døren)."
+        ],
+        remember:
+          "100 er ikke alltid målet. I drømmeaktige eller atmosfæriske passasjer kan passiver og måtesadverb være det rette valget. La scenen lede."
+      },
+      pacing: {
+        label: "Tempo",
+        measures:
+          "Hvor mye setningslengden varierer, og om lange linjer stables. En mix av korte og lange holder oftest farten.",
+        raise: [
+          "Bryt en rekke setninger på {n}+ ord. Klikk på en høy stolpe for å granske en.",
+          "Følg en lang linje med et kort treff, eller omvendt.",
+          "Hvis hver setning er like lang, varier én."
+        ],
+        remember:
+          "Jevn, knallhard prosa kan være poenget — en slåsskamp, en jakt, dialog. Et sveipende avsnitt kan også være det. Dette flagger en monoton eller en stabel lange linjer, ikke en sjanger."
+      },
+      vocabulary: {
+        label: "Vokabular",
+        measures: "Balansen mellom kjente ord og uvanlige. Navn i Story Bible telles ikke med.",
+        raise: [
+          "Hvis prosaen bare har vanlige ord, gjør et presist substantiv eller verb ofte mer enn en rekke adjektiv.",
+          "Hvis uvanlige ord hoper seg opp, bytt noen mot enklere — med mindre akkurat den diksjonen er forfatterstemmen.",
+          "Merk i teksten viser ord utenfor Dale–Challs kjente liste."
+        ],
+        remember: "Uvanlig kan være poenget. En havnehistorie trenger kai og blindpassasjer. 100 er en mix, ikke et enklere vokabular."
+      }
+    }
+  },
+  notes: {
+    review: "Gjennomgang",
+    title: "Kapittelnotater",
+    emptyTitle: "Ingenting å flagge",
+    intro:
+      "Gjennomgangen prøver å finne linjer som verken viser karakterens personlighet eller driver scenen framover.",
+    introReader: "Rett mot {category}, rundt {age} år.",
+    paragraph: "Avsnitt {n}",
+    note: "Notat",
+    clickHint: "Klikk på et notat for å lese sitatet. Notater er ikke omskrivinger.",
+    nothingSolid: "Gjennomgangsmodellen fant ingenting solid i denne runden.",
+    foot: "Notater flagger et sted. De skriver ikke om kapitlet og rører ikke Story Bible.",
+    categories: {
+      show_vs_tell: {
+        label: "Vis, ikke fortell",
+        blurb: "En navngitt følelse der kroppen eller scenen kunne bære den."
+      },
+      dialogue_purpose: {
+        label: "Dialog",
+        blurb: "En talt linje som verken viser karakter eller flytter scenen."
+      },
+      voice_drift: {
+        label: "Forfatterstemme",
+        blurb: "Registeret gled fra feltet Forfatterstemme."
+      },
+      character_fidelity: {
+        label: "Karakter",
+        blurb: "Et slag som sitter mot et låst Story Bible-karaktertrekk."
+      },
+      child_agency: {
+        label: "Handling",
+        blurb: "En voksen tar det avgjørende steget. Barnet skal gjøre det."
+      },
+      lecture: {
+        label: "Pekepinn",
+        blurb: "En moral som sies av en voksen, ikke tjenes av protagonistens valg."
+      }
+    }
+  },
+  errors: {
+    ollamaOrigins: "Ollama tok ikke imot nettleseren. Start den med OLLAMA_ORIGINS=http://localhost:5175",
+    noModel: "Ingen lokal modell. Start Ollama og last inn på nytt.",
+    notJson: "Den filen er ikke JSON.",
+    backupUnreadable: "Kunne ikke lese den sikkerhetskopien.",
+    shelfUnreadable: "Kunne ikke lese hyllen.",
+    recastEmpty: "Skriv eller ta fram litt prosa før du omskriver.",
+    extractEmpty: "Skriv eller ta fram litt prosa før du henter ut fakta.",
+    analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
+    extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
+    imageChoose: "Velg en bildefil.",
+    imageRead: "Kunne ikke lese det bildet.",
+    imageAdd: "Kunne ikke legge til det bildet."
+  }
+};
