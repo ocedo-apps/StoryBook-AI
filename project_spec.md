@@ -1,7 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.7
+Status: living document, v0.8
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.7 → v0.8:** Kapitelhistorik (`proseHistory.ts`,
+`proseDiff.ts`, `ChapterHistoryCard.tsx`). Varje skrivjobb på ett
+kapitel — Draft, Recast, Extend, Elaborate, Rewrite, och Återställ sig
+själv — snapshottar prosan **som den var innan jobbet körs**, nyast
+först, till en per-kapitel `revisions`-lista på `Chapter`
+(`ProseRevisionSchema`: `id`, `at`, `op`, `prose`; `op` är
+`draft | recast | extend | elaborate | rewrite | restore`). Historik-kortet
+visar valfri version sida vid sida mot en annan (eller mot "nu",
+`LIVE_HISTORY_ID`) med ord-nivå-diff — Myers shortest-edit-script, samma
+algoritmfamilj som `git diff`, tokeniserar ord + mellanslag så
+återskapning blir exakt. **Återställ hoppar prosan till den valda
+versionen, men skriver aldrig över tyst:** om det som står nu skiljer
+sig från målet sparas det aktuella som en ny `restore`-rad i historiken
+först — inget försvinner utan att själv få en rad man kan hoppa tillbaka
+till. Antal sparade versioner per kapitel är inställningsbart
+(**Versions per chapter**, 3–50, default 12, `localStorage`); äldsta
+faller bort vid taket (FIFO), aldrig en rad man aktivt bad om.
+Direkt svar på en öppen fråga från v0.7: det här är precis den
+säkerhetsnivå (jämför-före-återställ, inget tyst overwrite) som nu
+efterfrågas för den planerade kapitel-import-funktionen (§11) också —
+samma mönster kan återanvändas där när den byggs.
 
 **Ändringslogg v0.6 → v0.7:** Kampanj → bok är inte längre helt parkerad —
 en första, medvetet lossy bit finns nu på **Sandbox-sidan**. Sandbox
@@ -420,6 +442,12 @@ Dokumenterade här så de inte glöms bort eller omprövas av misstag:
 - **Kameraändring recastar inte tyst.** Dropdowns är inställning.
   Omskrivning kräver Recast, per kapitel. Samma skäl som mot osynlig
   auto-omskrivning i ConsistencyGate: författaren har sista ordet.
+- **Historik skriver aldrig över tyst (v0.8).** Återställ till en
+  tidigare version sparar först det som redan stod där som en ny rad,
+  om det skiljer sig — samma "författaren har sista ordet, inget
+  försvinner osynligt"-princip som Recast och ConsistencyGate. Det är
+  också mönstret den framtida kapitel-importen (§11) ska följa, inte
+  en tyst overwrite.
 - **Brainstorm är privat.** Ask och skicka-till-synopsis är författarens
   scratch. Draft, Recast, Extract och Analyze läser det aldrig. En lapp
   blir handling först när den landar på kartan.
@@ -465,7 +493,12 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
   JSON här och skapa kapitel-skal (titel + brief i det befintliga
   `Chapter`-fältet, `sequence_index` från filen, ingen prosa). Inte
   byggt. Filformatet finns redan (Sandbox-sidan, v0.7); det är bara
-  läsvägen in i den här appen som saknas.
+  läsvägen in i den här appen som saknas. Säkerhetsmönstret finns
+  redan att återanvända (v0.8 kapitelhistorik): jämför mot vad som
+  redan finns innan import, skriv aldrig över tyst — en importerad
+  kapitel-skal som råkar dela titel med ett befintligt kapitel bör
+  landa som en ny `revisions`-rad eller ett eget nytt kapitel, aldrig
+  en tyst overwrite av `prose`.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
   story-clock.
 
@@ -475,8 +508,9 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
-Analyze, backup/export, sök/ersätt, Reader, borttagna kapitel,
-Dispositioner och Brainstorm-lappar finns. Sandbox-sidan har nu ett
+Analyze, Proofread, backup/export, sök/ersätt, Reader, borttagna kapitel,
+Dispositioner, Brainstorm-lappar och kapitelhistorik (v0.8, diff + säkert
+återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export
 (kapitel-skal som JSON, v0.7) — se ändringsloggen. Nästa produktsteg här
 är kampanjexport, inte mer skrivhjälp:
