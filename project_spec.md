@@ -1,7 +1,24 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.6
+Status: living document, v0.7
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.6 → v0.7:** Kampanj → bok är inte längre helt parkerad —
+en första, medvetet lossy bit finns nu på **Sandbox-sidan**. Sandbox
+Storyboard (ett fritt canvas där kampanjens scener är kort man kopplar
+med pilar — se `storyboardLinks.ts`) kan gruppera scener till namngivna
+**kapitel** och exportera **kapitel-skal** som JSON
+(`sandbox-storyboard-chapters`, format 1): `{ id, title, sequence_index,
+brief }` per kapitel, `brief` ihopsatt av de grupperade scenernas namn,
+Trigger-innehåll och Pre-defined Reply-etiketter — skrivinstruktion, inte
+prosa, samma "kapitel-skal, ingen text"-gräns som redan gäller Export
+cards åt andra hållet. Ingen importer finns här än (§11, §12) — filen
+är byggd för att kunna läsas in som nya kapitel (titel + brief, ingen
+`NarrativeFact`), men inget läser den ännu. Story-flaggor (`storyFlags`,
+när Sandbox-scener kräver att ett villkor finns/saknas) och ett nytt
+`CheckEngine` för d20-baserade föremålsförsök stannar helt inom RPG-appen
+— `rpg.*`, korsar inte gränsen, nämns här bara för fullständighetens
+skull.
 
 **Ändringslogg v0.5 → v0.6:** ytorna runt texten. UI på engelska, svenska
 och norskt bokmål. JSON-backup som appen kan läsa tillbaka, plus
@@ -351,7 +368,11 @@ Karaktärer, platser som namngivna kort, premiss, lore. Författaren märker
 plothändelser som *redan hänt* / *spelbar scen* / *låt bli*. Rumsgraf,
 You, rule-set och party återskapas i Sandbox.
 
-**Kampanj → bok:** parkerad. Inte v1.
+**Kampanj → bok:** export av kapitel-skal finns nu på Sandbox-sidan
+(Storyboard → gruppera scener i kapitel → **Export chapters**, se
+ändringslogg v0.7). Ingen importer här än — den här appen läser inte
+filen, och `NarrativeFact` skapas inte av den. Fortfarande inte v1 på
+skrivapps-sidan.
 
 ---
 
@@ -440,6 +461,11 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 - **Bok → kampanjgrund:** UI för *redan hänt / spelbar scen / låt bli*,
   och mapping mot realm/landmark/focal. Inte nu. Export cards täcker
   bara låsta kort.
+- **Kampanj → bok, importsidan:** läsa Sandbox `sandbox-storyboard-chapters`-
+  JSON här och skapa kapitel-skal (titel + brief i det befintliga
+  `Chapter`-fältet, `sequence_index` från filen, ingen prosa). Inte
+  byggt. Filformatet finns redan (Sandbox-sidan, v0.7); det är bara
+  läsvägen in i den här appen som saknas.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
   story-clock.
 
@@ -450,9 +476,14 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
 Analyze, backup/export, sök/ersätt, Reader, borttagna kapitel,
-Dispositioner och Brainstorm-lappar finns. Nästa produktsteg är
-kampanjexport, inte mer skrivhjälp:
+Dispositioner och Brainstorm-lappar finns. Sandbox-sidan har nu ett
+Storyboard (scenkopplingar, story-flaggor) och kapitel-export
+(kapitel-skal som JSON, v0.7) — se ändringsloggen. Nästa produktsteg här
+är kampanjexport, inte mer skrivhjälp:
 
 - `projectFactsToCampaign` — You, *redan hänt* / *spelbar scen* / *låt bli*.
+- Läsa Sandbox kapitel-skal-JSON in som nya kapitel här (den nya
+  öppna frågan i §11) — ett mindre, fristående steg som kan tas
+  oavsett `projectFactsToCampaign`.
 - Polering som väntar, inte v1: färgfilter på lappar, send-kolumn på smal
   skärm, modellomskrivning av det som skickas till synopsis.
