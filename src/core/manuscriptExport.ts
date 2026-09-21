@@ -1,3 +1,4 @@
+import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { groupBibleEntities } from "./bibleGroups";
 import { sortedChapters, type Book } from "./BookSchema";
@@ -5,6 +6,12 @@ import { profileFor } from "./characterProfile";
 import { PREDICATE_LABELS } from "./predicates";
 import { peelModelAsides } from "./proseFlow";
 import { newId } from "./ids";
+
+export type PublishFont = {
+  name: string;
+  stack: string;
+  embed?: { regular: Uint8Array; bold: Uint8Array };
+};
 
 function exportProse(text: string): string {
   return peelModelAsides(text).prose.trim();
@@ -106,7 +113,26 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
-const HTML_EXPORT_CSS = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;font-family:Georgia,"Times New Roman",serif;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}@media print{h2.chapter{break-before:page}}`;
+const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}@media print{h2.chapter{break-before:page}}`;
+const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
+
+function base64FromBytes(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function htmlFontCss(font: PublishFont | undefined): string {
+  const stack = font?.stack ?? HTML_DEFAULT_STACK;
+  const faces = font?.embed
+    ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.regular)}) format('truetype')}` +
+      `@font-face{font-family:'${font.name}';font-weight:700;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.bold)}) format('truetype')}`
+    : "";
+  return `${faces}body{font-family:${stack}}`;
+}
 
 function htmlParagraphs(text: string): string {
   const lines = text.split(/\r\n|\n|\r/);
@@ -114,7 +140,7 @@ function htmlParagraphs(text: string): string {
   return lines.map((line) => (line ? `<p>${xmlEscape(line)}</p>` : "<p><br/></p>")).join("\n");
 }
 
-export function formatExportHtml(doc: ManuscriptExport): string {
+export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont): string {
   const body: string[] = [`<h1>${xmlEscape(doc.title)}</h1>`, `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`];
   if (doc.note) body.push(`<p class="meta">${xmlEscape(doc.note)}</p>`);
   if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
@@ -146,7 +172,7 @@ export function formatExportHtml(doc: ManuscriptExport): string {
 <head>
 <meta charset="utf-8"/>
 <title>${xmlEscape(doc.title)}</title>
-<style>${HTML_EXPORT_CSS}</style>
+<style>${HTML_EXPORT_CSS_BASE}${htmlFontCss(font)}</style>
 </head>
 <body>
 ${body.join("\n")}
@@ -155,10 +181,10 @@ ${body.join("\n")}
 `;
 }
 
-export function formatExportRtf(doc: ManuscriptExport): string {
+export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
-    "{\\fonttbl{\\f0\\froman Times New Roman;}}",
+    `{\\fonttbl{\\f0\\froman ${rtfEscape(font?.name ?? "Times New Roman")};}}`,
     "\\f0\\fs24",
     `{\\fs40\\b ${rtfEscape(doc.title)}}\\par`,
     "\\par",
@@ -189,16 +215,26 @@ export function formatExportRtf(doc: ManuscriptExport): string {
   return parts.join("\n");
 }
 
-export function packOdt(doc: ManuscriptExport): Uint8Array {
+export function packOdt(doc: ManuscriptExport, font?: PublishFont): Uint8Array {
   return zipStore([
     { name: "mimetype", data: utf8("application/vnd.oasis.opendocument.text") },
     { name: "content.xml", data: utf8(odtContentXml(doc)) },
-    { name: "styles.xml", data: utf8(ODT_STYLES) },
+    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif")) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
   ]);
 }
 
-const EPUB_CSS = `body{font-family:Georgia,"Times New Roman",serif;line-height:1.6;margin:1.25em}h1{font-size:1.6em}h2{font-size:1.3em}.meta{color:#555;font-size:0.9em}`;
+const EPUB_CSS_BASE = `body{line-height:1.6;margin:1.25em}h1{font-size:1.6em}h2{font-size:1.3em}.meta{color:#555;font-size:0.9em}`;
+const EPUB_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
+
+function epubFontCss(font: PublishFont | undefined): string {
+  const stack = font?.stack ?? EPUB_DEFAULT_STACK;
+  const faces = font?.embed
+    ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(../fonts/regular.ttf) format('truetype')}` +
+      `@font-face{font-family:'${font.name}';font-weight:700;src:url(../fonts/bold.ttf) format('truetype')}`
+    : "";
+  return `${faces}body{font-family:${stack}}`;
+}
 
 type EpubPage = { id: string; file: string; title: string; body: string };
 
@@ -213,7 +249,7 @@ ${body}
 `;
 }
 
-export function packEpub(doc: ManuscriptExport): Uint8Array {
+export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array {
   const pages: EpubPage[] = [];
 
   const titleMeta: string[] = [];
@@ -275,7 +311,13 @@ export function packEpub(doc: ManuscriptExport): Uint8Array {
   <manifest>
 ${manifestItems}
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-    <item id="css" href="styles/stylesheet.css" media-type="text/css"/>
+    <item id="css" href="styles/stylesheet.css" media-type="text/css"/>${
+      font?.embed
+        ? `
+    <item id="font-regular" href="fonts/regular.ttf" media-type="application/x-font-ttf"/>
+    <item id="font-bold" href="fonts/bold.ttf" media-type="application/x-font-ttf"/>`
+        : ""
+    }
   </manifest>
   <spine>
 ${spineItems}
@@ -310,7 +352,13 @@ ${navList}
     { name: "META-INF/container.xml", data: utf8(container) },
     { name: "OEBPS/content.opf", data: utf8(opf) },
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
-    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS) },
+    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS_BASE + epubFontCss(font)) },
+    ...(font?.embed
+      ? [
+          { name: "OEBPS/fonts/regular.ttf", data: font.embed.regular },
+          { name: "OEBPS/fonts/bold.ttf", data: font.embed.bold }
+        ]
+      : []),
     ...pages.map((page) => ({ name: `OEBPS/${page.file}`, data: utf8(epubXhtml(page.title, page.body)) }))
   ]);
 }
@@ -421,11 +469,19 @@ class PdfWriter {
   }
 }
 
-export async function packPdf(doc: ManuscriptExport): Promise<Uint8Array> {
+export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(doc.title);
-  const body = await pdf.embedFont(StandardFonts.TimesRoman);
-  const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
+  let body: PDFFont;
+  let bold: PDFFont;
+  if (font?.embed) {
+    pdf.registerFontkit(fontkit);
+    body = await pdf.embedFont(font.embed.regular, { subset: true });
+    bold = await pdf.embedFont(font.embed.bold, { subset: true });
+  } else {
+    body = await pdf.embedFont(StandardFonts.TimesRoman);
+    bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
+  }
   const writer = new PdfWriter(pdf, body, bold);
 
   writer.heading(doc.title, 22);
@@ -540,11 +596,12 @@ function odtContentXml(doc: ManuscriptExport): string {
 `;
 }
 
-const ODT_STYLES = `<?xml version="1.0" encoding="UTF-8"?>
+function odtStyles(fontName: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" office:version="1.3">
   <office:styles>
     <style:style style:name="Standard" style:family="paragraph">
-      <style:text-properties style:font-name="Liberation Serif" fo:font-size="12pt"/>
+      <style:text-properties style:font-name="${xmlEscape(fontName)}" fo:font-size="12pt"/>
     </style:style>
     <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="22pt" fo:font-weight="bold"/>
@@ -564,6 +621,7 @@ const ODT_STYLES = `<?xml version="1.0" encoding="UTF-8"?>
   </office:styles>
 </office:document-styles>
 `;
+}
 
 const ODT_MANIFEST = `<?xml version="1.0" encoding="UTF-8"?>
 <manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3">

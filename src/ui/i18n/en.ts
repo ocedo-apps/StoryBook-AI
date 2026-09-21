@@ -182,6 +182,8 @@ export const en = {
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",
     documentName: "Document name",
     format: "Format",
+    font: "Font",
+    systemFont: "System serif (Times/Georgia)",
     action: "Publish",
     markdown: "Markdown",
     rtf: "RTF",

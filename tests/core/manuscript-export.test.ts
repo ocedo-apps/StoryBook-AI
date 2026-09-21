@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { createBook, updateChapter } from "@core/BookSchema";
@@ -9,8 +10,18 @@ import {
   formatExportRtf,
   packEpub,
   packOdt,
-  packPdf
+  packPdf,
+  type PublishFont
 } from "@core/manuscriptExport";
+
+const LORA: PublishFont = {
+  name: "Lora",
+  stack: `Lora, Georgia, serif`,
+  embed: {
+    regular: new Uint8Array(readFileSync(new URL("../../src/assets/fonts/lora/Lora-Regular.ttf", import.meta.url))),
+    bold: new Uint8Array(readFileSync(new URL("../../src/assets/fonts/lora/Lora-Bold.ttf", import.meta.url)))
+  }
+};
 
 describe("manuscript export formats", () => {
   it("writes RTF with headings and escapes control marks", () => {
@@ -193,5 +204,59 @@ describe("manuscript export formats", () => {
     const bytes = await packPdf(buildManuscriptExport(book));
     const loaded = await PDFDocument.load(bytes);
     expect(loaded.getPageCount()).toBeGreaterThan(1);
+  });
+
+  it("falls back to the built-in Times/Georgia/Liberation Serif look when no font is chosen", () => {
+    const doc = buildManuscriptExport(createBook("Night Keys"));
+    expect(formatExportRtf(doc)).toContain("Times New Roman");
+    expect(new TextDecoder().decode(packOdt(doc))).toContain("Liberation Serif");
+    expect(formatExportHtml(doc)).toContain(`Georgia, "Times New Roman", serif`);
+    expect(new TextDecoder().decode(packEpub(doc))).toContain(`Georgia, "Times New Roman", serif`);
+  });
+
+  it("swaps the font name into RTF and ODT without embedding anything", () => {
+    const doc = buildManuscriptExport(createBook("Night Keys"));
+    const rtf = formatExportRtf(doc, LORA);
+    expect(rtf).toContain("\\froman Lora;");
+    expect(rtf).not.toContain("Times New Roman");
+
+    const odtText = new TextDecoder().decode(packOdt(doc, LORA));
+    expect(odtText).toContain('style:font-name="Lora"');
+    expect(odtText).not.toContain("Liberation Serif");
+  });
+
+  it("embeds the chosen font as base64 @font-face rules in HTML", () => {
+    const doc = buildManuscriptExport(createBook("Night Keys"));
+    const html = formatExportHtml(doc, LORA);
+    expect(html).toContain("@font-face{font-family:'Lora';font-weight:400;src:url(data:font/ttf;base64,");
+    expect(html).toContain("@font-face{font-family:'Lora';font-weight:700;src:url(data:font/ttf;base64,");
+    expect(html).toContain("body{font-family:Lora, Georgia, serif}");
+  });
+
+  it("embeds the chosen font as real files inside the ePub package", () => {
+    const doc = buildManuscriptExport(createBook("Night Keys"));
+    const epub = packEpub(doc, LORA);
+    const text = new TextDecoder().decode(epub);
+    expect(text).toContain("OEBPS/fonts/regular.ttf");
+    expect(text).toContain("OEBPS/fonts/bold.ttf");
+    expect(text).toContain('href="fonts/regular.ttf" media-type="application/x-font-ttf"');
+    expect(text).toContain("body{font-family:Lora, Georgia, serif}");
+    // The embedded TTF bytes themselves should be present in the archive, uncompressed.
+    const magic = Array.from(LORA.embed!.regular.slice(0, 4));
+    const bytes = Array.from(epub);
+    const found = bytes.some((_, i) => magic.every((byte, j) => bytes[i + j] === byte));
+    expect(found).toBe(true);
+  });
+
+  it("embeds the chosen font's real glyph data in the PDF, not just a name", async () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { prose: "Emma locked the door." });
+    const doc = buildManuscriptExport(book);
+    const standard = await packPdf(doc);
+    const embedded = await packPdf(doc, LORA);
+    const loaded = await PDFDocument.load(embedded);
+    expect(loaded.getPageCount()).toBeGreaterThanOrEqual(1);
+    // Embedding real glyph outlines is inherently much heavier than referencing a standard font by name.
+    expect(embedded.length).toBeGreaterThan(standard.length + 5_000);
   });
 });

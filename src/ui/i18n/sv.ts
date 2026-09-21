@@ -184,6 +184,8 @@ export const sv: Messages = {
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",
     documentName: "Dokumentnamn",
     format: "Format",
+    font: "Typsnitt",
+    systemFont: "Standardserif (Times/Georgia)",
     action: "Publicera",
     markdown: "Markdown",
     rtf: "RTF",

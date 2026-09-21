@@ -184,6 +184,8 @@ export const nb: Messages = {
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",
     documentName: "Dokumentnavn",
     format: "Format",
+    font: "Skrift",
+    systemFont: "Standardserif (Times/Georgia)",
     action: "Publiser",
     markdown: "Markdown",
     rtf: "RTF",

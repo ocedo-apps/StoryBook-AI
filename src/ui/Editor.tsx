@@ -35,6 +35,7 @@ import {
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
 import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
+import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
 import { addChapter, discardChapter, discardedChapters, removeChapter, restoreChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
@@ -274,6 +275,7 @@ export function Editor() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishFilename, setPublishFilename] = useState("");
   const [publishFormat, setPublishFormat] = useState<"md" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
+  const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -329,22 +331,26 @@ export function Editor() {
     if (!book) return;
     const packed = packManuscriptBackup(book);
     const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
+    const fontOption = publishFontById(publishFontId);
+    const embed = kind === "md" ? undefined : await loadPublishFontEmbed(publishFontId);
+    const font =
+      kind === "md" ? undefined : { name: fontOption.name, stack: fontOption.stack, ...(embed ? { embed } : {}) };
     if (kind === "md") {
       downloadText(ensureDownloadFilename(publishFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
     } else if (kind === "rtf") {
-      downloadText(ensureDownloadFilename(publishFilename, "rtf"), formatExportRtf(doc), "application/rtf");
+      downloadText(ensureDownloadFilename(publishFilename, "rtf"), formatExportRtf(doc, font), "application/rtf");
     } else if (kind === "odt") {
       downloadBytes(
         ensureDownloadFilename(publishFilename, "odt"),
-        packOdt(doc),
+        packOdt(doc, font),
         "application/vnd.oasis.opendocument.text"
       );
     } else if (kind === "html") {
-      downloadText(ensureDownloadFilename(publishFilename, "html"), formatExportHtml(doc), "text/html");
+      downloadText(ensureDownloadFilename(publishFilename, "html"), formatExportHtml(doc, font), "text/html");
     } else if (kind === "epub") {
-      downloadBytes(ensureDownloadFilename(publishFilename, "epub"), packEpub(doc), "application/epub+zip");
+      downloadBytes(ensureDownloadFilename(publishFilename, "epub"), packEpub(doc, font), "application/epub+zip");
     } else {
-      downloadBytes(ensureDownloadFilename(publishFilename, "pdf"), await packPdf(doc), "application/pdf");
+      downloadBytes(ensureDownloadFilename(publishFilename, "pdf"), await packPdf(doc, font), "application/pdf");
     }
     setPublishOpen(false);
   }
@@ -1326,6 +1332,21 @@ export function Editor() {
               <option value="html">{m.publish.html}</option>
               <option value="epub">{m.publish.epub}</option>
               <option value="pdf">{m.publish.pdf}</option>
+            </select>
+            <label className="field-label" htmlFor="publish-font">
+              {m.publish.font}
+            </label>
+            <select
+              id="publish-font"
+              value={publishFontId}
+              onChange={(event) => setPublishFontId(event.target.value as PublishFontId)}
+              disabled={publishFormat === "md"}
+            >
+              {PUBLISH_FONTS.map((font) => (
+                <option key={font.id} value={font.id}>
+                  {font.id === "system" ? m.publish.systemFont : font.label}
+                </option>
+              ))}
             </select>
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setPublishOpen(false)}>

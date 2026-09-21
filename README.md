@@ -23,7 +23,7 @@ Allow the origin:
 OLLAMA_ORIGINS=http://localhost:5175 ollama serve
 ```
 
-You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, at the bottom of the left rail after Proofread, writes Markdown, RTF, ODT, HTML, ePub, or PDF — prose and chapter titles only, no Synopsis or chapter briefs. Every chapter starts its own page in RTF, ODT, and PDF, and its own file in ePub.
+You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, at the bottom of the left rail after Proofread, writes Markdown, RTF, ODT, HTML, ePub, or PDF — prose and chapter titles only, no Synopsis or chapter briefs. Every chapter starts its own page in RTF, ODT, and PDF, and its own file in ePub. HTML, ePub, and PDF can use one of four bundled OFL typefaces (Lora, Literata, Source Serif 4, Asap) instead of the default Times/Georgia look — RTF and ODT get the font by name only, since Scrivener and Word substitute from what's installed anyway.
 
 ## Models
 

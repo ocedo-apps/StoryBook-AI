@@ -1,7 +1,44 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.11
+Status: living document, v0.12
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.11 → v0.12:** Typsnittsval i Publicera. Ny dropdown
+**Typsnitt** bredvid Format, fyra kurerade OFL-typsnitt utöver
+standardutseendet: **Lora**, **Literata**, **Source Serif 4**, **Asap**
+(sans, resten serif) — valda av användaren, `.ttf`-filerna hämtade från
+Google Fonts (alla OFL, licenstext bundlad per typsnitt i
+`src/assets/fonts/<namn>/OFL.txt`) och committade i repot, inte hämtade
+över nät vid publicering. Genomslag skiljer sig per format, av
+tekniska skäl:
+- **HTML**: typsnittet bäddas in som `@font-face` med base64-data —
+  filen är fortfarande en enda fristående `.html`, ingen nätåtkomst
+  krävs för att läsa den senare.
+- **ePub**: typsnittet läggs in som riktiga `.ttf`-filer i paketet
+  (`OEBPS/fonts/`), samma sätt som e-boksläsare förväntar sig — inte
+  base64, det hade varit onödigt stort och ovanligt för formatet.
+- **PDF**: `pdf-lib`s `embedFont` med `{ subset: true }` — bara de
+  glyfer som faktiskt förekommer i manuset bäddas in, inte hela
+  typsnittsfilen. Kräver `@pdf-lib/fontkit` (nytt beroende,
+  `pdf.registerFontkit(fontkit)`) eftersom `pdf-lib`s inbyggda
+  `StandardFonts`-lista bara täcker de 14 PDF-standardtypsnitten
+  (Times/Helvetica/Courier-familjerna), inte godtyckliga TTF-filer.
+- **RTF/ODT**: bara typsnittsnamnet skrivs in (`\fonttbl` respektive en
+  ny ODT-stil `style:font-name`), ingen inbäddning. Båda är i första
+  hand redigeringsformat (Scrivener, Word) där författaren ändå väljer
+  om typsnitt saknas lokalt — att bädda in riktiga fonter i RTF/ODT är
+  tekniskt möjligt men ovanligt stödd tvärs verktyg, så det byggdes
+  inte.
+- **Markdown**: inget typsnittsbegrepp, orört.
+
+`ManuscriptExport`-formaterarna tar nu en valfri sjätte/sjunde
+parameter `font?: PublishFont` (`{ name, stack, embed? }`) — standard
+(`system`, inget värde) ger exakt samma Times/Georgia/Liberation
+Serif-utseende som innan denna version, så inget befintligt anrop
+behövde ändras. Katalogen och nätverksladdningen
+(`loadPublishFontEmbed`, en `fetch` per vald font vid publicering, inte
+vid appstart) sitter i en ny `src/core/publishFonts.ts`, separat från
+formaterarna själva så de förblir rena/testbara utan webbläsarmiljö.
 
 **Ändringslogg v0.10 → v0.11:** Tre justeringar av Publicera efter
 användartest. (1) Rubriken flyttade ner ett snäpp — sitter nu direkt
@@ -564,7 +601,8 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
 Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub/PDF, sist i
-vänsterpanelen efter Korrektur, v0.11), sök/ersätt, Reader, borttagna kapitel,
+vänsterpanelen efter Korrektur, v0.11; fyra valbara OFL-typsnitt utöver
+standardutseendet, v0.12), sök/ersätt, Reader, borttagna kapitel,
 Dispositioner, Brainstorm-lappar och
 kapitelhistorik (v0.8, diff + säkert återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export
