@@ -1,7 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.9
+Status: living document, v0.10
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.9 → v0.10:** **PDF** i Publicera, sjätte formatet.
+Format-listan är nu en dropdown under filnamnet (inte en knapp per
+format — fem knappar i rad hade slutat rymmas). PDF är den första
+export-beroendet i den här appen: `pdf-lib` (MIT, inga canvas/DOM-krav,
+väljer det framför `jspdf` som drar med sig `html2canvas`/`canvg`/
+`dompurify` — helt oanvänt för ren textexport). Sidlayouten
+(rubrikstorlekar, radbrytning, sidbrytning) är egen kod ovanpå
+`pdf-lib`s ritprimitiv (`drawText`, `widthOfTextAtSize`) — biblioteket
+har ingen inbyggd automatisk radbrytning som räknar rader åt oss, så
+en liten `PdfWriter`-klass gör det (mäter varje rad, bryter sida när
+den skulle gå under marginalen). Samma `ManuscriptExport`-mellanformat
+som HTML/ePub/ODT. `packPdf` är asynkron (`pdf-lib`s `save()` är det),
+till skillnad från de andra format-funktionerna — enda undantaget i
+Publicera-flödet.
 
 **Ändringslogg v0.8 → v0.9:** **Publicera** ersätter **Exportera**.
 Knappen flyttade från headern till en egen rubrik längst ner i vänsterpanelen
@@ -343,7 +358,7 @@ Jobb mot prosa, plus backup och kort-export:
 - Stats (Tier 1) — deterministiskt: Directness, Pacing, Vocabulary,
   Echo, upprepad fras, POV-läcka, packade stycken, Rare-markering. Klick på
   Echo eller upprepad fras öppnar Sök med ordet. Ingen modell.
-- Sök/ersätt, JSON-backup, **Publicera** (Markdown/RTF/ODT/HTML/ePub) —
+- Sök/ersätt, JSON-backup, **Publicera** (Markdown/RTF/ODT/HTML/ePub/PDF) —
   ingen modell. Sök har snabbsökningar för upprepade ord och fraser på
   den öppna sidan.
 - `projectFactsToCampaign` — senare. Läser `core.*`, föreslår `rpg.*`,
@@ -518,10 +533,9 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
   en tyst overwrite av `prose`.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
   story-clock.
-- **PDF-export** (och ev. ODF utöver ODT): v0.9 gav Publicera HTML och
-  ePub. PDF är ett eget beslut — webbläsarens skriv-ut-till-PDF från
-  HTML-exporten, eller ett dedikerat PDF-bibliotek (sidbrytning,
-  typsnittsinbäddning). Inte valt än.
+- **ODF utöver ODT** (t.ex. kalkyl/presentation-varianter): inte
+  efterfrågat, inget beslut att fatta förrän det är. PDF är löst (v0.10,
+  `pdf-lib`).
 
 ---
 
@@ -529,7 +543,7 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
-Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub, v0.9),
+Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub/PDF, v0.10),
 sök/ersätt, Reader, borttagna kapitel, Dispositioner, Brainstorm-lappar och
 kapitelhistorik (v0.8, diff + säkert återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export

@@ -34,7 +34,7 @@ import {
   packManuscriptBackup,
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
-import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt } from "@core/manuscriptExport";
+import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
 import { addChapter, discardChapter, discardedChapters, removeChapter, restoreChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
@@ -273,7 +273,7 @@ export function Editor() {
   const [backupFilename, setBackupFilename] = useState("");
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishFilename, setPublishFilename] = useState("");
-  const [publishFormat, setPublishFormat] = useState<"md" | "rtf" | "odt" | "html" | "epub">("md");
+  const [publishFormat, setPublishFormat] = useState<"md" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -325,7 +325,7 @@ export function Editor() {
     noteClearedContinues(cleared);
   }
 
-  function saveExport(kind: "md" | "rtf" | "odt" | "html" | "epub") {
+  async function saveExport(kind: "md" | "rtf" | "odt" | "html" | "epub" | "pdf") {
     if (!book) return;
     const packed = packManuscriptBackup(book);
     const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
@@ -341,8 +341,10 @@ export function Editor() {
       );
     } else if (kind === "html") {
       downloadText(ensureDownloadFilename(publishFilename, "html"), formatExportHtml(doc), "text/html");
-    } else {
+    } else if (kind === "epub") {
       downloadBytes(ensureDownloadFilename(publishFilename, "epub"), packEpub(doc), "application/epub+zip");
+    } else {
+      downloadBytes(ensureDownloadFilename(publishFilename, "pdf"), await packPdf(doc), "application/pdf");
     }
     setPublishOpen(false);
   }
@@ -1293,7 +1295,7 @@ export function Editor() {
             onClick={(event) => event.stopPropagation()}
             onSubmit={(event) => {
               event.preventDefault();
-              saveExport(publishFormat);
+              void saveExport(publishFormat);
             }}
             aria-labelledby="publish-title"
           >
@@ -1323,6 +1325,7 @@ export function Editor() {
               <option value="odt">{m.publish.odt}</option>
               <option value="html">{m.publish.html}</option>
               <option value="epub">{m.publish.epub}</option>
+              <option value="pdf">{m.publish.pdf}</option>
             </select>
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setPublishOpen(false)}>

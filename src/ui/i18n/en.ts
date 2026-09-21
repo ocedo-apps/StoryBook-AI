@@ -179,7 +179,7 @@ export const en = {
   },
   publish: {
     title: "Publish",
-    body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader.",
+    body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",
     documentName: "Document name",
     format: "Format",
     action: "Publish",
@@ -187,7 +187,8 @@ export const en = {
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",
-    epub: "ePub"
+    epub: "ePub",
+    pdf: "PDF"
   },
   find: {
     action: "Find",

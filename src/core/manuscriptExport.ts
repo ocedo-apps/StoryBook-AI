@@ -1,3 +1,4 @@
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { groupBibleEntities } from "./bibleGroups";
 import { sortedChapters, type Book } from "./BookSchema";
 import { profileFor } from "./characterProfile";
@@ -340,6 +341,153 @@ ${navList}
     { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS) },
     ...pages.map((page) => ({ name: `OEBPS/${page.file}`, data: utf8(epubXhtml(page.title, page.body)) }))
   ]);
+}
+
+const PDF_PAGE_WIDTH = 595.28;
+const PDF_PAGE_HEIGHT = 841.89;
+const PDF_MARGIN = 56;
+const PDF_META_COLOR = rgb(0.4, 0.4, 0.4);
+
+class PdfWriter {
+  private readonly pdf: PDFDocument;
+  private readonly body: PDFFont;
+  private readonly bold: PDFFont;
+  private readonly maxWidth = PDF_PAGE_WIDTH - PDF_MARGIN * 2;
+  private page: PDFPage;
+  private y: number;
+
+  constructor(pdf: PDFDocument, body: PDFFont, bold: PDFFont) {
+    this.pdf = pdf;
+    this.body = body;
+    this.bold = bold;
+    this.page = pdf.addPage([PDF_PAGE_WIDTH, PDF_PAGE_HEIGHT]);
+    this.y = PDF_PAGE_HEIGHT - PDF_MARGIN;
+  }
+
+  private wrap(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
+    const words = text.split(/ +/).filter(Boolean);
+    if (words.length === 0) return [""];
+    const lines: string[] = [];
+    let line = "";
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (line && font.widthOfTextAtSize(candidate, size) > maxWidth) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = candidate;
+      }
+    }
+    lines.push(line);
+    return lines;
+  }
+
+  private ensureSpace(lineHeight: number): void {
+    if (this.y - lineHeight < PDF_MARGIN) {
+      this.page = this.pdf.addPage([PDF_PAGE_WIDTH, PDF_PAGE_HEIGHT]);
+      this.y = PDF_PAGE_HEIGHT - PDF_MARGIN;
+    }
+  }
+
+  heading(text: string, size: number): void {
+    if (!text) return;
+    this.y -= size * 0.3;
+    const lineHeight = size * 1.25;
+    for (const line of this.wrap(text, this.bold, size, this.maxWidth)) {
+      this.ensureSpace(lineHeight);
+      this.page.drawText(line, { x: PDF_MARGIN, y: this.y, size, font: this.bold });
+      this.y -= lineHeight;
+    }
+    this.y -= size * 0.35;
+  }
+
+  lines(text: string, opts: { size?: number; bold?: boolean; meta?: boolean } = {}): void {
+    const size = opts.size ?? 11;
+    const font = opts.bold ? this.bold : this.body;
+    const lineHeight = size * 1.45;
+    for (const raw of text.split(/\r\n|\n|\r/)) {
+      if (!raw) {
+        this.y -= lineHeight * 0.6;
+        continue;
+      }
+      for (const line of this.wrap(raw, font, size, this.maxWidth)) {
+        this.ensureSpace(lineHeight);
+        this.page.drawText(line, {
+          x: PDF_MARGIN,
+          y: this.y,
+          size,
+          font,
+          ...(opts.meta ? { color: PDF_META_COLOR } : {})
+        });
+        this.y -= lineHeight;
+      }
+    }
+  }
+
+  bullet(text: string, size = 11): void {
+    const indent = 14;
+    const lineHeight = size * 1.45;
+    this.wrap(text, this.body, size, this.maxWidth - indent).forEach((line, index) => {
+      this.ensureSpace(lineHeight);
+      this.page.drawText(index === 0 ? `• ${line}` : `  ${line}`, {
+        x: PDF_MARGIN + indent,
+        y: this.y,
+        size,
+        font: this.body
+      });
+      this.y -= lineHeight;
+    });
+  }
+
+  space(amount: number): void {
+    this.y -= amount;
+  }
+}
+
+export async function packPdf(doc: ManuscriptExport): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  pdf.setTitle(doc.title);
+  const body = await pdf.embedFont(StandardFonts.TimesRoman);
+  const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
+  const writer = new PdfWriter(pdf, body, bold);
+
+  writer.heading(doc.title, 22);
+  writer.lines(doc.exportedLabel, { size: 9, meta: true });
+  if (doc.note) writer.lines(doc.note, { size: 9, meta: true });
+  const meta: string[] = [];
+  if (doc.voice) meta.push(`Voice: ${doc.voice}`);
+  if (doc.viewpoint) meta.push(`Viewpoint: ${doc.viewpoint}`);
+  if (doc.readerAge !== undefined) meta.push(`Reader: ${doc.readerAge}`);
+  if (meta.length > 0) writer.lines(meta.join("\n"), { size: 9, meta: true });
+
+  if (doc.synopsis) {
+    writer.space(14);
+    writer.heading("Synopsis", 15);
+    writer.lines(doc.synopsis);
+  }
+
+  for (const chapter of doc.chapters) {
+    writer.space(18);
+    writer.heading(chapter.heading, 15);
+    if (chapter.brief) writer.lines(`Brief: ${chapter.brief}`, { size: 9, meta: true });
+    if (chapter.voice) writer.lines(`Voice: ${chapter.voice}`, { size: 9, meta: true });
+    if (chapter.prose) writer.lines(chapter.prose);
+  }
+
+  if (doc.bible.length > 0) {
+    writer.space(18);
+    writer.heading("Story Bible", 15);
+    for (const section of doc.bible) {
+      writer.space(6);
+      writer.heading(section.heading, 12);
+      for (const entity of section.entities) {
+        writer.lines(entity.name, { bold: true });
+        for (const line of entity.lines) writer.bullet(line);
+      }
+    }
+  }
+
+  return pdf.save();
 }
 
 function rtfBlock(text: string): string {

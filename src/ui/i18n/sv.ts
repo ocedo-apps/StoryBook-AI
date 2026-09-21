@@ -181,7 +181,7 @@ export const sv: Messages = {
   },
   publish: {
     title: "Publicera",
-    body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare.",
+    body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",
     documentName: "Dokumentnamn",
     format: "Format",
     action: "Publicera",
@@ -189,7 +189,8 @@ export const sv: Messages = {
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",
-    epub: "ePub"
+    epub: "ePub",
+    pdf: "PDF"
   },
   find: {
     action: "Sök",

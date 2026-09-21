@@ -181,7 +181,7 @@ export const nb: Messages = {
   },
   publish: {
     title: "Publiser",
-    body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser.",
+    body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",
     documentName: "Dokumentnavn",
     format: "Format",
     action: "Publiser",
@@ -189,7 +189,8 @@ export const nb: Messages = {
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",
-    epub: "ePub"
+    epub: "ePub",
+    pdf: "PDF"
   },
   find: {
     action: "Søk",
