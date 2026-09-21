@@ -23,7 +23,7 @@ Allow the origin:
 OLLAMA_ORIGINS=http://localhost:5175 ollama serve
 ```
 
-You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Export** writes Markdown, RTF, or ODT.
+You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, at the bottom of the left rail, writes Markdown, RTF, ODT, HTML, or ePub.
 
 ## Models
 

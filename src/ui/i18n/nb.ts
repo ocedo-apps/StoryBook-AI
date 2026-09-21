@@ -51,7 +51,7 @@ export const nb: Messages = {
     backupDue: "! Sikkerhetskopi",
     backupDueTitle: "Manuskriptet har endret seg siden siste JSON-sikkerhetskopi",
     backupTitle: "Sikkerhetskopi",
-    export: "Eksporter",
+    publish: "Publiser",
     settings: "Innstillinger",
     settingsLede:
       "Hvordan dette manuskriptet skrives. Ikke Story Bible. Kapitlene kan fortsatt overstyre kamera, stemme og Leser.",
@@ -179,13 +179,15 @@ export const nb: Messages = {
       unreadable: "Manuskriptet i filen kunne ikke leses."
     }
   },
-  export: {
-    title: "Eksporter",
-    body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener.",
+  publish: {
+    title: "Publiser",
+    body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser.",
     documentName: "Dokumentnavn",
     markdown: "Markdown",
     rtf: "RTF",
-    odt: "ODT"
+    odt: "ODT",
+    html: "HTML",
+    epub: "ePub"
   },
   find: {
     action: "Søk",

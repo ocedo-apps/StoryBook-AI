@@ -688,6 +688,10 @@ button:disabled {
   margin-bottom: 0.35rem;
 }
 
+.rail-left .publish-item {
+  margin-top: 0.55rem;
+}
+
 .rail-head {
   display: flex;
   justify-content: space-between;

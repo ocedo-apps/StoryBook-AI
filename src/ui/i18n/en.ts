@@ -49,7 +49,7 @@ export const en = {
     backupDue: "! Backup",
     backupDueTitle: "This manuscript has changed since the last JSON backup",
     backupTitle: "Backup",
-    export: "Export",
+    publish: "Publish",
     settings: "Settings",
     settingsLede:
       "How this manuscript is written. Not Story Bible. Chapters can still override camera, Voice, and Reader.",
@@ -177,13 +177,15 @@ export const en = {
       unreadable: "The manuscript inside this file could not be read."
     }
   },
-  export: {
-    title: "Export",
-    body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener.",
+  publish: {
+    title: "Publish",
+    body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader.",
     documentName: "Document name",
     markdown: "Markdown",
     rtf: "RTF",
-    odt: "ODT"
+    odt: "ODT",
+    html: "HTML",
+    epub: "ePub"
   },
   find: {
     action: "Find",

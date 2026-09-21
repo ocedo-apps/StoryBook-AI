@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createBook, updateChapter } from "@core/BookSchema";
 import { packManuscriptBackup } from "@core/manuscriptBackup";
-import { buildManuscriptExport, formatExportRtf, packOdt } from "@core/manuscriptExport";
+import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt } from "@core/manuscriptExport";
 
 describe("manuscript export formats", () => {
   it("writes RTF with headings and escapes control marks", () => {
@@ -55,5 +55,43 @@ describe("manuscript export formats", () => {
     const doc = buildManuscriptExport(book);
     expect(doc.chapters[0]?.prose).toBe("Jeff's eyes adjust.");
     expect(doc.chapters[0]?.prose).not.toContain("Note:");
+  });
+
+  it("writes a self-contained HTML page and escapes markup", () => {
+    let book = { ...createBook("Night Keys"), brainstorm: "secret stowaway", synopsis: "Emma leaves before winter." };
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the <door>." });
+    const html = formatExportHtml(buildManuscriptExport(book, "First pass"));
+    expect(html.startsWith("<!doctype html>")).toBe(true);
+    expect(html).toContain("Night Keys");
+    expect(html).toContain("The quay");
+    expect(html).toContain("Emma locked the &lt;door&gt;.");
+    expect(html).toContain("First pass");
+    expect(html).toContain("Synopsis");
+    expect(html).not.toContain("secret stowaway");
+  });
+
+  it("packs an ePub a reader can open, with mimetype stored first and uncompressed", () => {
+    let book = { ...createBook("Night Keys"), brainstorm: "secret stowaway", synopsis: "Emma leaves before winter." };
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door." });
+    const epub = packEpub(buildManuscriptExport(book));
+    expect(epub[0]).toBe(0x50);
+    expect(epub[1]).toBe(0x4b);
+    const text = new TextDecoder().decode(epub);
+    expect(text).toContain("application/epub+zip");
+    expect(text).toContain("OEBPS/content.opf");
+    expect(text).toContain("Emma locked the door.");
+    expect(text).toContain("The quay");
+    expect(text).not.toContain("secret stowaway");
+
+    const mimetypeIndex = text.indexOf("mimetypeapplication/epub+zip");
+    expect(mimetypeIndex).toBeGreaterThan(-1);
+    expect(mimetypeIndex).toBeLessThan(60);
+  });
+
+  it("gives an ePub page for the Story Bible and leaves it out when there are no facts", () => {
+    const book = createBook("Night Keys");
+    const epub = packEpub(buildManuscriptExport(book));
+    const text = new TextDecoder().decode(epub);
+    expect(text).not.toContain("bible.xhtml");
   });
 });

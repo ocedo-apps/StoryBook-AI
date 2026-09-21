@@ -1,7 +1,23 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.8
+Status: living document, v0.9
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.8 → v0.9:** **Publicera** ersätter **Exportera**.
+Knappen flyttade från headern till en egen rubrik längst ner i vänsterpanelen
+(under Kapitel/Ta bort-listan, samma nivå som Inställningar/Brainstorm/
+Synopsis/Dispositioner ovanför kapitellistan); klick öppnar samma sorts
+dockade ruta som Stats, inte en egen modaltyp. Två nya format utöver
+Markdown/RTF/ODT: **HTML** (en fristående sida, inbäddad CSS, öppnas i
+valfri webbläsare) och **ePub** (EPUB 3 — `META-INF/container.xml`,
+`content.opf`, `nav.xhtml`, ett xhtml-kapitel per bokkapitel plus
+titelsida/synopsis/Story Bible-sida när de finns). Ingen ny beroende:
+epub-paketeringen återanvänder samma noll-beroende zip-writer
+(`zipStore`/`crc32`) som redan byggde ODT, `mimetype` läggs okomprimerad
+som första post precis som OCF/EPUB kräver. Samma `ManuscriptExport`
+mellanformat som redan matade Markdown/RTF/ODT matar nu HTML och ePub
+också — ingen egen datamodell för de nya formaten. PDF är inte med i den
+här omgången (öppen fråga, se §11).
 
 **Ändringslogg v0.7 → v0.8:** Kapitelhistorik (`proseHistory.ts`,
 `proseDiff.ts`, `ChapterHistoryCard.tsx`). Varje skrivjobb på ett
@@ -327,8 +343,9 @@ Jobb mot prosa, plus backup och kort-export:
 - Stats (Tier 1) — deterministiskt: Directness, Pacing, Vocabulary,
   Echo, upprepad fras, POV-läcka, packade stycken, Rare-markering. Klick på
   Echo eller upprepad fras öppnar Sök med ordet. Ingen modell.
-- Sök/ersätt, JSON-backup, Markdown/RTF/ODT — ingen modell. Sök har
-  snabbsökningar för upprepade ord och fraser på den öppna sidan.
+- Sök/ersätt, JSON-backup, **Publicera** (Markdown/RTF/ODT/HTML/ePub) —
+  ingen modell. Sök har snabbsökningar för upprepade ord och fraser på
+  den öppna sidan.
 - `projectFactsToCampaign` — senare. Läser `core.*`, föreslår `rpg.*`,
   skriver hyllor + Campaign Builder-utkast. Aldrig en live-`Session`.
   Första skivan är **Export cards** (karaktärer, platser, föremål).
@@ -501,6 +518,10 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
   en tyst overwrite av `prose`.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
   story-clock.
+- **PDF-export** (och ev. ODF utöver ODT): v0.9 gav Publicera HTML och
+  ePub. PDF är ett eget beslut — webbläsarens skriv-ut-till-PDF från
+  HTML-exporten, eller ett dedikerat PDF-bibliotek (sidbrytning,
+  typsnittsinbäddning). Inte valt än.
 
 ---
 
@@ -508,9 +529,9 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
-Analyze, Proofread, backup/export, sök/ersätt, Reader, borttagna kapitel,
-Dispositioner, Brainstorm-lappar och kapitelhistorik (v0.8, diff + säkert
-återställ) finns. Sandbox-sidan har nu ett
+Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub, v0.9),
+sök/ersätt, Reader, borttagna kapitel, Dispositioner, Brainstorm-lappar och
+kapitelhistorik (v0.8, diff + säkert återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export
 (kapitel-skal som JSON, v0.7) — se ändringsloggen. Nästa produktsteg här
 är kampanjexport, inte mer skrivhjälp:

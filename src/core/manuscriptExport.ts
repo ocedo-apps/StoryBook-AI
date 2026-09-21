@@ -3,6 +3,7 @@ import { sortedChapters, type Book } from "./BookSchema";
 import { profileFor } from "./characterProfile";
 import { PREDICATE_LABELS } from "./predicates";
 import { peelModelAsides } from "./proseFlow";
+import { newId } from "./ids";
 
 function exportProse(text: string): string {
   return peelModelAsides(text).prose.trim();
@@ -114,6 +115,59 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
+const HTML_EXPORT_CSS = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;font-family:Georgia,"Times New Roman",serif;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}`;
+
+function htmlParagraphs(text: string): string {
+  const lines = text.split(/\r\n|\n|\r/);
+  if (lines.length === 0) return "";
+  return lines.map((line) => (line ? `<p>${xmlEscape(line)}</p>` : "<p><br/></p>")).join("\n");
+}
+
+export function formatExportHtml(doc: ManuscriptExport): string {
+  const body: string[] = [`<h1>${xmlEscape(doc.title)}</h1>`, `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`];
+  if (doc.note) body.push(`<p class="meta">${xmlEscape(doc.note)}</p>`);
+  if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
+    const meta: string[] = [];
+    if (doc.voice) meta.push(`Voice: ${xmlEscape(doc.voice)}`);
+    if (doc.viewpoint) meta.push(`Viewpoint: ${xmlEscape(doc.viewpoint)}`);
+    if (doc.readerAge !== undefined) meta.push(`Reader: ${doc.readerAge}`);
+    body.push(`<p class="meta">${meta.join("<br/>")}</p>`);
+  }
+  if (doc.synopsis) {
+    body.push("<h2>Synopsis</h2>", htmlParagraphs(doc.synopsis));
+  }
+  for (const chapter of doc.chapters) {
+    body.push(`<h2>${xmlEscape(chapter.heading)}</h2>`);
+    if (chapter.brief) body.push(`<p class="meta">Brief: ${xmlEscape(chapter.brief)}</p>`);
+    if (chapter.voice) body.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
+    if (chapter.prose) body.push(htmlParagraphs(chapter.prose));
+  }
+  if (doc.bible.length > 0) {
+    body.push("<h2>Story Bible</h2>");
+    for (const section of doc.bible) {
+      body.push(`<h3>${xmlEscape(section.heading)}</h3>`);
+      for (const entity of section.entities) {
+        body.push(`<p><strong>${xmlEscape(entity.name)}</strong></p>`);
+        if (entity.lines.length > 0) {
+          body.push(`<ul>${entity.lines.map((line) => `<li>${xmlEscape(line)}</li>`).join("")}</ul>`);
+        }
+      }
+    }
+  }
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>${xmlEscape(doc.title)}</title>
+<style>${HTML_EXPORT_CSS}</style>
+</head>
+<body>
+${body.join("\n")}
+</body>
+</html>
+`;
+}
+
 export function formatExportRtf(doc: ManuscriptExport): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
@@ -158,6 +212,133 @@ export function packOdt(doc: ManuscriptExport): Uint8Array {
     { name: "content.xml", data: utf8(odtContentXml(doc)) },
     { name: "styles.xml", data: utf8(ODT_STYLES) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
+  ]);
+}
+
+const EPUB_CSS = `body{font-family:Georgia,"Times New Roman",serif;line-height:1.6;margin:1.25em}h1{font-size:1.6em}h2{font-size:1.3em}.meta{color:#555;font-size:0.9em}`;
+
+type EpubPage = { id: string; file: string; title: string; body: string };
+
+function epubXhtml(title: string, body: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><meta charset="utf-8"/><title>${xmlEscape(title)}</title><link rel="stylesheet" type="text/css" href="../styles/stylesheet.css"/></head>
+<body>
+${body}
+</body>
+</html>
+`;
+}
+
+export function packEpub(doc: ManuscriptExport): Uint8Array {
+  const pages: EpubPage[] = [];
+
+  const titleMeta: string[] = [];
+  if (doc.voice) titleMeta.push(`Voice: ${xmlEscape(doc.voice)}`);
+  if (doc.viewpoint) titleMeta.push(`Viewpoint: ${xmlEscape(doc.viewpoint)}`);
+  if (doc.readerAge !== undefined) titleMeta.push(`Reader: ${doc.readerAge}`);
+  const titleBody = [
+    `<h1>${xmlEscape(doc.title)}</h1>`,
+    `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`,
+    doc.note ? `<p class="meta">${xmlEscape(doc.note)}</p>` : "",
+    titleMeta.length > 0 ? `<p class="meta">${titleMeta.join("<br/>")}</p>` : ""
+  ]
+    .filter(Boolean)
+    .join("\n");
+  pages.push({ id: "title", file: "text/title.xhtml", title: doc.title, body: titleBody });
+
+  if (doc.synopsis) {
+    pages.push({
+      id: "synopsis",
+      file: "text/synopsis.xhtml",
+      title: "Synopsis",
+      body: `<h1>Synopsis</h1>\n${htmlParagraphs(doc.synopsis)}`
+    });
+  }
+
+  doc.chapters.forEach((chapter, index) => {
+    const parts = [`<h1>${xmlEscape(chapter.heading)}</h1>`];
+    if (chapter.brief) parts.push(`<p class="meta">Brief: ${xmlEscape(chapter.brief)}</p>`);
+    if (chapter.voice) parts.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
+    if (chapter.prose) parts.push(htmlParagraphs(chapter.prose));
+    pages.push({
+      id: `chapter-${index}`,
+      file: `text/chapter-${index}.xhtml`,
+      title: chapter.heading,
+      body: parts.join("\n")
+    });
+  });
+
+  if (doc.bible.length > 0) {
+    const parts = ["<h1>Story Bible</h1>"];
+    for (const section of doc.bible) {
+      parts.push(`<h2>${xmlEscape(section.heading)}</h2>`);
+      for (const entity of section.entities) {
+        parts.push(`<p><strong>${xmlEscape(entity.name)}</strong></p>`);
+        if (entity.lines.length > 0) {
+          parts.push(`<ul>${entity.lines.map((line) => `<li>${xmlEscape(line)}</li>`).join("")}</ul>`);
+        }
+      }
+    }
+    pages.push({ id: "bible", file: "text/bible.xhtml", title: "Story Bible", body: parts.join("\n") });
+  }
+
+  const manifestItems = pages
+    .map((page) => `    <item id="${page.id}" href="${page.file}" media-type="application/xhtml+xml"/>`)
+    .join("\n");
+  const spineItems = pages.map((page) => `    <itemref idref="${page.id}"/>`).join("\n");
+  const navList = pages
+    .map((page) => `        <li><a href="${page.file}">${xmlEscape(page.title)}</a></li>`)
+    .join("\n");
+
+  const opf = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="book-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="book-id">urn:uuid:${newId()}</dc:identifier>
+    <dc:title>${xmlEscape(doc.title)}</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+Z$/, "Z")}</meta>
+  </metadata>
+  <manifest>
+${manifestItems}
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="css" href="styles/stylesheet.css" media-type="text/css"/>
+  </manifest>
+  <spine>
+${spineItems}
+  </spine>
+</package>
+`;
+
+  const nav = `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><meta charset="utf-8"/><title>${xmlEscape(doc.title)}</title><link rel="stylesheet" type="text/css" href="styles/stylesheet.css"/></head>
+<body>
+  <nav epub:type="toc" id="toc">
+    <h1>${xmlEscape(doc.title)}</h1>
+    <ol>
+${navList}
+    </ol>
+  </nav>
+</body>
+</html>
+`;
+
+  const container = `<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>
+`;
+
+  return zipStore([
+    { name: "mimetype", data: utf8("application/epub+zip") },
+    { name: "META-INF/container.xml", data: utf8(container) },
+    { name: "OEBPS/content.opf", data: utf8(opf) },
+    { name: "OEBPS/nav.xhtml", data: utf8(nav) },
+    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS) },
+    ...pages.map((page) => ({ name: `OEBPS/${page.file}`, data: utf8(epubXhtml(page.title, page.body)) }))
   ]);
 }
 

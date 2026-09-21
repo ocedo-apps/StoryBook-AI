@@ -34,7 +34,7 @@ import {
   packManuscriptBackup,
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
-import { buildManuscriptExport, formatExportRtf, packOdt } from "@core/manuscriptExport";
+import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt } from "@core/manuscriptExport";
 import { addChapter, discardChapter, discardedChapters, removeChapter, restoreChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
@@ -271,8 +271,8 @@ export function Editor() {
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupNote, setBackupNote] = useState("");
   const [backupFilename, setBackupFilename] = useState("");
-  const [exportOpen, setExportOpen] = useState(false);
-  const [exportFilename, setExportFilename] = useState("");
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishFilename, setPublishFilename] = useState("");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -324,27 +324,40 @@ export function Editor() {
     noteClearedContinues(cleared);
   }
 
-  function saveExport(kind: "md" | "rtf" | "odt") {
+  function saveExport(kind: "md" | "rtf" | "odt" | "html" | "epub") {
     if (!book) return;
     const packed = packManuscriptBackup(book);
     const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
     if (kind === "md") {
-      downloadText(ensureDownloadFilename(exportFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
+      downloadText(ensureDownloadFilename(publishFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
     } else if (kind === "rtf") {
-      downloadText(ensureDownloadFilename(exportFilename, "rtf"), formatExportRtf(doc), "application/rtf");
-    } else {
+      downloadText(ensureDownloadFilename(publishFilename, "rtf"), formatExportRtf(doc), "application/rtf");
+    } else if (kind === "odt") {
       downloadBytes(
-        ensureDownloadFilename(exportFilename, "odt"),
+        ensureDownloadFilename(publishFilename, "odt"),
         packOdt(doc),
         "application/vnd.oasis.opendocument.text"
       );
+    } else if (kind === "html") {
+      downloadText(ensureDownloadFilename(publishFilename, "html"), formatExportHtml(doc), "text/html");
+    } else {
+      downloadBytes(ensureDownloadFilename(publishFilename, "epub"), packEpub(doc), "application/epub+zip");
     }
-    setExportOpen(false);
+    setPublishOpen(false);
+  }
+
+  function openPublish() {
+    if (!book) return;
+    setBackupOpen(false);
+    setFindOpen(false);
+    setFindHighlight(null);
+    setPublishFilename(manuscriptExportBasename(book));
+    setPublishOpen(true);
   }
 
   function openFind() {
     setBackupOpen(false);
-    setExportOpen(false);
+    setPublishOpen(false);
     setAskOpen(false);
     setStatsOpen(false);
     setNotesOpen(false);
@@ -360,7 +373,7 @@ export function Editor() {
 
   function openProofread() {
     setBackupOpen(false);
-    setExportOpen(false);
+    setPublishOpen(false);
     setAskOpen(false);
     setStatsOpen(false);
     setNotesOpen(false);
@@ -380,7 +393,7 @@ export function Editor() {
     const trimmed = phrase.trim();
     if (!trimmed) return;
     setBackupOpen(false);
-    setExportOpen(false);
+    setPublishOpen(false);
     setAskOpen(false);
     setNotesOpen(false);
     setStatsOpen(false);
@@ -453,17 +466,17 @@ export function Editor() {
   }, [book.id]);
 
   useEffect(() => {
-    if (!backupOpen && !exportOpen && !findOpen) return;
+    if (!backupOpen && !publishOpen && !findOpen) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setBackupOpen(false);
-      setExportOpen(false);
+      setPublishOpen(false);
       setFindOpen(false);
       setFindHighlight(null);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [backupOpen, exportOpen, findOpen]);
+  }, [backupOpen, publishOpen, findOpen]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -504,7 +517,7 @@ export function Editor() {
             className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
             title={jsonBackupDue ? m.editor.backupDueTitle : m.editor.backupTitle}
             onClick={() => {
-              setExportOpen(false);
+              setPublishOpen(false);
               setFindOpen(false);
               setFindHighlight(null);
               setBackupNote("");
@@ -513,19 +526,6 @@ export function Editor() {
             }}
           >
             {jsonBackupDue ? m.editor.backupDue : m.editor.backup}
-          </button>
-          <button
-            type="button"
-            className="text-button theme-toggle"
-            onClick={() => {
-              setBackupOpen(false);
-              setFindOpen(false);
-              setFindHighlight(null);
-              setExportFilename(manuscriptExportBasename(book));
-              setExportOpen(true);
-            }}
-          >
-            {m.editor.export}
           </button>
           <div className="find-anchor">
             <button
@@ -851,6 +851,13 @@ export function Editor() {
               </ul>
             </>
           ) : null}
+          <button
+            type="button"
+            className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
+            onClick={openPublish}
+          >
+            {m.editor.publish}
+          </button>
         </aside>
 
         {onSettings && !onBoard ? (
@@ -1277,40 +1284,46 @@ export function Editor() {
           </form>
         </div>
       ) : null}
-      {exportOpen ? (
-        <div className="edit-overlay" role="presentation" onClick={() => setExportOpen(false)}>
+      {publishOpen ? (
+        <div className="edit-overlay" role="presentation" onClick={() => setPublishOpen(false)}>
           <form
             className="edit-card backup-card"
             action="#"
             onClick={(event) => event.stopPropagation()}
             onSubmit={(event) => event.preventDefault()}
-            aria-labelledby="export-title"
+            aria-labelledby="publish-title"
           >
-            <h2 id="export-title">{m.export.title}</h2>
-            <p className="quiet">{m.export.body}</p>
-            <label className="field-label" htmlFor="export-filename">
-              {m.export.documentName}
+            <h2 id="publish-title">{m.publish.title}</h2>
+            <p className="quiet">{m.publish.body}</p>
+            <label className="field-label" htmlFor="publish-filename">
+              {m.publish.documentName}
             </label>
             <input
-              id="export-filename"
+              id="publish-filename"
               type="text"
-              value={exportFilename}
-              onChange={(event) => setExportFilename(event.target.value)}
+              value={publishFilename}
+              onChange={(event) => setPublishFilename(event.target.value)}
               autoComplete="off"
               spellCheck={false}
             />
             <div className="edit-actions">
-              <button type="button" className="text-button" onClick={() => setExportOpen(false)}>
+              <button type="button" className="text-button" onClick={() => setPublishOpen(false)}>
                 {m.common.cancel}
               </button>
               <button type="button" className="primary" onClick={() => saveExport("md")}>
-                {m.export.markdown}
+                {m.publish.markdown}
               </button>
               <button type="button" className="primary" onClick={() => saveExport("rtf")}>
-                {m.export.rtf}
+                {m.publish.rtf}
               </button>
               <button type="button" className="primary" onClick={() => saveExport("odt")}>
-                {m.export.odt}
+                {m.publish.odt}
+              </button>
+              <button type="button" className="primary" onClick={() => saveExport("html")}>
+                {m.publish.html}
+              </button>
+              <button type="button" className="primary" onClick={() => saveExport("epub")}>
+                {m.publish.epub}
               </button>
             </div>
           </form>

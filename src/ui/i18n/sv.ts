@@ -51,7 +51,7 @@ export const sv: Messages = {
     backupDue: "! Säkerhetskopia",
     backupDueTitle: "Manuset har ändrats sedan senaste JSON-säkerhetskopian",
     backupTitle: "Säkerhetskopia",
-    export: "Exportera",
+    publish: "Publicera",
     settings: "Inställningar",
     settingsLede:
       "Hur det här manuset skrivs. Inte Story Bible. Kapitlen kan fortfarande överstyra kamera, röst och Läsare.",
@@ -179,13 +179,15 @@ export const sv: Messages = {
       unreadable: "Manuset i filen gick inte att läsa."
     }
   },
-  export: {
-    title: "Exportera",
-    body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener.",
+  publish: {
+    title: "Publicera",
+    body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare.",
     documentName: "Dokumentnamn",
     markdown: "Markdown",
     rtf: "RTF",
-    odt: "ODT"
+    odt: "ODT",
+    html: "HTML",
+    epub: "ePub"
   },
   find: {
     action: "Sök",
