@@ -273,6 +273,7 @@ export function Editor() {
   const [backupFilename, setBackupFilename] = useState("");
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishFilename, setPublishFilename] = useState("");
+  const [publishFormat, setPublishFormat] = useState<"md" | "rtf" | "odt" | "html" | "epub">("md");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -1290,7 +1291,10 @@ export function Editor() {
             className="edit-card backup-card"
             action="#"
             onClick={(event) => event.stopPropagation()}
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={(event) => {
+              event.preventDefault();
+              saveExport(publishFormat);
+            }}
             aria-labelledby="publish-title"
           >
             <h2 id="publish-title">{m.publish.title}</h2>
@@ -1306,24 +1310,26 @@ export function Editor() {
               autoComplete="off"
               spellCheck={false}
             />
+            <label className="field-label" htmlFor="publish-format">
+              {m.publish.format}
+            </label>
+            <select
+              id="publish-format"
+              value={publishFormat}
+              onChange={(event) => setPublishFormat(event.target.value as typeof publishFormat)}
+            >
+              <option value="md">{m.publish.markdown}</option>
+              <option value="rtf">{m.publish.rtf}</option>
+              <option value="odt">{m.publish.odt}</option>
+              <option value="html">{m.publish.html}</option>
+              <option value="epub">{m.publish.epub}</option>
+            </select>
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setPublishOpen(false)}>
                 {m.common.cancel}
               </button>
-              <button type="button" className="primary" onClick={() => saveExport("md")}>
-                {m.publish.markdown}
-              </button>
-              <button type="button" className="primary" onClick={() => saveExport("rtf")}>
-                {m.publish.rtf}
-              </button>
-              <button type="button" className="primary" onClick={() => saveExport("odt")}>
-                {m.publish.odt}
-              </button>
-              <button type="button" className="primary" onClick={() => saveExport("html")}>
-                {m.publish.html}
-              </button>
-              <button type="button" className="primary" onClick={() => saveExport("epub")}>
-                {m.publish.epub}
+              <button type="submit" className="primary">
+                {m.publish.action}
               </button>
             </div>
           </form>

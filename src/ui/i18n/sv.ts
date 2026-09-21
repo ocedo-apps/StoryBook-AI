@@ -183,6 +183,8 @@ export const sv: Messages = {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare.",
     documentName: "Dokumentnamn",
+    format: "Format",
+    action: "Publicera",
     markdown: "Markdown",
     rtf: "RTF",
     odt: "ODT",

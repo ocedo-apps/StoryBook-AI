@@ -183,6 +183,8 @@ export const nb: Messages = {
     title: "Publiser",
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser.",
     documentName: "Dokumentnavn",
+    format: "Format",
+    action: "Publiser",
     markdown: "Markdown",
     rtf: "RTF",
     odt: "ODT",

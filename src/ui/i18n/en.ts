@@ -181,6 +181,8 @@ export const en = {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader.",
     documentName: "Document name",
+    format: "Format",
+    action: "Publish",
     markdown: "Markdown",
     rtf: "RTF",
     odt: "ODT",
