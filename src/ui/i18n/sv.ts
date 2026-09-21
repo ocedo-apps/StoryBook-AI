@@ -40,6 +40,11 @@ export const sv: Messages = {
     allManuscripts: "Alla manus",
     manuscriptTitle: "Manustitel",
     writing: "Skrivande",
+    primer: "Startprompt",
+    primerTitle: "Startprompt för den här skrivmodellen",
+    primerLede: "Den går ut före varje skrivjobb. Kapitlets regler följer ändå. Tom betyder bara de reglerna.",
+    primerRestore: "Använd startprompten",
+    primerAria: "Startprompt för {model}",
     review: "Granskning",
     noModels: "Inga Ollama-modeller",
     backup: "Säkerhetskopia",
@@ -47,6 +52,14 @@ export const sv: Messages = {
     backupDueTitle: "Manuset har ändrats sedan senaste JSON-säkerhetskopian",
     backupTitle: "Säkerhetskopia",
     export: "Exportera",
+    settings: "Inställningar",
+    settingsLede:
+      "Hur det här manuset skrivs. Inte Story Bible. Kapitlen kan fortfarande överstyra kamera, röst och Läsare.",
+    proseLanguage: "Prosans språk",
+    proseLanguagePlaceholder: "Svenska",
+    proseLanguageTitle: "Språket meningarna skrivs på. Tomt gissar från manuset. En skrivinstruktion, inte kanon.",
+    modelsHeading: "Modeller",
+    uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
     briefs: "Dispositioner",
@@ -100,6 +113,7 @@ export const sv: Messages = {
     extract: "Extrahera fakta",
     extracting: "Extraherar…",
     analyze: "Analysera",
+    proofread: "Korrekturläsning",
     notes: "Anteckningar",
     recast: "Omskriv prosan",
     recasting: "Omskriver…",
@@ -179,6 +193,10 @@ export const sv: Messages = {
     wholeWord: "Hela ord",
     includeBrainstorm: "Ta med brainstorm",
     here: "Den här sidan",
+    echoes: "Upprepade ord",
+    phrases: "Upprepade fraser",
+    noneEcho: "Inga upprepade ord på den här sidan.",
+    nonePhrases: "Inga upprepade fraser på den här sidan.",
     none: "Inget matchar.",
     hits: { one: "{count} träff", other: "{count} träffar" },
     snippetHint: "Raderna under en rubrik är ordet med texten runt om. Sökrutan ligger ovanpå sidan, så ställena listas här.",
@@ -196,6 +214,38 @@ export const sv: Messages = {
     prev: "Föregående träff",
     next: "Nästa träff",
     position: "{current} av {total}"
+  },
+  proofread: {
+    action: "Korrekturläsning",
+    title: "Korrekturläsning",
+    runningTitle: "Korrekturläsning pågår — bra tillfälle för en fika.",
+    lede: "En sista Review-runda över hela manuset. Bara citat och anteckningar. Ingenting skrivs om.",
+    grammar: "Grammatik",
+    scenes: "Upprepade scener",
+    style: "Stil mellan kapitel",
+    age: "Åldersrapport",
+    grammarProgress: "Grammatik — {done} av {total} kapitel klara",
+    scenesProgress: "Letar upprepade scener — {done} av {total} styckepar jämförda",
+    styleProgress: "Stilkonsekvens mellan kapitel",
+    ageProgress: "Sammanställer åldersrapport",
+    now: "Just nu: {detail}",
+    nowGrammar: "läser kapitel {n}…",
+    nowScenes: "jämför kapitel {a} med kapitel {b}…",
+    nowStyle: "lyssnar efter ett skifte i registret…",
+    nowAge: "väger prosan mot Läsare…",
+    percent: "{n}%",
+    continue: "Fortsätt",
+    runAgain: "Kör igen",
+    resultsTitle: "Anteckningar från korrektur",
+    emptyResults: "Inget fast den här gången.",
+    clickHint: "Klicka på en rad för att öppna kapitlet.",
+    stale: "Kapitlet har ändrats sedan passet.",
+    suggestion: "Förslag",
+    chapter: "Kapitel {n}",
+    chapters: "Kapitel {a} och {b}",
+    paused: "Pausad. Det som hunnit klart är sparat.",
+    error: "Passet stannade. Det som hunnit klart är sparat.",
+    craft: "Kamera på korten"
   },
   craft: {
     pov: "Perspektiv",
@@ -341,7 +391,38 @@ export const sv: Messages = {
     rewriteTitle: "Skriv om",
     rewriteHint: "Säg åt modellen hur det markerade stycket ska ändras. Bara det spannet byts ut.",
     rewritePlaceholder: "Kortare. Mer spänning. I Emmas röst. Skär bort metaforen.",
-    rewriteAction: "Skriv om"
+    rewriteAction: "Skriv om",
+    rewriteChips: {
+      group: "Snabbval från Statistik och Analys",
+      povLeakCamera:
+        "Stanna i den aktuella kameran. Gå inte in i ett medvetande kameran inte kan känna. Samma händelser.",
+      povLeak: {
+        label: "Fixa perspektivbrott",
+        prompt:
+          "Stanna i {who}s varseblivning. Återge inte en annan karaktärs tankar eller känslor. Samma händelser."
+      },
+      strongerVerbs: {
+        label: "Starkare verb",
+        prompt:
+          "Byt svaga verb plus sättsadverb mot starkare verb (sprang snabbt → rusade). Ta inte bara bort -t-orden. Samma händelser."
+      },
+      activeVoice: {
+        label: "Aktiv form",
+        prompt:
+          "Gör misstänkta passiver aktiva (dörren öppnades av henne → hon öppnade dörren). Samma händelser."
+      },
+      showDontTell: {
+        label: "Visa, berätta inte",
+        prompt:
+          "Där en känsla namnges, låt kroppen eller scenen bära den. Lägg inte till förklaring. Samma händelser."
+      },
+      breakLong: {
+        label: "Bryt den långa meningen",
+        prompt:
+          "Bryt den långa meningen. Behåll betydelsen. En kort stöt efter en lång rad, inte en rad lika korta."
+      }
+    },
+    modelAside: "Modellen lade till det här. Det ligger inte i manuset."
   },
   stats: {
     label: "Statistik",
@@ -373,7 +454,11 @@ export const sv: Messages = {
     mixedOne: "Det här blocket blandar nutida handling, en lång blick bakåt och staplade sinnen.",
     mixedMany: "De här blocken blandar nutida handling, en lång blick bakåt och staplade sinnen.",
     echo: "Upprepningar",
-    echoBody: "Samma ord eller fras upprepas på kort avstånd. En refräng kan vara poängen.",
+    echoBody: "Samma ord eller fras upprepas på kort avstånd. Klicka för att söka. En refräng kan vara poängen.",
+    reuse: "Upprepad fras",
+    reuseBody: "Samma ordkedja dyker upp i mer än ett stycke. Klicka för att söka. En refräng kan vara poängen.",
+    reuseWhere: "Styckena {list} · {n} ord",
+    openFind: "Sök “{phrase}” i texten",
     povLeak: "Perspektivbrott",
     foot: "{words} ord · {sentences} meningar · {spoken}% tal",
     highlight: "Markera i texten",
@@ -499,6 +584,7 @@ export const sv: Messages = {
     extractEmpty: "Skriv eller ta fram lite prosa innan du extraherar fakta.",
     analyzeEmpty: "Skriv eller ta fram lite prosa innan du analyserar kapitlet.",
     extractorNone: "Extraktorn hittade inga uttalade fakta i det här kapitlet.",
+    proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     imageChoose: "Välj en bildfil.",
     imageRead: "Kunde inte läsa den bilden.",
     imageAdd: "Kunde inte lägga till den bilden."

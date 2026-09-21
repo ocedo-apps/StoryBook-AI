@@ -40,6 +40,11 @@ export const nb: Messages = {
     allManuscripts: "Alle manuskripter",
     manuscriptTitle: "Manuskripttittel",
     writing: "Skriving",
+    primer: "Startprompt",
+    primerTitle: "Startprompt for denne skrivemodellen",
+    primerLede: "Den går ut før hver skrivejobb. Kapitlets regler følger likevel. Tom betyr bare de reglene.",
+    primerRestore: "Bruk startprompten",
+    primerAria: "Startprompt for {model}",
     review: "Gjennomgang",
     noModels: "Ingen Ollama-modeller",
     backup: "Sikkerhetskopi",
@@ -47,6 +52,14 @@ export const nb: Messages = {
     backupDueTitle: "Manuskriptet har endret seg siden siste JSON-sikkerhetskopi",
     backupTitle: "Sikkerhetskopi",
     export: "Eksporter",
+    settings: "Innstillinger",
+    settingsLede:
+      "Hvordan dette manuskriptet skrives. Ikke Story Bible. Kapitlene kan fortsatt overstyre kamera, stemme og Leser.",
+    proseLanguage: "Prosaens språk",
+    proseLanguagePlaceholder: "Norsk",
+    proseLanguageTitle: "Språket setningene skrives på. Tomt gjetter fra manuskriptet. En skriveinstruksjon, ikke kanon.",
+    modelsHeading: "Modeller",
+    uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
     briefs: "Disposisjoner",
@@ -100,6 +113,7 @@ export const nb: Messages = {
     extract: "Hent ut fakta",
     extracting: "Henter ut…",
     analyze: "Analyser",
+    proofread: "Korrektur",
     notes: "Notater",
     recast: "Omskriv prosa",
     recasting: "Omskriver…",
@@ -179,6 +193,10 @@ export const nb: Messages = {
     wholeWord: "Hele ord",
     includeBrainstorm: "Ta med brainstorm",
     here: "Denne siden",
+    echoes: "Gjentatte ord",
+    phrases: "Gjentatte fraser",
+    noneEcho: "Ingen gjentatte ord på denne siden.",
+    nonePhrases: "Ingen gjentatte fraser på denne siden.",
     none: "Ingenting matcher.",
     hits: { one: "{count} treff", other: "{count} treff" },
     snippetHint: "Linjene under en overskrift er ordet med teksten rundt. Søkevinduet ligger oppå siden, så stedene listes her.",
@@ -196,6 +214,38 @@ export const nb: Messages = {
     prev: "Forrige treff",
     next: "Neste treff",
     position: "{current} av {total}"
+  },
+  proofread: {
+    action: "Korrektur",
+    title: "Korrektur",
+    runningTitle: "Korrektur pågår — et godt tidspunkt for kaffe.",
+    lede: "En siste Review-runde over hele manuskriptet. Bare sitater og notater. Ingenting skrives om.",
+    grammar: "Grammatikk",
+    scenes: "Gjentatte scener",
+    style: "Stil mellom kapitler",
+    age: "Aldersrapport",
+    grammarProgress: "Grammatikk — {done} av {total} kapitler ferdige",
+    scenesProgress: "Leter etter gjentatte scener — {done} av {total} avsnittspar sammenlignet",
+    styleProgress: "Stilkonsekvens mellom kapitler",
+    ageProgress: "Setter sammen aldersrapporten",
+    now: "Akkurat nå: {detail}",
+    nowGrammar: "leser kapittel {n}…",
+    nowScenes: "sammenligner kapittel {a} med kapittel {b}…",
+    nowStyle: "lytter etter et skifte i registeret…",
+    nowAge: "veier prosaen mot Leser…",
+    percent: "{n}%",
+    continue: "Fortsett",
+    runAgain: "Kjør på nytt",
+    resultsTitle: "Notater fra korrektur",
+    emptyResults: "Ingenting fast denne gangen.",
+    clickHint: "Klikk på en linje for å åpne kapitlet.",
+    stale: "Kapitlet er endret siden passet.",
+    suggestion: "Forslag",
+    chapter: "Kapittel {n}",
+    chapters: "Kapittel {a} og {b}",
+    paused: "Pauset. Det som rakk å bli ferdig er lagret.",
+    error: "Passet stoppet. Det som rakk å bli ferdig er lagret.",
+    craft: "Kamera på kortene"
   },
   craft: {
     pov: "Perspektiv",
@@ -341,7 +391,38 @@ export const nb: Messages = {
     rewriteTitle: "Skriv om",
     rewriteHint: "Si til modellen hvordan det markerte avsnittet skal endres. Bare det spannet byttes ut.",
     rewritePlaceholder: "Kortere. Mer spenning. I Emmas stemme. Skjær bort metaforen.",
-    rewriteAction: "Skriv om"
+    rewriteAction: "Skriv om",
+    rewriteChips: {
+      group: "Snarveier fra Statistikk og Analyse",
+      povLeakCamera:
+        "Bli i det aktuelle kameraet. Ikke gå inn i et sinn kameraet ikke kan kjenne. Samme hendelser.",
+      povLeak: {
+        label: "Fiks perspektivbrudd",
+        prompt:
+          "Bli i {who}s oppfatning. Ikke gjengi en annen karakters tanker eller følelser. Samme hendelser."
+      },
+      strongerVerbs: {
+        label: "Sterkere verb",
+        prompt:
+          "Bytt svake verb pluss måtesadverb mot sterkere verb (løp fort → raste). Ikke bare ta bort -t-ordene. Samme hendelser."
+      },
+      activeVoice: {
+        label: "Aktiv form",
+        prompt:
+          "Gjør mulige passiver aktive (døren ble åpnet av henne → hun åpnet døren). Samme hendelser."
+      },
+      showDontTell: {
+        label: "Vis, fortell ikke",
+        prompt:
+          "Der en følelse navngis, la kroppen eller scenen bære den. Ikke legg til forklaring. Samme hendelser."
+      },
+      breakLong: {
+        label: "Bryt den lange setningen",
+        prompt:
+          "Bryt den lange setningen. Behold meningen. Et kort støt etter en lang linje, ikke en rekke like korte."
+      }
+    },
+    modelAside: "Modellen la til dette. Det ligger ikke i manuset."
   },
   stats: {
     label: "Statistikk",
@@ -373,7 +454,11 @@ export const nb: Messages = {
     mixedOne: "Denne blokken blander nåtidig handling, et langt blikk bakover og stablede sanser.",
     mixedMany: "Disse blokkene blander nåtidig handling, et langt blikk bakover og stablede sanser.",
     echo: "Gjentakelser",
-    echoBody: "Samme ord eller frase gjentas på kort avstand. Et omkved kan være poenget.",
+    echoBody: "Samme ord eller frase gjentas på kort avstand. Klikk for å søke. Et omkved kan være poenget.",
+    reuse: "Gjentatt frase",
+    reuseBody: "Samme ordkjede dukker opp i mer enn ett avsnitt. Klikk for å søke. Et omkved kan være poenget.",
+    reuseWhere: "Avsnitt {list} · {n} ord",
+    openFind: "Søk «{phrase}» i teksten",
     povLeak: "Perspektivbrudd",
     foot: "{words} ord · {sentences} setninger · {spoken}% tale",
     highlight: "Merk i teksten",
@@ -499,6 +584,7 @@ export const nb: Messages = {
     extractEmpty: "Skriv eller ta fram litt prosa før du henter ut fakta.",
     analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
+    proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     imageChoose: "Velg en bildefil.",
     imageRead: "Kunne ikke lese det bildet.",
     imageAdd: "Kunne ikke legge til det bildet."

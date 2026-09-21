@@ -4,6 +4,8 @@ A local-first prose tool. The Story Bible holds truth. The model drafts. You dec
 
 This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export comes later. No cloud API keys: both apps talk to a local [Ollama](https://ollama.com) server.
 
+The UI is English, Swedish, or Norwegian Bokmål. **Prose language** on Settings is the language of the sentences. Export files and model prompts follow that field when it is set, otherwise the language of the manuscript.
+
 ## Run
 
 On Windows, double-click **`starta.bat`**. Or:
@@ -21,27 +23,31 @@ Allow the origin:
 OLLAMA_ORIGINS=http://localhost:5175 ollama serve
 ```
 
-You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo.
+You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Export** writes Markdown, RTF, or ODT.
 
 ## Models
 
-Two dropdowns in the header:
+Two dropdowns under **Settings**:
 
 - **Writing** (default `stheno-custom:latest`) — Draft, Recast, Extend, Elaborate, Rewrite, Brainstorm Ask.
-- **Review** (default `qwen2.5-coder:7b`) — Extract facts, word swap, sentence split, paragraph break, Analyze.
+- **Review** (default `qwen2.5-coder:7b`) — Extract facts, word swap, sentence split, paragraph break, Analyze, Proofread.
 
 ## Loop
 
-1. Title a manuscript. **Brainstorm** is private scratch — Ask the model, keep secrets here. Draft never reads it.
-2. Select a note and **Lift to synopsis** when it should become the map. The note stays in brainstorm.
-3. Open Chapter 1. Sketch a chapter brief if you want. Set POV, tense, viewpoint, and **Continues from**.
-4. **Draft** fills or continues the chapter from the synopsis, the Story Bible, the brief, and the camera.
-5. Select a passage and right-click: **Extend** continues it, **Elaborate** expands it, **Rewrite…** follows your instruction, **Manual Edit** rewrites the span by hand.
-6. **Recast prose** rewrites the open chapter to the current camera. Same events and order; no new plot. Dropdowns do not recast on their own.
-7. **Stats** shows how it reads (directness, pacing, vocabulary, echo, POV leak, mixed-focus paragraphs). **Rare on** marks uncommon words; right-click one for Review alternatives.
-8. **Analyze** is an opt-in Review pass. It flags quotes; it does not rewrite. **Notes** reopens the last result.
-9. **Extract facts** proposes Story Bible rows. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person.
-10. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.
+1. Title a manuscript. **Settings** is first in the left rail: camera, Voice, Reader, prose language, and which Writing and Review models to use. The page language stays in the header. A blank book opens here.
+2. **Brainstorm** is private scratch: one note per idea, drag them, colour them. **Ask** writes onto a new note. Draft never reads this board.
+3. Drag a note into the **send** column when it should become plot. Order in that column is paragraph order. **Send to synopsis** appends them to the map, removes those notes, and opens Synopsis. Notes left on the board stay secret.
+4. Open **Briefs** to see every chapter brief as a card. Moving a card moves the chapter. The brief is a writing instruction, not canon.
+5. Open a chapter. The chapter can inherit the manuscript camera, Voice, and Reader, or override them. **Continues from** picks the strand. **Primer** on Settings is the start prompt for the Writing model.
+6. **Draft** fills or continues the chapter from the synopsis, the Story Bible, the brief, the camera, Reader, and prose language.
+7. Select a passage and right-click: **Extend** continues it, **Elaborate** expands it, **Rewrite…** opens chips that fill your instruction (POV leak, stronger verbs, active voice, show don’t tell, long sentence) — you still press **Rewrite**. **Manual Edit** rewrites the span by hand. **Find** searches and replaces across the manuscript, with quick searches for repeated words and phrases on this page.
+8. **Recast prose** rewrites the open chapter to the current camera. Same events and order; no new plot. Dropdowns do not recast on their own.
+9. **Stats** shows how it reads (directness, pacing, vocabulary, echo, repeated phrase, POV leak, mixed-focus paragraphs). Click an echo or repeated phrase to find it. **Rare on** marks uncommon words; right-click one for Review alternatives.
+10. **Analyze** is an opt-in Review pass. It flags quotes; it does not rewrite. **Notes** reopens the last result.
+11. **Proofread** sits under Chapters in the left rail — last in the Settings → Brainstorm → Synopsis → Briefs → Chapters line, and not a locked step. It is a slower last Review pass over the whole manuscript (grammar, repeated scenes, style between chapters, age report). Progress is saved as it goes. It does not rewrite.
+12. **Extract facts** proposes Story Bible rows. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person. **Export cards** sends locked people, places, and objects to Sandbox shelves.
+13. Remove a chapter with **×**. It sits under Discarded chapters until you restore it or throw it away for good.
+14. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.
 
 ## Analyze
 
@@ -56,4 +62,4 @@ npm test
 npm run typecheck
 ```
 
-`npm test` covers the Story Bible schema, ConsistencyGate, extractor JSON recovery, craft/recast prompts, Analyze parsing, word-swap sense checks, and IndexedDB round-trip.
+`npm test` covers the Story Bible schema, ConsistencyGate, extractor JSON recovery, craft/recast prompts, Analyze parsing, word-swap sense checks, IndexedDB round-trip, locales, find/replace, Reader, Continues from, and brainstorm notes.

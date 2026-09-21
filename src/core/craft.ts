@@ -110,7 +110,7 @@ export function povInstruction(pov: PovMode, viewpoint: string): string {
     case "omniscient":
       return "Third person omniscient. You may reveal any character’s thoughts when the scene needs it. Do not linger in every mind at once.";
     case "objective":
-      return "Third person objective. Write only what a camera would see and hear — action, gesture, dialogue. No thoughts, no interiority.";
+      return "Third person objective. Write only what an observer on the scene would see and hear — action, gesture, dialogue. No thoughts, no interiority.";
     case "second":
       return "Second person. Address the reader as “you”; “you” is the main character.";
   }
@@ -128,7 +128,7 @@ function sameCraft(a: CraftFields, b: CraftFields): boolean {
 export function formatCraftForDraft(craft: CraftFields, manuscript?: CraftFields): string {
   const body = `Point of view: ${povInstruction(craft.pov, craft.viewpoint)}\nTense: ${tenseInstruction(craft.tense)}`;
   if (manuscript && !sameCraft(craft, manuscript)) {
-    return `${body}\nThis chapter uses a different camera from the rest of the manuscript (manuscript default: ${summarizeCraft(manuscript)}). Stay with this chapter’s camera even if earlier prose was written in another.`;
+    return `${body}\nThis chapter uses a different point of view from the rest of the manuscript (manuscript default: ${summarizeCraft(manuscript)}). Stay with this chapter’s point of view even if earlier prose was written in another.`;
   }
   return body;
 }

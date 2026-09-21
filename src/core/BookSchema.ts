@@ -6,6 +6,7 @@ import { EntityMediaSchema } from "./entityMedia";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
+import { ProofreadJobSchema } from "./proofreadSchema";
 
 export const ChapterSchema = z.object({
   id: z.string().min(1),
@@ -57,6 +58,11 @@ export const BookSchema = z.object({
   /** How the prose should sound. Writing instruction, not a world fact. */
   voice: z.string(),
   /**
+   * Language the sentences are written in. Writing instruction, not a world fact.
+   * Missing or empty on older saves — Draft infers from the manuscript.
+   */
+  prose_language: z.string().default(""),
+  /**
    * Intended reader age. Writing instruction, not a world fact.
    * Missing on older saves — empty keeps the adult Dale–Chall baseline.
    */
@@ -100,6 +106,10 @@ export const BookSchema = z.object({
    * Missing on older saves — default keeps IndexedDB loadable.
    */
   entity_kinds: z.array(EntityKindSchema).default([]),
+  /**
+   * Last-pass Review job over the manuscript. Missing on older saves.
+   */
+  proofread: ProofreadJobSchema.optional(),
   created_at: z.string().min(1),
   updated_at: z.string().min(1)
 });
@@ -140,6 +150,7 @@ export function createBook(title: string): Book {
     tense: "past",
     viewpoint: "",
     voice: "",
+    prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],
     synopsis: "",
@@ -154,16 +165,19 @@ export function createBook(title: string): Book {
   };
 }
 
-export type EditorSurface = "brainstorm" | "synopsis" | "chapter";
+export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter";
 
 /**
- * New manuscripts open on brainstorm. A book with a synopsis but no prose
- * opens on the map. Once a chapter has prose, reopen on the chapter.
+ * A blank manuscript opens on Settings. Brainstorm once notes exist.
+ * A book with a synopsis but no prose opens on the map. Once a chapter
+ * has prose, reopen on the chapter.
  */
 export function openingSurface(book: Book): EditorSurface {
   if (sortedChapters(book).some((chapter) => chapter.prose.trim().length > 0)) return "chapter";
   if (book.synopsis.trim().length > 0) return "synopsis";
-  return "brainstorm";
+  const notes = book.brainstorm_notes ?? [];
+  if (book.brainstorm.trim() || notes.some((note) => note.text.trim())) return "brainstorm";
+  return "settings";
 }
 
 export function createChapter(sequence_index: number, title = ""): Chapter {

@@ -38,6 +38,11 @@ export const en = {
     allManuscripts: "All manuscripts",
     manuscriptTitle: "Manuscript title",
     writing: "Writing",
+    primer: "Primer",
+    primerTitle: "Start prompt for this writing model",
+    primerLede: "This goes out before every writing job. The chapter rules still follow. Empty means those rules only.",
+    primerRestore: "Use start prompt",
+    primerAria: "Start prompt for {model}",
     review: "Review",
     noModels: "No Ollama models",
     backup: "Backup",
@@ -45,6 +50,14 @@ export const en = {
     backupDueTitle: "This manuscript has changed since the last JSON backup",
     backupTitle: "Backup",
     export: "Export",
+    settings: "Settings",
+    settingsLede:
+      "How this manuscript is written. Not Story Bible. Chapters can still override camera, Voice, and Reader.",
+    proseLanguage: "Prose language",
+    proseLanguagePlaceholder: "Swedish",
+    proseLanguageTitle: "The language the sentences are written in. Empty infers from the manuscript. A writing instruction, not canon.",
+    modelsHeading: "Models",
+    uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
     briefs: "Briefs",
@@ -98,6 +111,7 @@ export const en = {
     extract: "Extract facts",
     extracting: "Extracting…",
     analyze: "Analyze",
+    proofread: "Proofread",
     notes: "Notes",
     recast: "Recast prose",
     recasting: "Recasting…",
@@ -177,6 +191,10 @@ export const en = {
     wholeWord: "Whole word",
     includeBrainstorm: "Include brainstorm",
     here: "This page",
+    echoes: "Repeated words",
+    phrases: "Repeated phrases",
+    noneEcho: "No repeated words on this page.",
+    nonePhrases: "No repeated phrases on this page.",
     none: "Nothing matches.",
     hits: { one: "{count} match", other: "{count} matches" },
     snippetHint: "The lines under a heading are the word with the text around it. The search window covers the page, so the places are listed here.",
@@ -194,6 +212,38 @@ export const en = {
     prev: "Previous match",
     next: "Next match",
     position: "{current} of {total}"
+  },
+  proofread: {
+    action: "Proofread",
+    title: "Proofread",
+    runningTitle: "Proofreading in progress — a good time for a cup of tea.",
+    lede: "A last Review pass over the whole manuscript. Quotes and notes only. Nothing is rewritten.",
+    grammar: "Grammar",
+    scenes: "Repeated scenes",
+    style: "Style across chapters",
+    age: "Age report",
+    grammarProgress: "Grammar — {done} of {total} chapters done",
+    scenesProgress: "Looking for repeated scenes — {done} of {total} paragraph pairs compared",
+    styleProgress: "Style consistency between chapters",
+    ageProgress: "Compiling the age report",
+    now: "Now: {detail}",
+    nowGrammar: "reading chapter {n}…",
+    nowScenes: "comparing chapter {a} with chapter {b}…",
+    nowStyle: "listening for a shift in register…",
+    nowAge: "weighing the prose against Reader…",
+    percent: "{n}%",
+    continue: "Continue",
+    runAgain: "Run again",
+    resultsTitle: "Proofread notes",
+    emptyResults: "Nothing solid this time.",
+    clickHint: "Click a line to open that chapter.",
+    stale: "This chapter has changed since the pass.",
+    suggestion: "Suggestion",
+    chapter: "Chapter {n}",
+    chapters: "Chapters {a} and {b}",
+    paused: "Paused. What finished is saved.",
+    error: "The pass stopped. What finished is saved.",
+    craft: "Camera on the cards"
   },
   craft: {
     pov: "POV",
@@ -339,7 +389,38 @@ export const en = {
     rewriteTitle: "Rewrite",
     rewriteHint: "Tell the model how to change the marked passage. Only that span is replaced.",
     rewritePlaceholder: "Shorter. More tension. In Emma’s voice. Cut the metaphor.",
-    rewriteAction: "Rewrite"
+    rewriteAction: "Rewrite",
+    rewriteChips: {
+      group: "Shortcuts from Stats and Analyze",
+      povLeakCamera:
+        "Stay in the current camera. Do not enter a mind the camera cannot know. Keep the same events.",
+      povLeak: {
+        label: "Fix POV leak",
+        prompt:
+          "Stay in {who}’s perception. Do not report another character’s thoughts or feelings. Keep the same events."
+      },
+      strongerVerbs: {
+        label: "Stronger verbs",
+        prompt:
+          "Swap weak verbs plus manner-adverbs for stronger verbs (ran quickly → rushed). Do not only delete the -ly words. Keep the same events."
+      },
+      activeVoice: {
+        label: "Active voice",
+        prompt:
+          "Recast possible passives as active (the door was opened by her → she opened the door). Keep the same events."
+      },
+      showDontTell: {
+        label: "Show, don’t tell",
+        prompt:
+          "Where a feeling is named, let the body or the scene carry it. Do not add explanation. Keep the same events."
+      },
+      breakLong: {
+        label: "Break the long sentence",
+        prompt:
+          "Break the long sentence. Keep the meaning. Prefer a short hit after a long line, not a string of equal shorts."
+      }
+    },
+    modelAside: "The model added this. It is not in the manuscript."
   },
   stats: {
     label: "Stats",
@@ -371,7 +452,11 @@ export const en = {
     mixedOne: "This block mixes present action, a long look back, and stacked senses.",
     mixedMany: "These blocks mix present action, a long look back, and stacked senses.",
     echo: "Echo",
-    echoBody: "The same word or phrase repeats in a short span. A refrain can be the point.",
+    echoBody: "The same word or phrase repeats in a short span. Click one to find it. A refrain can be the point.",
+    reuse: "Repeated phrase",
+    reuseBody: "The same stretch of words appears in more than one paragraph. Click one to find it. A refrain can be the point.",
+    reuseWhere: "Paragraphs {list} · {n} words",
+    openFind: "Find “{phrase}” in the text",
     povLeak: "POV leak",
     foot: "{words} words · {sentences} sentences · {spoken}% spoken",
     highlight: "Highlight in text",
@@ -497,6 +582,7 @@ export const en = {
     extractEmpty: "Write or draft some prose before extracting facts.",
     analyzeEmpty: "Write or draft some prose before analyzing the chapter.",
     extractorNone: "Extractor found no stated facts in this chapter.",
+    proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     imageChoose: "Choose an image file.",
     imageRead: "Could not read that image.",
     imageAdd: "Could not add that image."

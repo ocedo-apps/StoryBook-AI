@@ -1,7 +1,19 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.5
+Status: living document, v0.6
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.5 → v0.6:** ytorna runt texten. UI på engelska, svenska
+och norskt bokmål. JSON-backup som appen kan läsa tillbaka, plus
+Markdown/RTF/ODT. Sök/ersätt. **Reader** (ålder på manus och kapitel)
+retunerar sällsynta ord, meningslängd och Analyze. Borttagna kapitel:
+X flyttar till en sektion i manuset, Återställ tar tillbaka, ett andra
+kast tar bort för gott. **Dispositioner** är ett rutnät av kapitelkort —
+samma brief, samma `sequence_index`. **Brainstorm** är fria lappar (färg,
+dra); en kolumn till höger skickar valda lappar till synopsis och tar
+bort dem från kladden. Lift-overlayn är borta. Ljust/mörkt. **Export
+cards** skickar låsta karaktärer, platser och föremål till Sandbox-hyllor.
+Kampanjutkast (You, redan hänt / spelbar scen) är inte byggt.
 
 **Ändringslogg v0.4 → v0.5:** skrivloopen har två modeller. **Writing**
 (Stheno som default) tar Draft, Recast, Extend, Elaborate, Rewrite och
@@ -9,13 +21,12 @@ Brainstorm Ask. **Review** (Qwen-instruct som default) tar Extract, word
 swap, menings- och styckebrytning, och **Analyze**. Analyze är opt-in,
 aldrig omskrivning, aldrig Brainstorm, aldrig faktamutation. Flaggar
 citat i fyra kategorier (show vs tell, dialogue, voice, character).
-Statsytan har Directness / Pacing / Vocabulary plus Echo, POV-läcka och
-packade stycken. Rare-markering + högerklick för synonymförslag mot
+Statsytan har Directness / Pacing / Vocabulary plus Echo, upprepad fras,
+POV-läcka och packade stycken. Rare-markering + högerklick för synonymförslag mot
 Review. Apparna ligger som syskon på GitHub
 (`ocedo-apps/StoryBook-AI`, `ocedo-apps/Sandbox-AI`). Inga molnnycklar —
-lokal Ollama. Manus bor i IndexedDB, inte i git. Parkerat: manusexport,
-sök/ersätt, Reader. Borttagna kapitel ligger kvar i manuset tills de
-återställs eller kastas för gott.
+lokal Ollama. Manus bor i IndexedDB, inte i git. JSON-backup och
+dokumentexport, sök/ersätt och Reader kom i v0.6.
 
 **Ändringslogg v0.3 → v0.4:** skrivloopen har en kamera och en
 explicit recast. Manuset har POV, tempus och viewpoint; kapitlet kan
@@ -131,7 +142,9 @@ Apparna är syskon, två repon. StoryBook AI körs fristående (port 5175):
 https://github.com/ocedo-apps/StoryBook-AI
 Sandbox AI (port 5173):
 https://github.com/ocedo-apps/Sandbox-AI
-Sandbox anropas inte förrän exporten byggs.
+
+**Export cards** skickar låsta kort till Sandbox **Import backup** (hyllor,
+inte en live-`Session`). Kampanjutkast byggs inte än.
 
 ---
 
@@ -217,11 +230,13 @@ Körs per kandidatfakta efter Pass 2-extraktion, innan commit:
 
 ## 6. Modellstrategi (lokal-first)
 
-Två dropdowns i headern, implementerat:
+Två dropdowns under **Inställningar**, implementerat:
 
 - **Writing / Generator** (default `stheno-custom:latest`) — Draft,
   Recast, Extend, Elaborate, Rewrite, Brainstorm Ask. Optimerad för
-  prosaröst, inte för strikt JSON.
+  prosaröst, inte för strikt JSON. **Startprompt** (Primer) ligger
+  framför varje skrivjobb; defaulttexten gäller tills författaren
+  ändrar den per modell. Tom primer = bara jobbets regler.
 - **Review / Extraktor-Granskare** (default `qwen2.5-coder:7b`, väljer
   Qwen-instruct om den finns i listan) — Extract facts, word swap,
   menings- och styckebrytning, Analyze. Optimerad för schema och
@@ -239,18 +254,21 @@ motsägelser är samma entity + predikat + annat värde.
 
 **Skrivloopen (v1, det som finns nu):**
 Generatorn skriver prosa mot synops, låsta `core.*`-fakta, kapitelbrief,
-löst kamera (POV / tempus / viewpoint) och — vid Draft — slutet av det
-kapitel **Continues from** pekar på. Brainstorm läses aldrig. Författaren
-redigerar. **Recast prose** är ett separat, opt-in jobb: samma kapitel,
-ny kamera, ingen ny plot. `extractFactsFromProse` föreslår kandidater.
+löst kamera (POV / tempus / viewpoint), Reader och — vid Draft — slutet av
+det kapitel **Continues from** pekar på. Brainstorm läses aldrig.
+Författaren redigerar. **Recast prose** är ett separat, opt-in jobb: samma
+kapitel, ny kamera, ingen ny plot. `extractFactsFromProse` föreslår
+kandidater.
 `ConsistencyGate` (steg 1–2) auto-godkänner dubbletter, föreslår ny fakta,
 flaggar motsägelser. Författaren låser eller avvisar. Avvisade förslag som
 aldrig blev sanning tas bort; låsta rader efterträds. **Analyze** är en
 tyngre Review-pass på det öppna kapitlet: citat + note, ingen omskrivning.
 
-Jobb mot prosa, plus export senare:
+Jobb mot prosa, plus backup och kort-export:
 
 - `draftChapter` / passage-rewrite (Extend, Elaborate, Rewrite) — Writing.
+  Rewrite-chips fyller instruktionen (POV-läcka, starkare verb, aktiv form,
+  visa/berätta, lång mening). De kör inte omskrivningen av sig själva.
 - `recastChapter` — Writing. Befintlig kapitelprosa till den *aktuella*
   kameran. Körs inte när dropdowns ändras.
 - Word swap, sentence split, paragraph break — Review, punktoperationer.
@@ -259,11 +277,22 @@ Jobb mot prosa, plus export senare:
   `dialogue_purpose`, `voice_drift` (hoppas över om Voice är tom),
   `character_fidelity`. Aldrig Brainstorm. Aldrig faktarader. Inverterade
   flaggor (noten medger att raden redan visar / avslöjar karaktär) slängs.
+- **Korrekturläsning** — Review, opt-in, hela manuset. I vänsterlisten
+  under Kapitel, sist i kedjan Inställningar → Brainstorm → Synopsis →
+  Dispositioner → Kapitel. Inte ett låst steg. Grammatik/stavning,
+  samma händelse i olika ord (lokal kandidat + modell), stil mellan kapitel,
+  åldersrapport mot Reader. Citat och not, ingen omskrivning. Progress och
+  resultat sparas på boken i IndexedDB så en stängd flik kan fortsätta.
+  Aldrig Brainstorm.
 - `extractFactsFromProse` — Review, efter accepterad prosa.
 - Stats (Tier 1) — deterministiskt: Directness, Pacing, Vocabulary,
-  Echo, POV-läcka, packade stycken, Rare-markering. Ingen modell.
+  Echo, upprepad fras, POV-läcka, packade stycken, Rare-markering. Klick på
+  Echo eller upprepad fras öppnar Sök med ordet. Ingen modell.
+- Sök/ersätt, JSON-backup, Markdown/RTF/ODT — ingen modell. Sök har
+  snabbsökningar för upprepade ord och fraser på den öppna sidan.
 - `projectFactsToCampaign` — senare. Läser `core.*`, föreslår `rpg.*`,
   skriver hyllor + Campaign Builder-utkast. Aldrig en live-`Session`.
+  Första skivan är **Export cards** (karaktärer, platser, föremål).
 
 ### 7.1 Kamera, recast och skrivinstruktion (v0.4)
 
@@ -274,15 +303,20 @@ skrivinstruktion och ska inte låsas som `NarrativeFact`:
 - POV, tempus, viewpoint (manusdefault + kapitel-override)
 - Continues from
 - Voice (ton, inte kamera)
-- Reader (senare) — vem prosa och granskning ställs mot. Inte kanon.
-  En 12-åring retunerar sällsynta ord, meningslängd och Analyze; den
-  skriver inte om boken till barnbok av sig själv. Tom Reader lämnar
-  dagens vuxna Dale–Chall-bas.
+- **Prosans språk** — vilket språk meningarna skrivs på. Inte UI-språk.
+  Tomt gissar från synopsis, brief och befintlig prosa.
+- Reader — vem prosa och granskning ställs mot. Inte kanon. Manuset sätter
+  default; kapitlet kan överstyra. En 12-åring retunerar sällsynta ord,
+  meningslängd och Analyze; den skriver inte om boken till barnbok av sig
+  själv. Tom Reader lämnar den vuxna Dale–Chall-basen.
 
-**Kamera.** Manuset sätter default. Kapitlet ärver tills författaren
+**Kamera.** Manuset sätter default, på **Inställningar** (första steget
+i vänsterlisten). Kapitlet ärver tills författaren
 överstyr. Limited och first person kräver viewpoint. Draft, Extend,
 Elaborate och Rewrite honorar den lösta kameran. Voice beskriver röst,
-inte person eller tempus.
+inte person eller tempus. Prosans språk ligger på Inställningar, skilt
+från sidans språk i headern. Writing- och Review-modellerna ligger där
+också.
 
 **Recast.** Ändrad kamera lämnar befintlig prosa orörd tills författaren
 ber om **Recast prose**. Då skrivs *det öppna kapitlet* om: samma
@@ -293,7 +327,18 @@ hunnit komma. Recast körs inte över hela manuset.
 **Continues from.** Default är föregående kapitel i listan. Ett namngivet
 tidigare kapitel byter strand. *None* öppnar en ny. Draft får slutet av
 den valda prosan (några sista stycken), inte hela boken. Det är kontext
-för generatorn, inte ett påstående i Story Bible.
+för generatorn, inte ett påstående i Story Bible. Namngivna trådar kan
+visas i kapitelvyn.
+
+**Dispositioner.** En yta där varje levande kapitel är ett kort med samma
+brief som Draft redan läser. Flytta korten: `sequence_index` följer med.
+Inte en extra synopsis per kapitel.
+
+**Brainstorm-lappar.** En lapp per idé, fritt på tavlan, valfri färg.
+Ask lägger svaret på en ny lapp. Dra till kolumnen **Till synopsis**;
+ordningen där är styckeordningen. **Skicka till synopsis** limmar text
+på kartan, tar bort de lapparna från kladden och öppnar synopsis.
+Tomma lappar stannar. Det som ligger kvar på tavlan är privat.
 
 **Stycken.** Generatorn får en stående regel: ett stycke får vara långt
 om ett motiv håller det; nytt stycke när fokuset skiftar mellan handling,
@@ -349,13 +394,14 @@ Dokumenterade här så de inte glöms bort eller omprövas av misstag:
   till bokens karaktärsbibel — det är för tungt. Lösningen är
   namnrymdade predikat snarare än ett gemensamt tungt schema.
 - **Skrivinstruktion är inte kanon.** Brief, POV, tempus, viewpoint,
-  Continues from, Voice och (senare) Reader styr generator och granskning.
+  Continues from, Voice och Reader styr generator och granskning.
   De är inte `NarrativeFact`. Story Bible rymmer atomära påståenden om världen.
 - **Kameraändring recastar inte tyst.** Dropdowns är inställning.
   Omskrivning kräver Recast, per kapitel. Samma skäl som mot osynlig
   auto-omskrivning i ConsistencyGate: författaren har sista ordet.
-- **Brainstorm är privat.** Ask och Lift to synopsis är författarens
-  scratch. Draft, Recast, Extract och Analyze läser det aldrig.
+- **Brainstorm är privat.** Ask och skicka-till-synopsis är författarens
+  scratch. Draft, Recast, Extract och Analyze läser det aldrig. En lapp
+  blir handling först när den landar på kartan.
 - **Analyze skriver inte om.** Citat + note. Författaren har sista ordet.
   Introt i notes-rutan: *The review tries to find lines that neither
   reveal the character’s personality nor drive the scene forward.*
@@ -391,14 +437,9 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
   flaggor, inte dåligt hantverksomdöme i grunden.
 - **LLM-steg 3 i ConsistencyGate** (semantiska motsägelser som inte är
   samma predikat+värde) — inte v1.
-- **Manusexport / backup** ur IndexedDB (markdown eller text av kapitel
-  + Story Bible). Inte kampanjexport. Högsta riskhålet mot dataförlust.
-- **Sök/ersätt** för valfri prosa. Namnbyte på kortet finns redan.
-- **Reader** (senare) — se §7.1. Inte nu.
-- **Borttagna kapitel:** X flyttar kapitlet till en sektion i manuset.
-  Återställ tar tillbaka det. Ett andra kast tar bort det för gott.
 - **Bok → kampanjgrund:** UI för *redan hänt / spelbar scen / låt bli*,
-  och mapping mot realm/landmark/focal. Inte nu.
+  och mapping mot realm/landmark/focal. Inte nu. Export cards täcker
+  bara låsta kort.
 - `sequence_index` är kapitelordning i boken. Det är inte RPG:ts
   story-clock.
 
@@ -407,12 +448,11 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 ## 12. Nästa steg
 
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
-Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats och
-Analyze finns. Nästa produktsteg inuti StoryBook, inte kampanjexport:
+Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
+Analyze, backup/export, sök/ersätt, Reader, borttagna kapitel,
+Dispositioner och Brainstorm-lappar finns. Nästa produktsteg är
+kampanjexport, inte mer skrivhjälp:
 
-- Manusexport / backup ur IndexedDB.
-- Sök/ersätt för valfri text.
-- Därefter Reader, om empirin mot barn-/YA-prosa behöver den.
-- **Borttagna kapitel:** kapitlet lämnar listan men ligger kvar under
-  Borttagna kapitel tills det återställs eller kastas för gott.
-- Först därefter `projectFactsToCampaign`.
+- `projectFactsToCampaign` — You, *redan hänt* / *spelbar scen* / *låt bli*.
+- Polering som väntar, inte v1: färgfilter på lappar, send-kolumn på smal
+  skärm, modellomskrivning av det som skickas till synopsis.

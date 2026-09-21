@@ -16,6 +16,18 @@ describe("draftUserPrompt", () => {
     expect(prompt).not.toContain("where the story is going");
   });
 
+  it("names the prose language when the author set one", () => {
+    const book = { ...createBook("The Salt Road"), prose_language: "Swedish" };
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("Prose language: Swedish");
+  });
+
+  it("omits the prose language line when it is empty", () => {
+    const book = createBook("The Salt Road");
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).not.toContain("Prose language:");
+  });
+
   it("never feeds brainstorm notes to the chapter draft", () => {
     const book = {
       ...createBook("The Salt Road"),
@@ -161,7 +173,7 @@ describe("draftUserPrompt", () => {
     const prompt = draftUserPrompt(book, book.chapters[1]!);
     expect(prompt).toContain("Third person limited to the stranger");
     expect(prompt).not.toContain("Third person limited to Emma");
-    expect(prompt).toContain("different camera");
+    expect(prompt).toContain("different point of view");
     expect(prompt).toContain("3rd limited to Emma");
   });
 
@@ -169,7 +181,7 @@ describe("draftUserPrompt", () => {
     const book = { ...createBook("The Salt Road"), viewpoint: "Emma" };
     const prompt = draftUserPrompt(book, book.chapters[0]!);
     expect(prompt).toContain("limited to Emma");
-    expect(prompt).not.toContain("different camera");
+    expect(prompt).not.toContain("different point of view");
   });
 
   it("uses a chapter Voice when set, and the manuscript Voice when not", () => {
@@ -275,6 +287,8 @@ describe("passageUserPrompt", () => {
     expect(prompt).toContain("Shorter, more tension.");
     expect(prompt).toContain("Author instruction");
     expect(prompt).toContain("Third person limited");
+    expect(prompt).toContain("NOTE:");
+    expect(prompt).toContain("old phrase");
   });
 
   it("applies the chapter camera to a passage rewrite", () => {
@@ -289,7 +303,7 @@ describe("passageUserPrompt", () => {
       after: ""
     });
     expect(prompt).toContain("Present tense throughout");
-    expect(prompt).toContain("different camera");
+    expect(prompt).toContain("different point of view");
   });
 });
 
@@ -298,6 +312,9 @@ describe("paragraph focus", () => {
     expect(DRAFT_SYSTEM).toContain("Start a new paragraph when focus shifts");
     expect(PASSAGE_SYSTEM).toContain("Start a new paragraph when focus shifts");
     expect(RECAST_SYSTEM).toContain("Start a new paragraph when focus shifts");
+    expect(DRAFT_SYSTEM).toMatch(/not as a film treatment/i);
+    expect(PASSAGE_SYSTEM).toMatch(/not as a film treatment/i);
+    expect(RECAST_SYSTEM).toMatch(/not as a film treatment/i);
   });
 });
 

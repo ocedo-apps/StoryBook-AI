@@ -28,4 +28,14 @@ describe("manuscript export formats", () => {
     expect(text).toContain("The quay");
     expect(text).not.toContain("secret stowaway");
   });
+
+  it("drops a model Note from chapter prose so it cannot ride along", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, {
+      prose: '(Note: Changed "moves with practiced ease" to "surges through".)Jeff\'s eyes adjust.'
+    });
+    const doc = buildManuscriptExport(book);
+    expect(doc.chapters[0]?.prose).toBe("Jeff's eyes adjust.");
+    expect(doc.chapters[0]?.prose).not.toContain("Note:");
+  });
 });

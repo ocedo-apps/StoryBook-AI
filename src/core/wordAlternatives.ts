@@ -58,6 +58,45 @@ export function matchWordCase(original: string, replacement: string): string {
   return next;
 }
 
+const AN_SILENT_H = /^(hour|honest|honor|honour|heir|herb)/i;
+const A_YOO_SOUND = /^(uni(?:vers|que|t|form|on)|use[d]?|useful|useless|usual|user|one|once|euro|eulogy|european)/i;
+
+/** English a vs an from the start of the next word. Sound, not spelling-perfect. */
+export function indefiniteArticle(word: string): "a" | "an" {
+  const token = word.trim().replace(/^["'“”‘’]+/, "");
+  if (!token) return "a";
+  if (AN_SILENT_H.test(token)) return "an";
+  if (A_YOO_SOUND.test(token)) return "a";
+  return /^[aeiou]/i.test(token) ? "an" : "a";
+}
+
+function matchArticleCase(original: string, next: "a" | "an"): string {
+  if (original.length > 1 && original === original.toUpperCase()) return next.toUpperCase();
+  if (/^[A-Z]/.test(original)) return next.charAt(0).toUpperCase() + next.slice(1);
+  return next;
+}
+
+function articleBefore(source: string, wordStart: number): { start: number; end: number; text: string } | null {
+  const head = source.slice(0, wordStart);
+  const match = head.match(/(^|[^\p{L}\p{N}])([Aa]n?)(\s+)$/u);
+  if (!match) return null;
+  const text = match[2]!;
+  const spaces = match[3]!;
+  const start = head.length - text.length - spaces.length;
+  return { start, end: start + text.length, text };
+}
+
+/** Replace a word and retune a preceding English a/an when the sound changes. */
+export function applyWordSwap(source: string, span: { start: number; end: number }, original: string, replacement: string): string {
+  const word = matchWordCase(original, replacement);
+  const start = Math.min(span.start, span.end);
+  const end = Math.max(span.start, span.end);
+  const article = articleBefore(source, start);
+  if (!article) return source.slice(0, start) + word + source.slice(end);
+  const nextArticle = matchArticleCase(article.text, indefiniteArticle(word));
+  return source.slice(0, article.start) + nextArticle + source.slice(article.end, start) + word + source.slice(end);
+}
+
 export const ALTERNATIVES_SYSTEM = `You suggest replacement words for one marked word in fiction.
 Return JSON only, shaped as: {"words":["..."]}
 

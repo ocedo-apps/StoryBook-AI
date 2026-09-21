@@ -10,6 +10,7 @@ import { readerTuning } from "@core/reader";
 import type { CastMember } from "@core/characterProfile";
 import type { CraftFields } from "@core/craft";
 import { flagEchoes } from "@core/echoDetect";
+import { flagPhraseReuse } from "@core/phraseReuse";
 import { htmlFromProse } from "@core/proseFlow";
 import { flagPovLeaks } from "@core/povLeak";
 import { tallyRareWords } from "@core/rareWords";
@@ -84,6 +85,7 @@ export function ProseStatsCard({
   onSuggestSplit,
   onSuggestBreak,
   onApplySplit,
+  onFindPhrase,
   onClose
 }: {
   text: string;
@@ -96,6 +98,7 @@ export function ProseStatsCard({
   onSuggestSplit: (sentence: string, signal: AbortSignal) => Promise<string>;
   onSuggestBreak: (paragraph: string, signal: AbortSignal) => Promise<string>;
   onApplySplit: (sentence: string, split: string) => boolean;
+  onFindPhrase: (phrase: string) => void;
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
@@ -109,6 +112,7 @@ export function ProseStatsCard({
     [names, text, tuning.extraSyllables]
   );
   const echoes = useMemo(() => flagEchoes(text, names), [names, text]);
+  const reuseHits = useMemo(() => flagPhraseReuse(text, names), [names, text]);
   const leaks = useMemo(() => flagPovLeaks(text, craft, cast), [cast, craft, text]);
   const gauges = useMemo(
     () => ({
@@ -420,16 +424,37 @@ export function ProseStatsCard({
                 <p className="quiet">{m.stats.echoBody}</p>
                 <ul>
                   {echoes.map((hit) => (
-                    <li
-                      key={hit.phrase}
-                      className={selected !== null && hit.sentenceIndexes.includes(selected) ? "is-selected" : undefined}
-                    >
+                    <li key={hit.phrase}>
                       <button
                         type="button"
                         className="stats-long-pick"
-                        onClick={() => pickBar(hit.sentenceIndexes[0] ?? 0)}
+                        aria-label={format(m.stats.openFind, { phrase: hit.phrase })}
+                        onClick={() => onFindPhrase(hit.phrase)}
                       >
                         {hit.phrase} ×{hit.count}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {reuseHits.length > 0 ? (
+              <div className="stats-long stats-packed">
+                <p className="chapter-craft-label">{m.stats.reuse}</p>
+                <p className="quiet">{m.stats.reuseBody}</p>
+                <ul>
+                  {reuseHits.map((hit) => (
+                    <li key={`${hit.phrase}-${hit.paragraphs.join("-")}`}>
+                      <button
+                        type="button"
+                        className="stats-long-pick"
+                        aria-label={format(m.stats.openFind, { phrase: hit.phrase })}
+                        onClick={() => onFindPhrase(hit.phrase)}
+                      >
+                        {clip(hit.phrase, 80)} · {format(m.stats.reuseWhere, {
+                          list: hit.paragraphs.map((item) => item + 1).join(", "),
+                          n: hit.run
+                        })}
                       </button>
                     </li>
                   ))}

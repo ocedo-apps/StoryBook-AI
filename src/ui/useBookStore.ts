@@ -5,7 +5,7 @@ import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { TextSpan } from "@core/textSpan";
 
-export type Busy = "draft" | "extract" | "extend" | "elaborate" | "instruct" | "ask" | "recast" | "analyze" | null;
+export type Busy = "draft" | "extract" | "extend" | "elaborate" | "instruct" | "ask" | "recast" | "analyze" | "proofread" | null;
 
 export type BookStoreValue = {
   summaries: BookSummary[];
@@ -14,11 +14,13 @@ export type BookStoreValue = {
   surface: EditorSurface;
   models: string[];
   model: string;
+  writingPrimer: string;
   reviewModel: string;
   ollamaError: string | null;
   busy: Busy;
   error: string | null;
   chapterFeedback: ChapterFeedback | null;
+  modelAsides: string[];
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
   closeBook: () => void;
@@ -28,9 +30,13 @@ export type BookStoreValue = {
   patchBook: (mutate: (book: Book) => Book) => Promise<void>;
   setChapterId: (id: string) => void;
   selectChapter: (id: string) => void;
+  showSettings: () => void;
   showBrainstorm: () => void;
   showSynopsis: () => void;
+  dismissModelAside: () => void;
   setModel: (name: string) => void;
+  setWritingPrimer: (text: string) => void;
+  resetWritingPrimer: () => void;
   setReviewModel: (name: string) => void;
   draftChapter: () => Promise<void>;
   recastChapter: () => Promise<void>;
@@ -55,6 +61,7 @@ export type BookStoreValue = {
   stopDraft: () => void;
   extractChapter: () => Promise<void>;
   analyzeChapter: () => Promise<boolean>;
+  startProofread: (opts?: { restart?: boolean }) => Promise<void>;
   addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;

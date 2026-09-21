@@ -20,7 +20,11 @@ import {
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
+import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
+import { runProofread } from "@core/proofreadRun";
 import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
+import { clearWritingPrimer, readWritingPrimer, withWritingPrimer, writeWritingPrimer } from "@core/writingPrimer";
+import { peelModelAsides } from "@core/proseFlow";
 import { resolveReader, kidlitReader } from "@core/reader";
 import { applyExtend, applyReplace, surroundingPassage, type TextSpan } from "@core/textSpan";
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
@@ -79,6 +83,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [surface, setSurface] = useState<EditorSurface>("brainstorm");
   const [models, setModels] = useState<string[]>([]);
   const [model, setModelState] = useState(() => localStorage.getItem(MODEL_KEY) ?? DEFAULT_OLLAMA_MODEL);
+  const [writingPrimer, setWritingPrimerState] = useState(() =>
+    readWritingPrimer(localStorage.getItem(MODEL_KEY) ?? DEFAULT_OLLAMA_MODEL)
+  );
   const [reviewModel, setReviewModelState] = useState(
     () => localStorage.getItem(REVIEW_MODEL_KEY) ?? DEFAULT_REVIEW_MODEL
   );
@@ -86,15 +93,21 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState<string | null>(null);
   const [chapterFeedback, setChapterFeedback] = useState<ChapterFeedback | null>(null);
+  const [modelAsides, setModelAsides] = useState<string[]>([]);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
   const abortRef = useRef<AbortController | null>(null);
+  const proofreadLock = useRef(false);
   const saveTimer = useRef<number | null>(null);
+  const writingPrimerRef = useRef(writingPrimer);
 
   bookRef.current = book;
   chapterRef.current = chapterId;
   surfaceRef.current = surface;
+  writingPrimerRef.current = writingPrimer;
+
+  const writingSystem = (job: string) => withWritingPrimer(job, writingPrimerRef.current);
 
   const persist = useCallback(
     async (next: Book) => {
@@ -136,6 +149,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         if (picked) {
           setModelState(picked);
           localStorage.setItem(MODEL_KEY, picked);
+          setWritingPrimerState(readWritingPrimer(picked));
         }
         const reviewPreferred = localStorage.getItem(REVIEW_MODEL_KEY) ?? DEFAULT_REVIEW_MODEL;
         const reviewPicked = pickListedReviewModel(reviewPreferred, names);
@@ -158,6 +172,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       window.clearTimeout(saveTimer.current);
       saveTimer.current = null;
     }
+    bookRef.current = next;
     setBook(next);
     await persist(next);
   }, [persist]);
@@ -167,9 +182,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const current = bookRef.current;
       if (!current) return;
       const mutated = mutate(current);
+      if (mutated === current) return;
       const next = touch(mutated, {
         title: mutated.title.trim() || "Untitled manuscript"
       });
+      bookRef.current = next;
       setBook(next);
       if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
       saveTimer.current = window.setTimeout(() => {
@@ -296,7 +313,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const setModel = useCallback((name: string) => {
     setModelState(name);
     localStorage.setItem(MODEL_KEY, name);
+    setWritingPrimerState(readWritingPrimer(name));
   }, []);
+
+  const setWritingPrimer = useCallback((text: string) => {
+    setWritingPrimerState(text);
+    writeWritingPrimer(model, text);
+  }, [model]);
+
+  const resetWritingPrimer = useCallback(() => {
+    clearWritingPrimer(model);
+    setWritingPrimerState(readWritingPrimer(model));
+  }, [model]);
 
   const setReviewModel = useCallback((name: string) => {
     setReviewModelState(name);
@@ -312,6 +340,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setChapterIdState(id);
   }, []);
 
+  const showSettings = useCallback(() => {
+    setSurface("settings");
+  }, []);
+
   const showBrainstorm = useCallback(() => {
     setSurface("brainstorm");
   }, []);
@@ -319,6 +351,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const showSynopsis = useCallback(() => {
     setSurface("synopsis");
   }, []);
+
+  const dismissModelAside = useCallback(() => setModelAsides([]), []);
+
+  const manuscriptFromModel = (raw: string, fallback: string) => {
+    const { prose, asides } = peelModelAsides(raw);
+    if (asides.length > 0) setModelAsides(asides);
+    return prose.trim() ? prose : fallback;
+  };
 
   const draftChapter = useCallback(async () => {
     const current = bookRef.current;
@@ -336,17 +376,19 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     abortRef.current = abort;
     setBusy("draft");
     setError(null);
+    setModelAsides([]);
 
     const provider = new OllamaProvider({ model });
     let assembled = chapter.prose;
     const prefix = assembled.trim() ? `${assembled.replace(/\s+$/, "")}\n\n` : "";
     assembled = prefix;
+    let raw = "";
 
     try {
       await patchBook((book) => updateChapter(book, id, { prose: assembled }));
       for await (const chunk of provider.streamCompletion({
         messages: [
-          { role: "system", content: DRAFT_SYSTEM },
+          { role: "system", content: writingSystem(DRAFT_SYSTEM) },
           { role: "user", content: draftUserPrompt(current, chapter) }
         ],
         temperature: 0.85,
@@ -354,7 +396,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         signal: abort.signal
       })) {
         if (chunk.type === "text_delta") {
-          assembled += chunk.text;
+          raw += chunk.text;
+          assembled = prefix + manuscriptFromModel(raw, "");
           setBook((prev) => (prev ? updateChapter(prev, id, { prose: assembled }) : prev));
         } else if (chunk.type === "error") {
           throw new Error(chunk.message);
@@ -394,15 +437,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     abortRef.current = abort;
     setBusy("recast");
     setError(null);
+    setModelAsides([]);
 
     const original = chapter.prose;
     let assembled = "";
+    let raw = "";
 
     try {
       const provider = new OllamaProvider({ model });
       for await (const chunk of provider.streamCompletion({
         messages: [
-          { role: "system", content: RECAST_SYSTEM },
+          { role: "system", content: writingSystem(RECAST_SYSTEM) },
           { role: "user", content: recastUserPrompt(current, chapter) }
         ],
         temperature: 0.5,
@@ -410,8 +455,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         signal: abort.signal
       })) {
         if (chunk.type === "text_delta") {
-          assembled += chunk.text;
-          setBook((prev) => (prev ? updateChapter(prev, id, { prose: assembled }) : prev));
+          raw += chunk.text;
+          assembled = manuscriptFromModel(raw, "");
+          setBook((prev) => (prev ? updateChapter(prev, id, { prose: assembled.trim() ? assembled : original }) : prev));
         } else if (chunk.type === "error") {
           throw new Error(chunk.message);
         }
@@ -467,6 +513,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       abortRef.current = abort;
       setBusy(args.mode);
       setError(null);
+      if (args.target !== "brainstorm") setModelAsides([]);
 
       let generated = "";
 
@@ -482,8 +529,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         setBook((prev) => (prev && id ? updateChapter(prev, id, { prose: next }) : prev));
       };
 
-      const assemble = () =>
-        args.mode === "extend" ? applyExtend(source, args.span, generated) : applyReplace(source, args.span, generated);
+      const assemble = () => {
+        const chunk =
+          args.target === "brainstorm"
+            ? generated
+            : manuscriptFromModel(generated, args.mode === "extend" ? "" : around.selected);
+        return args.mode === "extend" ? applyExtend(source, args.span, chunk) : applyReplace(source, args.span, chunk);
+      };
 
       const persistAssembled = async (latest: Book, assembled: string) => {
         if (args.target === "synopsis") await flushSave(touch(latest, { synopsis: assembled }));
@@ -518,7 +570,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const provider = new OllamaProvider({ model });
         for await (const chunk of provider.streamCompletion({
           messages: [
-            { role: "system", content: args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM },
+            { role: "system", content: writingSystem(args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM) },
             { role: "user", content: userContent }
           ],
           temperature: args.target === "brainstorm" ? 0.9 : 0.8,
@@ -581,7 +633,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const provider = new OllamaProvider({ model });
         for await (const chunk of provider.streamCompletion({
           messages: [
-            { role: "system", content: BRAINSTORM_ASK_SYSTEM },
+            { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
             { role: "user", content: brainstormAskUserPrompt(current, question) }
           ],
           temperature: 0.9,
@@ -830,6 +882,85 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [busy, reviewModel, models.length, ollamaError]);
 
+  const startProofread = useCallback(
+    async (opts?: { restart?: boolean }) => {
+      const current = bookRef.current;
+      if (!current || busy || proofreadLock.current) return;
+      if (proseChapters(current).length === 0) {
+        setError(STORE_ERROR.proofreadEmpty);
+        return;
+      }
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+
+      const existing = current.proofread;
+      const restart = Boolean(opts?.restart);
+      const job =
+        !restart && existing && (existing.status === "paused" || existing.status === "running" || existing.status === "error")
+          ? touchProofread(existing, { status: "running" })
+          : startProofreadJob(current);
+
+      proofreadLock.current = true;
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("proofread");
+      setError(null);
+      await flushSave(touch(current, { proofread: job }));
+      try {
+        await runProofread(
+          job,
+          {
+            complete: (system, user, signal) =>
+              completeOllamaChat({
+                model: reviewModel,
+                messages: [
+                  { role: "system", content: system },
+                  { role: "user", content: user }
+                ],
+                temperature: 0.2,
+                maxTokens: 1600,
+                signal
+              }),
+            getBook: () => bookRef.current ?? current,
+            save: async (next) => {
+              const latest = bookRef.current;
+              if (!latest) return;
+              await flushSave(touch(latest, { proofread: next }));
+            }
+          },
+          abort.signal
+        );
+      } catch (err) {
+        const latest = bookRef.current;
+        const proofread = latest?.proofread;
+        if ((err as { name?: string }).name === "AbortError") {
+          if (latest && proofread) {
+            await flushSave(touch(latest, { proofread: touchProofread(proofread, { status: "paused" }) }));
+          }
+          return;
+        }
+        setError(ollamaHint(err));
+        if (latest && proofread) {
+          await flushSave(touch(latest, { proofread: touchProofread(proofread, { status: "error" }) }));
+        }
+      } finally {
+        proofreadLock.current = false;
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, flushSave, models.length, ollamaError, reviewModel]
+  );
+
+  useEffect(() => {
+    if (!book?.proofread || book.proofread.status !== "running") return;
+    if (busy) return;
+    if (models.length === 0) return;
+    void startProofread();
+  }, [book?.id, book?.proofread?.status, busy, models.length, startProofread]);
+
   const addFact = useCallback(
     async (input: { label: string; predicate: CorePredicate; value: string }) => {
       const current = bookRef.current;
@@ -884,11 +1015,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     surface,
     models,
     model,
+    writingPrimer,
     reviewModel,
     ollamaError,
     busy,
     error,
     chapterFeedback,
+    modelAsides,
     refresh,
     openBook,
     closeBook,
@@ -898,9 +1031,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     patchBook,
     setChapterId,
     selectChapter,
+    showSettings,
     showBrainstorm,
     showSynopsis,
+    dismissModelAside,
     setModel,
+    setWritingPrimer,
+    resetWritingPrimer,
     setReviewModel,
     draftChapter,
     recastChapter,
@@ -914,6 +1051,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     stopDraft,
     extractChapter,
     analyzeChapter,
+    startProofread,
     addFact,
     reviseFact: revise,
     approve,

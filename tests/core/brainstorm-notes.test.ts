@@ -3,6 +3,7 @@ import { createBook, parseBook } from "@core/BookSchema";
 import {
   addBrainstormNote,
   applyAssembledBrainstorm,
+  applyBrainstormNoteTexts,
   boardNotes,
   compileNotesToText,
   ensureBrainstormNotes,
@@ -140,6 +141,15 @@ describe("send column", () => {
     expect(sendNotes(book.brainstorm_notes).map((note) => note.id)).toEqual(["c"]);
   });
 
+  it("keeps live text when a staged note returns to the board", () => {
+    let book = addBrainstormNote(createBook("Night Keys"), { id: "a", text: "" });
+    book = applyBrainstormNoteTexts(book, [["a", "A stowaway."]]);
+    book = stageBrainstormNote(book, "a");
+    book = unstageBrainstormNote(book, "a", 40, 80);
+    expect(book.brainstorm_notes.find((note) => note.id === "a")?.text).toBe("A stowaway.");
+    expect(sendNotes(book.brainstorm_notes)).toEqual([]);
+  });
+
   it("ignores staged notes when placing a new one", () => {
     const staged = { id: "s", text: "Salt.", x: 900, y: 900, color: "paper" as const, send_index: 0 };
     const board = { id: "b", text: "A sister.", x: 24, y: 24, color: "paper" as const };
@@ -155,6 +165,19 @@ describe("send column", () => {
     });
     expect(parsed.brainstorm_notes[0]?.send_index).toBeUndefined();
     expect(parsed.brainstorm_notes[0]?.color).toBe("sage");
+  });
+
+  it("writes live editor text onto notes without dropping the rest", () => {
+    let book = createBook("Night Keys");
+    book = addBrainstormNote(book, { id: "a", text: "Kept." });
+    book = addBrainstormNote(book, { id: "b", text: "" });
+    book = addBrainstormNote(book, { id: "c", text: "" });
+    const next = applyBrainstormNoteTexts(book, [
+      ["b", "Second."],
+      ["c", "Third."]
+    ]);
+    expect(next.brainstorm_notes.map((note) => note.text)).toEqual(["Kept.", "Second.", "Third."]);
+    expect(applyBrainstormNoteTexts(next, [["b", "Second."]])).toBe(next);
   });
 
   it("keeps a staged index through parse", () => {

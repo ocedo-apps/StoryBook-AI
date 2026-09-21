@@ -2,6 +2,11 @@ import { groupBibleEntities } from "./bibleGroups";
 import { sortedChapters, type Book } from "./BookSchema";
 import { profileFor } from "./characterProfile";
 import { PREDICATE_LABELS } from "./predicates";
+import { peelModelAsides } from "./proseFlow";
+
+function exportProse(text: string): string {
+  return peelModelAsides(text).prose.trim();
+}
 
 export type ManuscriptExportEntity = {
   name: string;
@@ -58,12 +63,12 @@ export function buildManuscriptExport(book: Book, note = "", exportedAt = new Da
     voice: book.voice.trim(),
     viewpoint: book.viewpoint.trim(),
     ...(book.reader_age !== undefined ? { readerAge: book.reader_age } : {}),
-    synopsis: book.synopsis.trim(),
+    synopsis: exportProse(book.synopsis),
     chapters: sortedChapters(book).map((chapter) => ({
       heading: `${chapter.sequence_index + 1}. ${chapter.title.trim() || `Chapter ${chapter.sequence_index + 1}`}`,
       brief: chapter.brief.trim(),
       voice: chapter.voice?.trim() ?? "",
-      prose: chapter.prose.trim()
+      prose: exportProse(chapter.prose)
     })),
     bible
   };

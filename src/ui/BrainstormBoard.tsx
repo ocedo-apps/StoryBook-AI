@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import type { Book } from "@core/BookSchema";
 import {
   addBrainstormNote,
+  applyBrainstormNoteTexts,
   boardNotes,
   bringBrainstormNoteForward,
   ensureBrainstormNotes,
@@ -34,6 +35,7 @@ type Drag = {
   height: number;
   overSend: boolean;
   sendIndex: number;
+  text: string;
 };
 
 function sendInsertIndex(list: HTMLElement, clientY: number, excludeId: string): number {
@@ -53,6 +55,16 @@ function sendInsertIndex(list: HTMLElement, clientY: number, excludeId: string):
 function overRect(rect: DOMRect | undefined, clientX: number, clientY: number): boolean {
   if (!rect) return false;
   return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+}
+
+function liveNoteText(note: BrainstormNote): string {
+  const nodes = [...document.querySelectorAll<HTMLElement>(`[id="idea-note-${note.id}"]`)];
+  const visible = nodes.find((node) => {
+    const card = node.closest("article");
+    return Boolean(card) && !card.classList.contains("is-slot") && !card.classList.contains("is-ghost");
+  });
+  const pick = visible ?? nodes[0];
+  return pick ? (pick.innerText ?? "") : note.text;
 }
 
 export function BrainstormBoard({
@@ -82,6 +94,12 @@ export function BrainstormBoard({
   const [drag, setDrag] = useState<Drag | null>(null);
   const notes = ensureBrainstormNotes(book).brainstorm_notes;
 
+  function leaveNote() {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.closest(".idea-note")) active.blur();
+    setSelectedId(null);
+  }
+
   useEffect(() => {
     if (notes.length > noteCount.current) {
       const last = notes[notes.length - 1];
@@ -89,6 +107,19 @@ export function BrainstormBoard({
     }
     noteCount.current = notes.length;
   }, [notes]);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (document.querySelector(".edit-overlay")) return;
+      const active = document.activeElement;
+      const inNote = active instanceof HTMLElement && Boolean(active.closest(".idea-note"));
+      if (!inNote && !selectedId) return;
+      leaveNote();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedId]);
 
   function boardPoint(event: { clientX: number; clientY: number }): { x: number; y: number } {
     const board = boardRef.current;
@@ -102,10 +133,13 @@ export function BrainstormBoard({
 
   function startDrag(event: React.PointerEvent, note: BrainstormNote, from: "board" | "send") {
     if (event.button !== 0) return;
+    const capturedText = liveNoteText(note);
     event.preventDefault();
     event.stopPropagation();
     didDrag.current = false;
-    onPatch((current) => bringBrainstormNoteForward(current, note.id));
+    onPatch((current) =>
+      bringBrainstormNoteForward(applyBrainstormNoteTexts(current, [[note.id, capturedText]]), note.id)
+    );
     setSelectedId(note.id);
     const origin = boardPoint(event);
     const grabX = origin.x - note.x;
@@ -126,7 +160,8 @@ export function BrainstormBoard({
       width: rect?.width ?? NOTE_WIDTH,
       height: rect?.height ?? 160,
       overSend: from === "send",
-      sendIndex: fromSendIndex >= 0 ? fromSendIndex : queued.length
+      sendIndex: fromSendIndex >= 0 ? fromSendIndex : queued.length,
+      text: capturedText
     };
     const pointerId = event.pointerId;
     const handle = event.currentTarget as HTMLElement;
@@ -173,16 +208,17 @@ export function BrainstormBoard({
       }
       if (didDrag.current) {
         const hit = hitSend(upEvent);
+        const withText = (current: Book) => applyBrainstormNoteTexts(current, [[note.id, capturedText]]);
         if (hit.overSend) {
-          onPatch((current) => stageBrainstormNote(current, note.id, hit.sendIndex));
+          onPatch((current) => stageBrainstormNote(withText(current), note.id, hit.sendIndex));
         } else if (from === "send") {
           const drop = boardPoint({
             clientX: upEvent.clientX - live.offsetX,
             clientY: upEvent.clientY - live.offsetY
           });
-          onPatch((current) => unstageBrainstormNote(current, note.id, drop.x, drop.y));
+          onPatch((current) => unstageBrainstormNote(withText(current), note.id, drop.x, drop.y));
         } else {
-          onPatch((current) => updateBrainstormNote(current, note.id, { x: live.x, y: live.y }));
+          onPatch((current) => updateBrainstormNote(withText(current), note.id, { x: live.x, y: live.y }));
         }
         window.setTimeout(() => {
           didDrag.current = false;
@@ -230,14 +266,15 @@ export function BrainstormBoard({
   })();
   const spaceWidth = Math.max(640, ...free.map((note) => note.x + NOTE_WIDTH + 48));
   const spaceHeight = Math.max(480, ...free.map((note) => note.y + 220));
-  const selected =
-    notes.find((note) => note.id === selectedId) ?? notes[notes.length - 1];
-  const canSend = queued.some((note) => note.text.trim());
+  const selected = notes.find((note) => note.id === selectedId);
+  const canSend = queued.some((note) => note.text.trim() || liveNoteText(note).trim());
   const showClone = Boolean(drag && dragged && (drag.overSend || drag.from === "send"));
 
   function onCanvasPointerDown(event: React.PointerEvent) {
     if (event.button !== 0 || event.target !== event.currentTarget) return;
     const start = boardPoint(event);
+    const deselect = Boolean(selectedId);
+    if (deselect) leaveNote();
     const pointerId = event.pointerId;
     function onUp(upEvent: PointerEvent) {
       if (upEvent.pointerId !== pointerId) return;
@@ -248,6 +285,7 @@ export function BrainstormBoard({
       }
       const end = boardPoint(upEvent);
       if (Math.hypot(end.x - start.x, end.y - start.y) > DRAG_THRESHOLD) return;
+      if (deselect) return;
       addAt(start.x, start.y);
     }
     window.addEventListener("pointerup", onUp);
@@ -274,7 +312,7 @@ export function BrainstormBoard({
           .join(" ")}
         style={opts.send ? undefined : { left: note.x, top: note.y, width: NOTE_WIDTH }}
         onPointerDown={() => {
-          onPatch((current) => bringBrainstormNoteForward(current, note.id));
+          if (!opts.send) onPatch((current) => bringBrainstormNoteForward(current, note.id));
           setSelectedId(note.id);
         }}
       >
@@ -367,7 +405,20 @@ export function BrainstormBoard({
             )}
           </div>
           <div className="idea-send-foot">
-            <button type="button" className="primary" disabled={busy || !canSend} onClick={onSend}>
+            <button
+              type="button"
+              className="primary"
+              disabled={busy || !canSend}
+              onClick={() => {
+                onPatch((current) =>
+                  applyBrainstormNoteTexts(
+                    current,
+                    current.brainstorm_notes.map((note) => [note.id, liveNoteText(note)] as const)
+                  )
+                );
+                onSend();
+              }}
+            >
               {m.editor.sendToSynopsis}
             </button>
           </div>
@@ -402,7 +453,9 @@ export function BrainstormBoard({
           <div className="idea-note-head">
             <span className="idea-note-handle" />
           </div>
-          <p className="idea-note-copy">{dragged.text.trim() || " "}</p>
+          <p className="chapter-brief-text idea-note-copy">
+            {(drag.text.trim() || dragged.text.trim()) || " "}
+          </p>
         </article>
       ) : null}
       {children}

@@ -19,8 +19,6 @@ import {
   needsViewpoint,
   parseOptionalPov,
   parseOptionalTense,
-  parsePov,
-  parseTense,
   resolveCraft,
   type ChapterCraft,
   type CraftFields,
@@ -39,11 +37,12 @@ import {
 import { buildManuscriptExport, formatExportRtf, packOdt } from "@core/manuscriptExport";
 import { addChapter, discardChapter, discardedChapters, removeChapter, restoreChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
-import { applyReaderAge, parseReaderAge, readerCategory, readerTuning, resolveReader } from "@core/reader";
+import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
 import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
+import { SettingsPanel } from "./SettingsPanel";
 import { ThemeToggle } from "./ThemeToggle";
 import { LocaleSelect } from "./LocaleSelect";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
@@ -52,7 +51,8 @@ import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
 import { ProseCanvas } from "./ProseCanvas";
 import { ProseStatsCard } from "./ProseStatsCard";
-import { FindReplaceCard, type FindHighlight } from "./FindReplaceCard";
+import { FindReplaceCard, type FindHighlight, type FindLaunch } from "./FindReplaceCard";
+import { ProofreadCard } from "./ProofreadCard";
 import type { FindOccurrence } from "@core/findReplace";
 import { count, format, translateError, type Messages, useLocale } from "./i18n";
 
@@ -165,39 +165,6 @@ function choiceLabel(chapter: Chapter, untitled: string): string {
   return `${chapter.sequence_index + 1} · ${chapter.title.trim() || untitled}`;
 }
 
-function ModelSelect({
-  label,
-  value,
-  models,
-  emptyLabel,
-  onChange
-}: {
-  label: string;
-  value: string;
-  models: string[];
-  emptyLabel: string;
-  onChange: (name: string) => void;
-}) {
-  return (
-    <label className="model-field">
-      <span>{label}</span>
-      <select
-        value={models.includes(value) ? value : models[0] ?? ""}
-        onChange={(event) => onChange(event.target.value)}
-        disabled={models.length === 0}
-        aria-label={label}
-      >
-        {models.length === 0 ? <option value="">{emptyLabel}</option> : null}
-        {models.map((name) => (
-          <option key={name} value={name}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 function StatsTrigger({
   words,
   highlighting,
@@ -255,10 +222,34 @@ function selectedFindNeedle(): string {
   return line.slice(0, 120);
 }
 
+function rewriteWhoFrom(craft: CraftFields): string {
+  return needsViewpoint(craft.pov) ? craft.viewpoint.trim() : "";
+}
+
+function ModelAsideCallout({ asides, onDismiss }: { asides: string[]; onDismiss: () => void }) {
+  const { messages: m } = useLocale();
+  if (asides.length === 0) return null;
+  return (
+    <aside className="model-aside" role="status">
+      <div className="model-aside-copy">
+        <p className="aside-kicker">{m.canvas.modelAside}</p>
+        {asides.map((text, index) => (
+          <p key={index} className="aside-body">
+            {text}
+          </p>
+        ))}
+      </div>
+      <button type="button" className="text-button" onClick={onDismiss}>
+        {m.common.close}
+      </button>
+    </aside>
+  );
+}
+
 export function Editor() {
   const store = useBookStore();
   const { messages: m } = useLocale();
-  const { book, chapterId, surface, busy, error, models, model, reviewModel, ollamaError, chapterFeedback } = store;
+  const { book, chapterId, surface, busy, error, models, model, writingPrimer, reviewModel, ollamaError, chapterFeedback, modelAsides } = store;
   if (!book) return null;
 
   const chapters = sortedChapters(book);
@@ -267,6 +258,7 @@ export function Editor() {
   if (!chapter) return null;
   const onBrainstorm = surface === "brainstorm";
   const onSynopsis = surface === "synopsis";
+  const onSettings = surface === "settings";
   const [boardOpen, setBoardOpen] = useState(false);
   const onBoard = boardOpen;
   const [askOpen, setAskOpen] = useState(false);
@@ -280,7 +272,9 @@ export function Editor() {
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFilename, setExportFilename] = useState("");
   const [findOpen, setFindOpen] = useState(false);
-  const [findSeed, setFindSeed] = useState("");
+  const [proofreadOpen, setProofreadOpen] = useState(false);
+  const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
+  const [findKey, setFindKey] = useState(0);
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
   const [lastJsonBackupAt, setLastJsonBackupAt] = useState(() => readLastJsonBackup(book.id));
   const [highlightRare, setHighlightRare] = useState(false);
@@ -292,8 +286,9 @@ export function Editor() {
   );
   const dragChapterIdRef = useRef<string | null>(null);
   const names = entityLabels(book.facts, book.entity_kinds);
+  const pageText = onSettings ? "" : onBrainstorm ? book.brainstorm : onSynopsis ? book.synopsis : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
-  const activeReaderAge = onBrainstorm || onSynopsis ? book.reader_age : resolveReader(book, chapter);
+  const activeReaderAge = onBrainstorm || onSynopsis || onSettings ? book.reader_age : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
   const findCanvas =
     findHighlight && findHighlight.needle.trim()
@@ -356,7 +351,43 @@ export function Editor() {
       setFindHighlight(null);
       return;
     }
-    setFindSeed(selectedFindNeedle());
+    setFindLaunch({ needle: selectedFindNeedle() });
+    setFindKey((n) => n + 1);
+    setFindOpen(true);
+  }
+
+  function openProofread() {
+    setBackupOpen(false);
+    setExportOpen(false);
+    setAskOpen(false);
+    setStatsOpen(false);
+    setNotesOpen(false);
+    setFindOpen(false);
+    setFindHighlight(null);
+    setBoardOpen(false);
+    setProofreadOpen(true);
+    if (!book?.proofread) void store.startProofread();
+  }
+
+  function dismissProofread() {
+    if (busy === "proofread") return;
+    setProofreadOpen(false);
+  }
+
+  function findPhrase(phrase: string) {
+    const trimmed = phrase.trim();
+    if (!trimmed) return;
+    setBackupOpen(false);
+    setExportOpen(false);
+    setAskOpen(false);
+    setNotesOpen(false);
+    setStatsOpen(false);
+    setFindLaunch({
+      needle: trimmed,
+      here: true,
+      wholeWord: !/\s/.test(trimmed)
+    });
+    setFindKey((n) => n + 1);
     setFindOpen(true);
   }
 
@@ -410,6 +441,16 @@ export function Editor() {
   }, [maximized]);
 
   useEffect(() => {
+    if (busy === "proofread") setProofreadOpen(true);
+  }, [busy]);
+
+  useEffect(() => {
+    const status = book.proofread?.status;
+    if (status === "running" || status === "paused") setProofreadOpen(true);
+    else setProofreadOpen(false);
+  }, [book.id]);
+
+  useEffect(() => {
     if (!backupOpen && !exportOpen && !findOpen) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
@@ -454,14 +495,6 @@ export function Editor() {
           aria-label={m.editor.manuscriptTitle}
         />
         <div className="model-fields">
-          <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={store.setModel} />
-          <ModelSelect
-            label={m.editor.review}
-            value={reviewModel}
-            models={models}
-            emptyLabel={m.editor.noModels}
-            onChange={store.setReviewModel}
-          />
           <LocaleSelect />
           <ThemeToggle />
           <button
@@ -504,10 +537,13 @@ export function Editor() {
             </button>
             {findOpen ? (
               <FindReplaceCard
+                key={findKey}
                 book={book}
                 surface={surface}
                 chapterId={chapterId}
-                initialFind={findSeed}
+                pageText={pageText}
+                names={names}
+                launch={findLaunch}
                 disabled={busy !== null}
                 onHighlight={onFindHighlight}
                 onReveal={revealFind}
@@ -540,8 +576,20 @@ export function Editor() {
         <aside className="rail rail-left">
           <button
             type="button"
+            className={onSettings && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showSettings();
+            }}
+          >
+            {m.editor.settings}
+          </button>
+          <button
+            type="button"
             className={onBrainstorm && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
             onClick={() => {
+              dismissProofread();
               setBoardOpen(false);
               store.showBrainstorm();
             }}
@@ -552,6 +600,7 @@ export function Editor() {
             type="button"
             className={onSynopsis && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
             onClick={() => {
+              dismissProofread();
               setBoardOpen(false);
               store.showSynopsis();
             }}
@@ -561,7 +610,10 @@ export function Editor() {
           <button
             type="button"
             className={onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={openBoard}
+            onClick={() => {
+              dismissProofread();
+              openBoard();
+            }}
           >
             {m.editor.briefs}
           </button>
@@ -674,6 +726,7 @@ export function Editor() {
                     applyChapterMove(item.id, toIndex);
                   }}
                   onClick={() => {
+                    dismissProofread();
                     if (onBoard) store.selectChapter(item.id);
                     else store.setChapterId(item.id);
                     setExpandedBriefs((ids) => (ids.includes(item.id) ? ids : [...ids, item.id]));
@@ -747,6 +800,16 @@ export function Editor() {
               );
             })}
           </ol>
+          <button
+            type="button"
+            className={
+              proofreadOpen || busy === "proofread" ? "synopsis-item proofread-item is-active" : "synopsis-item proofread-item"
+            }
+            onClick={openProofread}
+            disabled={busy !== null && busy !== "proofread"}
+          >
+            {m.editor.proofread}
+          </button>
           </ChapterStrandOverlay>
           {discarded.length > 0 ? (
             <>
@@ -786,53 +849,22 @@ export function Editor() {
               </ul>
             </>
           ) : null}
-          <CraftFields
-            pov={book.pov}
-            tense={book.tense}
-            viewpoint={book.viewpoint}
-            people={peopleLabels(book.facts, book.entity_kinds)}
-            onPov={(pov) => void store.patchBook((current) => ({ ...current, pov }))}
-            onTense={(tense) => void store.patchBook((current) => ({ ...current, tense }))}
-            onViewpoint={(viewpoint) => void store.patchBook((current) => ({ ...current, viewpoint }))}
-          />
-          <label className="voice-field">
-            <span>{m.editor.voice}</span>
-            <textarea
-              value={book.voice}
-              onChange={(event) => void store.patchBook((current) => ({ ...current, voice: event.target.value }))}
-              placeholder={m.editor.voicePlaceholder}
-              rows={3}
-            />
-          </label>
-          <label className="reader-field">
-            <span>{m.editor.reader}</span>
-            <input
-              type="number"
-              min={1}
-              max={99}
-              inputMode="numeric"
-              value={book.reader_age ?? ""}
-              placeholder={m.editor.readerPlaceholder}
-              title={m.editor.readerTitle}
-              aria-label={m.editor.reader}
-              onChange={(event) => {
-                const raw = event.target.value;
-                if (raw === "") {
-                  void store.patchBook((current) => applyReaderAge(current, undefined));
-                  return;
-                }
-                const age = parseReaderAge(raw);
-                if (age === undefined) return;
-                void store.patchBook((current) => applyReaderAge(current, age));
-              }}
-            />
-            {book.reader_age !== undefined && readerCategory(book.reader_age) !== "adult" ? (
-              <p className="reader-hint">{m.editor.readerCategories[readerCategory(book.reader_age)]}</p>
-            ) : null}
-          </label>
         </aside>
 
-        {onBoard ? (
+        {onSettings && !onBoard ? (
+          <SettingsPanel
+            book={book}
+            models={models}
+            model={model}
+            reviewModel={reviewModel}
+            writingPrimer={writingPrimer}
+            onPatch={(mutate) => void store.patchBook(mutate)}
+            onModel={store.setModel}
+            onReviewModel={store.setReviewModel}
+            onPrimer={store.setWritingPrimer}
+            onResetPrimer={store.resetWritingPrimer}
+          />
+        ) : onBoard ? (
           <DispositionBoard
             book={book}
             chapters={chapters}
@@ -939,6 +971,8 @@ export function Editor() {
               onInstruct={(span, instruction) =>
                 void store.rewriteSpan({ target: "synopsis", mode: "instruct", span, instruction })
               }
+              rewriteWho={rewriteWhoFrom(book)}
+              aside={<ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />}
             />
             <footer className="manuscript-foot">
               <StatsTrigger
@@ -1070,6 +1104,8 @@ export function Editor() {
               onInstruct={(span, instruction) =>
                 void store.rewriteSpan({ target: "prose", mode: "instruct", span, instruction })
               }
+              rewriteWho={rewriteWhoFrom(resolveCraft(book, chapter))}
+              aside={<ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />}
             />
             <footer className="manuscript-foot">
               <StatsTrigger
@@ -1124,12 +1160,13 @@ export function Editor() {
       </div>
       {statsOpen ? (
         <ProseStatsCard
-          text={onBrainstorm ? book.brainstorm : onSynopsis ? book.synopsis : chapter.prose}
+          text={pageText}
           names={names}
           highlighting={highlightRare}
           onHighlight={() => setHighlightRare(true)}
           onSuggestSplit={(sentence, signal) => store.suggestSentenceSplit(sentence, signal)}
           onSuggestBreak={(paragraph, signal) => store.suggestParagraphBreak(paragraph, signal)}
+          onFindPhrase={findPhrase}
           {...(onBrainstorm || onSynopsis ? {} : { craft: resolveCraft(book, chapter) })}
           {...(activeReaderAge !== undefined ? { readerAge: activeReaderAge } : {})}
           cast={characterCast(book.facts, book.entity_kinds, book.profiles)}
@@ -1146,6 +1183,21 @@ export function Editor() {
             return true;
           }}
           onClose={() => setStatsOpen(false)}
+        />
+      ) : null}
+      {proofreadOpen && book.proofread ? (
+        <ProofreadCard
+          book={book}
+          job={book.proofread}
+          running={busy === "proofread"}
+          onClose={() => setProofreadOpen(false)}
+          onStop={store.stopDraft}
+          onContinue={() => void store.startProofread()}
+          onRunAgain={() => void store.startProofread({ restart: true })}
+          onOpenChapter={(id) => {
+            setProofreadOpen(false);
+            store.setChapterId(id);
+          }}
         />
       ) : null}
       {notesOpen && notes ? (
@@ -1267,66 +1319,6 @@ function PovModeOptions() {
         ))}
       </optgroup>
     </>
-  );
-}
-
-function CraftFields({
-  pov,
-  tense,
-  viewpoint,
-  people,
-  onPov,
-  onTense,
-  onViewpoint
-}: {
-  pov: PovMode;
-  tense: Tense;
-  viewpoint: string;
-  people: string[];
-  onPov: (pov: PovMode) => void;
-  onTense: (tense: Tense) => void;
-  onViewpoint: (viewpoint: string) => void;
-}) {
-  const { messages: m } = useLocale();
-  const showViewpoint = needsViewpoint(pov);
-  return (
-    <div className="craft-fields">
-      <label className="craft-field">
-        <span>{m.craft.pov}</span>
-        <select value={pov} onChange={(event) => onPov(parsePov(event.target.value))} aria-label={m.craft.povAria}>
-          <PovModeOptions />
-        </select>
-      </label>
-      <label className="craft-field">
-        <span>{m.craft.tense}</span>
-        <select value={tense} onChange={(event) => onTense(parseTense(event.target.value))} aria-label={m.craft.tenseAria}>
-          {TENSES.map((mode) => (
-            <option key={mode} value={mode}>
-              {m.craft.tenses[mode]}
-            </option>
-          ))}
-        </select>
-      </label>
-      {showViewpoint ? (
-        <label className="craft-field">
-          <span>{m.craft.viewpoint}</span>
-          <input
-            list="viewpoint-people"
-            value={viewpoint}
-            onChange={(event) => onViewpoint(event.target.value)}
-            placeholder={m.craft.viewpointPlaceholder}
-            aria-label={m.craft.viewpointAria}
-          />
-          {people.length > 0 ? (
-            <datalist id="viewpoint-people">
-              {people.map((name) => (
-                <option key={name} value={name} />
-              ))}
-            </datalist>
-          ) : null}
-        </label>
-      ) : null}
-    </div>
   );
 }
 

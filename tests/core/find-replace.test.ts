@@ -4,7 +4,10 @@ import {
   defaultFindFlags,
   findHits,
   findMarksByParagraph,
+  flagsForRepeatKind,
   listCanvasOccurrences,
+  listRepeatPhrases,
+  matchesInText,
   occurrenceOnPage,
   replaceInBook,
   replaceInText,
@@ -170,6 +173,24 @@ describe("listCanvasOccurrences", () => {
     expect(marks[0]?.[0]?.current).toBe(false);
     expect(marks[1]?.[0]?.current).toBe(true);
     expect(marks[1]?.[0]?.start).toBe("A second ".length);
+  });
+});
+
+describe("listRepeatPhrases", () => {
+  it("returns echo phrases that Find can match on the page", () => {
+    const text = "Emma offered a smile. The smile faded at the lock. Another smile returned.";
+    const phrases = listRepeatPhrases(text, [], "echo");
+    const needle = phrases.find((phrase) => phrase.includes("smile"));
+    expect(needle).toBeTruthy();
+    expect(matchesInText(text, needle!, flagsForRepeatKind("echo")).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("returns reused phrases that Find can match across paragraphs", () => {
+    const clause = "i was starting to think i'd have to navigate this";
+    const text = `Rain. ${clause} before the lock.\n\nEmma waited. ${clause} and then she stopped.`;
+    const phrases = listRepeatPhrases(text, [], "reuse");
+    expect(phrases.length).toBeGreaterThan(0);
+    expect(matchesInText(text, phrases[0]!, flagsForRepeatKind("reuse")).length).toBeGreaterThanOrEqual(2);
   });
 });
 

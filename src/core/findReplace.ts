@@ -1,5 +1,7 @@
 import { isLiveChapter, sortedChapters, touch, type Book, type Chapter, type EditorSurface } from "./BookSchema";
 import { replaceInBrainstormNotes } from "./brainstormNotes";
+import { flagEchoes } from "./echoDetect";
+import { flagPhraseReuse } from "./phraseReuse";
 import { splitFlowParagraphs } from "./proseFlow";
 
 export type FindFlags = {
@@ -45,6 +47,17 @@ export type OverlayMark = {
 
 export function defaultFindFlags(): FindFlags {
   return { matchCase: false, wholeWord: false };
+}
+
+export type RepeatKind = "echo" | "reuse";
+
+export function flagsForRepeatKind(kind: RepeatKind): FindFlags {
+  return { matchCase: false, wholeWord: kind === "echo" };
+}
+
+export function listRepeatPhrases(text: string, names: Iterable<string>, kind: RepeatKind): string[] {
+  if (kind === "echo") return flagEchoes(text, names).map((hit) => hit.phrase);
+  return flagPhraseReuse(text, names).map((hit) => hit.phrase);
 }
 
 export function findPattern(needle: string, flags: FindFlags): RegExp | null {
@@ -131,6 +144,7 @@ export function occurrenceOnPage(
 ): boolean {
   if (surface === "brainstorm") return occurrence.field === "brainstorm";
   if (surface === "synopsis") return occurrence.field === "synopsis";
+  if (surface === "settings") return false;
   return occurrence.field === "prose" && occurrence.chapterId === chapterId;
 }
 

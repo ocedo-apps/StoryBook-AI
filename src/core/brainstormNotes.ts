@@ -181,6 +181,24 @@ export function updateBrainstormNote<T extends ScratchBook>(
   );
 }
 
+/** Write live editor text onto notes. Unchanged books stay the same object. */
+export function applyBrainstormNoteTexts<T extends ScratchBook>(
+  book: T,
+  texts: Iterable<readonly [string, string]>
+): T {
+  const byId = new Map(texts);
+  if (byId.size === 0) return book;
+  const current = ensureBrainstormNotes(book);
+  let changed = false;
+  const notes = current.brainstorm_notes.map((item) => {
+    const text = byId.get(item.id);
+    if (text === undefined || text === item.text) return item;
+    changed = true;
+    return { ...item, text };
+  });
+  return changed ? withBrainstormNotes(current, notes) : book;
+}
+
 export function bringBrainstormNoteForward<T extends ScratchBook>(book: T, noteId: string): T {
   const current = ensureBrainstormNotes(book);
   const index = current.brainstorm_notes.findIndex((item) => item.id === noteId);

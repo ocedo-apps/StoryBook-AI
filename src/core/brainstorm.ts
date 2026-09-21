@@ -6,20 +6,20 @@ import {
   sendNotes
 } from "./brainstormNotes";
 import { formatCraftForBrainstorm } from "./craft";
-import { formatBibleForPrompt, type PassageMode } from "./generateProse";
+import { formatBibleForPrompt, formatLanguageForPrompt, type PassageMode } from "./generateProse";
 
 export const BRAINSTORM_PASSAGE_SYSTEM = `You are a thinking partner working on private story notes.
 These notes are not the book, not the synopsis, and not canon.
 Do not write chapter prose. Do not treat guesses as decided.
 You may offer alternatives and press on holes.
-Match the language of the notes.
+Match the language of the notes. If a prose language is given, prefer that.
 Output only the requested text — no title or commentary.`;
 
 export const BRAINSTORM_ASK_SYSTEM = `You are a thinking partner for a novelist.
 The notes are private scratch — not the book, not the synopsis, and not canon.
 Do not write chapter prose. Do not lock facts. Do not invent a finished plot unless asked for options.
 Offer alternatives, press on holes, and keep secrets in the notes.
-Match the language of the notes and the author's question.
+Match the language of the notes and the author's question. If a prose language is given, prefer that.
 Output only your reply — no title or preamble.`;
 
 export function liftFragmentToSynopsis(synopsis: string, fragment: string): string {
@@ -64,6 +64,7 @@ function storyContext(book: Book): string[] {
     `Manuscript: ${book.title}`,
     formatCraftForBrainstorm(book),
     book.voice.trim() ? `Voice:\n${book.voice.trim()}` : "",
+    formatLanguageForPrompt(book.prose_language),
     book.synopsis.trim()
       ? `Current map (synopsis — a chosen shape, not locked fact; notes may diverge):\n${book.synopsis.trim()}`
       : "No synopsis yet. These notes are how the story is being found.",

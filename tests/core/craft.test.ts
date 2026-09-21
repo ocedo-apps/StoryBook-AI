@@ -44,7 +44,7 @@ describe("formatCraftForDraft", () => {
 
   it("describes omniscient, objective, and second without requiring a name", () => {
     expect(povInstruction("omniscient", "")).toContain("omniscient");
-    expect(povInstruction("objective", "")).toContain("camera");
+    expect(povInstruction("objective", "")).toContain("observer");
     expect(povInstruction("second", "")).toContain("“you”");
   });
 

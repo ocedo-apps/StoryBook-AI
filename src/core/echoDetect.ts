@@ -227,6 +227,13 @@ function tokenize(text: string): Token[] {
   return tokens;
 }
 
+export function isEchoContentWord(word: string, names: Iterable<string> = []): boolean {
+  const nameSet = names instanceof Set ? names : entityNameTokens([...names]);
+  const norm = normalizeWord(word);
+  const stem = lightStem(stemPossessive(norm));
+  return isUnigram({ raw: word, norm, stem, wordIndex: 0, sentenceIndex: 0 }, nameSet);
+}
+
 function isUnigram(token: Token, names: Set<string>): boolean {
   if (!token.norm || token.stem.length < 4) return false;
   if (isName(token, names) || STOP.has(token.norm) || DIALOGUE_TAGS.has(token.norm) || DIALOGUE_TAGS.has(token.stem)) {

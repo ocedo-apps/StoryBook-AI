@@ -3,13 +3,16 @@ import type { Book, EditorSurface } from "@core/BookSchema";
 import {
   defaultFindFlags,
   findHits,
+  flagsForRepeatKind,
   listCanvasOccurrences,
+  listRepeatPhrases,
   occurrenceOnPage,
   replaceInBook,
   totalHits,
   type FindFlags,
   type FindOccurrence,
-  type FindScope
+  type FindScope,
+  type RepeatKind
 } from "@core/findReplace";
 import { format, useLocale } from "./i18n";
 
@@ -19,11 +22,20 @@ export type FindHighlight = {
   activeStart?: number;
 };
 
+export type FindLaunch = {
+  needle?: string;
+  here?: boolean;
+  wholeWord?: boolean;
+  quick?: RepeatKind;
+};
+
 export function FindReplaceCard({
   book,
   surface,
   chapterId,
-  initialFind,
+  pageText,
+  names,
+  launch,
   disabled,
   onHighlight,
   onReveal,
@@ -33,7 +45,9 @@ export function FindReplaceCard({
   book: Book;
   surface: EditorSurface;
   chapterId: string | null;
-  initialFind: string;
+  pageText: string;
+  names: string[];
+  launch: FindLaunch;
   disabled: boolean;
   onHighlight: (query: FindHighlight | null) => void;
   onReveal: (occurrence: FindOccurrence) => void;
@@ -41,10 +55,22 @@ export function FindReplaceCard({
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
-  const [needle, setNeedle] = useState(initialFind);
+  const [quick, setQuick] = useState<RepeatKind | null>(launch.quick ?? null);
+  const [repeats, setRepeats] = useState<string[]>(() =>
+    launch.quick ? listRepeatPhrases(pageText, names, launch.quick) : []
+  );
+  const [needle, setNeedle] = useState(() => {
+    if (launch.needle) return launch.needle;
+    if (launch.quick) return listRepeatPhrases(pageText, names, launch.quick)[0] ?? "";
+    return "";
+  });
   const [replacement, setReplacement] = useState("");
-  const [flags, setFlags] = useState<FindFlags>(defaultFindFlags);
-  const [wholeManuscript, setWholeManuscript] = useState(true);
+  const [flags, setFlags] = useState<FindFlags>(() => {
+    if (launch.quick) return flagsForRepeatKind(launch.quick);
+    if (launch.wholeWord) return { matchCase: false, wholeWord: true };
+    return defaultFindFlags();
+  });
+  const [wholeManuscript, setWholeManuscript] = useState(() => !(launch.here || launch.quick));
   const [includeBrainstorm, setIncludeBrainstorm] = useState(false);
   const [active, setActive] = useState(0);
 
@@ -62,6 +88,14 @@ export function FindReplaceCard({
     () => listCanvasOccurrences(book, needle, flags, scope),
     [book, flags, needle, scope]
   );
+
+  useEffect(() => {
+    if (!quick) {
+      setRepeats([]);
+      return;
+    }
+    setRepeats(listRepeatPhrases(pageText, names, quick));
+  }, [names, pageText, quick]);
 
   useEffect(() => {
     const onPage = occurrences.findIndex((item) => occurrenceOnPage(item, surface, chapterId));
@@ -90,6 +124,19 @@ export function FindReplaceCard({
   useEffect(() => {
     return () => onHighlight(null);
   }, [onHighlight]);
+
+  function applyQuick(kind: RepeatKind) {
+    if (quick === kind) {
+      setQuick(null);
+      return;
+    }
+    const phrases = listRepeatPhrases(pageText, names, kind);
+    setQuick(kind);
+    setWholeManuscript(false);
+    setFlags(flagsForRepeatKind(kind));
+    setRepeats(phrases);
+    setNeedle(phrases[0] ?? "");
+  }
 
   function applyReplace() {
     if (!needle.trim() || total === 0 || disabled) return;
@@ -185,6 +232,30 @@ export function FindReplaceCard({
           />
         ) : null}
       </div>
+      <div className="find-flags">
+        <FlagToggle pressed={quick === "echo"} onToggle={() => applyQuick("echo")} label={m.find.echoes} />
+        <FlagToggle pressed={quick === "reuse"} onToggle={() => applyQuick("reuse")} label={m.find.phrases} />
+      </div>
+      {quick ? (
+        repeats.length === 0 ? (
+          <p className="quiet">{quick === "echo" ? m.find.noneEcho : m.find.nonePhrases}</p>
+        ) : (
+          <ul className="find-repeats">
+            {repeats.map((phrase) => (
+              <li key={phrase}>
+                <button
+                  type="button"
+                  className={phrase === needle ? "text-button is-on" : "text-button"}
+                  aria-pressed={phrase === needle}
+                  onClick={() => setNeedle(phrase)}
+                >
+                  {clip(phrase, 48)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )
+      ) : null}
       <div className="edit-actions">
         <button type="button" className="text-button" onClick={onClose}>
           {m.common.close}
@@ -211,4 +282,10 @@ function FlagToggle({
       {label}
     </button>
   );
+}
+
+function clip(text: string, max: number): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trim()}…`;
 }

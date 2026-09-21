@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { applyReplace, isNonEmptySpan, selectedText, type TextSpan } from "@core/textSpan";
 import { htmlFromProse, splitFlowParagraphs } from "@core/proseFlow";
-import { matchWordCase, swapContext } from "@core/wordAlternatives";
+import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
 import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
@@ -12,6 +12,13 @@ import {
   spanFromSelection
 } from "./proseDom";
 import { useLocale, format } from "./i18n";
+import {
+  insertRewriteChip,
+  REWRITE_CHIP_IDS,
+  rewriteChipLabel,
+  rewriteChipPrompt,
+  type RewriteChipId
+} from "./rewriteChips";
 
 type RewriteMenu = { kind: "rewrite"; x: number; y: number; span: TextSpan };
 type AltsMenu = {
@@ -48,7 +55,9 @@ export function ProseCanvas({
   instructTitle,
   instructHint,
   instructPlaceholder,
-  instructAction
+  instructAction,
+  rewriteWho = "",
+  aside
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -75,6 +84,9 @@ export function ProseCanvas({
   instructHint?: string;
   instructPlaceholder?: string;
   instructAction?: string;
+  /** Named viewpoint when the camera needs one. Empty = stay in the camera. */
+  rewriteWho?: string;
+  aside?: React.ReactNode;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -84,6 +96,7 @@ export function ProseCanvas({
   const areaRef = useRef<HTMLDivElement>(null);
   const rareRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const instructFieldRef = useRef<HTMLTextAreaElement>(null);
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [manual, setManual] = useState<{ span: TextSpan; draft: string } | null>(null);
   const [instruct, setInstruct] = useState<InstructState | null>(null);
@@ -210,7 +223,7 @@ export function ProseCanvas({
 
   function applyAlternative(next: string) {
     if (!menu || menu.kind !== "alts") return;
-    onChange(applyReplace(value, menu.span, matchWordCase(menu.word, next)));
+    onChange(applyWordSwap(value, menu.span, menu.word, next));
     setMenu(null);
   }
 
@@ -219,6 +232,13 @@ export function ProseCanvas({
     if (!manual) return;
     onChange(applyReplace(value, manual.span, manual.draft));
     setManual(null);
+  }
+
+  function applyChip(id: RewriteChipId) {
+    if (!instruct) return;
+    const piece = rewriteChipPrompt(m, id, rewriteWho);
+    setInstruct({ ...instruct, instruction: insertRewriteChip(instruct.instruction, piece) });
+    window.setTimeout(() => instructFieldRef.current?.focus(), 0);
   }
 
   function applyInstruct(event: React.FormEvent) {
@@ -280,6 +300,8 @@ export function ProseCanvas({
 
   return (
     <div className={overlayOn ? findOn ? "prose-wrap is-rare is-find" : "prose-wrap is-rare" : "prose-wrap"}>
+      {aside}
+      <div className="prose-body">
       {overlayOn ? (
         <div ref={rareRef} className="prose-rare" aria-hidden="true">
           <ProseMarkup
@@ -321,6 +343,7 @@ export function ProseCanvas({
           document.execCommand("insertText", false, pasted);
         }}
       />
+      </div>
       {menu?.kind === "rewrite" ? (
         <div
           ref={menuRef}
@@ -415,7 +438,25 @@ export function ProseCanvas({
             <h2 id="rewrite-title">{rewriteTitle}</h2>
             <p className="quiet">{rewriteHint}</p>
             <blockquote className="marked-passage">{instruct.marked}</blockquote>
+            <div className="rewrite-chips" role="group" aria-label={m.canvas.rewriteChips.group}>
+              {REWRITE_CHIP_IDS.map((id) => {
+                const piece = rewriteChipPrompt(m, id, rewriteWho);
+                const on = instruct.instruction.includes(piece);
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={on ? "rewrite-chip is-on" : "rewrite-chip"}
+                    aria-pressed={on}
+                    onClick={() => applyChip(id)}
+                  >
+                    {rewriteChipLabel(m, id)}
+                  </button>
+                );
+              })}
+            </div>
             <textarea
+              ref={instructFieldRef}
               value={instruct.instruction}
               onChange={(event) => setInstruct({ ...instruct, instruction: event.target.value })}
               placeholder={rewritePlaceholder}

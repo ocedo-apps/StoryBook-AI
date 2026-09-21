@@ -6,7 +6,13 @@ import {
   liftFragmentToSynopsis,
   sendStagedNotesToSynopsis
 } from "@core/brainstorm";
-import { addBrainstormNote, boardNotes, sendNotes, stageBrainstormNote } from "@core/brainstormNotes";
+import {
+  addBrainstormNote,
+  applyBrainstormNoteTexts,
+  boardNotes,
+  sendNotes,
+  stageBrainstormNote
+} from "@core/brainstormNotes";
 import { createBook } from "@core/BookSchema";
 
 describe("liftFragmentToSynopsis", () => {
@@ -44,6 +50,24 @@ describe("sendStagedNotesToSynopsis", () => {
     expect(boardNotes(next.brainstorm_notes).map((note) => note.id)).toEqual(["sister"]);
     expect(sendNotes(next.brainstorm_notes).map((note) => note.id)).toEqual(["blank"]);
   });
+
+  it("sends every staged note after live text is written onto empty cards", () => {
+    let book = createBook("Night Keys");
+    book = addBrainstormNote(book, { id: "a", text: "" });
+    book = addBrainstormNote(book, { id: "b", text: "" });
+    book = addBrainstormNote(book, { id: "c", text: "" });
+    book = stageBrainstormNote(book, "a");
+    book = stageBrainstormNote(book, "b");
+    book = stageBrainstormNote(book, "c");
+    book = applyBrainstormNoteTexts(book, [
+      ["a", "First card."],
+      ["b", "Second card."],
+      ["c", "Third card."]
+    ]);
+    const next = sendStagedNotesToSynopsis(book);
+    expect(next.synopsis).toBe("First card.\n\nSecond card.\n\nThird card.");
+    expect(next.brainstorm_notes).toEqual([]);
+  });
 });
 
 describe("appendBrainstormReply", () => {
@@ -80,6 +104,18 @@ describe("brainstorm prompts", () => {
     expect(prompt).not.toContain("Stay in scene");
     expect(prompt).toContain("Intended manuscript craft");
     expect(prompt).toContain("Do not write chapter prose unless asked");
+  });
+
+  it("names the prose language when the author set one", () => {
+    const book = { ...createBook("Night Keys"), prose_language: "Norwegian" };
+    const prompt = brainstormPassageUserPrompt({
+      book,
+      mode: "extend",
+      before: "",
+      selected: "A mysterious stowaway.",
+      after: ""
+    });
+    expect(prompt).toContain("Prose language: Norwegian");
   });
 
   it("never feeds attached pictures to brainstorm", () => {

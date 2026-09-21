@@ -8,6 +8,7 @@ describe("createBook", () => {
     expect(book.pov).toBe("limited");
     expect(book.tense).toBe("past");
     expect(book.viewpoint).toBe("");
+    expect(book.prose_language).toBe("");
     expect(book.brainstorm).toBe("");
     expect(book.brainstorm_notes).toEqual([]);
     expect(book.synopsis).toBe("");
@@ -28,6 +29,7 @@ describe("createBook", () => {
       pov: _pov,
       tense: _tense,
       viewpoint: _viewpoint,
+      prose_language: _language,
       media: _media,
       profiles: _profiles,
       hidden_entities: _hidden,
@@ -40,6 +42,7 @@ describe("createBook", () => {
     void _pov;
     void _tense;
     void _viewpoint;
+    void _language;
     void _media;
     void _profiles;
     void _hidden;
@@ -51,6 +54,7 @@ describe("createBook", () => {
     expect(parsed.pov).toBe("limited");
     expect(parsed.tense).toBe("past");
     expect(parsed.viewpoint).toBe("");
+    expect(parsed.prose_language).toBe("");
     expect(parsed.media).toEqual([]);
     expect(parsed.profiles).toEqual([]);
     expect(parsed.hidden_entities).toEqual([]);
@@ -60,8 +64,13 @@ describe("createBook", () => {
 });
 
 describe("openingSurface", () => {
-  it("opens on brainstorm until there is a synopsis or chapter prose", () => {
+  it("opens a blank manuscript on settings", () => {
     const book = createBook("X");
+    expect(openingSurface(book)).toBe("settings");
+  });
+
+  it("opens on brainstorm once notes exist, then synopsis, then chapter prose", () => {
+    const book = { ...createBook("X"), brainstorm: "A stowaway." };
     expect(openingSurface(book)).toBe("brainstorm");
     const mapped = { ...book, synopsis: "Emma leaves before winter." };
     expect(openingSurface(mapped)).toBe("synopsis");

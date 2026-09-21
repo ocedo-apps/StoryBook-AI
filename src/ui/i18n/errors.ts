@@ -7,7 +7,8 @@ export const STORE_ERROR = {
   recastEmpty: "store:recast-empty",
   extractEmpty: "store:extract-empty",
   analyzeEmpty: "store:analyze-empty",
-  extractorNone: "store:extractor-none"
+  extractorNone: "store:extractor-none",
+  proofreadEmpty: "store:proofread-empty"
 } as const;
 
 export type StoreErrorCode = (typeof STORE_ERROR)[keyof typeof STORE_ERROR];
@@ -21,7 +22,8 @@ const STORE_ERROR_KEYS: Record<StoreErrorCode, keyof import("./en").Messages["er
   [STORE_ERROR.recastEmpty]: "recastEmpty",
   [STORE_ERROR.extractEmpty]: "extractEmpty",
   [STORE_ERROR.analyzeEmpty]: "analyzeEmpty",
-  [STORE_ERROR.extractorNone]: "extractorNone"
+  [STORE_ERROR.extractorNone]: "extractorNone",
+  [STORE_ERROR.proofreadEmpty]: "proofreadEmpty"
 };
 
 export function isStoreError(value: string): value is StoreErrorCode {

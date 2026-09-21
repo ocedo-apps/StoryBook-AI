@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   ALTERNATIVES_SYSTEM,
   alternativesUserPrompt,
+  applyWordSwap,
   dropWrongSense,
+  indefiniteArticle,
   matchWordCase,
   parseAlternativeWords,
   sentenceAround,
@@ -77,6 +79,35 @@ describe("matchWordCase", () => {
   it("keeps sentence case", () => {
     expect(matchWordCase("Angular", "sharp")).toBe("Sharp");
     expect(matchWordCase("angular", "sharp")).toBe("sharp");
+  });
+});
+
+describe("indefiniteArticle", () => {
+  it("uses an before a vowel sound and a before a consonant", () => {
+    expect(indefiniteArticle("ominous")).toBe("an");
+    expect(indefiniteArticle("strange")).toBe("a");
+    expect(indefiniteArticle("hour")).toBe("an");
+    expect(indefiniteArticle("university")).toBe("a");
+  });
+});
+
+describe("applyWordSwap", () => {
+  it("retunes a/an when the sound of the word changes", () => {
+    const text = "an ominous night";
+    const start = text.indexOf("ominous");
+    expect(applyWordSwap(text, { start, end: start + 7 }, "ominous", "strange")).toBe("a strange night");
+  });
+
+  it("keeps the article’s case at a sentence start", () => {
+    const text = "An ominous night fell.";
+    const start = text.indexOf("ominous");
+    expect(applyWordSwap(text, { start, end: start + 7 }, "ominous", "strange")).toBe("A strange night fell.");
+  });
+
+  it("leaves the and other determiners alone", () => {
+    const text = "the ominous night";
+    const start = text.indexOf("ominous");
+    expect(applyWordSwap(text, { start, end: start + 7 }, "ominous", "strange")).toBe("the strange night");
   });
 });
 
