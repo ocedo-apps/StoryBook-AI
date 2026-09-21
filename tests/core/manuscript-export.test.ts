@@ -5,6 +5,7 @@ import { packManuscriptBackup } from "@core/manuscriptBackup";
 import {
   buildManuscriptExport,
   formatExportHtml,
+  formatExportMarkdown,
   formatExportRtf,
   packEpub,
   packOdt,
@@ -67,15 +68,87 @@ describe("manuscript export formats", () => {
 
   it("writes a self-contained HTML page and escapes markup", () => {
     let book = { ...createBook("Night Keys"), brainstorm: "secret stowaway", synopsis: "Emma leaves before winter." };
-    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the <door>." });
+    book = updateChapter(book, book.chapters[0]!.id, {
+      title: "The quay",
+      brief: "Emma meets the stranger",
+      prose: "Emma locked the <door>."
+    });
     const html = formatExportHtml(buildManuscriptExport(book, "First pass"));
     expect(html.startsWith("<!doctype html>")).toBe(true);
     expect(html).toContain("Night Keys");
     expect(html).toContain("The quay");
     expect(html).toContain("Emma locked the &lt;door&gt;.");
     expect(html).toContain("First pass");
-    expect(html).toContain("Synopsis");
     expect(html).not.toContain("secret stowaway");
+    expect(html).not.toContain("Synopsis");
+    expect(html).not.toContain("Emma leaves before winter.");
+    expect(html).not.toContain("Emma meets the stranger");
+    expect(html).toContain(`<h2 class="chapter">`);
+  });
+
+  it("leaves the synopsis and chapter briefs out of every publish format", async () => {
+    let book = { ...createBook("Night Keys"), synopsis: "Emma leaves before winter." };
+    book = updateChapter(book, book.chapters[0]!.id, {
+      title: "The quay",
+      brief: "Emma meets the stranger",
+      prose: "Emma locked the door."
+    });
+    const doc = buildManuscriptExport(book);
+
+    const md = formatExportMarkdown(doc);
+    expect(md).not.toContain("Synopsis");
+    expect(md).not.toContain("Emma leaves before winter.");
+    expect(md).not.toContain("Brief:");
+    expect(md).not.toContain("Emma meets the stranger");
+
+    const rtf = formatExportRtf(doc);
+    expect(rtf).not.toContain("Synopsis");
+    expect(rtf).not.toContain("Emma leaves before winter.");
+    expect(rtf).not.toContain("Brief:");
+    expect(rtf).not.toContain("Emma meets the stranger");
+
+    const odtText = new TextDecoder().decode(packOdt(doc));
+    expect(odtText).not.toContain("Synopsis");
+    expect(odtText).not.toContain("Emma leaves before winter.");
+    expect(odtText).not.toContain("Brief:");
+    expect(odtText).not.toContain("Emma meets the stranger");
+
+    const epubText = new TextDecoder().decode(packEpub(doc));
+    expect(epubText).not.toContain("synopsis.xhtml");
+    expect(epubText).not.toContain("Emma leaves before winter.");
+    expect(epubText).not.toContain("Brief:");
+    expect(epubText).not.toContain("Emma meets the stranger");
+
+    const pdfBytes = await packPdf(doc);
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    expect(pdfDoc.getTitle()).toBe("Night Keys");
+  });
+
+  it("gives each chapter its own page in RTF and ODT, and its own file in ePub", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door." });
+    book = { ...book, chapters: [...book.chapters, { ...book.chapters[0]!, id: "ch2", title: "The tide", sequence_index: 1, prose: "Water rose." }] };
+    const doc = buildManuscriptExport(book);
+
+    const rtf = formatExportRtf(doc);
+    expect(rtf.split("\\page").length - 1).toBe(2);
+
+    const odtText = new TextDecoder().decode(packOdt(doc));
+    expect(odtText).toContain('text:style-name="ChapterHeading"');
+    expect(odtText).toContain('fo:break-before="page"');
+
+    const epubText = new TextDecoder().decode(packEpub(doc));
+    expect(epubText).toContain("text/chapter-0.xhtml");
+    expect(epubText).toContain("text/chapter-1.xhtml");
+  });
+
+  it("forces a new PDF page for every chapter, even a short one", async () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Short." });
+    const doc = buildManuscriptExport(book);
+    const bytes = await packPdf(doc);
+    const loaded = await PDFDocument.load(bytes);
+    expect(loaded.getPageCount()).toBe(2);
   });
 
   it("packs an ePub a reader can open, with mimetype stored first and uncompressed", () => {

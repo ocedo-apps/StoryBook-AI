@@ -23,7 +23,7 @@ Allow the origin:
 OLLAMA_ORIGINS=http://localhost:5175 ollama serve
 ```
 
-You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, at the bottom of the left rail, writes Markdown, RTF, ODT, HTML, ePub, or PDF.
+You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, at the bottom of the left rail after Proofread, writes Markdown, RTF, ODT, HTML, ePub, or PDF — prose and chapter titles only, no Synopsis or chapter briefs. Every chapter starts its own page in RTF, ODT, and PDF, and its own file in ePub.
 
 ## Models
 
@@ -45,7 +45,7 @@ Two dropdowns under **Settings**:
 9. **History** snapshots the chapter's prose from before every Draft, Recast, Extend, Elaborate, Rewrite, or Restore — newest first, up to **Versions per chapter** on Settings (3–50, default 12). Compare any two versions (or a version against now) with a word-level diff. **Restore** jumps the chapter to that version — but never silently: if the current text differs from the target, it is saved as a new row first, so nothing is lost without its own row to jump back to.
 10. **Stats** shows how it reads (directness, pacing, vocabulary, echo, repeated phrase, POV leak, mixed-focus paragraphs). Click an echo or repeated phrase to find it. **Rare on** marks uncommon words; right-click one for Review alternatives.
 11. **Analyze** is an opt-in Review pass. It flags quotes; it does not rewrite. **Notes** reopens the last result.
-12. **Proofread** sits under Chapters in the left rail — last in the Settings → Brainstorm → Synopsis → Briefs → Chapters line, and not a locked step. It is a slower last Review pass over the whole manuscript (grammar, repeated scenes, style between chapters, age report). Progress is saved as it goes. It does not rewrite.
+12. **Proofread** sits under Chapters in the left rail, after the Settings → Brainstorm → Synopsis → Briefs → Chapters line, and not a locked step. It is a slower last Review pass over the whole manuscript (grammar, repeated scenes, style between chapters, age report). Progress is saved as it goes. It does not rewrite. **Publish** is the last item in the rail, right after Proofread — the workflow ends there.
 13. **Extract facts** proposes Story Bible rows. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person. **Export cards** sends locked people, places, and objects to Sandbox shelves.
 14. Remove a chapter with **×**. It sits under Discarded chapters until you restore it or throw it away for good.
 15. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.

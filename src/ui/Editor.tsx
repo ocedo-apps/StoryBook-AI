@@ -816,6 +816,13 @@ export function Editor() {
             {m.editor.proofread}
           </button>
           </ChapterStrandOverlay>
+          <button
+            type="button"
+            className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
+            onClick={openPublish}
+          >
+            {m.editor.publish}
+          </button>
           {discarded.length > 0 ? (
             <>
               <div className="rail-head">
@@ -854,13 +861,6 @@ export function Editor() {
               </ul>
             </>
           ) : null}
-          <button
-            type="button"
-            className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
-            onClick={openPublish}
-          >
-            {m.editor.publish}
-          </button>
         </aside>
 
         {onSettings && !onBoard ? (

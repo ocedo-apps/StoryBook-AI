@@ -1,7 +1,27 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.10
+Status: living document, v0.11
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.10 → v0.11:** Tre justeringar av Publicera efter
+användartest. (1) Rubriken flyttade ner ett snäpp — sitter nu direkt
+under Korrektur i vänsterpanelen (inte efter Ta bort-listan), så
+arbetsflödet blir Brainstorming → … → Korrektur → Publicera i en
+obruten linje, oavsett om manuset har borttagna kapitel eller ej. (2)
+Synopsis och kapitel-brief är borta ur alla sex format. Båda är
+skrivinstruktioner/kartor för författaren, inte text som ska ut till
+läsaren — samma resonemang som redan gällde brainstorm (som aldrig var
+med). `ManuscriptExport`/`ManuscriptExportChapter` tappade fälten
+`synopsis` och `brief` helt, så det är strukturellt omöjligt för ett
+format att råka ta med dem. (3) Kapitel börjar alltid på egen sida i
+RTF (`\page`), ODT (ny stil `ChapterHeading` med
+`fo:break-before="page"`) och PDF (`PdfWriter.newPage()` tvingas före
+varje kapitelrubrik, även ett kort kapitel). ePub hade redan det på
+köpet — varje kapitel är sin egen xhtml-fil/spine-post, en sidvändning
+i sig för läsaren. HTML fick en `@media print`-regel
+(`break-before:page` på kapitelrubriken) för samma effekt vid
+utskrift/skriv-ut-till-PDF, men ingen ändring på skärmen — Markdown har
+inget sidbegrepp alls och lämnades orört.
 
 **Ändringslogg v0.9 → v0.10:** **PDF** i Publicera, sjätte formatet.
 Format-listan är nu en dropdown under filnamnet (inte en knapp per
@@ -543,8 +563,9 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 
 Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
-Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub/PDF, v0.10),
-sök/ersätt, Reader, borttagna kapitel, Dispositioner, Brainstorm-lappar och
+Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub/PDF, sist i
+vänsterpanelen efter Korrektur, v0.11), sök/ersätt, Reader, borttagna kapitel,
+Dispositioner, Brainstorm-lappar och
 kapitelhistorik (v0.8, diff + säkert återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export
 (kapitel-skal som JSON, v0.7) — se ändringsloggen. Nästa produktsteg här

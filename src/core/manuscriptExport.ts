@@ -22,7 +22,6 @@ export type ManuscriptExportSection = {
 
 export type ManuscriptExportChapter = {
   heading: string;
-  brief: string;
   voice: string;
   prose: string;
 };
@@ -34,7 +33,6 @@ export type ManuscriptExport = {
   voice: string;
   viewpoint: string;
   readerAge?: number;
-  synopsis: string;
   chapters: ManuscriptExportChapter[];
   bible: ManuscriptExportSection[];
 };
@@ -65,10 +63,8 @@ export function buildManuscriptExport(book: Book, note = "", exportedAt = new Da
     voice: book.voice.trim(),
     viewpoint: book.viewpoint.trim(),
     ...(book.reader_age !== undefined ? { readerAge: book.reader_age } : {}),
-    synopsis: exportProse(book.synopsis),
     chapters: sortedChapters(book).map((chapter) => ({
       heading: `${chapter.sequence_index + 1}. ${chapter.title.trim() || `Chapter ${chapter.sequence_index + 1}`}`,
-      brief: chapter.brief.trim(),
       voice: chapter.voice?.trim() ?? "",
       prose: exportProse(chapter.prose)
     })),
@@ -87,14 +83,8 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
     if (doc.viewpoint) lines.push(`Viewpoint: ${doc.viewpoint}`);
     if (doc.readerAge !== undefined) lines.push(`Reader: ${doc.readerAge}`);
   }
-  if (doc.synopsis) {
-    lines.push("", "## Synopsis", "", doc.synopsis);
-  }
   for (const chapter of doc.chapters) {
     lines.push("", `## ${chapter.heading}`);
-    if (chapter.brief) {
-      lines.push("", `Brief: ${chapter.brief}`);
-    }
     if (chapter.voice) {
       lines.push(`Voice: ${chapter.voice}`);
     }
@@ -116,7 +106,7 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
-const HTML_EXPORT_CSS = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;font-family:Georgia,"Times New Roman",serif;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}`;
+const HTML_EXPORT_CSS = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;font-family:Georgia,"Times New Roman",serif;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}@media print{h2.chapter{break-before:page}}`;
 
 function htmlParagraphs(text: string): string {
   const lines = text.split(/\r\n|\n|\r/);
@@ -134,12 +124,8 @@ export function formatExportHtml(doc: ManuscriptExport): string {
     if (doc.readerAge !== undefined) meta.push(`Reader: ${doc.readerAge}`);
     body.push(`<p class="meta">${meta.join("<br/>")}</p>`);
   }
-  if (doc.synopsis) {
-    body.push("<h2>Synopsis</h2>", htmlParagraphs(doc.synopsis));
-  }
   for (const chapter of doc.chapters) {
-    body.push(`<h2>${xmlEscape(chapter.heading)}</h2>`);
-    if (chapter.brief) body.push(`<p class="meta">Brief: ${xmlEscape(chapter.brief)}</p>`);
+    body.push(`<h2 class="chapter">${xmlEscape(chapter.heading)}</h2>`);
     if (chapter.voice) body.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
     if (chapter.prose) body.push(htmlParagraphs(chapter.prose));
   }
@@ -184,12 +170,8 @@ export function formatExportRtf(doc: ManuscriptExport): string {
   if (doc.voice) parts.push(`${rtfEscape(`Voice: ${doc.voice}`)}\\par`);
   if (doc.viewpoint) parts.push(`${rtfEscape(`Viewpoint: ${doc.viewpoint}`)}\\par`);
   if (doc.readerAge !== undefined) parts.push(`${rtfEscape(`Reader: ${doc.readerAge}`)}\\par`);
-  if (doc.synopsis) {
-    parts.push("\\par", `{\\fs32\\b ${rtfEscape("Synopsis")}}\\par`, "\\par", `${rtfBlock(doc.synopsis)}`);
-  }
   for (const chapter of doc.chapters) {
-    parts.push("\\par", `{\\fs32\\b ${rtfEscape(chapter.heading)}}\\par`);
-    if (chapter.brief) parts.push("\\par", `${rtfEscape(`Brief: ${chapter.brief}`)}\\par`);
+    parts.push("\\page", `{\\fs32\\b ${rtfEscape(chapter.heading)}}\\par`);
     if (chapter.voice) parts.push(`${rtfEscape(`Voice: ${chapter.voice}`)}\\par`);
     if (chapter.prose) parts.push("\\par", rtfBlock(chapter.prose));
   }
@@ -248,18 +230,8 @@ export function packEpub(doc: ManuscriptExport): Uint8Array {
     .join("\n");
   pages.push({ id: "title", file: "text/title.xhtml", title: doc.title, body: titleBody });
 
-  if (doc.synopsis) {
-    pages.push({
-      id: "synopsis",
-      file: "text/synopsis.xhtml",
-      title: "Synopsis",
-      body: `<h1>Synopsis</h1>\n${htmlParagraphs(doc.synopsis)}`
-    });
-  }
-
   doc.chapters.forEach((chapter, index) => {
     const parts = [`<h1>${xmlEscape(chapter.heading)}</h1>`];
-    if (chapter.brief) parts.push(`<p class="meta">Brief: ${xmlEscape(chapter.brief)}</p>`);
     if (chapter.voice) parts.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
     if (chapter.prose) parts.push(htmlParagraphs(chapter.prose));
     pages.push({
@@ -442,6 +414,11 @@ class PdfWriter {
   space(amount: number): void {
     this.y -= amount;
   }
+
+  newPage(): void {
+    this.page = this.pdf.addPage([PDF_PAGE_WIDTH, PDF_PAGE_HEIGHT]);
+    this.y = PDF_PAGE_HEIGHT - PDF_MARGIN;
+  }
 }
 
 export async function packPdf(doc: ManuscriptExport): Promise<Uint8Array> {
@@ -460,16 +437,9 @@ export async function packPdf(doc: ManuscriptExport): Promise<Uint8Array> {
   if (doc.readerAge !== undefined) meta.push(`Reader: ${doc.readerAge}`);
   if (meta.length > 0) writer.lines(meta.join("\n"), { size: 9, meta: true });
 
-  if (doc.synopsis) {
-    writer.space(14);
-    writer.heading("Synopsis", 15);
-    writer.lines(doc.synopsis);
-  }
-
   for (const chapter of doc.chapters) {
-    writer.space(18);
+    writer.newPage();
     writer.heading(chapter.heading, 15);
-    if (chapter.brief) writer.lines(`Brief: ${chapter.brief}`, { size: 9, meta: true });
     if (chapter.voice) writer.lines(`Voice: ${chapter.voice}`, { size: 9, meta: true });
     if (chapter.prose) writer.lines(chapter.prose);
   }
@@ -535,18 +505,18 @@ function odtHeading(level: 1 | 2 | 3, text: string): string {
   return `<text:h text:style-name="${style}" text:outline-level="${level}">${xmlEscape(text)}</text:h>`;
 }
 
+function odtChapterHeading(text: string): string {
+  return `<text:h text:style-name="ChapterHeading" text:outline-level="2">${xmlEscape(text)}</text:h>`;
+}
+
 function odtContentXml(doc: ManuscriptExport): string {
   const body: string[] = [odtHeading(1, doc.title), odtParagraphs(doc.exportedLabel)];
   if (doc.note) body.push(odtParagraphs(doc.note));
   if (doc.voice) body.push(odtParagraphs(`Voice: ${doc.voice}`));
   if (doc.viewpoint) body.push(odtParagraphs(`Viewpoint: ${doc.viewpoint}`));
   if (doc.readerAge !== undefined) body.push(odtParagraphs(`Reader: ${doc.readerAge}`));
-  if (doc.synopsis) {
-    body.push(odtHeading(2, "Synopsis"), odtParagraphs(doc.synopsis));
-  }
   for (const chapter of doc.chapters) {
-    body.push(odtHeading(2, chapter.heading));
-    if (chapter.brief) body.push(odtParagraphs(`Brief: ${chapter.brief}`));
+    body.push(odtChapterHeading(chapter.heading));
     if (chapter.voice) body.push(odtParagraphs(`Voice: ${chapter.voice}`));
     if (chapter.prose) body.push(odtParagraphs(chapter.prose));
   }
@@ -581,6 +551,9 @@ const ODT_STYLES = `<?xml version="1.0" encoding="UTF-8"?>
     </style:style>
     <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
+    </style:style>
+    <style:style style:name="ChapterHeading" style:family="paragraph" style:parent-style-name="Heading_20_1">
+      <style:paragraph-properties fo:break-before="page"/>
     </style:style>
     <style:style style:name="Heading_20_2" style:display-name="Heading 2" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="14pt" fo:font-weight="bold"/>

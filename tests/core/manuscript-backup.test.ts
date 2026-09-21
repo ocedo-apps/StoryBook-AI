@@ -56,9 +56,9 @@ describe("manuscript backup", () => {
     const md = formatManuscriptMarkdown(packed);
     expect(md).toContain("# Night Keys");
     expect(md).toContain("First pass");
-    expect(md).toContain("Emma leaves before winter.");
     expect(md).toContain("Emma locked the door.");
     expect(md).not.toContain("captain's sister");
+    expect(md).not.toContain("Emma leaves before winter.");
     expect(md).not.toMatch(/brainstorm/i);
   });
 
