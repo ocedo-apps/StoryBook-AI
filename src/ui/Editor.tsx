@@ -46,6 +46,7 @@ import { SettingsPanel } from "./SettingsPanel";
 import { ThemeToggle } from "./ThemeToggle";
 import { LocaleSelect } from "./LocaleSelect";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
+import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
@@ -266,6 +267,7 @@ export function Editor() {
   const [maximized, setMaximized] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupNote, setBackupNote] = useState("");
   const [backupFilename, setBackupFilename] = useState("");
@@ -858,11 +860,13 @@ export function Editor() {
             model={model}
             reviewModel={reviewModel}
             writingPrimer={writingPrimer}
+            historyLimit={store.historyLimit}
             onPatch={(mutate) => void store.patchBook(mutate)}
             onModel={store.setModel}
             onReviewModel={store.setReviewModel}
             onPrimer={store.setWritingPrimer}
             onResetPrimer={store.resetWritingPrimer}
+            onHistoryLimit={store.setHistoryLimit}
           />
         ) : onBoard ? (
           <DispositionBoard
@@ -1151,6 +1155,14 @@ export function Editor() {
                     {m.editor.notes}
                   </button>
                 ) : null}
+                <button
+                  type="button"
+                  title={m.history.intro}
+                  onClick={() => setHistoryOpen(true)}
+                  disabled={busy !== null || chapter.revisions.length === 0}
+                >
+                  {m.editor.history}
+                </button>
               </div>
             </footer>
           </main>
@@ -1205,6 +1217,14 @@ export function Editor() {
           items={notes.items}
           {...(activeReaderAge !== undefined ? { readerAge: activeReaderAge } : {})}
           onClose={() => setNotesOpen(false)}
+        />
+      ) : null}
+      {historyOpen ? (
+        <ChapterHistoryCard
+          revisions={chapter.revisions}
+          liveProse={chapter.prose}
+          onRestore={(revisionId) => void store.restoreChapterProse(revisionId)}
+          onClose={() => setHistoryOpen(false)}
         />
       ) : null}
       {backupOpen ? (

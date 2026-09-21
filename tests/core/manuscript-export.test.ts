@@ -29,6 +29,24 @@ describe("manuscript export formats", () => {
     expect(text).not.toContain("secret stowaway");
   });
 
+  it("exports live prose and leaves earlier versions out", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, {
+      prose: "Emma locked the door.",
+      revisions: [
+        {
+          id: "rev-1",
+          at: "2026-09-21T00:00:00.000Z",
+          op: "draft",
+          prose: "SECRET OLD VERSION the stowaway smiled."
+        }
+      ]
+    });
+    const doc = buildManuscriptExport(book);
+    expect(doc.chapters[0]?.prose).toBe("Emma locked the door.");
+    expect(JSON.stringify(doc)).not.toContain("SECRET OLD VERSION");
+  });
+
   it("drops a model Note from chapter prose so it cannot ride along", () => {
     let book = createBook("Night Keys");
     book = updateChapter(book, book.chapters[0]!.id, {

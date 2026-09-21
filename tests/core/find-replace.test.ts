@@ -100,7 +100,7 @@ describe("replaceInBook", () => {
       ...book,
       chapters: [
         ...book.chapters,
-        { id: "c2", title: "Two", brief: "", prose: "The quay waited.", sequence_index: 1 }
+        { id: "c2", title: "Two", brief: "", prose: "The quay waited.", revisions: [], sequence_index: 1 }
       ]
     };
     const next = replaceInBook(book, "quay", "pier", defaultFindFlags(), {

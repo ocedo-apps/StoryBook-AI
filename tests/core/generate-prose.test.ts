@@ -28,6 +28,25 @@ describe("draftUserPrompt", () => {
     expect(prompt).not.toContain("Prose language:");
   });
 
+  it("never feeds earlier chapter versions to the draft", () => {
+    let book = createBook("The Salt Road");
+    book = updateChapter(book, book.chapters[0]!.id, {
+      prose: "Dawn on the quay.",
+      revisions: [
+        {
+          id: "rev-1",
+          at: "2026-09-21T00:00:00.000Z",
+          op: "draft",
+          prose: "SECRET the stowaway is the captain's sister."
+        }
+      ]
+    });
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("Dawn on the quay.");
+    expect(prompt).not.toContain("SECRET");
+    expect(prompt).not.toContain("captain's sister");
+  });
+
   it("never feeds brainstorm notes to the chapter draft", () => {
     const book = {
       ...createBook("The Salt Road"),
@@ -289,6 +308,7 @@ describe("passageUserPrompt", () => {
     expect(prompt).toContain("Third person limited");
     expect(prompt).toContain("NOTE:");
     expect(prompt).toContain("old phrase");
+    expect(prompt).toContain("No heading and no Rewritten passage:");
   });
 
   it("applies the chapter camera to a passage rewrite", () => {
@@ -311,6 +331,7 @@ describe("paragraph focus", () => {
   it("tells draft and rewrite not to pack unrelated narrative layers into one paragraph", () => {
     expect(DRAFT_SYSTEM).toContain("Start a new paragraph when focus shifts");
     expect(PASSAGE_SYSTEM).toContain("Start a new paragraph when focus shifts");
+    expect(PASSAGE_SYSTEM).toContain("no Rewritten passage:");
     expect(RECAST_SYSTEM).toContain("Start a new paragraph when focus shifts");
     expect(DRAFT_SYSTEM).toMatch(/not as a film treatment/i);
     expect(PASSAGE_SYSTEM).toMatch(/not as a film treatment/i);

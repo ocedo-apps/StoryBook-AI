@@ -23,6 +23,14 @@ import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@c
 import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
 import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
+import {
+  readProseHistoryLimit,
+  recordProseRevision,
+  restoreProseRevision,
+  rewriteHistoryOp,
+  writeProseHistoryLimit,
+  type ProseHistoryOp
+} from "@core/proseHistory";
 import { clearWritingPrimer, readWritingPrimer, withWritingPrimer, writeWritingPrimer } from "@core/writingPrimer";
 import { peelModelAsides } from "@core/proseFlow";
 import { resolveReader, kidlitReader } from "@core/reader";
@@ -89,6 +97,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [reviewModel, setReviewModelState] = useState(
     () => localStorage.getItem(REVIEW_MODEL_KEY) ?? DEFAULT_REVIEW_MODEL
   );
+  const [historyLimit, setHistoryLimitState] = useState(() => readProseHistoryLimit());
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,11 +110,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const proofreadLock = useRef(false);
   const saveTimer = useRef<number | null>(null);
   const writingPrimerRef = useRef(writingPrimer);
+  const historyLimitRef = useRef(historyLimit);
 
   bookRef.current = book;
   chapterRef.current = chapterId;
   surfaceRef.current = surface;
   writingPrimerRef.current = writingPrimer;
+  historyLimitRef.current = historyLimit;
 
   const writingSystem = (job: string) => withWritingPrimer(job, writingPrimerRef.current);
 
@@ -176,6 +187,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setBook(next);
     await persist(next);
   }, [persist]);
+
+  const persistProseWrite = useCallback(
+    async (latest: Book, id: string, assembled: string, op: ProseHistoryOp, before: string) => {
+      let next = latest;
+      if (before !== assembled) {
+        next = recordProseRevision(next, id, op, before, historyLimitRef.current);
+      }
+      await flushSave(updateChapter(next, id, { prose: assembled }));
+    },
+    [flushSave]
+  );
 
   const patchBook = useCallback(
     async (mutate: (current: Book) => Book) => {
@@ -331,6 +353,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(REVIEW_MODEL_KEY, name);
   }, []);
 
+  const setHistoryLimit = useCallback((n: number) => {
+    const next = Number.isFinite(n) ? n : readProseHistoryLimit();
+    writeProseHistoryLimit(next);
+    setHistoryLimitState(readProseHistoryLimit());
+  }, []);
+
   const setChapterId = useCallback((id: string) => {
     setChapterIdState(id);
     setSurface("chapter");
@@ -379,6 +407,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setModelAsides([]);
 
     const provider = new OllamaProvider({ model });
+    const before = chapter.prose;
     let assembled = chapter.prose;
     const prefix = assembled.trim() ? `${assembled.replace(/\s+$/, "")}\n\n` : "";
     assembled = prefix;
@@ -404,11 +433,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         }
       }
       const latest = bookRef.current;
-      if (latest) await flushSave(updateChapter(latest, id, { prose: assembled }));
+      if (latest) await persistProseWrite(latest, id, assembled, "draft", before);
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
         const latest = bookRef.current;
-        if (latest) await flushSave(updateChapter(latest, id, { prose: assembled }));
+        if (latest) await persistProseWrite(latest, id, assembled, "draft", before);
       } else {
         setError(ollamaHint(err));
       }
@@ -416,7 +445,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       abortRef.current = null;
     }
-  }, [busy, flushSave, model, models.length, ollamaError, patchBook]);
+  }, [busy, flushSave, model, models.length, ollamaError, patchBook, persistProseWrite]);
 
   const recastChapter = useCallback(async () => {
     const current = bookRef.current;
@@ -463,11 +492,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         }
       }
       const latest = bookRef.current;
-      if (latest) await flushSave(updateChapter(latest, id, { prose: assembled.trim() ? assembled : original }));
+      if (latest) {
+        const finished = assembled.trim() ? assembled : original;
+        await persistProseWrite(latest, id, finished, "recast", original);
+      }
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
         const latest = bookRef.current;
-        if (latest) await flushSave(updateChapter(latest, id, { prose: assembled.trim() ? assembled : original }));
+        if (latest) {
+          const finished = assembled.trim() ? assembled : original;
+          await persistProseWrite(latest, id, finished, "recast", original);
+        }
       } else {
         setError(ollamaHint(err));
         const latest = bookRef.current;
@@ -477,7 +512,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       abortRef.current = null;
     }
-  }, [busy, flushSave, model, models.length, ollamaError]);
+  }, [busy, flushSave, model, models.length, ollamaError, persistProseWrite]);
 
   const rewriteSpan = useCallback(
     async (args: {
@@ -543,7 +578,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           const patched = applyAssembledBrainstorm(latest, assembled);
           await flushSave(touch(latest, { brainstorm: patched.brainstorm, brainstorm_notes: patched.brainstorm_notes }));
         }
-        else if (id) await flushSave(updateChapter(latest, id, { prose: assembled }));
+        else if (id) {
+          await persistProseWrite(latest, id, assembled, rewriteHistoryOp(args.mode), source);
+        }
       };
 
       const userContent =
@@ -600,7 +637,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         abortRef.current = null;
       }
     },
-    [busy, flushSave, model, models.length, ollamaError]
+    [busy, flushSave, model, models.length, ollamaError, persistProseWrite]
+  );
+
+  const restoreChapterProse = useCallback(
+    async (revisionId: string) => {
+      const current = bookRef.current;
+      const id = chapterRef.current;
+      if (!current || !id || busy) return;
+      await flushSave(restoreProseRevision(current, id, revisionId, historyLimitRef.current));
+    },
+    [busy, flushSave]
   );
 
   const askBrainstorm = useCallback(
@@ -1017,6 +1064,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     model,
     writingPrimer,
     reviewModel,
+    historyLimit,
     ollamaError,
     busy,
     error,
@@ -1039,9 +1087,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setWritingPrimer,
     resetWritingPrimer,
     setReviewModel,
+    setHistoryLimit,
     draftChapter,
     recastChapter,
     rewriteSpan,
+    restoreChapterProse,
     askBrainstorm,
     liftToSynopsis,
     sendBrainstormToSynopsis,

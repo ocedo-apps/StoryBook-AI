@@ -59,6 +59,9 @@ export const nb: Messages = {
     proseLanguagePlaceholder: "Norsk",
     proseLanguageTitle: "Språket setningene skrives på. Tomt gjetter fra manuskriptet. En skriveinstruksjon, ikke kanon.",
     modelsHeading: "Modeller",
+    historyLimit: "Versjoner per kapittel",
+    historyLimitLede:
+      "Hvor mange tidligere versjoner hvert kapittel beholder etter utkast, omskriving, forlengelse, utvidelse og omskriv. Eldste forsvinner først. Det du skriver selv lagres ikke.",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -115,6 +118,7 @@ export const nb: Messages = {
     analyze: "Analyser",
     proofread: "Korrektur",
     notes: "Notater",
+    history: "Historikk",
     recast: "Omskriv prosa",
     recasting: "Omskriver…",
     recastTitle: "Omskriv kapitlet til gjeldende perspektiv, tempus og synsvinkel",
@@ -572,6 +576,33 @@ export const nb: Messages = {
         label: "Pekepinn",
         blurb: "En moral som sies av en voksen, ikke tjenes av protagonistens valg."
       }
+    }
+  },
+  history: {
+    kicker: "Kapittel",
+    title: "Historikk",
+    emptyTitle: "Ingen historikk ennå",
+    intro:
+      "Tidligere versjoner fra utkast, omskriving, forlengelse, utvidelse og omskriv. Gjenopprett hopper til den versjonen. Senere rader blir liggende.",
+    empty: "Modellen har ikke skrevet om dette kapittelet ennå.",
+    emptyProse: "(tomt)",
+    clickHint: "Klikk på en versjon for å lese den, og Gjenopprett for å legge den i kapittelet.",
+    restore: "Gjenopprett",
+    compare: "Sammenlign",
+    compareHint: "Klikk på en annen versjon for å sammenligne med denne. Gjenopprett bruker fortsatt den valgte versjonen.",
+    comparePair: "{from} → {to}",
+    live: "Kapittelet nå",
+    same: "Disse to er like.",
+    fromOnly: "Bare i denne teksten, det du mister hvis du gjenoppretter",
+    toOnly: "Bare i denne teksten, det du får hvis du gjenoppretter",
+    foot: "Listen er ikke angring. Det du skriver selv lagres ikke. Prompter ser bare det aktuelle kapittelet.",
+    ops: {
+      draft: "Utkast",
+      recast: "Omskriving",
+      extend: "Forleng",
+      elaborate: "Utvid",
+      rewrite: "Skriv om",
+      restore: "Gjenopprett"
     }
   },
   errors: {

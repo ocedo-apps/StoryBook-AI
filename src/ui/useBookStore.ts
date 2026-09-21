@@ -16,6 +16,7 @@ export type BookStoreValue = {
   model: string;
   writingPrimer: string;
   reviewModel: string;
+  historyLimit: number;
   ollamaError: string | null;
   busy: Busy;
   error: string | null;
@@ -38,6 +39,7 @@ export type BookStoreValue = {
   setWritingPrimer: (text: string) => void;
   resetWritingPrimer: () => void;
   setReviewModel: (name: string) => void;
+  setHistoryLimit: (n: number) => void;
   draftChapter: () => Promise<void>;
   recastChapter: () => Promise<void>;
   rewriteSpan: (args: {
@@ -46,6 +48,7 @@ export type BookStoreValue = {
     span: TextSpan;
     instruction?: string;
   }) => Promise<void>;
+  restoreChapterProse: (revisionId: string) => Promise<void>;
   askBrainstorm: (instruction: string) => Promise<void>;
   liftToSynopsis: (fragment: string) => Promise<void>;
   sendBrainstormToSynopsis: () => Promise<void>;

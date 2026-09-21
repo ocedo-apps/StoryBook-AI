@@ -13,6 +13,7 @@ describe("createBook", () => {
     expect(book.brainstorm_notes).toEqual([]);
     expect(book.synopsis).toBe("");
     expect(book.chapters).toHaveLength(1);
+    expect(book.chapters[0]?.revisions).toEqual([]);
     expect(book.facts).toEqual([]);
     expect(book.media).toEqual([]);
     expect(book.profiles).toEqual([]);
@@ -172,5 +173,6 @@ describe("chapters", () => {
     expect(parsed.chapters[0]?.viewpoint).toBeUndefined();
     expect(parsed.chapters[0]?.voice).toBeUndefined();
     expect(parsed.chapters[0]?.continues_from).toBeUndefined();
+    expect(parsed.chapters[0]?.revisions).toEqual([]);
   });
 });

@@ -74,4 +74,27 @@ describe("peelModelAsides", () => {
     expect(peeled.prose).toBe("She left a note: the key is under the mat.");
     expect(peeled.asides).toEqual([]);
   });
+
+  it("lifts a Rewritten passage heading and keeps the new prose", () => {
+    const peeled = peelModelAsides("Rewritten passage:\n\nHe'd never felt so electrified.");
+    expect(peeled.prose).toBe("He'd never felt so electrified.");
+    expect(peeled.asides).toEqual([]);
+  });
+
+  it("drops echoed original text before a Rewritten passage heading", () => {
+    const peeled = peelModelAsides(
+      "Henrik felt a rush of heat rise to his cheeks, a mixture of embarrassment and exhilaration. Rewritten passage:\n\nHe'd never felt so electrified, so in tune with the world around him."
+    );
+    expect(peeled.prose).toBe("He'd never felt so electrified, so in tune with the world around him.");
+  });
+
+  it("strips a trailing Rewritten passage label with no payload", () => {
+    const peeled = peelModelAsides("She opened the door. Rewritten passage:");
+    expect(peeled.prose).toBe("She opened the door.");
+  });
+
+  it("keeps a story sentence that mentions a rewritten passage", () => {
+    const peeled = peelModelAsides("She read the rewritten passage: it was worse.");
+    expect(peeled.prose).toBe("She read the rewritten passage: it was worse.");
+  });
 });

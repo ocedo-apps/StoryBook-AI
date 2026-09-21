@@ -83,7 +83,7 @@ If a prose language is given, write in that language. Otherwise write in the sam
 Reader, if set, retunes diction and sentence length. It does not rewrite the story into a children's book.
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 Write the scene as it is lived, not as a film treatment. Do not mention a camera, a shot, or a cut.
-The passage itself is prose only — no title, no quotes around it, no commentary inside it.
+The passage itself is prose only — no title, no heading, no Rewritten passage: label, no quotes around it, no commentary inside it.
 A trailing NOTE: line after a blank line is allowed. Never put NOTE inside the passage.`;
 
 export const RECAST_SYSTEM = `You recast existing chapter prose to the requested point of view and tense.
@@ -127,10 +127,10 @@ export function passageUserPrompt(args: {
     args.mode === "extend"
       ? "Write only the next sentences that follow the marked passage. Do not repeat it. Stay in scene."
       : args.mode === "elaborate"
-        ? "Rewrite the marked passage with more sensory and dramatic detail. Keep the same events and meaning. Output only the rewritten passage."
+        ? "Rewrite the marked passage with more sensory and dramatic detail. Keep the same events and meaning. Output only the prose. No heading and no Rewritten passage: label."
         : `Follow this author instruction when rewriting the marked passage. Change only what it asks.
 
-Write the rewritten passage first.
+Write only the new prose. No heading and no Rewritten passage: label.
 Then a blank line, then one line:
 NOTE: "old phrase" → "new phrase"; ...
 If you cannot list concrete swaps, write NOTE: rewritten as asked.

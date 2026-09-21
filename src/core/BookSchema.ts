@@ -8,12 +8,28 @@ import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
 
+export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "restore"] as const;
+export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
+
+export const ProseRevisionSchema = z.object({
+  id: z.string().min(1),
+  at: z.string().min(1),
+  op: z.enum(PROSE_HISTORY_OPS),
+  prose: z.string()
+});
+export type ProseRevision = z.infer<typeof ProseRevisionSchema>;
+
 export const ChapterSchema = z.object({
   id: z.string().min(1),
   title: z.string(),
   /** Writing instruction for this chapter — not in-world canon. */
   brief: z.string(),
   prose: z.string(),
+  /**
+   * Earlier chapter prose from model writes. Newest first.
+   * Missing on older saves — default keeps IndexedDB loadable.
+   */
+  revisions: z.array(ProseRevisionSchema).default([]),
   sequence_index: z.number().int().nonnegative(),
   /** Optional camera for this chapter. Missing fields inherit the manuscript. */
   pov: z.enum(POV_MODES).optional(),
@@ -186,6 +202,7 @@ export function createChapter(sequence_index: number, title = ""): Chapter {
     title: title.trim() || `Chapter ${sequence_index + 1}`,
     brief: "",
     prose: "",
+    revisions: [],
     sequence_index
   };
 }

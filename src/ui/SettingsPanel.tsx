@@ -9,6 +9,7 @@ import {
   parseTense
 } from "@core/craft";
 import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
+import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
 import { applyReaderAge, parseReaderAge, readerCategory } from "@core/reader";
 import type { Book } from "@core/BookSchema";
 import { format, useLocale } from "./i18n";
@@ -19,22 +20,26 @@ export function SettingsPanel({
   model,
   reviewModel,
   writingPrimer,
+  historyLimit,
   onPatch,
   onModel,
   onReviewModel,
   onPrimer,
-  onResetPrimer
+  onResetPrimer,
+  onHistoryLimit
 }: {
   book: Book;
   models: string[];
   model: string;
   reviewModel: string;
   writingPrimer: string;
+  historyLimit: number;
   onPatch: (mutate: (book: Book) => Book) => void;
   onModel: (name: string) => void;
   onReviewModel: (name: string) => void;
   onPrimer: (text: string) => void;
   onResetPrimer: () => void;
+  onHistoryLimit: (n: number) => void;
 }) {
   const { messages: m } = useLocale();
   const people = peopleLabels(book.facts, book.entity_kinds);
@@ -150,6 +155,26 @@ export function SettingsPanel({
             onChange={onReviewModel}
           />
         </div>
+        <label className="reader-field">
+          <span>{m.editor.historyLimit}</span>
+          <input
+            type="number"
+            min={MIN_PROSE_HISTORY_LIMIT}
+            max={MAX_PROSE_HISTORY_LIMIT}
+            inputMode="numeric"
+            value={historyLimit}
+            title={m.editor.historyLimitLede}
+            aria-label={m.editor.historyLimit}
+            onChange={(event) => {
+              const raw = event.target.value;
+              if (raw === "") return;
+              const n = Number(raw);
+              if (!Number.isFinite(n)) return;
+              onHistoryLimit(n);
+            }}
+          />
+        </label>
+        <p className="quiet">{m.editor.historyLimitLede}</p>
         <label className="voice-field">
           <span>{m.editor.primerTitle}</span>
           <textarea

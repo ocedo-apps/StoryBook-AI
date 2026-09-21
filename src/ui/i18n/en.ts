@@ -57,6 +57,9 @@ export const en = {
     proseLanguagePlaceholder: "Swedish",
     proseLanguageTitle: "The language the sentences are written in. Empty infers from the manuscript. A writing instruction, not canon.",
     modelsHeading: "Models",
+    historyLimit: "Versions per chapter",
+    historyLimitLede:
+      "How many earlier versions each chapter keeps after Draft, Recast, Extend, Elaborate, and Rewrite. Oldest drop first. Typing is not kept.",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -113,6 +116,7 @@ export const en = {
     analyze: "Analyze",
     proofread: "Proofread",
     notes: "Notes",
+    history: "History",
     recast: "Recast prose",
     recasting: "Recasting…",
     recastTitle: "Rewrite this chapter to the current POV, tense, and viewpoint",
@@ -570,6 +574,33 @@ export const en = {
         label: "Lecture",
         blurb: "A moral stated by an adult, not earned by the protagonist’s choice."
       }
+    }
+  },
+  history: {
+    kicker: "Chapter",
+    title: "History",
+    emptyTitle: "No history yet",
+    intro:
+      "Earlier versions from Draft, Recast, Extend, Elaborate, and Rewrite. Restoring jumps to that version. Later rows stay.",
+    empty: "The model has not rewritten this chapter yet.",
+    emptyProse: "(empty)",
+    clickHint: "Click a version to read it, then Restore to put it in the chapter.",
+    restore: "Restore",
+    compare: "Compare",
+    compareHint: "Click another version to compare with this one. Restore still uses the selected version.",
+    comparePair: "{from} → {to}",
+    live: "Live chapter",
+    same: "These two are the same.",
+    fromOnly: "Only in this text — what you lose if you restore",
+    toOnly: "Only in this text — what you gain if you restore",
+    foot: "This list is not undo. Typing is not kept. Prompts only see the live chapter.",
+    ops: {
+      draft: "Draft",
+      recast: "Recast",
+      extend: "Extend",
+      elaborate: "Elaborate",
+      rewrite: "Rewrite",
+      restore: "Restore"
     }
   },
   errors: {

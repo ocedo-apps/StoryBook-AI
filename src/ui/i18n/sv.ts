@@ -59,6 +59,9 @@ export const sv: Messages = {
     proseLanguagePlaceholder: "Svenska",
     proseLanguageTitle: "Språket meningarna skrivs på. Tomt gissar från manuset. En skrivinstruktion, inte kanon.",
     modelsHeading: "Modeller",
+    historyLimit: "Versioner per kapitel",
+    historyLimitLede:
+      "Hur många tidigare versioner varje kapitel behåller efter utkast, omskrivning, förlängning, utvidgning och omskriv. Äldsta försvinner först. Det du skriver själv sparas inte.",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -115,6 +118,7 @@ export const sv: Messages = {
     analyze: "Analysera",
     proofread: "Korrekturläsning",
     notes: "Anteckningar",
+    history: "Historik",
     recast: "Omskriv prosan",
     recasting: "Omskriver…",
     recastTitle: "Omskriv kapitlet till nuvarande perspektiv, tempus och synvinkel",
@@ -572,6 +576,33 @@ export const sv: Messages = {
         label: "Pekpinne",
         blurb: "En moral som sägs av en vuxen, inte tjänas av protagonistens val."
       }
+    }
+  },
+  history: {
+    kicker: "Kapitel",
+    title: "Historik",
+    emptyTitle: "Ingen historik än",
+    intro:
+      "Tidigare versioner från utkast, omskrivning, förlängning, utvidgning och omskriv. Återställ hoppar till den versionen. Senare rader blir kvar.",
+    empty: "Modellen har inte skrivit om det här kapitlet än.",
+    emptyProse: "(tomt)",
+    clickHint: "Klicka på en version för att läsa den, och Återställ för att lägga den i kapitlet.",
+    restore: "Återställ",
+    compare: "Jämför",
+    compareHint: "Klicka på en annan version för att jämföra med den här. Återställ använder fortfarande den valda versionen.",
+    comparePair: "{from} → {to}",
+    live: "Kapitlet nu",
+    same: "De här två är lika.",
+    fromOnly: "Bara i den här texten, det du tappar om du återställer",
+    toOnly: "Bara i den här texten, det du får om du återställer",
+    foot: "Listan är inte ångra. Det du skriver själv sparas inte. Prompter ser bara det aktuella kapitlet.",
+    ops: {
+      draft: "Utkast",
+      recast: "Omskrivning",
+      extend: "Förläng",
+      elaborate: "Utvidga",
+      rewrite: "Skriv om",
+      restore: "Återställ"
     }
   },
   errors: {

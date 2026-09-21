@@ -9,9 +9,14 @@ export function splitFlowParagraphs(text: string): string[] {
 /** Model commentary glued onto a rewrite, e.g. `(Note: swapped the verbs…)`. */
 const ASIDE_HEAD = /^(Notes|Note|Nota|Notering|Anteckning|Anmärkning|Anm|Notat|Merknad|Merk|Obs|Not)\s*:/i;
 
+/** Heading the model slaps on a rewrite, e.g. `Rewritten passage:`. */
+const REWRITE_WRAPPER =
+  /(^|\n+|[.!?]["']?\s+)(?:#{1,3}\s+)?\*{0,3}(?:here(?:'s| is) (?:the )?|här är den |her er den )?(?:rewritten|revised|recast|omskrivna?|omskriven[ae]?|omskrivet|omarbetad[ea]?|omskrevet|revidert)\s+(?:passage(?:n)?|text|paragraph|stycke|avsnitt|passasje(?:n)?)\s*:\*{0,3}/i;
+
 export function peelModelAsides(text: string): { prose: string; asides: string[] } {
   const asides: string[] = [];
   let prose = peelParenAsides(text, asides);
+  prose = peelRewriteWrappers(prose);
   prose = peelEdgeNoteParagraphs(prose, asides);
   return { prose: tidyPeeledProse(prose), asides };
 }
@@ -52,6 +57,15 @@ function looksLikeModelNote(block: string): boolean {
   const stripped = unwrapAside(block.replace(/^\*+|\*+$/g, ""));
   if (!ASIDE_HEAD.test(stripped)) return false;
   return /→|->|Changed\b|Swapped\b|Recast\b|rewritten as asked|as per the author|to ["/']/i.test(stripped);
+}
+
+function peelRewriteWrappers(text: string): string {
+  const match = text.match(REWRITE_WRAPPER);
+  if (!match || match.index === undefined) return text;
+  const headingStart = match.index + match[1]!.length;
+  const after = text.slice(match.index + match[0].length).trim();
+  if (after) return after;
+  return text.slice(0, headingStart).trim();
 }
 
 function peelEdgeNoteParagraphs(text: string, asides: string[]): string {

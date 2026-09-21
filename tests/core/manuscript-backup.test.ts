@@ -62,6 +62,26 @@ describe("manuscript backup", () => {
     expect(md).not.toMatch(/brainstorm/i);
   });
 
+  it("keeps chapter revisions in JSON and leaves them out of the readable copy", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, {
+      prose: "Emma locked the door.",
+      revisions: [
+        {
+          id: "rev-1",
+          at: "2026-09-21T00:00:00.000Z",
+          op: "draft",
+          prose: "SECRET OLD VERSION the stowaway smiled."
+        }
+      ]
+    });
+    const packed = packManuscriptBackup(book);
+    expect(packed.book.chapters[0]?.revisions[0]?.prose).toBe("SECRET OLD VERSION the stowaway smiled.");
+    const parsed = parseManuscriptBackup(JSON.parse(JSON.stringify(packed)));
+    expect(parsed.book.chapters[0]?.revisions).toHaveLength(1);
+    expect(formatManuscriptMarkdown(packed)).not.toContain("SECRET OLD VERSION");
+  });
+
   it("lists locked Story Bible rows in the readable copy", () => {
     const book = {
       ...createBook("Night Keys"),
