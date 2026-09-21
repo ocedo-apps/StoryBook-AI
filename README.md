@@ -2,7 +2,7 @@
 
 A local-first prose tool. The Story Bible holds truth. The model drafts. You decide.
 
-This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export comes later. No cloud API keys: both apps talk to a local [Ollama](https://ollama.com) server.
+This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export (this app → Sandbox campaigns) comes later. The other direction has a first piece: Sandbox's Storyboard can group campaign scenes into chapters and export chapter shells (title + brief, no prose) as JSON — this app does not read that file back in yet. No cloud API keys: both apps talk to a local [Ollama](https://ollama.com) server.
 
 The UI is English, Swedish, or Norwegian Bokmål. **Prose language** on Settings is the language of the sentences. Export files and model prompts follow that field when it is set, otherwise the language of the manuscript.
 
