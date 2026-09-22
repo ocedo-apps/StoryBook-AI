@@ -3,6 +3,7 @@ import { indexedDB } from "fake-indexeddb";
 import { afterEach, describe, expect, it } from "vitest";
 import { createBook, updateChapter } from "@core/BookSchema";
 import { newIllustrationStyle, withExampleImage } from "@core/illustrationStyle";
+import { BUILTIN_ILLUSTRATION_STYLES } from "@core/illustrationStyleSeeds";
 import { BookRepository } from "@persistence/Repository";
 import { IllustrationStyleRepository } from "@persistence/IllustrationStyleRepository";
 
@@ -24,17 +25,30 @@ describe("IllustrationStyleRepository", () => {
     expect(listed[0]?.exampleImage?.blob.size).toBe(blob.size);
   });
 
-  it("seeds the six builtin styles only when the library is empty", async () => {
+  it("seeds every builtin style on an empty library", async () => {
     const repo = new IllustrationStyleRepository(indexedDB);
     await repo.ensureSeeded();
     const afterFirstSeed = await repo.list();
-    expect(afterFirstSeed).toHaveLength(6);
+    expect(afterFirstSeed).toHaveLength(BUILTIN_ILLUSTRATION_STYLES.length);
 
     // An author-added custom style should not be wiped by seeding again.
     await repo.save(newIllustrationStyle("My own style", "custom text", []));
     await repo.ensureSeeded();
     const afterSecondSeed = await repo.list();
-    expect(afterSecondSeed).toHaveLength(7);
+    expect(afterSecondSeed).toHaveLength(BUILTIN_ILLUSTRATION_STYLES.length + 1);
+  });
+
+  it("adds newly introduced builtins to an already-seeded library without touching existing rows", async () => {
+    const repo = new IllustrationStyleRepository(indexedDB);
+    await repo.save({ ...BUILTIN_ILLUSTRATION_STYLES[0]!, promptText: "author-edited wording" });
+    await repo.save(newIllustrationStyle("My own style", "custom text", []));
+
+    await repo.ensureSeeded();
+
+    const listed = await repo.list();
+    expect(listed).toHaveLength(BUILTIN_ILLUSTRATION_STYLES.length + 1);
+    const edited = listed.find((style) => style.id === BUILTIN_ILLUSTRATION_STYLES[0]!.id);
+    expect(edited?.promptText).toBe("author-edited wording");
   });
 
   it("replaces an existing style's image on re-save rather than keeping both", async () => {

@@ -1,7 +1,26 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.17
+Status: living document, v0.18
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.17 → v0.18:** Riktig promptext för fyra av de åtta
+genre-taggarna i illustrationsbiblioteket: Litterär/Realistisk,
+Historisk/Vintage, Deckare/Noir (ny tagg, fanns inte i v0.17) och
+Äventyr (ny tagg). Varje genre fick sex namngivna varianter istället
+för den enda platshållarposten från v0.17 — biblioteket har nu 28
+inbyggda stilar totalt, fyra genrer (Children's book, Fantasy, Sci-fi,
+Horror/Gothic) väntar fortfarande på sin egen omgång riktig text.
+
+`ensureSeeded` byggdes om från "sätt frö en gång, bara när biblioteket
+är helt tomt" till att lägga till varje inbyggd stil vars id saknas,
+oavsett om biblioteket redan innehåller andra rader. Den gamla
+logiken hade permanent blockerat alla framtida tillskott av inbyggda
+stilar så fort ett enda bibliotek innehöll något alls (en egen stil,
+eller bara en redan fröad platshållare) — ett äkta fel, inte bara en
+förberedelse för den här leveransen, eftersom författaren själv
+aviserat fler omgångar text ("Jag skickar prompterna senare"). Rör
+aldrig en rad som redan finns, oavsett om det är en författarredigerad
+inbyggd stil eller en egen.
 
 **Ändringslogg v0.16 → v0.17:** **Illustrationsstil-bibliotek och
 prompt-generering.** Nytt appnivå-bibliotek med illustrationsstilar

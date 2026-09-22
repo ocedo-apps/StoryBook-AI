@@ -43,15 +43,17 @@ export class IllustrationStyleRepository {
     db.close();
   }
 
-  /** Seeds the six builtin styles once, only when the library is empty — never overwrites author edits. */
+  /** Adds any builtin style not yet in the library, by id — never touches an existing row, so later batches of new builtins land without disturbing author edits or custom styles. */
   async ensureSeeded(): Promise<void> {
     const existing = await this.list();
-    if (existing.length > 0) return;
+    const existingIds = new Set(existing.map((style) => style.id));
+    const missing = BUILTIN_ILLUSTRATION_STYLES.filter((style) => !existingIds.has(style.id));
+    if (missing.length === 0) return;
     const db = await this.db();
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction(ILLUSTRATION_STYLE_STORE, "readwrite");
       const store = tx.objectStore(ILLUSTRATION_STYLE_STORE);
-      for (const style of BUILTIN_ILLUSTRATION_STYLES) store.put(style);
+      for (const style of missing) store.put(style);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error ?? new Error("Seeding illustration styles failed"));
     });

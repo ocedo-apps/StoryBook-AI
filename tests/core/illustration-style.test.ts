@@ -79,7 +79,7 @@ describe("search and grouping", () => {
 
   it("searches by name, tag, or prompt text, case-insensitively", () => {
     expect(searchIllustrationStyles(styles, "gothic").map((s) => s.id)).toEqual(["builtin-horror"]);
-    expect(searchIllustrationStyles(styles, "FANTASY").map((s) => s.id)).toEqual(["builtin-fantasy"]);
+    expect(searchIllustrationStyles(styles, "CYBERPUNK").map((s) => s.id)).toContain("builtin-scifi");
     expect(searchIllustrationStyles(styles, "")).toHaveLength(styles.length);
   });
 
@@ -91,13 +91,15 @@ describe("search and grouping", () => {
       "Sci-fi",
       "Horror/Gothic",
       "Literary/Realistic",
-      "Historical/Vintage"
+      "Historical/Vintage",
+      "Detective/Noir",
+      "Adventure"
     ]);
     for (const group of groups) expect(group.styles.length).toBeGreaterThan(0);
   });
 
   it("lists all distinct tags across the library", () => {
-    expect(allGenreTags(styles)).toHaveLength(6);
+    expect(allGenreTags(styles)).toHaveLength(8);
   });
 
   it("finds untagged styles so they still surface somewhere in the picker", () => {
