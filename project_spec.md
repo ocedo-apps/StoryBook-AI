@@ -1,7 +1,17 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.22
+Status: living document, v0.23
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.22 → v0.23:** Ny genre-tagg **Romance**, sex
+namngivna stilar, samma mönster som tidigare leveranser. Biblioteket
+har nu 55 inbyggda stilar över nio genrer (55 = 6×8 + 7 Litterär/
+Realistisk sen v0.22). Första promptens text kom på svenska
+(Romantik 1) — översatt till engelska för konsekvens med övriga 54
+promptar, eftersom fältet matas till en engelskspråkig
+bildgenereringstjänst och `enforceNoTextConstraint` (v0.20) letar
+efter engelska nyckelfraser ("no text", "textless" osv.) för att
+avgöra om stilens no-text-villkor behöver skrivas tillbaka.
 
 **Ändringslogg v0.21 → v0.22:** Lade till en sjunde stil under
 Litterär/Realistisk, "Raw scribble portrait" — författaren trodde den

@@ -93,13 +93,14 @@ describe("search and grouping", () => {
       "Literary/Realistic",
       "Historical/Vintage",
       "Detective/Noir",
-      "Adventure"
+      "Adventure",
+      "Romance"
     ]);
     for (const group of groups) expect(group.styles.length).toBeGreaterThan(0);
   });
 
   it("lists all distinct tags across the library", () => {
-    expect(allGenreTags(styles)).toHaveLength(8);
+    expect(allGenreTags(styles)).toHaveLength(9);
   });
 
   it("finds untagged styles so they still surface somewhere in the picker", () => {

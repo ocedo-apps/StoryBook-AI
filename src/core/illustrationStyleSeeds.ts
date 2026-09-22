@@ -1,8 +1,8 @@
 import type { IllustrationStyle } from "./illustrationStyle";
 
 /**
- * Starting library entries. All eight genres now carry the author's real wording,
- * six named variants each.
+ * Starting library entries, all carrying the author's real wording. Nine genres,
+ * six or seven named variants each.
  */
 export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
   {
@@ -395,6 +395,54 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     promptText:
       "Contemplative personal journey adventure book cover illustration, fine black ink profile portrait with soft layered watercolor washes, delicate organic watercolor overlays, earthy warm palette of mustard yellow, terracotta orange, chestnut brown, sage green, and cream paper texture, coming-of-age introspective adventure aesthetic, quiet emotional mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Adventure"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-1",
+    name: "Vintage pulp romance painting",
+    promptText:
+      "Vintage romantic illustration style, classic mid-20th-century magazine or pulp paperback art, gouache and oil painting on textured paper, hand-painted aesthetic with visible paint and paper texture, intimate scene focused on a tender or dramatic embrace, soft warm atmospheric chiaroscuro lighting, often from a side source like a window or doorway, creating deep but soft shadows, limited muted earthy color palette dominated by brown, sepia, ochre, and aged peach-terracotta accents, detailed rendering of figures and fabrics with a painterly soft focus, close and personal composition, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-2",
+    name: "1980s romance novel cover",
+    promptText:
+      "Classic 1980s romance novel cover painting, rich oil painting on canvas, smooth painterly rendering, passionate cinematic embrace, windblown flowing hair, framed by lush oversized blooming roses in vibrant crimson, magenta, and rose pink, soft dreamy lighting with warm highlights on soft skin tones, romantic pastel lavender and sky blue background, dramatic high-romance aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-3",
+    name: "Romantic suspense cel-shaded noir",
+    promptText:
+      "Dramatic romantic suspense graphic illustration, high-contrast cel-shaded vector art style, stark pitch-black shadows with clean hard-edged silhouettes, extreme chiaroscuro lighting, intimate close-up embrace, limited color palette of deep crimson red, rich black, and smooth warm cream skin tones, sleek modern pop-art graphic novel aesthetic, intense emotional mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-4",
+    name: "Regency period pen-and-ink romance",
+    promptText:
+      "Classic 19th-century Regency period romance book illustration, fine black pen and ink drawing, delicate line art, detailed cross-hatching shading techniques, clean monochrome black and white on off-white paper background, elegant historical period drama aesthetic, soft natural daylighting, quiet intimate subtle romance, traditional vintage etched bookplate style, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-5",
+    name: "Modern chick-lit romance",
+    promptText:
+      "Modern chick-lit romance book cover illustration, stylish fashion graphic illustration, clean refined linework, smooth cel-shading, elegant female silhouette holding a love letter, framed by a soft blush pink watercolor swatch background on an off-white cream backdrop, rich burgundy and deep rose palette, minimalist contemporary romance aesthetic, chic glamorous mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-romance-6",
+    name: "Webtoon & manhwa romance",
+    promptText:
+      "Modern webtoon and manhwa digital romance illustration, clean anime-inspired character design with soft blush highlights, crisp linework with soft gradient shading, warm golden hour sunset lighting, glowing hanging fairy lights, vibrant pastel palette of coral pink, warm gold, peach, and navy blue, sweet youthful YA romance aesthetic, soft blurred background with blooming flowers, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Romance"],
     origin: "builtin"
   }
 ];
