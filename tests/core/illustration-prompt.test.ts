@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook } from "@core/BookSchema";
-import { illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
+import { enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 
 function bookWithCast() {
   let book = createBook("Night Keys");
@@ -96,5 +96,27 @@ describe("illustrationPromptMessages", () => {
     const user = messages[1]?.content ?? "";
     expect(user).toContain("no locked Story Bible facts");
     expect(user).toContain("no style set");
+  });
+});
+
+describe("enforceNoTextConstraint", () => {
+  const style =
+    "Vintage 1930s travel poster illustration, flat color blocks, textless, no text, no captions, no titles, no printed words, clean illustration without typography.";
+
+  it("appends the constraint back when the style declared it but the model dropped it", () => {
+    const generated = "A crew member rushes through the cargo bay in a flat color block style.";
+    const result = enforceNoTextConstraint(generated, style);
+    expect(result).toContain(generated);
+    expect(result.toLowerCase()).toContain("no text");
+  });
+
+  it("leaves the output untouched when it already honors the constraint", () => {
+    const generated = "A quiet dock scene, flat color blocks, textless, no captions.";
+    expect(enforceNoTextConstraint(generated, style)).toBe(generated);
+  });
+
+  it("leaves the output untouched when the style never declared the constraint", () => {
+    const generated = "A quiet dock scene with a hand-painted sign reading WELCOME.";
+    expect(enforceNoTextConstraint(generated, "Warm painterly realism")).toBe(generated);
   });
 });

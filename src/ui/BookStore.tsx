@@ -19,7 +19,7 @@ import {
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
-import { illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
+import { enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
@@ -953,7 +953,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           maxTokens: 500,
           signal: abort.signal
         });
-        return raw.trim();
+        return enforceNoTextConstraint(raw.trim(), current.illustration_style);
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") return null;
         setError(ollamaHint(err));

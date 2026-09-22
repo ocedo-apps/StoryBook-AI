@@ -1,7 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.19
+Status: living document, v0.20
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.19 → v0.20:** Bugfix, illustrationsprompten tappade
+sina "no text"-instruktioner. Rapporterat av författaren: startstilens
+`"..., textless, no text, no captions, no titles, no printed words,
+clean illustration without typography."` fanns med i modellanropet,
+men den sammansatta prompten modellen skrev innehöll ingen sådan
+instruktion alls — den genererade bilden fick rubriker och text den
+inte skulle ha. Grundorsak: granskningsmodellen tolkar "no
+text/textless"-satser som ett genereringsparametrar snarare än ett
+visuellt drag, och skriver bort dem när den formulerar om stilen till
+en ny scenbeskrivning — särskilt märkbart med mindre lokala modeller.
+
+Två lager fix i `src/core/illustrationPrompt.ts`: (1) systemprompten
+säger nu explicit att såna tekniska villkor ska kopieras ordagrant,
+aldrig omformuleras eller strykas; (2) en deterministisk efterkontroll,
+`enforceNoTextConstraint`, som — om stilen deklarerade ett
+"no text"-villkor men modellens svar saknar det — skriver tillbaka
+den exakta satsen i slutet. Ren funktion, testad separat från
+LLM-anropet, körs i `BookStore.tsx` direkt efter `completeOllamaChat`
+returnerar. Rör aldrig svaret om stilen aldrig deklarerade villkoret
+(t.ex. en egen stil utan den satsen), eller om modellen redan skötte
+sig.
 
 **Ändringslogg v0.18 → v0.19:** Riktig promptext för de återstående
 fyra genre-taggarna: Barnbok, Fantasy, Sci-fi och Horror/Gothic, sex
