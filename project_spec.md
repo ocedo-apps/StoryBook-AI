@@ -1,7 +1,23 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.13
+Status: living document, v0.14
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.13 → v0.14:** **Backup**-knappen i headern (den som
+blir `! BACKUP` när en säkerhetskopia är försenad) gör sig nu påmind
+med en liten "nudge" — 2px vertikal rörelse, tre snabba studsar
+komprimerade till de sista ~8% av en 8-sekunders loop, resten av tiden
+står texten still. Ren CSS (`@keyframes backup-nudge`), ingen
+JS-timer. Respekterar `prefers-reduced-motion` genom appens redan
+befintliga globala regel (`*,*::before,*::after{animation-duration:
+0.001ms!important}` när `reduce` är satt) — inget nytt lokalt undantag
+behövdes, det är samma mönster som redan skyddar resten av appen.
+Verifierat: rörelsen syns i normalläge (mätt `transform` över flera
+punkter i loopen), men fryser till i praktiken oförändrad när
+`prefers-reduced-motion: reduce` är på — den roströda färgen bär
+signalen ändå, orörd i båda fallen. Eskalerande täthet (tätare loop ju
+längre backupen dröjt) diskuterat men inte byggt — inte nödvändigt för
+v1.
 
 **Ändringslogg v0.12 → v0.13:** Bugfix, PDF med Lora/Source Serif 4
 (troligen alla fyra bäddade typsnitt) visade bara en bråkdel av kapitel

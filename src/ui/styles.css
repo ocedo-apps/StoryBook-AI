@@ -226,6 +226,26 @@ button:disabled {
 .backup-cue.is-due,
 .backup-cue.is-due:hover {
   color: var(--ink);
+  animation: backup-nudge 8s ease-in-out infinite;
+}
+
+@keyframes backup-nudge {
+  0%,
+  92% {
+    transform: translateY(0);
+  }
+  94% {
+    transform: translateY(-2px);
+  }
+  96% {
+    transform: translateY(1px);
+  }
+  98% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .setup-file {
