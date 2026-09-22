@@ -623,6 +623,7 @@ button:disabled {
   background: transparent;
   border-color: transparent;
   padding-left: 0.2rem;
+  max-width: 24rem;
 }
 
 .progress-header {
