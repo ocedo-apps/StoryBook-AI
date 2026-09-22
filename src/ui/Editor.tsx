@@ -547,14 +547,14 @@ export function Editor() {
           onChange={(event) => void store.patchBook((current) => ({ ...current, title: event.target.value }))}
           aria-label={m.editor.manuscriptTitle}
         />
+        <button type="button" className="text-button theme-toggle progress-header" onClick={openProgress}>
+          {goalPace
+            ? format(m.progress.percentComplete, { percent: goalPace.percent })
+            : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
+        </button>
         <div className="model-fields">
           <LocaleSelect />
           <ThemeToggle />
-          <button type="button" className="text-button theme-toggle" onClick={openProgress}>
-            {goalPace
-              ? format(m.progress.percentComplete, { percent: goalPace.percent })
-              : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
-          </button>
           <button
             type="button"
             className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}

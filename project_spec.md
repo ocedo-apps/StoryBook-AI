@@ -1,7 +1,17 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.15
+Status: living document, v0.16
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.15 → v0.16:** Framsteg-knappen flyttade ut ur
+`model-fields`-klustret (Språk/Tema/Backup/Sök) till en egen,
+horisontellt centrerad plats mitt i headern — den drunknade bland de
+andra knapparna på högerkanten. `position: absolute; left: 50%` på
+`.editor-top` (redan `position: relative` sedan tidigare), tar den ur
+grid-flödet så den inte konkurrerar med de tre befintliga
+grid-kolumnerna (Alla manus / titelfält / högerkluster). Verifierat
+att den inte överlappar titelfältet eller högerklustret ner till 900px
+bredd.
 
 **Ändringslogg v0.14 → v0.15:** **Framsteg** (v1 av flera
 "Progress & Momentum"-idéer inspirerade av en konkurrentapp, Smithword

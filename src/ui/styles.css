@@ -625,6 +625,14 @@ button:disabled {
   padding-left: 0.2rem;
 }
 
+.progress-header {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
 .title-input:hover,
 .title-input:focus {
   border-color: var(--border);
