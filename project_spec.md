@@ -1,7 +1,15 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.21
+Status: living document, v0.22
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.21 → v0.22:** Lade till en sjunde stil under
+Litterär/Realistisk, "Raw scribble portrait" — författaren trodde den
+redan fanns i biblioteket och letade efter en "Romantic"-grupp, men
+ingetdera hade faktiskt kommit fram i tidigare leveranser (verifierat
+med grep innan svar, inget gissat). Prompten kom med i den här
+begäran och är nu tillagd; ingen "Romantic"-tagg finns ännu — väntar
+på att författaren skickar den texten, om den ska finnas.
 
 **Ändringslogg v0.20 → v0.21:** Bugfix, biblioteksrutan rann utanför
 skärmen istället för att scrolla — rapporterat med skärmdump, listan

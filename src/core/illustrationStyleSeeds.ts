@@ -246,6 +246,14 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     origin: "builtin"
   },
   {
+    id: "builtin-literary-7",
+    name: "Raw scribble portrait",
+    promptText:
+      "Expressive literary fiction portrait illustration, chaotic scribble art and gestural pen sketch technique, fine black ink lines building raw facial contours and dense energetic shading, realistic anatomical structure beneath loose scribble art, textured off-white cream paper grain backdrop, monochromatic black and ivory palette, raw introspective emotional mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Literary/Realistic"],
+    origin: "builtin"
+  },
+  {
     id: "builtin-historical-1",
     name: "Victorian woodcut & engraving (19th century)",
     promptText:
