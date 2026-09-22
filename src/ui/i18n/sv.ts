@@ -194,6 +194,21 @@ export const sv: Messages = {
     epub: "ePub",
     pdf: "PDF"
   },
+  progress: {
+    title: "Framsteg",
+    setGoal: "Sätt mål",
+    editGoal: "Ändra mål",
+    removeGoal: "Ta bort mål",
+    saveGoal: "Spara mål",
+    targetWordsLabel: "Målantal ord",
+    deadlineLabel: "Slutdatum",
+    daysPerWeekLabel: "Skrivdagar per vecka",
+    wordsOfTarget: "{current} av {target} ord",
+    percentComplete: "{percent} % dit",
+    dailyPaceNeeded: "~{perDay} ord/dag behövs för att hinna",
+    overdue: "Slutdatum passerat — {remaining} ord kvar",
+    targetReached: "Mål uppnått"
+  },
   find: {
     action: "Sök",
     title: "Sök och ersätt",

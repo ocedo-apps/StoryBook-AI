@@ -1,7 +1,39 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.14
+Status: living document, v0.15
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.14 → v0.15:** **Framsteg** (v1 av flera
+"Progress & Momentum"-idéer inspirerade av en konkurrentapp, Smithword
+— bara ordmål + omräknande pace byggt hittills, Milstolpar och
+Sessionsräknare är separata, ej byggda ännu). Ny knapp i headerns
+högerkluster, bredvid Säkerhetskopia/Sök — samma "ambient status,
+klick för detalj"-mönster som Backup redan hade, inte gömd bakom
+Synopsis. Knappens text *är* mätvärdet, ingen egen etikett: utan mål
+`"X ord · Sätt mål"`, med mål `"Z % dit"` — samma princip som
+`! BACKUP`-texten redan följer. Klick öppnar en dockad Progress-ruta
+(samma `edit-card`-mönster som Stats/Publicera).
+
+Datamodell: `Book.goal?: { targetWords, deadline, daysPerWeek }`,
+helt valfritt — inget mål betyder ingen pace-UI alls, bara
+`X ord`-läget. Paceberäkningen (`computeGoalPace` i
+`src/core/writingGoal.ts`) räknas om vid varje render, sparas aldrig:
+om författaren hamnar efter stiger `dailyPaceNeeded` istället för att
+bara visa en lägre procent utan vägledning — exakt principen som
+beskrevs i ursprungsidén. `remainingWritingDays` skalar kalenderdagar
+kvar med `daysPerWeek/7` (ett snitt, inte en vald veckodagsmängd —
+enklare, ingen extra UI för att peka ut specifika dagar). Total
+ordräkning (`manuscriptWordCount`) är bara `countWords` summerat över
+`sortedChapters` — inget nytt spårat, samma mönster som redan gällde
+för `currentWordCount`.
+
+Medvetet avgränsat från ursprungsidén efter granskning: Milstolpar
+(§3 i förslaget) påstod "ingen ny tracking" men det stämmer inte
+riktigt — `NarrativeFact` saknar `locked_at` (bara `created_at` och
+nuvarande `status`), och kapitelhistoriken är FIFO-begränsad så det
+allra första Draft-anropet kan ha fallit ur `revisions` på ett gammalt,
+mycket omskrivet kapitel. Båda luckorna identifierade men inte
+åtgärdade än — väntar tills Milstolpar faktiskt byggs.
 
 **Ändringslogg v0.13 → v0.14:** **Backup**-knappen i headern (den som
 blir `! BACKUP` när en säkerhetskopia är försenad) gör sig nu påmind
@@ -627,6 +659,17 @@ log-arkitekturen och (b) RPG-kopplingen, som ingen granskad konkurrent
 - **ODF utöver ODT** (t.ex. kalkyl/presentation-varianter): inte
   efterfrågat, inget beslut att fatta förrän det är. PDF är löst (v0.10,
   `pdf-lib`).
+- **Progress & Momentum, resten av förslaget** (v0.15 byggde bara
+  ordmål + pace): Milstolpar-tidslinje (kräver `NarrativeFact.locked_at`
+  — se v0.15-loggen), Sessionsräknare (ny state: en räknare, debounce
+  så navigering inom ett sittande pass inte dubbelräknar), en
+  "Fortsätt"-panel på Hem (förslag ur manusstatus, aldrig blockerande).
+  Ordning beslutad om/när de byggs: Milstolpar → Sessioner → Fortsätt.
+- **Engångs-startgrind** (samma förslag, punkt 5): ett medvetet avsteg
+  från "karta, inte grind"-principen, ska INTE byggas som en
+  självklar del av ovanstående. Lutar mot nej eller en mjukare variant
+  via `openingSurface()` istället för en egen blockerande skärm — inte
+  avgjort.
 
 ---
 
@@ -636,8 +679,9 @@ Skrivappen är igång som fristående Vite/React-app (port 5175), syskon till
 Sandbox på GitHub. Kamera, Recast, Continues from, dual models, Stats,
 Analyze, Proofread, backup, Publicera (Markdown/RTF/ODT/HTML/ePub/PDF, sist i
 vänsterpanelen efter Korrektur, v0.11; fyra valbara OFL-typsnitt utöver
-standardutseendet, v0.12), sök/ersätt, Reader, borttagna kapitel,
-Dispositioner, Brainstorm-lappar och
+standardutseendet, v0.12), Framsteg (ordmål + omräknande pace i headern,
+v0.15), sök/ersätt, Reader, borttagna kapitel, Dispositioner,
+Brainstorm-lappar och
 kapitelhistorik (v0.8, diff + säkert återställ) finns. Sandbox-sidan har nu ett
 Storyboard (scenkopplingar, story-flaggor) och kapitel-export
 (kapitel-skal som JSON, v0.7) — se ändringsloggen. Nästa produktsteg här

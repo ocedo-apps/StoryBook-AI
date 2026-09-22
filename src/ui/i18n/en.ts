@@ -192,6 +192,21 @@ export const en = {
     epub: "ePub",
     pdf: "PDF"
   },
+  progress: {
+    title: "Progress",
+    setGoal: "Set goal",
+    editGoal: "Edit goal",
+    removeGoal: "Remove goal",
+    saveGoal: "Save goal",
+    targetWordsLabel: "Target word count",
+    deadlineLabel: "Deadline",
+    daysPerWeekLabel: "Writing days per week",
+    wordsOfTarget: "{current} of {target} words",
+    percentComplete: "{percent}% of the way there",
+    dailyPaceNeeded: "~{perDay} words a day needed to make it",
+    overdue: "Deadline passed — {remaining} words still to go",
+    targetReached: "Target reached"
+  },
   find: {
     action: "Find",
     title: "Find & replace",

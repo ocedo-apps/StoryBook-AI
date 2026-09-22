@@ -36,7 +36,20 @@ import {
 } from "@core/manuscriptBackup";
 import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
 import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
-import { addChapter, discardChapter, discardedChapters, removeChapter, restoreChapter, sortedChapters, updateChapter, type Chapter } from "@core/BookSchema";
+import {
+  addChapter,
+  clearWritingGoal,
+  discardChapter,
+  discardedChapters,
+  removeChapter,
+  restoreChapter,
+  setWritingGoal,
+  sortedChapters,
+  updateChapter,
+  type Chapter,
+  type WritingGoal
+} from "@core/BookSchema";
+import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
 import { useBookStore } from "./useBookStore";
@@ -55,6 +68,7 @@ import { ProseCanvas } from "./ProseCanvas";
 import { ProseStatsCard } from "./ProseStatsCard";
 import { FindReplaceCard, type FindHighlight, type FindLaunch } from "./FindReplaceCard";
 import { ProofreadCard } from "./ProofreadCard";
+import { ProgressCard } from "./ProgressCard";
 import type { FindOccurrence } from "@core/findReplace";
 import { count, format, translateError, type Messages, useLocale } from "./i18n";
 
@@ -256,6 +270,8 @@ export function Editor() {
 
   const chapters = sortedChapters(book);
   const discarded = discardedChapters(book);
+  const currentWords = manuscriptWordCount(book);
+  const goalPace = book.goal ? computeGoalPace(book, book.goal) : null;
   const chapter = chapters.find((item) => item.id === chapterId) ?? chapters[0];
   if (!chapter) return null;
   const onBrainstorm = surface === "brainstorm";
@@ -269,6 +285,7 @@ export function Editor() {
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupNote, setBackupNote] = useState("");
   const [backupFilename, setBackupFilename] = useState("");
@@ -358,15 +375,25 @@ export function Editor() {
   function openPublish() {
     if (!book) return;
     setBackupOpen(false);
+    setProgressOpen(false);
     setFindOpen(false);
     setFindHighlight(null);
     setPublishFilename(manuscriptExportBasename(book));
     setPublishOpen(true);
   }
 
+  function openProgress() {
+    setBackupOpen(false);
+    setPublishOpen(false);
+    setFindOpen(false);
+    setFindHighlight(null);
+    setProgressOpen(true);
+  }
+
   function openFind() {
     setBackupOpen(false);
     setPublishOpen(false);
+    setProgressOpen(false);
     setAskOpen(false);
     setStatsOpen(false);
     setNotesOpen(false);
@@ -383,6 +410,7 @@ export function Editor() {
   function openProofread() {
     setBackupOpen(false);
     setPublishOpen(false);
+    setProgressOpen(false);
     setAskOpen(false);
     setStatsOpen(false);
     setNotesOpen(false);
@@ -403,6 +431,7 @@ export function Editor() {
     if (!trimmed) return;
     setBackupOpen(false);
     setPublishOpen(false);
+    setProgressOpen(false);
     setAskOpen(false);
     setNotesOpen(false);
     setStatsOpen(false);
@@ -521,12 +550,18 @@ export function Editor() {
         <div className="model-fields">
           <LocaleSelect />
           <ThemeToggle />
+          <button type="button" className="text-button theme-toggle" onClick={openProgress}>
+            {goalPace
+              ? format(m.progress.percentComplete, { percent: goalPace.percent })
+              : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
+          </button>
           <button
             type="button"
             className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
             title={jsonBackupDue ? m.editor.backupDueTitle : m.editor.backupTitle}
             onClick={() => {
               setPublishOpen(false);
+              setProgressOpen(false);
               setFindOpen(false);
               setFindHighlight(null);
               setBackupNote("");
@@ -1241,6 +1276,14 @@ export function Editor() {
           liveProse={chapter.prose}
           onRestore={(revisionId) => void store.restoreChapterProse(revisionId)}
           onClose={() => setHistoryOpen(false)}
+        />
+      ) : null}
+      {progressOpen ? (
+        <ProgressCard
+          book={book}
+          onSetGoal={(goal: WritingGoal) => void store.patchBook((current) => setWritingGoal(current, goal))}
+          onClearGoal={() => void store.patchBook((current) => clearWritingGoal(current))}
+          onClose={() => setProgressOpen(false)}
         />
       ) : null}
       {backupOpen ? (

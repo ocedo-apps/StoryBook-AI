@@ -194,6 +194,21 @@ export const nb: Messages = {
     epub: "ePub",
     pdf: "PDF"
   },
+  progress: {
+    title: "Fremgang",
+    setGoal: "Sett mål",
+    editGoal: "Endre mål",
+    removeGoal: "Fjern mål",
+    saveGoal: "Lagre mål",
+    targetWordsLabel: "Måltall ord",
+    deadlineLabel: "Sluttdato",
+    daysPerWeekLabel: "Skrivedager per uke",
+    wordsOfTarget: "{current} av {target} ord",
+    percentComplete: "{percent} % dit",
+    dailyPaceNeeded: "~{perDay} ord/dag trengs for å rekke det",
+    overdue: "Sluttdato passert — {remaining} ord igjen",
+    targetReached: "Mål nådd"
+  },
   find: {
     action: "Søk",
     title: "Søk og erstatt",

@@ -277,6 +277,24 @@ button:disabled {
   font-size: 0.95rem;
 }
 
+.progress-goal-form input {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.progress-pace p {
+  margin: 0;
+}
+
+.progress-overdue {
+  color: var(--danger);
+}
+
 .find-flags {
   display: flex;
   flex-wrap: wrap;

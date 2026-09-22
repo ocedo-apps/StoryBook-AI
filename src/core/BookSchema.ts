@@ -53,6 +53,14 @@ export const ChapterSchema = z.object({
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 
+export const WritingGoalSchema = z.object({
+  targetWords: z.number().int().positive(),
+  /** ISO date, e.g. "2026-12-31". */
+  deadline: z.string().min(1),
+  daysPerWeek: z.number().int().min(1).max(7)
+});
+export type WritingGoal = z.infer<typeof WritingGoalSchema>;
+
 export const BrainstormNoteSchema = z.object({
   id: z.string().min(1),
   text: z.string(),
@@ -126,6 +134,11 @@ export const BookSchema = z.object({
    * Last-pass Review job over the manuscript. Missing on older saves.
    */
   proofread: ProofreadJobSchema.optional(),
+  /**
+   * Optional author-set word target and deadline. Missing means no goal —
+   * no pace UI shown. Missing on older saves.
+   */
+  goal: WritingGoalSchema.optional(),
   created_at: z.string().min(1),
   updated_at: z.string().min(1)
 });
@@ -314,4 +327,14 @@ export function removeChapter(book: Book, chapterId: string): Book {
 
 export function entityRefFromLabel(label: string): string {
   return slugify(label);
+}
+
+export function setWritingGoal(book: Book, goal: WritingGoal): Book {
+  return touch(book, { goal });
+}
+
+export function clearWritingGoal(book: Book): Book {
+  const next = { ...book };
+  delete next.goal;
+  return touch(next, {});
 }
