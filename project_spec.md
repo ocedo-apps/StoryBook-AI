@@ -1,7 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.20
+Status: living document, v0.21
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.20 → v0.21:** Bugfix, biblioteksrutan rann utanför
+skärmen istället för att scrolla — rapporterat med skärmdump, listan
+med 48 stilar försvann nedåt utan synlig scrollbar. Grundorsak: klassiskt
+CSS Grid-fel. `.edit-card` är `display: grid` utan egen
+`grid-template-rows`, så alla barn (rubrikrad, sökfält, "spara som
+ny"-knapp, stilgruppslistan) fick var sin `auto`-rad som växer efter
+innehåll. Grid-objekt har `min-height: auto` som standard — det
+förhindrar en rad från att krympa under sitt eget innehålls höjd även
+om raden själv har `overflow: auto`. Kortet saknade dessutom `overflow:
+hidden`, så `max-height: 85vh` klippte aldrig något — resten
+"läckte" bara vidare nedåt, osynligt och utan scroll.
+
+Fix i tre steg på `.edit-card.illustration-library-card` och
+`.illustration-style-groups`: `overflow: hidden` på kortet så
+`max-height` faktiskt klipper; `grid-template-rows: auto auto auto
+minmax(0, 1fr)` så stilgruppslistan blir den enda flexibla raden som
+fyller återstående utrymme istället för att växa fritt; `min-height: 0`
+på själva listan som extra säkerhet. Verifierat i webbläsare: listans
+`scrollHeight` (2869px) är nu korrekt större än dess synliga
+`clientHeight` (444px), och att scrolla listan till botten visar
+faktiskt sista raden.
 
 **Ändringslogg v0.19 → v0.20:** Bugfix, illustrationsprompten tappade
 sina "no text"-instruktioner. Rapporterat av författaren: startstilens
