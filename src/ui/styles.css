@@ -226,7 +226,7 @@ button:disabled {
 .backup-cue.is-due,
 .backup-cue.is-due:hover {
   color: var(--ink);
-  animation: backup-nudge 8s ease-in-out infinite;
+  animation: backup-nudge 4s ease-in-out infinite;
 }
 
 @keyframes backup-nudge {
