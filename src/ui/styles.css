@@ -3041,6 +3041,111 @@ button:disabled {
   min-height: 5rem;
 }
 
+.edit-card.illustration-library-card {
+  width: min(42rem, 100%);
+  max-height: 85vh;
+}
+
+.illustration-library-card input[type="text"] {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.illustration-style-groups {
+  overflow: auto;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.illustration-style-groups summary {
+  cursor: pointer;
+  padding: 0.4rem 0.1rem;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+.illustration-style-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.illustration-style-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.illustration-style-select {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.illustration-style-select:hover,
+.illustration-style-select:focus-visible {
+  border-color: var(--ink);
+}
+
+.illustration-style-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.illustration-style-thumb,
+.illustration-style-placeholder {
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 4px;
+  object-fit: cover;
+  background: var(--paper-dim, var(--border-soft));
+  border: 1px solid var(--border-soft);
+}
+
+.illustration-style-thumb.is-large,
+.illustration-style-placeholder.is-large {
+  width: 6rem;
+  height: 6rem;
+}
+
+.illustration-style-image-field {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.illustration-style-image-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.illustration-style-upload {
+  cursor: pointer;
+}
+
 @media (max-width: 960px) {
   .editor-body {
     grid-template-columns: 1fr;

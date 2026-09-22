@@ -5,7 +5,9 @@ export const nb: Messages = {
     cancel: "Avbryt",
     close: "Lukk",
     stop: "Stopp",
-    save: "Lagre"
+    save: "Lagre",
+    copy: "Kopier",
+    copied: "Kopiert"
   },
   app: {
     crash: "Appen støtte på en feil.",
@@ -178,6 +180,33 @@ export const nb: Messages = {
       "newer-format": "Denne sikkerhetskopien kommer fra en nyere StoryBook. Oppdater appen og prøv på nytt.",
       unreadable: "Manuskriptet i filen kunne ikke leses."
     }
+  },
+  illustration: {
+    fieldLabel: "Illustrasjonsstil",
+    browseLibrary: "Bla i biblioteket…",
+    libraryTitle: "Illustrasjonsstiler",
+    searchPlaceholder: "Søk stiler…",
+    saveCurrentAsNew: "Lagre gjeldende tekst som ny stil",
+    select: "Bruk denne stilen",
+    edit: "Endre",
+    delete: "Fjern",
+    untagged: "Utaggede",
+    noResults: "Ingen stiler passer.",
+    newStyleTitle: "Ny stil",
+    editStyleTitle: "Endre stil",
+    nameLabel: "Navn",
+    promptTextLabel: "Prompttekst",
+    genreTagsLabel: "Sjangertagger",
+    genreTagsPlaceholder: "Kommaseparert, f.eks. Fantasy, Eventyr",
+    exampleImageLabel: "Eksempelbilde",
+    uploadImage: "Last opp bilde",
+    replaceImage: "Bytt bilde",
+    removeImage: "Fjern bilde",
+    deleteConfirm: "Fjerne “{name}” fra biblioteket? Dette kan ikke angres.",
+    promptTitle: "Illustrasjonsprompt",
+    promptHint: "Generert fra utdraget, låste Story Bible-fakta og manuskriptets illustrasjonsstil.",
+    generating: "Genererer…",
+    generateError: "Kunne ikke generere en prompt denne gangen."
   },
   publish: {
     title: "Publiser",
@@ -405,6 +434,7 @@ export const nb: Messages = {
     extend: "Forleng",
     elaborate: "Utdyp",
     rewriteMenu: "Skriv om…",
+    illustrate: "Illustrasjonsprompt…",
     lift: "Løft til synopsis",
     manual: "Manuell redigering",
     insteadOf: "I stedet for “{word}”",

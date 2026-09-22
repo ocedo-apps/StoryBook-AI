@@ -3,7 +3,9 @@ export const en = {
     cancel: "Cancel",
     close: "Close",
     stop: "Stop",
-    save: "Save"
+    save: "Save",
+    copy: "Copy",
+    copied: "Copied"
   },
   app: {
     crash: "The app hit an error.",
@@ -176,6 +178,33 @@ export const en = {
       "newer-format": "This backup is from a newer StoryBook. Update the app, then try again.",
       unreadable: "The manuscript inside this file could not be read."
     }
+  },
+  illustration: {
+    fieldLabel: "Illustration style",
+    browseLibrary: "Browse library…",
+    libraryTitle: "Illustration styles",
+    searchPlaceholder: "Search styles…",
+    saveCurrentAsNew: "Save current text as new style",
+    select: "Use this style",
+    edit: "Edit",
+    delete: "Delete",
+    untagged: "Untagged",
+    noResults: "No styles match.",
+    newStyleTitle: "New style",
+    editStyleTitle: "Edit style",
+    nameLabel: "Name",
+    promptTextLabel: "Prompt text",
+    genreTagsLabel: "Genre tags",
+    genreTagsPlaceholder: "Comma-separated, e.g. Fantasy, Adventure",
+    exampleImageLabel: "Example image",
+    uploadImage: "Upload image",
+    replaceImage: "Replace image",
+    removeImage: "Remove image",
+    deleteConfirm: "Delete “{name}” from the library? This can’t be undone.",
+    promptTitle: "Illustration prompt",
+    promptHint: "Generated from the passage, locked Story Bible facts, and the manuscript’s illustration style.",
+    generating: "Generating…",
+    generateError: "Couldn’t generate a prompt this time."
   },
   publish: {
     title: "Publish",
@@ -403,6 +432,7 @@ export const en = {
     extend: "Extend",
     elaborate: "Elaborate",
     rewriteMenu: "Rewrite…",
+    illustrate: "Illustration prompt…",
     lift: "Lift to synopsis",
     manual: "Manual Edit",
     insteadOf: "Instead of “{word}”",

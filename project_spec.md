@@ -1,7 +1,46 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.16
+Status: living document, v0.17
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.16 → v0.17:** **Illustrationsstil-bibliotek och
+prompt-generering.** Nytt appnivå-bibliotek med illustrationsstilar
+(`src/core/illustrationStyle.ts`), oberoende av vilket manus som är
+öppet — sex inbyggda startstilar genre-taggade (`origin: "builtin"`),
+sparas i en ny IndexedDB-store (`illustration_styles`, `DB_VERSION`
+1→2 i samma fysiska databas som `books`, inte en egen databas). Sex
+inbyggda stilars promptText är fortfarande platshållartext —
+författaren har lovat skicka den riktiga texten senare, `ensureSeeded`
+skriver aldrig över ett fält som redan finns i IndexedDB så bytet blir
+säkert när texten kommer.
+
+Nytt fält `Book.illustration_style: string` (per-manus, i Settings
+bredvid Voice) — biblioteket *fyller* fältet vid val, skriver aldrig
+över det automatiskt och fältet är alltid redigerbart efteråt, samma
+"karta, inte grind"-princip som resten av appen. Biblioteksrutan
+(`IllustrationStyleLibraryCard.tsx`) är sökbar och kollapsningsbar per
+genre-tagg (native `<details>`), stödjer "Spara nuvarande text som ny
+stil" och redigering/borttagning av egna (`origin: "custom"`) stilar —
+de sex inbyggda går att redigera men inte radera. Valfri exempelbild
+per stil lagras som `Blob` direkt i IndexedDB (structured-clone,
+ingen base64) — visas som en CSS-begränsad miniatyr, ingen
+bildredigering/beskärning i appen.
+
+Ny meny-knapp i markeringsmenyn i kapiteltext, "Illustrationsprompt…",
+mellan Omskriv… och Manuell redigering. Anropar granskningsmodellen
+(`completeOllamaChat` med `reviewModel`, samma busy/abort/felmönster
+som `analyzeChapter`) med det markerade stycket, låsta Story
+Bible-fakta för de entiteter vars namn faktiskt förekommer i stycket
+(`relevantEntitiesForPassage` i `src/core/illustrationPrompt.ts`,
+återanvänder `entityNameTokens`/`normalizeWord` från
+`proseStats.ts` för namnmatchningen) och manusets valda
+illustrationsstil. Resultatet visas i en dockad ruta (samma form som
+Omskriv-dialogen) med Kopiera-knapp, ingen automatisk användning.
+
+Medvetet hållet utanför `src/core/`↔`src/llm/`-gränsen: filen
+definierar en egen strukturellt identisk meddelandetyp istället för
+att importera `ChatMessage` från `@llm/types`, eftersom ingen annan
+fil i `core/` gör det.
 
 **Ändringslogg v0.15 → v0.16:** Framsteg-knappen flyttade ut ur
 `model-fields`-klustret (Språk/Tema/Backup/Sök) till en egen,

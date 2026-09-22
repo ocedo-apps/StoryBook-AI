@@ -51,6 +51,7 @@ export function ProseCanvas({
   onElaborate,
   onInstruct,
   onLift,
+  onIllustrate,
   onSuggestAlternatives,
   instructTitle,
   instructHint,
@@ -73,6 +74,7 @@ export function ProseCanvas({
   onElaborate: (span: TextSpan) => void;
   onInstruct: (span: TextSpan, instruction: string) => void;
   onLift?: (span: TextSpan) => void;
+  onIllustrate?: (span: TextSpan) => void;
   onSuggestAlternatives?: (args: {
     word: string;
     sentence: string;
@@ -201,7 +203,7 @@ export function ProseCanvas({
     return () => abort.abort();
   }, [menu]);
 
-  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift") {
+  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift" | "illustrate") {
     if (!menu || menu.kind !== "rewrite") return;
     const span = menu.span;
     setMenu(null);
@@ -215,6 +217,10 @@ export function ProseCanvas({
     }
     if (kind === "lift") {
       onLift?.(span);
+      return;
+    }
+    if (kind === "illustrate") {
+      onIllustrate?.(span);
       return;
     }
     if (kind === "extend") onExtend(span);
@@ -363,6 +369,11 @@ export function ProseCanvas({
           {onLift ? (
             <button type="button" role="menuitem" onClick={() => run("lift")}>
               {m.canvas.lift}
+            </button>
+          ) : null}
+          {onIllustrate ? (
+            <button type="button" role="menuitem" onClick={() => run("illustrate")}>
+              {m.canvas.illustrate}
             </button>
           ) : null}
           <button type="button" role="menuitem" onClick={() => run("manual")}>

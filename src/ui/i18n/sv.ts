@@ -5,7 +5,9 @@ export const sv: Messages = {
     cancel: "Avbryt",
     close: "Stäng",
     stop: "Stopp",
-    save: "Spara"
+    save: "Spara",
+    copy: "Kopiera",
+    copied: "Kopierat"
   },
   app: {
     crash: "Appen stötte på ett fel.",
@@ -178,6 +180,33 @@ export const sv: Messages = {
       "newer-format": "Den här säkerhetskopian kommer från en nyare StoryBook. Uppdatera appen och försök igen.",
       unreadable: "Manuset i filen gick inte att läsa."
     }
+  },
+  illustration: {
+    fieldLabel: "Illustrationsstil",
+    browseLibrary: "Bläddra i biblioteket…",
+    libraryTitle: "Illustrationsstilar",
+    searchPlaceholder: "Sök stilar…",
+    saveCurrentAsNew: "Spara nuvarande text som ny stil",
+    select: "Använd den här stilen",
+    edit: "Ändra",
+    delete: "Ta bort",
+    untagged: "Otaggade",
+    noResults: "Inga stilar matchar.",
+    newStyleTitle: "Ny stil",
+    editStyleTitle: "Ändra stil",
+    nameLabel: "Namn",
+    promptTextLabel: "Prompttext",
+    genreTagsLabel: "Genretaggar",
+    genreTagsPlaceholder: "Kommaseparerat, t.ex. Fantasy, Äventyr",
+    exampleImageLabel: "Exempelbild",
+    uploadImage: "Ladda upp bild",
+    replaceImage: "Byt bild",
+    removeImage: "Ta bort bild",
+    deleteConfirm: "Ta bort “{name}” från biblioteket? Det går inte att ångra.",
+    promptTitle: "Illustrationsprompt",
+    promptHint: "Genererad från stycket, låsta Story Bible-fakta och manusets illustrationsstil.",
+    generating: "Genererar…",
+    generateError: "Kunde inte generera en prompt den här gången."
   },
   publish: {
     title: "Publicera",
@@ -405,6 +434,7 @@ export const sv: Messages = {
     extend: "Förläng",
     elaborate: "Brodera ut",
     rewriteMenu: "Skriv om…",
+    illustrate: "Illustrationsprompt…",
     lift: "Lyft till synopsis",
     manual: "Manuell redigering",
     insteadOf: "I stället för “{word}”",

@@ -52,6 +52,9 @@ import {
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
+import { selectedText } from "@core/textSpan";
+import { useIllustrationStyles } from "./useIllustrationStyles";
+import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
 import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
@@ -286,6 +289,11 @@ export function Editor() {
   const [notesOpen, setNotesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
+  const [illustrationLibraryOpen, setIllustrationLibraryOpen] = useState(false);
+  const [illustrateOpen, setIllustrateOpen] = useState(false);
+  const [illustratePrompt, setIllustratePrompt] = useState<string | null>(null);
+  const [illustrateCopied, setIllustrateCopied] = useState(false);
+  const illustrationStyles = useIllustrationStyles();
   const [backupOpen, setBackupOpen] = useState(false);
   const [backupNote, setBackupNote] = useState("");
   const [backupFilename, setBackupFilename] = useState("");
@@ -378,6 +386,8 @@ export function Editor() {
     setProgressOpen(false);
     setFindOpen(false);
     setFindHighlight(null);
+    setIllustrationLibraryOpen(false);
+    setIllustrateOpen(false);
     setPublishFilename(manuscriptExportBasename(book));
     setPublishOpen(true);
   }
@@ -387,6 +397,8 @@ export function Editor() {
     setPublishOpen(false);
     setFindOpen(false);
     setFindHighlight(null);
+    setIllustrationLibraryOpen(false);
+    setIllustrateOpen(false);
     setProgressOpen(true);
   }
 
@@ -397,6 +409,8 @@ export function Editor() {
     setAskOpen(false);
     setStatsOpen(false);
     setNotesOpen(false);
+    setIllustrationLibraryOpen(false);
+    setIllustrateOpen(false);
     if (findOpen) {
       setFindOpen(false);
       setFindHighlight(null);
@@ -504,17 +518,18 @@ export function Editor() {
   }, [book.id]);
 
   useEffect(() => {
-    if (!backupOpen && !publishOpen && !findOpen) return;
+    if (!backupOpen && !publishOpen && !findOpen && !illustrateOpen) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setBackupOpen(false);
       setPublishOpen(false);
       setFindOpen(false);
       setFindHighlight(null);
+      setIllustrateOpen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [backupOpen, publishOpen, findOpen]);
+  }, [backupOpen, publishOpen, findOpen, illustrateOpen]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -918,6 +933,7 @@ export function Editor() {
             onPrimer={store.setWritingPrimer}
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}
+            onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
           />
         ) : onBoard ? (
           <DispositionBoard
@@ -1159,6 +1175,11 @@ export function Editor() {
               onInstruct={(span, instruction) =>
                 void store.rewriteSpan({ target: "prose", mode: "instruct", span, instruction })
               }
+              onIllustrate={(span) => {
+                setIllustratePrompt(null);
+                setIllustrateOpen(true);
+                void store.generateIllustrationPrompt(selectedText(chapter.prose, span)).then((prompt) => setIllustratePrompt(prompt));
+              }}
               rewriteWho={rewriteWhoFrom(resolveCraft(book, chapter))}
               aside={<ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />}
             />
@@ -1285,6 +1306,59 @@ export function Editor() {
           onClearGoal={() => void store.patchBook((current) => clearWritingGoal(current))}
           onClose={() => setProgressOpen(false)}
         />
+      ) : null}
+      {illustrationLibraryOpen ? (
+        <IllustrationStyleLibraryCard
+          styles={illustrationStyles.styles}
+          currentStyleText={book.illustration_style}
+          onSelect={(style) => {
+            void store.patchBook((current) => ({ ...current, illustration_style: style.promptText }));
+            setIllustrationLibraryOpen(false);
+          }}
+          onSave={illustrationStyles.saveStyle}
+          onDelete={illustrationStyles.deleteStyle}
+          onClose={() => setIllustrationLibraryOpen(false)}
+        />
+      ) : null}
+      {illustrateOpen ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIllustrateOpen(false);
+          }}
+        >
+          <div className="edit-card" role="dialog" aria-modal="true" aria-labelledby="illustrate-title">
+            <h2 id="illustrate-title">{m.illustration.promptTitle}</h2>
+            <p className="quiet">{m.illustration.promptHint}</p>
+            {busy === "illustrate" ? (
+              <p className="quiet">{m.illustration.generating}</p>
+            ) : illustratePrompt === null ? (
+              <p className="quiet">{store.error ? translateError(store.error, m) : m.illustration.generateError}</p>
+            ) : (
+              <p className="marked-passage">{illustratePrompt}</p>
+            )}
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setIllustrateOpen(false)}>
+                {m.common.close}
+              </button>
+              {illustratePrompt ? (
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(illustratePrompt).then(() => {
+                      setIllustrateCopied(true);
+                      window.setTimeout(() => setIllustrateCopied(false), 1500);
+                    });
+                  }}
+                >
+                  {illustrateCopied ? m.common.copied : m.common.copy}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
       ) : null}
       {backupOpen ? (
         <div className="edit-overlay" role="presentation" onClick={() => setBackupOpen(false)}>

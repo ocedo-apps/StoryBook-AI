@@ -26,7 +26,8 @@ export function SettingsPanel({
   onReviewModel,
   onPrimer,
   onResetPrimer,
-  onHistoryLimit
+  onHistoryLimit,
+  onBrowseIllustrationLibrary
 }: {
   book: Book;
   models: string[];
@@ -40,6 +41,7 @@ export function SettingsPanel({
   onPrimer: (text: string) => void;
   onResetPrimer: () => void;
   onHistoryLimit: (n: number) => void;
+  onBrowseIllustrationLibrary: () => void;
 }) {
   const { messages: m } = useLocale();
   const people = peopleLabels(book.facts, book.entity_kinds);
@@ -115,6 +117,19 @@ export function SettingsPanel({
             rows={3}
           />
         </label>
+        <label className="voice-field">
+          <span>{m.illustration.fieldLabel}</span>
+          <textarea
+            value={book.illustration_style}
+            onChange={(event) => onPatch((current) => ({ ...current, illustration_style: event.target.value }))}
+            rows={3}
+          />
+        </label>
+        <div className="edit-actions">
+          <button type="button" className="text-button" onClick={onBrowseIllustrationLibrary}>
+            {m.illustration.browseLibrary}
+          </button>
+        </div>
         <label className="reader-field">
           <span>{m.editor.reader}</span>
           <input

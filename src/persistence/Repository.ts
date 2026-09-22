@@ -2,7 +2,8 @@ import { parseBook, summarizeBook, type Book, type BookSummary } from "@core/Boo
 
 const DB_NAME = "storybook-ai";
 const STORE = "books";
-const DB_VERSION = 1;
+export const ILLUSTRATION_STYLE_STORE = "illustration_styles";
+const DB_VERSION = 2;
 
 export class BookNotFoundError extends Error {
   constructor(id: string) {
@@ -26,17 +27,24 @@ function openDb(factory: IDBFactory): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE, { keyPath: "id" });
       }
+      if (!db.objectStoreNames.contains(ILLUSTRATION_STYLE_STORE)) {
+        db.createObjectStore(ILLUSTRATION_STYLE_STORE, { keyPath: "id" });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("IndexedDB open failed"));
   });
 }
 
-function asPromise<T>(request: IDBRequest<T>): Promise<T> {
+export function asPromise<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
   });
+}
+
+export function openStorybookDb(factory: IDBFactory = globalThis.indexedDB): Promise<IDBDatabase> {
+  return openDb(factory);
 }
 
 export class BookRepository {

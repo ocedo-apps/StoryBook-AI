@@ -82,6 +82,11 @@ export const BookSchema = z.object({
   /** How the prose should sound. Writing instruction, not a world fact. */
   voice: z.string(),
   /**
+   * Active illustration-style prompt text. Filled by picking a library entry, freely
+   * editable afterward, independent of the library once set. Missing on older saves.
+   */
+  illustration_style: z.string().default(""),
+  /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
    */
@@ -179,6 +184,7 @@ export function createBook(title: string): Book {
     tense: "past",
     viewpoint: "",
     voice: "",
+    illustration_style: "",
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],

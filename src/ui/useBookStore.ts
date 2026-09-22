@@ -5,7 +5,18 @@ import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { TextSpan } from "@core/textSpan";
 
-export type Busy = "draft" | "extract" | "extend" | "elaborate" | "instruct" | "ask" | "recast" | "analyze" | "proofread" | null;
+export type Busy =
+  | "draft"
+  | "extract"
+  | "extend"
+  | "elaborate"
+  | "instruct"
+  | "ask"
+  | "recast"
+  | "analyze"
+  | "proofread"
+  | "illustrate"
+  | null;
 
 export type BookStoreValue = {
   summaries: BookSummary[];
@@ -65,6 +76,7 @@ export type BookStoreValue = {
   extractChapter: () => Promise<void>;
   analyzeChapter: () => Promise<boolean>;
   startProofread: (opts?: { restart?: boolean }) => Promise<void>;
+  generateIllustrationPrompt: (passage: string) => Promise<string | null>;
   addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;

@@ -19,6 +19,7 @@ import {
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
+import { illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
@@ -929,6 +930,42 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [busy, reviewModel, models.length, ollamaError]);
 
+  const generateIllustrationPrompt = useCallback(
+    async (passage: string) => {
+      const current = bookRef.current;
+      if (!current || busy || !passage.trim()) return null;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return null;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("illustrate");
+      setError(null);
+      try {
+        const entities = relevantEntitiesForPassage(passage, current);
+        const raw = await completeOllamaChat({
+          model: reviewModel,
+          messages: illustrationPromptMessages(passage, entities, current.illustration_style),
+          temperature: 0.4,
+          maxTokens: 500,
+          signal: abort.signal
+        });
+        return raw.trim();
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return null;
+        setError(ollamaHint(err));
+        return null;
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, reviewModel, models.length, ollamaError]
+  );
+
   const startProofread = useCallback(
     async (opts?: { restart?: boolean }) => {
       const current = bookRef.current;
@@ -1102,6 +1139,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     extractChapter,
     analyzeChapter,
     startProofread,
+    generateIllustrationPrompt,
     addFact,
     reviseFact: revise,
     approve,
