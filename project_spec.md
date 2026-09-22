@@ -1,7 +1,21 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.18
+Status: living document, v0.19
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.18 → v0.19:** Riktig promptext för de återstående
+fyra genre-taggarna: Barnbok, Fantasy, Sci-fi och Horror/Gothic, sex
+namngivna varianter vardera — samma mönster som v0.18. Alla åtta
+genrer i illustrationsbiblioteket har nu sin riktiga text, 48 inbyggda
+stilar totalt, inga platshållare kvar. `builtin-storybook`,
+`builtin-fantasy`, `builtin-scifi`, och `builtin-horror` (de fyra
+enstaka placeholder-id:na från v0.17) döptes om till `-1`…`-6` per
+genre i samma veva — konsekvent med hur `-literary-`/`-historical-`/
+`-noir-`/`-adventure-` redan var numrerade i v0.18. `ensureSeeded`s
+per-id-matchning (v0.18) gör bytet säkert: de gamla enstaka
+placeholder-raderna hade redan aldrig hunnit nå en riktig
+webbläsarsession eftersom hela biblioteksfunktionen är oanvänd i
+produktion ännu.
 
 **Ändringslogg v0.17 → v0.18:** Riktig promptext för fyra av de åtta
 genre-taggarna i illustrationsbiblioteket: Litterär/Realistisk,

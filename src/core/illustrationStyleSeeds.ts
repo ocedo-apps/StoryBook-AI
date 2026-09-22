@@ -1,38 +1,199 @@
 import type { IllustrationStyle } from "./illustrationStyle";
 
-const PLACEHOLDER_PROMPT = "Placeholder prompt text — replace via the style's edit view once the real wording is ready.";
-
 /**
- * Starting library entries. Four genres still carry placeholder prompt text pending
- * their own batch; Literary/Realistic, Historical/Vintage, Detective/Noir, and Adventure
- * carry the real wording the author supplied, six named variants each.
+ * Starting library entries. All eight genres now carry the author's real wording,
+ * six named variants each.
  */
 export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
   {
-    id: "builtin-storybook",
-    name: "Bold flat-color storybook",
-    promptText: PLACEHOLDER_PROMPT,
+    id: "builtin-storybook-1",
+    name: "Graphic retro picture book",
+    promptText:
+      "Whimsical storybook illustration, thick black outlines, flat poster-like color blocks, high-contrast primary red and bright blue palette, minimal shading, whimsically exaggerated character proportions, retro picture book style, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Children's book"],
     origin: "builtin"
   },
   {
-    id: "builtin-fantasy",
-    name: "Painterly epic fantasy",
-    promptText: PLACEHOLDER_PROMPT,
+    id: "builtin-storybook-2",
+    name: "Classic pen-and-ink sketch",
+    promptText:
+      "Vintage pen-and-ink sketch, loose cross-hatched linework, no color, sketchy and expressive, naturalistic-but-whimsical character design, monochrome on aged cream paper, warm nostalgic storybook feel, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Children's book"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-storybook-3",
+    name: "Gouache & naive storybook",
+    promptText:
+      "Expressionistic painterly gouache storybook illustration, loose brushy texture, raw black ink outlines, muted earthy tones with pops of saturated yellow and red, simplified geometric architecture, decorative pattern-like foliage, naive perspective, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Children's book"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-storybook-4",
+    name: "Ethereal fairytale illustration (Golden Age)",
+    promptText:
+      "Golden age fairytale illustration, fine intricate pen detail, delicate sepia and muted sage watercolor wash, elongated ethereal figures, gentle gothic whimsy, intricate linework in natural elements, vintage parchment paper aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Children's book"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-storybook-5",
+    name: "Dense ink cross-hatch storybook",
+    promptText:
+      "Dense pen-and-ink cross-hatching, rich tactile texture, muted atmospheric color wash in steel blue and earthy gray, expressive creature design, detailed fur and skin rendering, lush layered background, classic storybook style, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Children's book"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-storybook-6",
+    name: "Modern digital picture book",
+    promptText:
+      "Modern digital children's book illustration, soft rounded vector-like shapes, warm ambient lighting, muted-but-saturated palette, simple geometric character design with minimal facial features, soft cinematic depth, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Children's book"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-fantasy-1",
+    name: "High fantasy painterly epic",
+    promptText:
+      "Epic High Fantasy book cover illustration, grand oil painting style with rich brushwork, majestic wizard or knight atop a rocky cliff overlooking a glowing mystical valley, floating crystalline spires, vibrant magical aura, rich color palette of royal purple, sapphire blue, and shimmering gold, heroic sense of wonder, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Fantasy"],
     origin: "builtin"
   },
   {
-    id: "builtin-scifi",
-    name: "Neon-lit cyberpunk",
-    promptText: PLACEHOLDER_PROMPT,
+    id: "builtin-fantasy-2",
+    name: "Dark fantasy shadow & grit",
+    promptText:
+      "Gritty Dark Fantasy artwork, heavy charcoal and dark oil paint texture, ominous ruined castle beneath a stormy blood-moon sky, lone armored warrior surrounded by shadows and eerie wisps, desaturated color palette of deep crimson, pitch black, bone white, and tarnished silver, oppressive macabre fantasy atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Fantasy"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-fantasy-3",
+    name: "Mythic ethereal fantasy (Alan Lee style)",
+    promptText:
+      "Ethereal mythic fantasy illustration, Alan Lee style, delicate pen ink linework with soft watercolor washes, ancient elven ruins entwined with ancient roots, glowing woodland spirits, muted natural palette of moss green, twilight blue, soft silver, and parchment ivory, enchanted nostalgic atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Fantasy"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-fantasy-4",
+    name: "Pulp sword & sorcery (Frazetta style)",
+    promptText:
+      "Vintage 1970s sword and sorcery pulp fantasy illustration, Frank Frazetta style, bold expressive oil brushstrokes, muscular barbarian hero facing a giant mythical beast in a cavern, dramatic chiaroscuro lighting, intense palette of warm ember orange, deep shadow brown, and fiery yellow, high-action primal energy, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Fantasy"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-fantasy-5",
+    name: "Cozy everyday fantasy",
+    promptText:
+      "Cozy fantasy book cover illustration, soft gouache and digital painting style, warm inviting interior of a magical potion shop or tavern, potion bottles glowing on wooden shelves, friendly mythical creature sleeping near a hearth, warm palette of amber, honey yellow, sage green, and soft cinnamon brown, gentle comforting mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Fantasy"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-fantasy-6",
+    name: "Modern fantasy concept art",
+    promptText:
+      "Modern digital fantasy concept art, sharp crisp lighting and polished rendering, elemental spellcaster summoning swirling arcane magic energy, dramatic spell effects with radiant particle lighting, deep contrast palette of cyan blue, magenta, and dark obsidian, cinematic blockbuster fantasy aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Fantasy"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-scifi-1",
+    name: "Cyberpunk neon noir",
+    promptText:
+      "Gritty cyberpunk sci-fi illustration, sleek digital realism, rain-slicked futuristic metropolis street at night, towering skyscrapers with glowing neon holographic advertisements, lone cybernetic figure under an umbrella, color palette of electric cyan, magenta, deep dark navy, and wet asphalt reflections, moody high-tech noir atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Sci-fi"],
     origin: "builtin"
   },
   {
-    id: "builtin-horror",
-    name: "Ink-wash gothic",
-    promptText: PLACEHOLDER_PROMPT,
+    id: "builtin-scifi-2",
+    name: "Retro-futurist 70s space art (Chris Foss style)",
+    promptText:
+      "Classic 1970s retro sci-fi book cover artwork, Chris Foss airbrush style, massive industrial starship with bold geometric primary color stripes orbiting a ringed gas giant planet, vibrant cosmic nebula background, color palette of bright yellow, orange, turquoise, and deep space black, nostalgic golden age science fiction aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Sci-fi"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-scifi-3",
+    name: "Hard sci-fi realistic space exploration",
+    promptText:
+      "Hard science fiction concept art, realistic photographic rendering, solitary astronaut inspecting a sleek metallic space station module in deep orbit above Earth, stark sunlight and harsh void shadows, clean sterile textures, palette of crisp titanium white, solar panel blue, carbon black, and bright sunlight, grounded awe-inspiring realism, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Sci-fi"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-scifi-4",
+    name: "Epic space opera",
+    promptText:
+      "Epic space opera illustration, cinematic digital painting, colossal fleet of starships warping near a dying star, swirling cosmic dust clouds and distant galaxies, epic dramatic scale, vibrant palette of deep violet, fiery crimson, cosmic gold, and starry black, thrilling interstellar adventure mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Sci-fi"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-scifi-5",
+    name: "Biopunk organic sci-fi (Moebius/Giger fusion)",
+    promptText:
+      "Biopunk science fiction illustration, Moebius and H.R. Giger fusion, intricate line art with alien organic structures, biomechanical architecture with glowing bioluminescent spores, strange explorer figure in an organic suit, palette of muted bone gray, alien green, pale turquoise, and deep shadow purple, surreal unsettling alien world aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Sci-fi"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-scifi-6",
+    name: "Solarpunk utopian future",
+    promptText:
+      "Solarpunk optimistic sci-fi artwork, vibrant digital painting style, futuristic eco-city with sleek white curved towers integrated with lush vertical gardens and solar sails, clear blue sky and flying solar transports, bright color palette of emerald green, clean white, azure blue, and warm golden sunlight, hopeful harmonious future tone, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Sci-fi"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-1",
+    name: "Victorian gothic classic horror",
+    promptText:
+      "Classic Victorian gothic horror book illustration, fine pen-and-ink with dark charcoal wash, sprawling dilapidated gothic manor on a desolate hill under a foggy full moon, stark bare trees and a lone shadowy figure in the courtyard, monochromatic palette of charcoal black, ash gray, and cold moonlight ivory, eerie haunting Victorian gloom, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Horror/Gothic"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-2",
+    name: "Cosmic Lovecraftian horror",
+    promptText:
+      "Cosmic Lovecraftian horror artwork, dark surrealist watercolor and ink style, colossal ancient eldritch entity rising from a stormy dark ocean beneath chaotic swirling skies, non-Euclidean ruins, unsettling palette of abyssal sea green, sickly violet, pitch black, and murky gray, terrifying cosmic dread atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Horror/Gothic"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-3",
+    name: "Folk horror rural macabre",
+    promptText:
+      "Folk horror book cover illustration, rustic woodcut print style, ominous wooden effigy standing in a twilight cornfield, shadowy village folk gathered in a circle, desaturated earthy palette of burnt umber, muted straw yellow, twilight indigo, and crimson red, unsettling pagan mystery tone, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Horror/Gothic"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-4",
+    name: "Surrealist dream horror (Beksiński style)",
+    promptText:
+      "Dystopian surrealist horror art, Zdzisław Beksiński style, textured oil painting, eerie skeletal structures and towering desolate bone monoliths in a dusty wasteland, mist and subtle embers, palette of rusted orange, decayed brown, muted bone white, and dark shadows, haunting nightmare aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Horror/Gothic"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-5",
+    name: "Psychological clinical horror",
+    promptText:
+      "Modern psychological horror illustration, stark desaturated digital realism, long empty dim-lit corridor with unsettling distorted shadows, cold atmospheric haze, desaturated palette of sickly greenish-gray, shadow black, dull beige, and pale white light, claustrophobic tense psychological dread, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+    genreTags: ["Horror/Gothic"],
+    origin: "builtin"
+  },
+  {
+    id: "builtin-horror-6",
+    name: "Retro 80s pulp creature feature",
+    promptText:
+      "Retro 1980s horror comic artwork, heavy black ink brushwork with vivid pulp coloring, terrifying monster lurking in the shadows of an urban alleyway, dramatic neon lighting, color palette of deep magenta, slime green, electric purple, and pitch black, edgy macabre thriller mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Horror/Gothic"],
     origin: "builtin"
   },

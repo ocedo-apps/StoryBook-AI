@@ -78,8 +78,8 @@ describe("search and grouping", () => {
   const styles = BUILTIN_ILLUSTRATION_STYLES;
 
   it("searches by name, tag, or prompt text, case-insensitively", () => {
-    expect(searchIllustrationStyles(styles, "gothic").map((s) => s.id)).toEqual(["builtin-horror"]);
-    expect(searchIllustrationStyles(styles, "CYBERPUNK").map((s) => s.id)).toContain("builtin-scifi");
+    expect(searchIllustrationStyles(styles, "gothic").map((s) => s.id)).toContain("builtin-horror-1");
+    expect(searchIllustrationStyles(styles, "CYBERPUNK").map((s) => s.id)).toEqual(["builtin-scifi-1"]);
     expect(searchIllustrationStyles(styles, "")).toHaveLength(styles.length);
   });
 
