@@ -1,7 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.12
+Status: living document, v0.13
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.12 → v0.13:** Bugfix, PDF med Lora/Source Serif 4
+(troligen alla fyra bäddade typsnitt) visade bara en bråkdel av kapitel
+1:s text hos en användare. Kunde inte återskapas med `pdfjs` — varken
+textutdrag eller en riktig canvas-rendering (samma motor som Firefox
+använder) visade något fel, i flera varianter (korta/långa kapitel,
+svenska tecken, kursiv/rak dialog). Mest sannolika förklaring: `pdf-lib`
++ `@pdf-lib/fontkit`s `{ subset: true }` — som bara bäddar in de glyfer
+som faktiskt används — producerar en glyftabell som vissa läsare
+(Adobe Acrobat namngavs som misstänkt, ospecificerat vilken användaren
+körde) hanterar ofullständigt; kända problem i den kategorin finns
+dokumenterade för `pdf-lib`s subset-läge. Fixen är att sluta subsetta:
+`packPdf` bäddar nu in hela typsnittsfilen (`embedFont` utan
+`subset`-flaggan, standard är `false`). Kostnad: en PDF med inbäddat
+typsnitt växer från ~10 KB till ~140 KB för en kort roman — helt
+rimligt för en lokalt nedladdad fil, och undviker hela
+kompatibilitetskategorin. Inte bekräftat löst av användaren än (väntar
+på att de testar igen efter `git pull` + `npm install`).
 
 **Ändringslogg v0.11 → v0.12:** Typsnittsval i Publicera. Ny dropdown
 **Typsnitt** bredvid Format, fyra kurerade OFL-typsnitt utöver

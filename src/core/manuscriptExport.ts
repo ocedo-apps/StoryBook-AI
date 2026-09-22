@@ -476,8 +476,10 @@ export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promis
   let bold: PDFFont;
   if (font?.embed) {
     pdf.registerFontkit(fontkit);
-    body = await pdf.embedFont(font.embed.regular, { subset: true });
-    bold = await pdf.embedFont(font.embed.bold, { subset: true });
+    // Subsetting trims file size but produces glyph tables some readers (Adobe Acrobat in
+    // particular) render incompletely. A full embed costs a few hundred KB more but is safe.
+    body = await pdf.embedFont(font.embed.regular);
+    bold = await pdf.embedFont(font.embed.bold);
   } else {
     body = await pdf.embedFont(StandardFonts.TimesRoman);
     bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
