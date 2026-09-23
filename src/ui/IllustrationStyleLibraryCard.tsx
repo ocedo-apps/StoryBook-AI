@@ -9,6 +9,7 @@ import {
   withoutExampleImage,
   type IllustrationStyle
 } from "@core/illustrationStyle";
+import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
 
 type Editing = { style: IllustrationStyle; isNew: boolean };
@@ -286,18 +287,6 @@ function IllustrationImageLightbox({ blob, alt, onClose }: { blob: Blob; alt: st
       </div>
     </div>
   );
-}
-
-function BlobThumbnail({ blob, alt, variant }: { blob: Blob; alt: string; variant: "cover" | "large" }) {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    const objectUrl = URL.createObjectURL(blob);
-    setUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [blob]);
-  const className = variant === "cover" ? "illustration-style-card-image" : "illustration-style-thumb-large";
-  if (!url) return <span className={`${className} illustration-style-placeholder`} aria-hidden="true" />;
-  return <img src={url} alt={alt} className={className} />;
 }
 
 function IllustrationStyleEditForm({

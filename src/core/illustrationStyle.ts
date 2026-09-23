@@ -96,3 +96,10 @@ export function stylesByGenreTag(styles: IllustrationStyle[]): { tag: string; st
 export function untaggedStyles(styles: IllustrationStyle[]): IllustrationStyle[] {
   return styles.filter((style) => style.genreTags.length === 0);
 }
+
+/** The library entry currently applied to a book, found by exact prompt text match (the book only stores a text snapshot, not a live reference). */
+export function findStyleByPromptText(styles: IllustrationStyle[], text: string): IllustrationStyle | undefined {
+  const trimmed = text.trim();
+  if (!trimmed) return undefined;
+  return styles.find((style) => style.promptText.trim() === trimmed);
+}

@@ -1,7 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.60
+Status: living document, v0.61
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.60 → v0.61:** Lyfte fram länken till
+illustrationsbiblioteket i Settings — den låg tidigare som en liten
+diskret textlänk under en rå textruta med hela stilprompten. Ersatte
+det med ett kompakt förhandsgranskningskort (`.illustration-style-preview`):
+en miniatyrbild (eller en grå platshållare om ingen bild finns) +
+den valda stilens namn + "Browse library…" som klickuppmaning, hela
+kortet är en knapp som öppnar biblioteket. Om `book.illustration_style`
+inte matchar någon sparad stil (fri text) visas "Custom prompt"/"Egen
+prompt" istället för namnet. Den råa textrutan finns kvar men är nu
+dold bakom en "Edit text manually"/"Redigera texten manuellt"-växel,
+ihopfälld som standard, för den som vill finjustera texten för hand.
+Ny delad hjälpfunktion `findStyleByPromptText()` i `illustrationStyle.ts`
+(samma matchningslogik som redan fanns i `IllustrationStyleLibraryCard`,
+nu återanvänd). `BlobThumbnail` flyttad från `IllustrationStyleLibraryCard.tsx`
+till en egen fil `BlobThumbnail.tsx` med en ny "settings"-variant, så
+komponenten kan återanvändas i inställningskortet. Två nya tester för
+`findStyleByPromptText` i `illustration-style.test.ts`.
 
 **Ändringslogg v0.59 → v0.60:** Innehållsstädning: 12 av de 55
 builtin-stilarna innehöll ordet "book cover" i sin prompttext (och

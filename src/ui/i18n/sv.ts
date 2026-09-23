@@ -208,7 +208,11 @@ export const sv: Messages = {
     promptHint: "Genererad från stycket, låsta Story Bible-fakta och manusets illustrationsstil.",
     generating: "Genererar…",
     generateError: "Kunde inte generera en prompt den här gången.",
-    viewFullImage: "Visa bilden i full storlek"
+    viewFullImage: "Visa bilden i full storlek",
+    noStyleSelected: "Ingen stil vald",
+    customStyleLabel: "Egen prompt",
+    editTextManually: "Redigera texten manuellt",
+    hideManualEdit: "Dölj manuell text"
   },
   publish: {
     title: "Publicera",

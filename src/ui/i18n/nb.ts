@@ -208,7 +208,11 @@ export const nb: Messages = {
     promptHint: "Generert fra utdraget, låste Story Bible-fakta og manuskriptets illustrasjonsstil.",
     generating: "Genererer…",
     generateError: "Kunne ikke generere en prompt denne gangen.",
-    viewFullImage: "Vis bildet i full størrelse"
+    viewFullImage: "Vis bildet i full størrelse",
+    noStyleSelected: "Ingen stil valgt",
+    customStyleLabel: "Egen prompt",
+    editTextManually: "Rediger teksten manuelt",
+    hideManualEdit: "Skjul manuell tekst"
   },
   publish: {
     title: "Publiser",

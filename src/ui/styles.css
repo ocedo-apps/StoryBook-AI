@@ -3275,6 +3275,60 @@ button.illustration-genre-item:focus-visible {
   border: 1px solid var(--border-soft);
 }
 
+.illustration-style-preview-field {
+  margin-top: 0.75rem;
+  display: block;
+}
+
+.illustration-style-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.5rem;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.illustration-style-preview:hover,
+.illustration-style-preview:focus-visible {
+  border-color: var(--ink);
+}
+
+.illustration-style-settings-thumb {
+  flex: 0 0 auto;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.illustration-style-preview-info {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.illustration-style-preview-name {
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.illustration-style-preview-cta {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.illustration-style-edit-toggle {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+}
+
 .illustration-style-image-field {
   display: flex;
   align-items: center;

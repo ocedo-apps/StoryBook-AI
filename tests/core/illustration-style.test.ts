@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   allGenreTags,
+  findStyleByPromptText,
   newIllustrationStyle,
   normalizeGenreTags,
   parseIllustrationStyle,
@@ -107,5 +108,21 @@ describe("search and grouping", () => {
     const untagged = newIllustrationStyle("No tag", "text", []);
     expect(untaggedStyles([...styles, untagged])).toEqual([untagged]);
     expect(untaggedStyles(styles)).toEqual([]);
+  });
+});
+
+describe("findStyleByPromptText", () => {
+  const styles = BUILTIN_ILLUSTRATION_STYLES;
+
+  it("finds the style whose promptText exactly matches, ignoring surrounding whitespace", () => {
+    const target = styles[0]!;
+    expect(findStyleByPromptText(styles, target.promptText)?.id).toBe(target.id);
+    expect(findStyleByPromptText(styles, `  ${target.promptText}  `)?.id).toBe(target.id);
+  });
+
+  it("returns undefined for empty text or text matching no style", () => {
+    expect(findStyleByPromptText(styles, "")).toBeUndefined();
+    expect(findStyleByPromptText(styles, "   ")).toBeUndefined();
+    expect(findStyleByPromptText(styles, "a freehand prompt nobody saved")).toBeUndefined();
   });
 });

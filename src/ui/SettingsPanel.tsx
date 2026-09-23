@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { peopleLabels } from "@core/bibleGroups";
 import {
   ADVANCED_POV_MODES,
@@ -11,7 +11,9 @@ import {
 import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
 import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
 import { applyReaderAge, parseReaderAge, readerCategory } from "@core/reader";
+import { findStyleByPromptText, type IllustrationStyle } from "@core/illustrationStyle";
 import type { Book } from "@core/BookSchema";
+import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
 
 export function SettingsPanel({
@@ -21,6 +23,7 @@ export function SettingsPanel({
   reviewModel,
   writingPrimer,
   historyLimit,
+  illustrationStyles,
   onPatch,
   onModel,
   onReviewModel,
@@ -35,6 +38,7 @@ export function SettingsPanel({
   reviewModel: string;
   writingPrimer: string;
   historyLimit: number;
+  illustrationStyles: IllustrationStyle[];
   onPatch: (mutate: (book: Book) => Book) => void;
   onModel: (name: string) => void;
   onReviewModel: (name: string) => void;
@@ -46,6 +50,8 @@ export function SettingsPanel({
   const { messages: m } = useLocale();
   const people = peopleLabels(book.facts, book.entity_kinds);
   const showViewpoint = needsViewpoint(book.pov);
+  const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
+  const [editingText, setEditingText] = useState(false);
 
   return (
     <main className="manuscript settings-page">
@@ -117,18 +123,31 @@ export function SettingsPanel({
             rows={3}
           />
         </label>
-        <label className="voice-field">
-          <span>{m.illustration.fieldLabel}</span>
-          <textarea
-            value={book.illustration_style}
-            onChange={(event) => onPatch((current) => ({ ...current, illustration_style: event.target.value }))}
-            rows={3}
-          />
-        </label>
-        <div className="edit-actions">
-          <button type="button" className="text-button" onClick={onBrowseIllustrationLibrary}>
-            {m.illustration.browseLibrary}
+        <div className="illustration-style-preview-field">
+          <span className="field-label">{m.illustration.fieldLabel}</span>
+          <button type="button" className="illustration-style-preview" onClick={onBrowseIllustrationLibrary}>
+            {selectedStyle?.exampleImage ? (
+              <BlobThumbnail blob={selectedStyle.exampleImage.blob} alt={selectedStyle.name} variant="settings" />
+            ) : (
+              <span className="illustration-style-settings-thumb illustration-style-placeholder" aria-hidden="true" />
+            )}
+            <span className="illustration-style-preview-info">
+              <strong className="illustration-style-preview-name">
+                {selectedStyle?.name ?? (book.illustration_style.trim() ? m.illustration.customStyleLabel : m.illustration.noStyleSelected)}
+              </strong>
+              <span className="illustration-style-preview-cta">{m.illustration.browseLibrary}</span>
+            </span>
           </button>
+          <button type="button" className="text-button illustration-style-edit-toggle" onClick={() => setEditingText((v) => !v)}>
+            {editingText ? m.illustration.hideManualEdit : m.illustration.editTextManually}
+          </button>
+          {editingText ? (
+            <textarea
+              value={book.illustration_style}
+              onChange={(event) => onPatch((current) => ({ ...current, illustration_style: event.target.value }))}
+              rows={3}
+            />
+          ) : null}
         </div>
         <label className="reader-field">
           <span>{m.editor.reader}</span>

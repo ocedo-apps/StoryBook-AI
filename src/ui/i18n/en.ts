@@ -206,7 +206,11 @@ export const en = {
     promptHint: "Generated from the passage, locked Story Bible facts, and the manuscript’s illustration style.",
     generating: "Generating…",
     generateError: "Couldn’t generate a prompt this time.",
-    viewFullImage: "View full image"
+    viewFullImage: "View full image",
+    noStyleSelected: "No style selected",
+    customStyleLabel: "Custom prompt",
+    editTextManually: "Edit text manually",
+    hideManualEdit: "Hide manual text"
   },
   publish: {
     title: "Publish",
