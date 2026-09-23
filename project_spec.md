@@ -1,7 +1,14 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.61
+Status: living document, v0.62
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.61 → v0.62:** Första exempelbilden i
+Romantik-gruppen: "1980s romance painterly illustration"
+(`builtin-romance-2`) — liggande dramatisk oljemålning i klassisk
+1980-talsstil, nedskalad till 1024×768 (229 KB, från 1448×1086).
+Verifierad även mot det nya förhandsgranskningskortet i Settings.
+Romantik-gruppen har nu 1 av 6 stilar klara.
 
 **Ändringslogg v0.60 → v0.61:** Lyfte fram länken till
 illustrationsbiblioteket i Settings — den låg tidigare som en liten
