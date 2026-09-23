@@ -1,7 +1,15 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.51
+Status: living document, v0.52
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.51 → v0.52:** Tjugonde exempelbilden: "1930s
+lithographic poster & screen print" (`builtin-historical-3`) —
+liggande WPA-affischstil med flugfiskare vid en å, nedskalad till
+1024×768 (262 KB). Ersätter den tidigare inskickade stående versionen
+(1122×1402) som författaren själv flaggade mot liggande-regeln innan
+den hann läggas in. Historisk/Vintage-gruppen har nu 1 av 6 stilar
+klara.
 
 **Ändringslogg v0.50 → v0.51:** Nittonde exempelbilden: "Solarpunk
 utopian future" (`builtin-scifi-6`) — nedskalad till 1024px bredd
