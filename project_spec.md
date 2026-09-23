@@ -1,7 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.65
+Status: living document, v0.66
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.65 → v0.66:** Kapitel kan nu få en egen
+illustration — en bred banderollbild högst upp i kapitelredigeraren,
+ovanför själva texten. Nytt fält `startImage` (`EntityPictureSchema`
+återanvänd: `thumbDataUrl` + `imageDataUrl`, optional) på `Chapter` i
+`BookSchema.ts`. Ny komponent `ChapterStartImageBanner`
+(`ChapterStartImage.tsx`): tom ruta med "Add chapter illustration"
+när ingen bild finns, annars bilden i full manusbredd med
+"Replace image"/"Remove image" som chip-knappar i hörnet (samma
+fixerade mörka bakgrund oavsett bildens ljushet som redan används på
+biblioteks-korten). Återanvänder `picturesFromFile()` (samma
+klientsidesbeskärning som karaktärsbilder: miniatyr 256px + exportbild
+1200px, JPEG). `BlobThumbnail`-liknande felhantering via befintliga
+`m.errors.imageChoose/imageRead/imageAdd`-texter.
+
+Bilden bäddas nu även in i Publish-exporterna — men bara i de tre
+"läsfärdiga" formaten (HTML, ePub, PDF), inte i RTF/ODT/Markdown som är
+redigeringsformat där bilden ändå sällan är slutmålet. Ny funktion
+`bytesFromDataUrl()` i `manuscriptExport.ts` avkodar bildens data-URL
+till råbytes. HTML: `<img class="chapter-image">` direkt i sidan
+(base64, självständig fil). ePub: bilden packas som en riktig
+JPEG-resurs i zip-paketet (`OEBPS/images/chapter-N.jpg`) med egen
+manifest-post, refererad från kapitlets xhtml-sida. PDF: `pdf-lib`s
+`embedJpg()` + en ny `PdfWriter.image()`-metod som skalar bilden för
+att få plats inom sidans marginaler innan kapiteltexten skrivs ut.
+Sju nya tester i `manuscript-export.test.ts` (ett nytt "chapter start
+image"-block: dataflöde genom `buildManuscriptExport`, HTML-inbäddning,
+ePub-resurs+referens, PDF-sidantal, och att RTF/ODT/Markdown aldrig
+läcker bilddata) plus ett round-trip-test för `startImage` i
+`book-schema.test.ts`. Verifierat end-to-end med Playwright: laddade
+upp en bild på ett kapitel, publicerade till alla tre format via den
+riktiga UI-flödet, och kontrollerade den nedladdade filens innehåll
+(HTML renderad och skärmdumpad, ePub/PDF byte-inspekterade).
 
 **Ändringslogg v0.64 → v0.65:** Nytt fält `illustration_orientation`
 ("landscape" | "portrait", default "landscape") på `Book` — låter

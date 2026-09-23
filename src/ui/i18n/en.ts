@@ -142,6 +142,9 @@ export const en = {
     synopsisPlaceholder:
       "Emma keeps the night keys. A stranger pays in salt. By winter she has to leave the quay, or the canal takes the bar.",
     chapterPlaceholder: "The chapter lives here. Draft, then rewrite until it is yours.",
+    chapterImageAdd: "Add chapter illustration",
+    chapterImageReplace: "Replace image",
+    chapterImageRemove: "Remove image",
     instructTitle: "Change this note",
     instructHint: "Tell the model what to do with the marked note. Only that span is replaced.",
     instructPlaceholder: "Give me two endings. Press on why she stays. Three names for the stowaway.",

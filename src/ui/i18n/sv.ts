@@ -144,6 +144,9 @@ export const sv: Messages = {
     synopsisPlaceholder:
       "Emma har nattnycklarna. En främling betalar med salt. Till vintern måste hon lämna kajen, annars tar kanalen baren.",
     chapterPlaceholder: "Kapitlet lever här. Skriv utkast, skriv om tills det är ditt.",
+    chapterImageAdd: "Lägg till kapitelbild",
+    chapterImageReplace: "Byt bild",
+    chapterImageRemove: "Ta bort bild",
     instructTitle: "Ändra den här noten",
     instructHint: "Säg åt modellen vad den ska göra med den markerade noten. Bara det spannet byts ut.",
     instructPlaceholder: "Ge två slut. Tryck på varför hon stannar. Tre namn på blinda passageraren.",

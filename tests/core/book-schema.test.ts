@@ -178,5 +178,20 @@ describe("chapters", () => {
     expect(parsed.chapters[0]?.voice).toBeUndefined();
     expect(parsed.chapters[0]?.continues_from).toBeUndefined();
     expect(parsed.chapters[0]?.revisions).toEqual([]);
+    expect(parsed.chapters[0]?.startImage).toBeUndefined();
+  });
+
+  it("round-trips a chapter's start image", () => {
+    const book = createBook("Legacy");
+    const chapter = book.chapters[0]!;
+    const withImage = updateChapter(book, chapter.id, {
+      startImage: { thumbDataUrl: "data:image/jpeg;base64,thumb", imageDataUrl: "data:image/jpeg;base64,full" }
+    });
+    const parsed = parseBook(withImage);
+    expect(parsed.chapters[0]?.startImage?.thumbDataUrl).toBe("data:image/jpeg;base64,thumb");
+    expect(parsed.chapters[0]?.startImage?.imageDataUrl).toBe("data:image/jpeg;base64,full");
+
+    const withoutImage = updateChapter(withImage, chapter.id, { startImage: undefined });
+    expect(withoutImage.chapters[0]?.startImage).toBeUndefined();
   });
 });

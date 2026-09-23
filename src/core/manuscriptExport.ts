@@ -1,5 +1,5 @@
 import fontkit from "@pdf-lib/fontkit";
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { groupBibleEntities } from "./bibleGroups";
 import { sortedChapters, type Book } from "./BookSchema";
 import { profileFor } from "./characterProfile";
@@ -31,6 +31,8 @@ export type ManuscriptExportChapter = {
   heading: string;
   voice: string;
   prose: string;
+  /** Data URL (always JPEG) for the chapter's banner illustration, when the author uploaded one. Only HTML, ePub, and PDF embed it — RTF, ODT, and Markdown stay text-only. */
+  startImageDataUrl?: string;
 };
 
 export type ManuscriptExport = {
@@ -73,7 +75,8 @@ export function buildManuscriptExport(book: Book, note = "", exportedAt = new Da
     chapters: sortedChapters(book).map((chapter) => ({
       heading: `${chapter.sequence_index + 1}. ${chapter.title.trim() || `Chapter ${chapter.sequence_index + 1}`}`,
       voice: chapter.voice?.trim() ?? "",
-      prose: exportProse(chapter.prose)
+      prose: exportProse(chapter.prose),
+      ...(chapter.startImage ? { startImageDataUrl: chapter.startImage.imageDataUrl } : {})
     })),
     bible
   };
@@ -113,7 +116,7 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
-const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}@media print{h2.chapter{break-before:page}}`;
+const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}.chapter-image{max-width:100%;height:auto;display:block;margin:0.75em 0 1.25em;border-radius:4px}@media print{h2.chapter{break-before:page}}`;
 const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 
 function base64FromBytes(bytes: Uint8Array): string {
@@ -123,6 +126,13 @@ function base64FromBytes(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
   }
   return btoa(binary);
+}
+
+function bytesFromDataUrl(dataUrl: string): Uint8Array {
+  const binary = atob(dataUrl.slice(dataUrl.indexOf(",") + 1));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 function htmlFontCss(font: PublishFont | undefined): string {
@@ -152,6 +162,7 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont): str
   }
   for (const chapter of doc.chapters) {
     body.push(`<h2 class="chapter">${xmlEscape(chapter.heading)}</h2>`);
+    if (chapter.startImageDataUrl) body.push(`<img class="chapter-image" src="${chapter.startImageDataUrl}" alt=""/>`);
     if (chapter.voice) body.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
     if (chapter.prose) body.push(htmlParagraphs(chapter.prose));
   }
@@ -249,8 +260,11 @@ ${body}
 `;
 }
 
+type EpubImage = { id: string; name: string; data: Uint8Array };
+
 export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array {
   const pages: EpubPage[] = [];
+  const images: EpubImage[] = [];
 
   const titleMeta: string[] = [];
   if (doc.voice) titleMeta.push(`Voice: ${xmlEscape(doc.voice)}`);
@@ -268,6 +282,11 @@ export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array 
 
   doc.chapters.forEach((chapter, index) => {
     const parts = [`<h1>${xmlEscape(chapter.heading)}</h1>`];
+    if (chapter.startImageDataUrl) {
+      const imageId = `img-chapter-${index}`;
+      images.push({ id: imageId, name: `chapter-${index}.jpg`, data: bytesFromDataUrl(chapter.startImageDataUrl) });
+      parts.push(`<img src="../images/chapter-${index}.jpg" alt=""/>`);
+    }
     if (chapter.voice) parts.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
     if (chapter.prose) parts.push(htmlParagraphs(chapter.prose));
     pages.push({
@@ -295,6 +314,9 @@ export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array 
   const manifestItems = pages
     .map((page) => `    <item id="${page.id}" href="${page.file}" media-type="application/xhtml+xml"/>`)
     .join("\n");
+  const imageManifestItems = images
+    .map((image) => `    <item id="${image.id}" href="images/${image.name}" media-type="image/jpeg"/>`)
+    .join("\n");
   const spineItems = pages.map((page) => `    <itemref idref="${page.id}"/>`).join("\n");
   const navList = pages
     .map((page) => `        <li><a href="${page.file}">${xmlEscape(page.title)}</a></li>`)
@@ -312,6 +334,8 @@ export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array 
 ${manifestItems}
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="css" href="styles/stylesheet.css" media-type="text/css"/>${
+      imageManifestItems ? `\n${imageManifestItems}` : ""
+    }${
       font?.embed
         ? `
     <item id="font-regular" href="fonts/regular.ttf" media-type="application/x-font-ttf"/>
@@ -353,6 +377,7 @@ ${navList}
     { name: "OEBPS/content.opf", data: utf8(opf) },
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
     { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS_BASE + epubFontCss(font)) },
+    ...images.map((image) => ({ name: `OEBPS/images/${image.name}`, data: image.data })),
     ...(font?.embed
       ? [
           { name: "OEBPS/fonts/regular.ttf", data: font.embed.regular },
@@ -463,6 +488,16 @@ class PdfWriter {
     this.y -= amount;
   }
 
+  image(image: PDFImage): void {
+    const availableHeight = PDF_PAGE_HEIGHT - PDF_MARGIN * 2;
+    const scale = Math.min(1, this.maxWidth / image.width, availableHeight / image.height);
+    const width = image.width * scale;
+    const height = image.height * scale;
+    this.ensureSpace(height);
+    this.page.drawImage(image, { x: PDF_MARGIN, y: this.y - height, width, height });
+    this.y -= height + 14;
+  }
+
   newPage(): void {
     this.page = this.pdf.addPage([PDF_PAGE_WIDTH, PDF_PAGE_HEIGHT]);
     this.y = PDF_PAGE_HEIGHT - PDF_MARGIN;
@@ -498,6 +533,10 @@ export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promis
   for (const chapter of doc.chapters) {
     writer.newPage();
     writer.heading(chapter.heading, 15);
+    if (chapter.startImageDataUrl) {
+      const image = await pdf.embedJpg(bytesFromDataUrl(chapter.startImageDataUrl));
+      writer.image(image);
+    }
     if (chapter.voice) writer.lines(`Voice: ${chapter.voice}`, { size: 9, meta: true });
     if (chapter.prose) writer.lines(chapter.prose);
   }

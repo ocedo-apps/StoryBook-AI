@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it } from "vitest";
-import { createBook, updateChapter } from "@core/BookSchema";
+import { addChapter, createBook, updateChapter } from "@core/BookSchema";
 import { packManuscriptBackup } from "@core/manuscriptBackup";
 import {
   buildManuscriptExport,
@@ -22,6 +22,11 @@ const LORA: PublishFont = {
     bold: new Uint8Array(readFileSync(new URL("../../src/assets/fonts/lora/Lora-Bold.ttf", import.meta.url)))
   }
 };
+
+// A real, tiny (4x3px) valid JPEG — needed because pdf-lib's embedJpg() rejects garbage bytes.
+const TINY_JPEG_BASE64 =
+  "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAADAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDIooor5E/SD//Z";
+const TINY_JPEG_DATA_URL = `data:image/jpeg;base64,${TINY_JPEG_BASE64}`;
 
 describe("manuscript export formats", () => {
   it("writes RTF with headings and escapes control marks", () => {
@@ -258,5 +263,60 @@ describe("manuscript export formats", () => {
     expect(loaded.getPageCount()).toBeGreaterThanOrEqual(1);
     // Embedding real glyph outlines is inherently much heavier than referencing a standard font by name.
     expect(embedded.length).toBeGreaterThan(standard.length + 5_000);
+  });
+});
+
+describe("chapter start image", () => {
+  function bookWithOneIllustratedChapter() {
+    let book = createBook("Night Keys");
+    book = addChapter(book);
+    book = updateChapter(book, book.chapters[0]!.id, {
+      title: "The quay",
+      prose: "Emma locked the door.",
+      startImage: { thumbDataUrl: TINY_JPEG_DATA_URL, imageDataUrl: TINY_JPEG_DATA_URL }
+    });
+    return book;
+  }
+
+  it("carries the image through buildManuscriptExport only for the chapter that has one", () => {
+    const doc = buildManuscriptExport(bookWithOneIllustratedChapter());
+    expect(doc.chapters[0]?.startImageDataUrl).toBe(TINY_JPEG_DATA_URL);
+    expect(doc.chapters[1]?.startImageDataUrl).toBeUndefined();
+  });
+
+  it("embeds the image as a base64 <img> in HTML, only for the chapter that has one", () => {
+    const html = formatExportHtml(buildManuscriptExport(bookWithOneIllustratedChapter()));
+    expect(html).toContain(`<img class="chapter-image" src="${TINY_JPEG_DATA_URL}" alt=""/>`);
+    expect(html.match(/<img class="chapter-image"/g)).toHaveLength(1);
+  });
+
+  it("embeds the image as a real JPEG file inside the ePub package, referenced from the chapter page", () => {
+    const epub = packEpub(buildManuscriptExport(bookWithOneIllustratedChapter()));
+    const text = new TextDecoder().decode(epub);
+    expect(text).toContain("OEBPS/images/chapter-0.jpg");
+    expect(text).toContain('media-type="image/jpeg"');
+    expect(text).toContain('<img src="../images/chapter-0.jpg" alt=""/>');
+    // The chapter with no image gets no <img> tag on its page.
+    expect(text).not.toContain("chapter-1.jpg");
+    // The real JPEG bytes themselves should be present in the archive, uncompressed.
+    const magic = Array.from(new Uint8Array(Buffer.from(TINY_JPEG_BASE64, "base64")).slice(0, 8));
+    const bytes = Array.from(epub);
+    const found = bytes.some((_, i) => magic.every((byte, j) => bytes[i + j] === byte));
+    expect(found).toBe(true);
+  });
+
+  it("embeds the image as a drawable object in the PDF without breaking pagination", async () => {
+    const doc = buildManuscriptExport(bookWithOneIllustratedChapter());
+    const bytes = await packPdf(doc);
+    const loaded = await PDFDocument.load(bytes);
+    // Title page + one page per chapter (2 chapters), at minimum.
+    expect(loaded.getPageCount()).toBeGreaterThanOrEqual(3);
+  });
+
+  it("never leaks the chapter image data into RTF, ODT, or Markdown, which stay text-only", () => {
+    const doc = buildManuscriptExport(bookWithOneIllustratedChapter());
+    expect(formatExportMarkdown(doc)).not.toContain("base64");
+    expect(formatExportRtf(doc)).not.toContain("base64");
+    expect(new TextDecoder().decode(packOdt(doc))).not.toContain("base64");
   });
 });

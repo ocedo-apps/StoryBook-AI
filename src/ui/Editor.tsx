@@ -64,6 +64,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { LocaleSelect } from "./LocaleSelect";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
+import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
@@ -1161,6 +1162,11 @@ export function Editor() {
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
               />
             </div>
+            <ChapterStartImageBanner
+              image={chapter.startImage}
+              onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
+              onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
+            />
             <ProseCanvas
               value={chapter.prose}
               onChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { prose: next }))}

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { POV_MODES, TENSES } from "./craft";
 import { CharacterProfileSchema } from "./characterProfile";
 import { EntityKindSchema } from "./bibleGroups";
-import { EntityMediaSchema } from "./entityMedia";
+import { EntityMediaSchema, EntityPictureSchema } from "./entityMedia";
 import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
@@ -50,7 +50,13 @@ export const ChapterSchema = z.object({
    * When set, the chapter sits in Discarded chapters until restored or thrown away.
    * Missing on older saves — live chapters stay loadable.
    */
-  discarded_at: z.string().min(1).optional()
+  discarded_at: z.string().min(1).optional(),
+  /**
+   * Illustration shown as a banner at the top of the chapter editor and
+   * carried into Publish's HTML/ePub/PDF exports. Missing until the author
+   * uploads one.
+   */
+  startImage: EntityPictureSchema.optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 

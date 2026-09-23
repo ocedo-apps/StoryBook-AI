@@ -144,6 +144,9 @@ export const nb: Messages = {
     synopsisPlaceholder:
       "Emma har nattnøklene. En fremmed betaler med salt. Til vinteren må hun forlate kaien, ellers tar kanalen baren.",
     chapterPlaceholder: "Kapitlet lever her. Skriv utkast, skriv om til det er ditt.",
+    chapterImageAdd: "Legg til kapittelbilde",
+    chapterImageReplace: "Bytt bilde",
+    chapterImageRemove: "Fjern bilde",
     instructTitle: "Endre dette notatet",
     instructHint: "Si til modellen hva den skal gjøre med det markerte notatet. Bare det spannet byttes ut.",
     instructPlaceholder: "Gi to slutter. Trykk på hvorfor hun blir. Tre navn på blindpassasjeren.",
