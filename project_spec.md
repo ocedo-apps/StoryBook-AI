@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.46
+Status: living document, v0.47
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.46 → v0.47:** Sextonde exempelbilden: "Epic space
+opera" (`builtin-scifi-4`) — nedskalad till 1024px bredd (272 KB,
+från 1448×1086).
 
 **Ändringslogg v0.45 → v0.46:** Femtonde exempelbilden: "Cyberpunk
 neon noir" (`builtin-scifi-1`) — nedskalad till 1024px bredd (269
