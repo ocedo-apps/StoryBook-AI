@@ -457,5 +457,6 @@ export const BUILTIN_EXAMPLE_IMAGE_PATHS: Record<string, string> = {
   "builtin-storybook-1": "/illustration-examples/builtin-storybook-1.jpg",
   "builtin-literary-2": "/illustration-examples/builtin-literary-2.jpg",
   "builtin-literary-3": "/illustration-examples/builtin-literary-3.jpg",
-  "builtin-literary-4": "/illustration-examples/builtin-literary-4.jpg"
+  "builtin-literary-4": "/illustration-examples/builtin-literary-4.jpg",
+  "builtin-literary-5": "/illustration-examples/builtin-literary-5.jpg"
 };

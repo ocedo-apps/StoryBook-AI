@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.34
+Status: living document, v0.35
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.34 → v0.35:** Femte exempelbilden: "Psychological
+drama & character study" (`builtin-literary-5`) — nedskalad till
+1024px bredd (160 KB, från 1448×1086).
 
 **Ändringslogg v0.33 → v0.34:** Fjärde exempelbilden: "Magical
 realism & rural landscape" (`builtin-literary-4`) — nedskalad till
