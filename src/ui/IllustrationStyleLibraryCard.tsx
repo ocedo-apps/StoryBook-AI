@@ -94,7 +94,7 @@ export function IllustrationStyleLibraryCard({
         </button>
         <div className="illustration-style-groups">
           {groups.map((group) => (
-            <details key={group.tag} open>
+            <details key={group.tag} open={search.trim().length > 0}>
               <summary>{`${group.tag} (${group.styles.length})`}</summary>
               <ul className="illustration-style-list">
                 {group.styles.map((style) => (
@@ -110,7 +110,7 @@ export function IllustrationStyleLibraryCard({
             </details>
           ))}
           {untagged.length > 0 ? (
-            <details open>
+            <details open={search.trim().length > 0}>
               <summary>{`${m.illustration.untagged} (${untagged.length})`}</summary>
               <ul className="illustration-style-list">
                 {untagged.map((style) => (

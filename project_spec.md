@@ -1,7 +1,17 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.23
+Status: living document, v0.24
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.23 → v0.24:** Genre-grupperna i illustrationsbiblioteket
+är nu stängda by default — med nio genrer och 55 stilar blev listan för
+lång att överblicka öppen. `open={search.trim().length > 0}` istället
+för ett statiskt `open`: stängt i vila, men söker man öppnas de grupper
+som faktiskt matchar automatiskt (annars skulle sökresultat gömmas bakom
+manuellt stängda `<details>`). Manuellt expanderade grupper stör inte —
+Reacts attributdiff lämnar `open` orört mellan renderingar där det
+beräknade värdet inte ändras, så ett handklick på en rubrik överlever
+t.ex. att skriva i sökfältet utan att träffa den gruppen.
 
 **Ändringslogg v0.22 → v0.23:** Ny genre-tagg **Romance**, sex
 namngivna stilar, samma mönster som tidigare leveranser. Biblioteket
