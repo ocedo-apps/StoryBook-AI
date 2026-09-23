@@ -1,7 +1,15 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.54
+Status: living document, v0.55
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.54 → v0.55:** Tjugotredje exempelbilden: "Nordic
+Art Nouveau (John Bauer style)" (`builtin-historical-5`) — liggande
+sagoslott med troll, tomte och vattenfall, nedskalad till 1024×768
+(376 KB, från 1448×1086). Författaren skickade först en stående
+version av samma motiv och bytte själv ut den mot denna liggande
+version innan den lades in. Historisk/Vintage-gruppen har nu 4 av 6
+stilar klara.
 
 **Ändringslogg v0.53 → v0.54:** Tjugoandra exempelbilden:
 "Hand-colored engraving & fairytale watercolor" (`builtin-historical-2`)
