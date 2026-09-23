@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.48
+Status: living document, v0.49
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.48 → v0.49:** Artonde exempelbilden: "Retro-futurist
+70s space art (Chris Foss style)" (`builtin-scifi-2`) — porträttbild,
+redan 1024px bred (402 KB, 1024×1536, ingen nedskalning behövdes).
 
 **Ändringslogg v0.47 → v0.48:** Sjuttonde exempelbilden: "Hard sci-fi
 realistic space exploration" (`builtin-scifi-3`) — nedskalad till
