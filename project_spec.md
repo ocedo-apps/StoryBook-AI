@@ -1,7 +1,14 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.63
+Status: living document, v0.64
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.63 → v0.64:** Tredje exempelbilden i
+Romantik-gruppen: "Regency period pen-and-ink romance"
+(`builtin-romance-4`) — liggande monokrom bläckteckning med
+cross-hatching, matchar stilens beskrivning perfekt. Nedskalad till
+1024×768 (299 KB, från 1448×1086). Romantik-gruppen har nu 3 av 6
+stilar klara.
 
 **Ändringslogg v0.62 → v0.63:** Andra exempelbilden i
 Romantik-gruppen: "Modern chick-lit romance" (`builtin-romance-5`) —
