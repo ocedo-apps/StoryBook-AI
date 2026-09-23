@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.41
+Status: living document, v0.42
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.41 → v0.42:** Elfte exempelbilden: "Ethereal
+fairytale illustration (Golden Age)" (`builtin-storybook-4`) —
+nedskalad till 1024px bredd (214 KB, från 1500×818).
 
 **Ändringslogg v0.40 → v0.41:** Tionde exempelbilden: "Modern digital
 picture book" (`builtin-storybook-6`) — nedskalad till 1024px bredd
