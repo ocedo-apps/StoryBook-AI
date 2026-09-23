@@ -1,7 +1,12 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.44
+Status: living document, v0.45
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.44 → v0.45:** Fjortonde exempelbilden, första ur
+Sci-fi-gruppen: "Biopunk organic sci-fi (Moebius/Giger fusion)"
+(`builtin-scifi-5`) — nedskalad till 1024px bredd (262 KB, från
+1448×1086).
 
 **Ändringslogg v0.43 → v0.44:** Trettonde exempelbilden: "Classic
 pen-and-ink sketch" (`builtin-storybook-2`) — nedskalad till 1024px
