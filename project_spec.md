@@ -1,7 +1,31 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.27
+Status: living document, v0.28
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.27 → v0.28:** Förstoringsglas-ikon i exempelbildens
+nedre högra hörn på varje kort (visas bara när stilen faktiskt har en
+bild) — klick öppnar bilden i en egen lightbox-ruta i full storlek
+(`max-width/height: min(90vw, 60rem)/80vh`, `object-fit: contain`, ingen
+uppskalning bortom originalstorleken). Ikonen sitter i botten-höger av
+bilden, inte topp-höger, eftersom pennan/×-knapparna redan låg där.
+
+Escape-hanteringen i biblioteksrutan utökades till tre nivåer
+(lightbox → redigeringsvy → hela rutan) i samma villkorskedja istället
+för en till fristående `window`-lyssnare — en andra oberoende
+Escape-lyssnare på samma `window`-mål hade riskerat att båda
+lyssnarna triggar på en enda knapptryckning (stänger lightbox OCH hela
+biblioteket samtidigt) eftersom `stopPropagation` inte hindrar andra
+lyssnare på samma mål, bara `stopImmediatePropagation` gör det.
+
+Bugg hittad och fixad under implementationen: lightboxens bakgrund
+återanvände samma halvgenomskinliga `--overlay`-variabel som redan
+låg bakom hela biblioteksrutan — två travade halvgenomskinliga lager
+över en redan ogenomskinlig panel gjorde knappt något, så "Close"-
+knappen var nästan oläslig mot kortinnehållet som lyste igenom. Löst
+med en egen, fast mörk bakgrund (`rgb(10 8 6 / 0.88)`) oberoende av
+ljust/mörkt tema — konventionellt för en bildvisare där bilden själv
+ska synas tydligt, inte samma regel som gäller för rutor-i-rutor.
 
 **Ändringslogg v0.26 → v0.27:** Öppnar man biblioteket när manuset
 redan har en vald illustrationsstil hoppar rutan direkt till rätt

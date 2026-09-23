@@ -207,7 +207,8 @@ export const sv: Messages = {
     promptTitle: "Illustrationsprompt",
     promptHint: "Genererad från stycket, låsta Story Bible-fakta och manusets illustrationsstil.",
     generating: "Genererar…",
-    generateError: "Kunde inte generera en prompt den här gången."
+    generateError: "Kunde inte generera en prompt den här gången.",
+    viewFullImage: "Visa bilden i full storlek"
   },
   publish: {
     title: "Publicera",

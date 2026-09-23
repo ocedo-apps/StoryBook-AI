@@ -207,7 +207,8 @@ export const nb: Messages = {
     promptTitle: "Illustrasjonsprompt",
     promptHint: "Generert fra utdraget, låste Story Bible-fakta og manuskriptets illustrasjonsstil.",
     generating: "Genererer…",
-    generateError: "Kunne ikke generere en prompt denne gangen."
+    generateError: "Kunne ikke generere en prompt denne gangen.",
+    viewFullImage: "Vis bildet i full størrelse"
   },
   publish: {
     title: "Publiser",

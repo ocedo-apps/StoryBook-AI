@@ -3204,6 +3204,48 @@ button.illustration-genre-item:focus-visible {
   border-radius: 4px;
 }
 
+.illustration-style-card-zoom {
+  position: absolute;
+  top: calc(9rem - 2rem);
+  right: 0.4rem;
+  background: var(--overlay);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.illustration-lightbox-overlay {
+  z-index: 60;
+  background: rgb(10 8 6 / 0.88);
+}
+
+.illustration-lightbox {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: end;
+  max-width: min(90vw, 60rem);
+  max-height: 90vh;
+}
+
+.illustration-lightbox-close {
+  background: rgb(255 255 255 / 0.14);
+  color: #f3eadc;
+  border-radius: 4px;
+  padding: 0.35rem 0.7rem;
+}
+
+.text-button.illustration-lightbox-close:hover {
+  color: #f3eadc;
+  background: rgb(255 255 255 / 0.22);
+}
+
+.illustration-lightbox-image {
+  max-width: min(90vw, 60rem);
+  max-height: 80vh;
+  border-radius: 6px;
+  object-fit: contain;
+  display: block;
+}
+
 .illustration-style-card-image {
   width: 100%;
   height: 9rem;

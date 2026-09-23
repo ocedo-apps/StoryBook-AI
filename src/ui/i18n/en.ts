@@ -205,7 +205,8 @@ export const en = {
     promptTitle: "Illustration prompt",
     promptHint: "Generated from the passage, locked Story Bible facts, and the manuscript’s illustration style.",
     generating: "Generating…",
-    generateError: "Couldn’t generate a prompt this time."
+    generateError: "Couldn’t generate a prompt this time.",
+    viewFullImage: "View full image"
   },
   publish: {
     title: "Publish",

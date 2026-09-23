@@ -43,6 +43,7 @@ export function IllustrationStyleLibraryCard({
   const { messages: m } = useLocale();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Editing | null>(null);
+  const [zoomedStyle, setZoomedStyle] = useState<IllustrationStyle | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const currentStyleTextTrimmed = currentStyleText.trim();
@@ -59,12 +60,13 @@ export function IllustrationStyleLibraryCard({
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
-      if (editing) setEditing(null);
+      if (zoomedStyle) setZoomedStyle(null);
+      else if (editing) setEditing(null);
       else onClose();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editing, onClose]);
+  }, [editing, zoomedStyle, onClose]);
 
   useEffect(() => {
     if (!selectedStyle) return;
@@ -100,77 +102,87 @@ export function IllustrationStyleLibraryCard({
   }
 
   return (
-    <div
-      className="edit-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div className="edit-card illustration-library-card" role="dialog" aria-modal="true" aria-labelledby="illustration-library-title">
-        <div className="stats-card-head">
-          <p className="chapter-craft-label">{m.illustration.libraryTitle}</p>
-          <button type="button" className="text-button" onClick={onClose}>
-            {m.common.close}
-          </button>
-        </div>
-        <div className="illustration-library-toolbar">
-          <input
-            type="text"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={m.illustration.searchPlaceholder}
-            aria-label={m.illustration.searchPlaceholder}
-            autoFocus
-          />
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => setEditing({ style: newIllustrationStyle("", currentStyleText, []), isNew: true })}
-          >
-            {m.illustration.saveCurrentAsNew}
-          </button>
-        </div>
-        <div className="illustration-library-body">
-          <nav className="illustration-genre-list" aria-label={m.illustration.libraryTitle}>
-            {searching ? (
-              <p className="illustration-genre-item is-active" aria-current="true">
-                <span>{m.illustration.searchResults}</span>
-                <span className="illustration-genre-count">{searchResults.length}</span>
-              </p>
-            ) : null}
-            {sidebarGroups.map((group) => (
-              <button
-                key={group.tag}
-                type="button"
-                className={`illustration-genre-item${!searching && selectedTag === group.tag ? " is-active" : ""}`}
-                aria-current={!searching && selectedTag === group.tag}
-                onClick={() => selectTag(group.tag)}
-              >
-                <span>{group.tag === UNTAGGED_KEY ? m.illustration.untagged : group.tag}</span>
-                <span className="illustration-genre-count">{group.styles.length}</span>
-              </button>
-            ))}
-          </nav>
-          <div className="illustration-style-grid" ref={gridRef}>
-            {visibleStyles.length === 0 ? (
-              <p className="quiet">{m.illustration.noResults}</p>
-            ) : (
-              visibleStyles.map((style) => (
-                <IllustrationStyleCard
-                  key={style.id}
-                  style={style}
-                  isSelected={style.id === selectedStyle?.id}
-                  onSelect={onSelect}
-                  onEdit={() => setEditing({ style, isNew: false })}
-                  onDelete={onDelete}
-                />
-              ))
-            )}
+    <>
+      <div
+        className="edit-overlay"
+        role="presentation"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onClose();
+        }}
+      >
+        <div className="edit-card illustration-library-card" role="dialog" aria-modal="true" aria-labelledby="illustration-library-title">
+          <div className="stats-card-head">
+            <p className="chapter-craft-label">{m.illustration.libraryTitle}</p>
+            <button type="button" className="text-button" onClick={onClose}>
+              {m.common.close}
+            </button>
+          </div>
+          <div className="illustration-library-toolbar">
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={m.illustration.searchPlaceholder}
+              aria-label={m.illustration.searchPlaceholder}
+              autoFocus
+            />
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => setEditing({ style: newIllustrationStyle("", currentStyleText, []), isNew: true })}
+            >
+              {m.illustration.saveCurrentAsNew}
+            </button>
+          </div>
+          <div className="illustration-library-body">
+            <nav className="illustration-genre-list" aria-label={m.illustration.libraryTitle}>
+              {searching ? (
+                <p className="illustration-genre-item is-active" aria-current="true">
+                  <span>{m.illustration.searchResults}</span>
+                  <span className="illustration-genre-count">{searchResults.length}</span>
+                </p>
+              ) : null}
+              {sidebarGroups.map((group) => (
+                <button
+                  key={group.tag}
+                  type="button"
+                  className={`illustration-genre-item${!searching && selectedTag === group.tag ? " is-active" : ""}`}
+                  aria-current={!searching && selectedTag === group.tag}
+                  onClick={() => selectTag(group.tag)}
+                >
+                  <span>{group.tag === UNTAGGED_KEY ? m.illustration.untagged : group.tag}</span>
+                  <span className="illustration-genre-count">{group.styles.length}</span>
+                </button>
+              ))}
+            </nav>
+            <div className="illustration-style-grid" ref={gridRef}>
+              {visibleStyles.length === 0 ? (
+                <p className="quiet">{m.illustration.noResults}</p>
+              ) : (
+                visibleStyles.map((style) => (
+                  <IllustrationStyleCard
+                    key={style.id}
+                    style={style}
+                    isSelected={style.id === selectedStyle?.id}
+                    onSelect={onSelect}
+                    onEdit={() => setEditing({ style, isNew: false })}
+                    onDelete={onDelete}
+                    onZoom={() => setZoomedStyle(style)}
+                  />
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {zoomedStyle?.exampleImage ? (
+        <IllustrationImageLightbox
+          blob={zoomedStyle.exampleImage.blob}
+          alt={zoomedStyle.name}
+          onClose={() => setZoomedStyle(null)}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -179,13 +191,15 @@ function IllustrationStyleCard({
   isSelected,
   onSelect,
   onEdit,
-  onDelete
+  onDelete,
+  onZoom
 }: {
   style: IllustrationStyle;
   isSelected: boolean;
   onSelect: (style: IllustrationStyle) => void;
   onEdit: () => void;
   onDelete: (id: string) => Promise<void>;
+  onZoom: () => void;
 }) {
   const { messages: m } = useLocale();
   return (
@@ -202,6 +216,16 @@ function IllustrationStyleCard({
         <span className="illustration-style-card-name">{style.name}</span>
         <span className="illustration-style-card-prompt">{style.promptText}</span>
       </button>
+      {style.exampleImage ? (
+        <button
+          type="button"
+          className="icon-button illustration-style-card-zoom"
+          aria-label={`${m.illustration.viewFullImage}: ${style.name}`}
+          onClick={onZoom}
+        >
+          🔍
+        </button>
+      ) : null}
       <div className="illustration-style-card-actions">
         <button type="button" className="icon-button" aria-label={`${m.illustration.edit}: ${style.name}`} onClick={onEdit}>
           ✎
@@ -218,6 +242,33 @@ function IllustrationStyleCard({
             ×
           </button>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function IllustrationImageLightbox({ blob, alt, onClose }: { blob: Blob; alt: string; onClose: () => void }) {
+  const { messages: m } = useLocale();
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(blob);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [blob]);
+
+  return (
+    <div
+      className="edit-overlay illustration-lightbox-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="illustration-lightbox" role="dialog" aria-modal="true" aria-label={alt}>
+        <button type="button" className="text-button illustration-lightbox-close" onClick={onClose}>
+          {m.common.close}
+        </button>
+        {url ? <img src={url} alt={alt} className="illustration-lightbox-image" /> : null}
       </div>
     </div>
   );
