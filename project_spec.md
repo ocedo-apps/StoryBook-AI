@@ -1,7 +1,26 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.59
+Status: living document, v0.60
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.59 → v0.60:** Innehållsstädning: 12 av de 55
+builtin-stilarna innehöll ordet "book cover" i sin prompttext (och
+en, `builtin-romance-2`, även i namnet: "1980s romance novel cover").
+Eftersom illustrationerna genereras för att sitta inuti boken, inte
+som ett bokomslag, bytte alla 12 ut "book cover illustration" /
+"book cover artwork" / "book cover painting" mot motsvarande text
+utan "book cover" (t.ex. "Epic High Fantasy book cover illustration"
+→ "Epic High Fantasy illustration"). Berörda stilar:
+`builtin-fantasy-1`, `-5`, `builtin-scifi-2`, `builtin-horror-3`,
+`builtin-literary-1`, `-2`, `-6`, `builtin-adventure-1`, `-5`, `-6`,
+`builtin-romance-2` (namn + prompt), `builtin-romance-5`. Obs: eftersom
+`ensureSeeded()` medvetet aldrig skriver över en redan seedad
+builtin-rads text (för att skydda författarens egna redigeringar),
+uppdateras inte redan sparade bibliotek automatiskt av denna fix —
+den nya texten gäller för nyseedade bibliotek. Ett bibliotek som
+redan har den gamla texten kan få den uppdaterad genom att radera
+stilen (papperskorgsikonen) och ladda om sidan, så seedas den på nytt
+med den rättade texten.
 
 **Ändringslogg v0.58 → v0.59:** Bugfix: att redigera prompten på den
 stil som redan var vald för den öppna boken och trycka Spara verkade

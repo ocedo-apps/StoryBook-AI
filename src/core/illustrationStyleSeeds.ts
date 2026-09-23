@@ -63,7 +63,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-fantasy-1",
     name: "High fantasy painterly epic",
     promptText:
-      "Epic High Fantasy book cover illustration, grand oil painting style with rich brushwork, vibrant magical aura and glow effects, rich color palette of royal purple, sapphire blue, and shimmering gold, heroic sense of wonder, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Epic High Fantasy illustration, grand oil painting style with rich brushwork, vibrant magical aura and glow effects, rich color palette of royal purple, sapphire blue, and shimmering gold, heroic sense of wonder, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Fantasy"],
     origin: "builtin"
   },
@@ -95,7 +95,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-fantasy-5",
     name: "Cozy everyday fantasy",
     promptText:
-      "Cozy fantasy book cover illustration, soft gouache and digital painting style, warm palette of amber, honey yellow, sage green, and soft cinnamon brown, gentle comforting mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Cozy fantasy illustration, soft gouache and digital painting style, warm palette of amber, honey yellow, sage green, and soft cinnamon brown, gentle comforting mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Fantasy"],
     origin: "builtin"
   },
@@ -119,7 +119,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-scifi-2",
     name: "Retro-futurist 70s space art (Chris Foss style)",
     promptText:
-      "Classic 1970s retro sci-fi book cover artwork, Chris Foss airbrush style, bold geometric primary color stripe patterns, color palette of bright yellow, orange, turquoise, and deep space black, nostalgic golden age science fiction aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Classic 1970s retro sci-fi artwork, Chris Foss airbrush style, bold geometric primary color stripe patterns, color palette of bright yellow, orange, turquoise, and deep space black, nostalgic golden age science fiction aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Sci-fi"],
     origin: "builtin"
   },
@@ -175,7 +175,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-horror-3",
     name: "Folk horror rural macabre",
     promptText:
-      "Folk horror book cover illustration, rustic woodcut print style, desaturated earthy palette of burnt umber, muted straw yellow, twilight indigo, and crimson red, unsettling pagan mystery tone, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Folk horror illustration, rustic woodcut print style, desaturated earthy palette of burnt umber, muted straw yellow, twilight indigo, and crimson red, unsettling pagan mystery tone, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Horror/Gothic"],
     origin: "builtin"
   },
@@ -207,7 +207,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-literary-1",
     name: "Nordic realism & atmospheric nature",
     promptText:
-      "Atmospheric Nordic realism book cover illustration, painterly oil painting style with visible textured brushstrokes, muted earthy palette of moss green, slate gray, pale sky blue, and warm ochre light, melancholic introspective literary mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Atmospheric Nordic realism illustration, painterly oil painting style with visible textured brushstrokes, muted earthy palette of moss green, slate gray, pale sky blue, and warm ochre light, melancholic introspective literary mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Literary/Realistic"],
     origin: "builtin"
   },
@@ -215,7 +215,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-literary-2",
     name: "Contemporary quiet everyday realism",
     promptText:
-      "Contemporary literary fiction cover artwork, loose expressive gouache painting style, soft warm directional lighting, pastel palette of terracotta, sage, warm cream, and soft amber, intimate grounded realism aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Contemporary literary fiction artwork, loose expressive gouache painting style, soft warm directional lighting, pastel palette of terracotta, sage, warm cream, and soft amber, intimate grounded realism aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Literary/Realistic"],
     origin: "builtin"
   },
@@ -247,7 +247,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-literary-6",
     name: "Pastoral memory prose & coming-of-age",
     promptText:
-      "Pastoral literary realism book cover artwork, soft painterly impressionist style, natural organic colors of wheat yellow, olive green, warm earth brown, and soft hazy white, nostalgic reflective mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Pastoral literary realism artwork, soft painterly impressionist style, natural organic colors of wheat yellow, olive green, warm earth brown, and soft hazy white, nostalgic reflective mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Literary/Realistic"],
     origin: "builtin"
   },
@@ -359,7 +359,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-adventure-1",
     name: "Alpine survival & high-altitude action",
     promptText:
-      "Cinematic action adventure book cover illustration, dynamic dizzying perspective, detailed digital concept art style, cold alpine color palette of icy blues, snow white, granite gray, and warm khaki accents, perilous intense survival atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Cinematic action adventure illustration, dynamic dizzying perspective, detailed digital concept art style, cold alpine color palette of icy blues, snow white, granite gray, and warm khaki accents, perilous intense survival atmosphere, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Adventure"],
     origin: "builtin"
   },
@@ -391,7 +391,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-adventure-5",
     name: "Classic subterranean sci-fi (Jules Verne style)",
     promptText:
-      "Classic subterranean science-fiction adventure book cover illustration, Jules Verne Journey to the Center of the Earth aesthetic, atmospheric cool palette of deep navy blue, teal green, cyan glow, and slate gray, epic scale, feeling of awe and discovery, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Classic subterranean science-fiction adventure illustration, Jules Verne Journey to the Center of the Earth aesthetic, atmospheric cool palette of deep navy blue, teal green, cyan glow, and slate gray, epic scale, feeling of awe and discovery, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Adventure"],
     origin: "builtin"
   },
@@ -399,7 +399,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-adventure-6",
     name: "Introspective coming-of-age journey & watercolor",
     promptText:
-      "Contemplative personal journey adventure book cover illustration, fine black ink linework with soft layered watercolor washes, delicate organic watercolor overlays, earthy warm palette of mustard yellow, terracotta orange, chestnut brown, sage green, and cream paper texture, coming-of-age introspective adventure aesthetic, quiet emotional mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Contemplative personal journey adventure illustration, fine black ink linework with soft layered watercolor washes, delicate organic watercolor overlays, earthy warm palette of mustard yellow, terracotta orange, chestnut brown, sage green, and cream paper texture, coming-of-age introspective adventure aesthetic, quiet emotional mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Adventure"],
     origin: "builtin"
   },
@@ -413,9 +413,9 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
   },
   {
     id: "builtin-romance-2",
-    name: "1980s romance novel cover",
+    name: "1980s romance painterly illustration",
     promptText:
-      "Classic 1980s romance novel cover painting, rich oil painting on canvas, smooth painterly rendering, soft dreamy lighting with warm highlights, romantic palette of blooming rose crimson, magenta, rose pink, pastel lavender, and sky blue, dramatic high-romance aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Classic 1980s romance illustration painting, rich oil painting on canvas, smooth painterly rendering, soft dreamy lighting with warm highlights, romantic palette of blooming rose crimson, magenta, rose pink, pastel lavender, and sky blue, dramatic high-romance aesthetic, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Romance"],
     origin: "builtin"
   },
@@ -439,7 +439,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     id: "builtin-romance-5",
     name: "Modern chick-lit romance",
     promptText:
-      "Modern chick-lit romance book cover illustration, stylish fashion graphic illustration, clean refined linework, smooth cel-shading, soft blush pink watercolor swatch background composition on an off-white cream backdrop, rich burgundy and deep rose palette, minimalist contemporary romance aesthetic, chic glamorous mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
+      "Modern chick-lit romance illustration, stylish fashion graphic illustration, clean refined linework, smooth cel-shading, soft blush pink watercolor swatch background composition on an off-white cream backdrop, rich burgundy and deep rose palette, minimalist contemporary romance aesthetic, chic glamorous mood, textless, no text, no captions, no titles, no printed words, clean illustration without typography.",
     genreTags: ["Romance"],
     origin: "builtin"
   },
