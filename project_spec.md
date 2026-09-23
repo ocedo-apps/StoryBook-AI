@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.40
+Status: living document, v0.41
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.40 → v0.41:** Tionde exempelbilden: "Modern digital
+picture book" (`builtin-storybook-6`) — nedskalad till 1024px bredd
+(73 KB, från 2000×1091).
 
 **Ändringslogg v0.39 → v0.40:** Nionde exempelbilden, första ur
 Barnbok-gruppen: "Dense ink cross-hatch storybook" (`builtin-
