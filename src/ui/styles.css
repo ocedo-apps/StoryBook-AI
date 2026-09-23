@@ -3150,6 +3150,11 @@ button.illustration-genre-item:focus-visible {
   border-color: var(--ink);
 }
 
+.illustration-style-card.is-selected {
+  border-width: 2px;
+  border-color: var(--ink);
+}
+
 .illustration-style-card-select {
   display: grid;
   align-content: start;

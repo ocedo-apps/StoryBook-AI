@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { parseTagList } from "@core/characterProfile";
 import {
   newIllustrationStyle,
@@ -12,8 +12,18 @@ import {
 import { format, useLocale } from "./i18n";
 
 type Editing = { style: IllustrationStyle; isNew: boolean };
+type SidebarGroup = { tag: string; styles: IllustrationStyle[] };
 
 const UNTAGGED_KEY = "__untagged__";
+
+function initialTagFor(style: IllustrationStyle | undefined, sidebarGroups: SidebarGroup[]): string | null {
+  if (!style) return sidebarGroups[0]?.tag ?? null;
+  if (style.genreTags.length === 0) {
+    return sidebarGroups.find((group) => group.tag === UNTAGGED_KEY)?.tag ?? sidebarGroups[0]?.tag ?? null;
+  }
+  const wanted = new Set(style.genreTags.map((tag) => tag.toLowerCase()));
+  return sidebarGroups.find((group) => wanted.has(group.tag.toLowerCase()))?.tag ?? sidebarGroups[0]?.tag ?? null;
+}
 
 export function IllustrationStyleLibraryCard({
   styles,
@@ -33,12 +43,18 @@ export function IllustrationStyleLibraryCard({
   const { messages: m } = useLocale();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Editing | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const currentStyleTextTrimmed = currentStyleText.trim();
+  const selectedStyle = currentStyleTextTrimmed
+    ? styles.find((style) => style.promptText.trim() === currentStyleTextTrimmed)
+    : undefined;
 
   const groups = stylesByGenreTag(styles);
   const untagged = untaggedStyles(styles);
   const sidebarGroups = untagged.length > 0 ? [...groups, { tag: UNTAGGED_KEY, styles: untagged }] : groups;
 
-  const [selectedTag, setSelectedTag] = useState<string | null>(() => sidebarGroups[0]?.tag ?? null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(() => initialTagFor(selectedStyle, sidebarGroups));
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -49,6 +65,13 @@ export function IllustrationStyleLibraryCard({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [editing, onClose]);
+
+  useEffect(() => {
+    if (!selectedStyle) return;
+    const el = gridRef.current?.querySelector(`[data-style-id="${CSS.escape(selectedStyle.id)}"]`);
+    el?.scrollIntoView({ block: "nearest" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSave(style: IllustrationStyle) {
     await onSave(style);
@@ -129,7 +152,7 @@ export function IllustrationStyleLibraryCard({
               </button>
             ))}
           </nav>
-          <div className="illustration-style-grid">
+          <div className="illustration-style-grid" ref={gridRef}>
             {visibleStyles.length === 0 ? (
               <p className="quiet">{m.illustration.noResults}</p>
             ) : (
@@ -137,6 +160,7 @@ export function IllustrationStyleLibraryCard({
                 <IllustrationStyleCard
                   key={style.id}
                   style={style}
+                  isSelected={style.id === selectedStyle?.id}
                   onSelect={onSelect}
                   onEdit={() => setEditing({ style, isNew: false })}
                   onDelete={onDelete}
@@ -152,18 +176,23 @@ export function IllustrationStyleLibraryCard({
 
 function IllustrationStyleCard({
   style,
+  isSelected,
   onSelect,
   onEdit,
   onDelete
 }: {
   style: IllustrationStyle;
+  isSelected: boolean;
   onSelect: (style: IllustrationStyle) => void;
   onEdit: () => void;
   onDelete: (id: string) => Promise<void>;
 }) {
   const { messages: m } = useLocale();
   return (
-    <div className="illustration-style-card">
+    <div
+      className={`illustration-style-card${isSelected ? " is-selected" : ""}`}
+      data-style-id={style.id}
+    >
       <button type="button" className="illustration-style-card-select" onClick={() => onSelect(style)}>
         {style.exampleImage ? (
           <BlobThumbnail blob={style.exampleImage.blob} alt={style.name} variant="cover" />

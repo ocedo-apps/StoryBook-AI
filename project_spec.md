@@ -1,7 +1,19 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.26
+Status: living document, v0.27
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.26 → v0.27:** Öppnar man biblioteket när manuset
+redan har en vald illustrationsstil hoppar rutan direkt till rätt
+genre och scrollar fram till det kortet (`scrollIntoView({block:
+"nearest"})`, effekten körs en gång per öppning) — det markerade
+kortet får en tjockare kant (`border-width: 2px` mot `1px` annars) så
+det syns tydligt bland de andra i samma genre. "Vald stil" avgörs
+genom att matcha manusets `illustration_style`-fält mot varje stils
+`promptText` (trimmat, exakt match) — hittas ingen träff (fri text
+som inte kommer från biblioteket) beter sig rutan som innan, första
+genren vald, inget kort markerat. Genren att hoppa till väljs från
+stilens `genreTags[0]`, eller "Otaggade" om stilen saknar taggar.
 
 **Ändringslogg v0.25 → v0.26:** Kortgallret i illustrationsbiblioteket
 fick konstant höjd (rymmer alltid två rader) och alla kort samma
