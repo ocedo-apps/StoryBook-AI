@@ -1,7 +1,14 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.55
+Status: living document, v0.56
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.55 → v0.56:** Tjugofjärde exempelbilden:
+"Turn-of-the-century watercolor (Carl Larsson style)"
+(`builtin-historical-6`) — liggande interiörscen med kvinna, katt och
+blommor vid fönstret, nedskalad till 1024×768 (270 KB, från
+1448×1086). Historisk/Vintage-gruppen är nu komplett, alla sex stilar
+har exempelbilder.
 
 **Ändringslogg v0.54 → v0.55:** Tjugotredje exempelbilden: "Nordic
 Art Nouveau (John Bauer style)" (`builtin-historical-5`) — liggande
