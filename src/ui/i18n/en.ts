@@ -184,6 +184,7 @@ export const en = {
     browseLibrary: "Browse library…",
     libraryTitle: "Illustration styles",
     searchPlaceholder: "Search styles…",
+    searchResults: "Search results",
     saveCurrentAsNew: "Save current text as new style",
     select: "Use this style",
     edit: "Edit",

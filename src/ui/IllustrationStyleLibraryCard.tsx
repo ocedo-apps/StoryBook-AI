@@ -13,6 +13,8 @@ import { format, useLocale } from "./i18n";
 
 type Editing = { style: IllustrationStyle; isNew: boolean };
 
+const UNTAGGED_KEY = "__untagged__";
+
 export function IllustrationStyleLibraryCard({
   styles,
   currentStyleText,
@@ -31,6 +33,12 @@ export function IllustrationStyleLibraryCard({
   const { messages: m } = useLocale();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Editing | null>(null);
+
+  const groups = stylesByGenreTag(styles);
+  const untagged = untaggedStyles(styles);
+  const sidebarGroups = untagged.length > 0 ? [...groups, { tag: UNTAGGED_KEY, styles: untagged }] : groups;
+
+  const [selectedTag, setSelectedTag] = useState<string | null>(() => sidebarGroups[0]?.tag ?? null);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -58,9 +66,15 @@ export function IllustrationStyleLibraryCard({
     );
   }
 
-  const filtered = searchIllustrationStyles(styles, search);
-  const groups = stylesByGenreTag(filtered);
-  const untagged = untaggedStyles(filtered);
+  const searching = search.trim().length > 0;
+  const searchResults = searching ? searchIllustrationStyles(styles, search) : [];
+  const activeGroup = sidebarGroups.find((group) => group.tag === selectedTag);
+  const visibleStyles = searching ? searchResults : (activeGroup?.styles ?? []);
+
+  function selectTag(tag: string) {
+    setSearch("");
+    setSelectedTag(tag);
+  }
 
   return (
     <div
@@ -77,62 +91,66 @@ export function IllustrationStyleLibraryCard({
             {m.common.close}
           </button>
         </div>
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={m.illustration.searchPlaceholder}
-          aria-label={m.illustration.searchPlaceholder}
-          autoFocus
-        />
-        <button
-          type="button"
-          className="text-button"
-          onClick={() => setEditing({ style: newIllustrationStyle("", currentStyleText, []), isNew: true })}
-        >
-          {m.illustration.saveCurrentAsNew}
-        </button>
-        <div className="illustration-style-groups">
-          {groups.map((group) => (
-            <details key={group.tag} open={search.trim().length > 0}>
-              <summary>{`${group.tag} (${group.styles.length})`}</summary>
-              <ul className="illustration-style-list">
-                {group.styles.map((style) => (
-                  <IllustrationStyleRow
-                    key={style.id}
-                    style={style}
-                    onSelect={onSelect}
-                    onEdit={() => setEditing({ style, isNew: false })}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </ul>
-            </details>
-          ))}
-          {untagged.length > 0 ? (
-            <details open={search.trim().length > 0}>
-              <summary>{`${m.illustration.untagged} (${untagged.length})`}</summary>
-              <ul className="illustration-style-list">
-                {untagged.map((style) => (
-                  <IllustrationStyleRow
-                    key={style.id}
-                    style={style}
-                    onSelect={onSelect}
-                    onEdit={() => setEditing({ style, isNew: false })}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </ul>
-            </details>
-          ) : null}
-          {filtered.length === 0 ? <p className="quiet">{m.illustration.noResults}</p> : null}
+        <div className="illustration-library-toolbar">
+          <input
+            type="text"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={m.illustration.searchPlaceholder}
+            aria-label={m.illustration.searchPlaceholder}
+            autoFocus
+          />
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => setEditing({ style: newIllustrationStyle("", currentStyleText, []), isNew: true })}
+          >
+            {m.illustration.saveCurrentAsNew}
+          </button>
+        </div>
+        <div className="illustration-library-body">
+          <nav className="illustration-genre-list" aria-label={m.illustration.libraryTitle}>
+            {searching ? (
+              <p className="illustration-genre-item is-active" aria-current="true">
+                <span>{m.illustration.searchResults}</span>
+                <span className="illustration-genre-count">{searchResults.length}</span>
+              </p>
+            ) : null}
+            {sidebarGroups.map((group) => (
+              <button
+                key={group.tag}
+                type="button"
+                className={`illustration-genre-item${!searching && selectedTag === group.tag ? " is-active" : ""}`}
+                aria-current={!searching && selectedTag === group.tag}
+                onClick={() => selectTag(group.tag)}
+              >
+                <span>{group.tag === UNTAGGED_KEY ? m.illustration.untagged : group.tag}</span>
+                <span className="illustration-genre-count">{group.styles.length}</span>
+              </button>
+            ))}
+          </nav>
+          <div className="illustration-style-grid">
+            {visibleStyles.length === 0 ? (
+              <p className="quiet">{m.illustration.noResults}</p>
+            ) : (
+              visibleStyles.map((style) => (
+                <IllustrationStyleCard
+                  key={style.id}
+                  style={style}
+                  onSelect={onSelect}
+                  onEdit={() => setEditing({ style, isNew: false })}
+                  onDelete={onDelete}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function IllustrationStyleRow({
+function IllustrationStyleCard({
   style,
   onSelect,
   onEdit,
@@ -145,43 +163,47 @@ function IllustrationStyleRow({
 }) {
   const { messages: m } = useLocale();
   return (
-    <li className="illustration-style-row">
-      <button type="button" className="illustration-style-select" onClick={() => onSelect(style)}>
+    <div className="illustration-style-card">
+      <button type="button" className="illustration-style-card-select" onClick={() => onSelect(style)}>
         {style.exampleImage ? (
-          <BlobThumbnail blob={style.exampleImage.blob} alt={style.name} />
+          <BlobThumbnail blob={style.exampleImage.blob} alt={style.name} variant="cover" />
         ) : (
-          <span className="illustration-style-placeholder" aria-hidden="true" />
+          <span className="illustration-style-card-image illustration-style-placeholder" aria-hidden="true" />
         )}
-        <span className="illustration-style-name">{style.name}</span>
+        <span className="illustration-style-card-name">{style.name}</span>
+        <span className="illustration-style-card-prompt">{style.promptText}</span>
       </button>
-      <button type="button" className="icon-button" aria-label={`${m.illustration.edit}: ${style.name}`} onClick={onEdit}>
-        ✎
-      </button>
-      {style.origin === "custom" ? (
-        <button
-          type="button"
-          className="icon-button"
-          aria-label={`${m.illustration.delete}: ${style.name}`}
-          onClick={() => {
-            if (window.confirm(format(m.illustration.deleteConfirm, { name: style.name }))) void onDelete(style.id);
-          }}
-        >
-          ×
+      <div className="illustration-style-card-actions">
+        <button type="button" className="icon-button" aria-label={`${m.illustration.edit}: ${style.name}`} onClick={onEdit}>
+          ✎
         </button>
-      ) : null}
-    </li>
+        {style.origin === "custom" ? (
+          <button
+            type="button"
+            className="icon-button"
+            aria-label={`${m.illustration.delete}: ${style.name}`}
+            onClick={() => {
+              if (window.confirm(format(m.illustration.deleteConfirm, { name: style.name }))) void onDelete(style.id);
+            }}
+          >
+            ×
+          </button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
-function BlobThumbnail({ blob, alt, large = false }: { blob: Blob; alt: string; large?: boolean }) {
+function BlobThumbnail({ blob, alt, variant }: { blob: Blob; alt: string; variant: "cover" | "large" }) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     const objectUrl = URL.createObjectURL(blob);
     setUrl(objectUrl);
     return () => URL.revokeObjectURL(objectUrl);
   }, [blob]);
-  if (!url) return <span className="illustration-style-placeholder" aria-hidden="true" />;
-  return <img src={url} alt={alt} className={large ? "illustration-style-thumb is-large" : "illustration-style-thumb"} />;
+  const className = variant === "cover" ? "illustration-style-card-image" : "illustration-style-thumb-large";
+  if (!url) return <span className={`${className} illustration-style-placeholder`} aria-hidden="true" />;
+  return <img src={url} alt={alt} className={className} />;
 }
 
 function IllustrationStyleEditForm({
@@ -268,9 +290,9 @@ function IllustrationStyleEditForm({
         <label className="field-label">{m.illustration.exampleImageLabel}</label>
         <div className="illustration-style-image-field">
           {previewBlob ? (
-            <BlobThumbnail blob={previewBlob} alt={name} large />
+            <BlobThumbnail blob={previewBlob} alt={name} variant="large" />
           ) : (
-            <span className="illustration-style-placeholder is-large" aria-hidden="true" />
+            <span className="illustration-style-thumb-large illustration-style-placeholder" aria-hidden="true" />
           )}
           <div className="illustration-style-image-actions">
             <label className="text-button illustration-style-upload">

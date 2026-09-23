@@ -186,6 +186,7 @@ export const sv: Messages = {
     browseLibrary: "Bläddra i biblioteket…",
     libraryTitle: "Illustrationsstilar",
     searchPlaceholder: "Sök stilar…",
+    searchResults: "Sökresultat",
     saveCurrentAsNew: "Spara nuvarande text som ny stil",
     select: "Använd den här stilen",
     edit: "Ändra",

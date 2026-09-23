@@ -1,7 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.24
+Status: living document, v0.25
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.24 → v0.25:** Illustrationsbiblioteket byggdes om
+till en två-panels master-detail-vy istället för den kollapsningsbara
+listan — begärt av författaren efter att biblioteket växt till 55
+stilar i nio genrer. Vänster kolumn: genre-lista, en rad per genre med
+antal, klick byter vilken genre som visas (rensar ev. sökfält).
+Höger panel: kortgalleri för vald genre — varje kort har en stor
+exempelbild överst, namn, och en 3-radig trunkerad förhandsvisning av
+prompttexten (`-webkit-line-clamp`/`line-clamp`). Klick på ett kort
+applicerar direkt och stänger rutan (bekräftat med författaren —
+inget separat bekräftelsesteg). Pennikonen för redigera (och × för
+egna stilar) ligger nu som en liten overlay i kortets hörn istället
+för bredvid en rad.
+
+Sök filtrerar nu över alla genrer samtidigt och visar resultaten som
+en platt "Sökresultat"-pseudo-kategori högst upp i vänsterkolumnen,
+automatiskt vald — inte begränsad till en genre i taget. Att klicka en
+riktig genre i listan rensar sökfältet, så sök- och bläddra-lägena
+aldrig blandas ihop. Rutan är nu `min(68rem, 95vw)` bred (tidigare
+42rem) för att rymma två kolumner; en `@media (max-width: 640px)`
+lägger genre-listan ovanpå kortgallret som en horisontellt
+scrollbar rad på smala skärmar istället för sida vid sida.
 
 **Ändringslogg v0.23 → v0.24:** Genre-grupperna i illustrationsbiblioteket
 är nu stängda by default — med nio genrer och 55 stilar blev listan för

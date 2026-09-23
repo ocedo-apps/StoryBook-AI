@@ -186,6 +186,7 @@ export const nb: Messages = {
     browseLibrary: "Bla i biblioteket…",
     libraryTitle: "Illustrasjonsstiler",
     searchPlaceholder: "Søk stiler…",
+    searchResults: "Søkeresultater",
     saveCurrentAsNew: "Lagre gjeldende tekst som ny stil",
     select: "Bruk denne stilen",
     edit: "Endre",
