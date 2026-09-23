@@ -1,7 +1,12 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.56
+Status: living document, v0.57
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.56 → v0.57:** Tjugofemte exempelbilden: "Victorian
+woodcut & engraving (19th century)" (`builtin-historical-1`) —
+liggande gravyr av en skotsk ruinby med berg och kust i bakgrunden,
+nedskalad till 1024×768 (350 KB, från 1448×1086).
 
 **Ändringslogg v0.55 → v0.56:** Tjugofjärde exempelbilden:
 "Turn-of-the-century watercolor (Carl Larsson style)"
