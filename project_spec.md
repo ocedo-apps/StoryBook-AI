@@ -1,7 +1,12 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.37
+Status: living document, v0.38
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.37 → v0.38:** Åttonde exempelbilden: "Raw scribble
+portrait" (`builtin-literary-7`) — nedskalad till 1024px bredd (322
+KB, från 1448×1086). Hela Litterär/Realistisk-gruppen (alla sju
+stilar) har nu exempelbilder.
 
 **Ändringslogg v0.36 → v0.37:** Sjunde exempelbilden: "Nordic realism
 & atmospheric nature" (`builtin-literary-1`) — nedskalad till 1024px
