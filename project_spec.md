@@ -1,7 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.25
+Status: living document, v0.26
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.25 → v0.26:** Kortgallret i illustrationsbiblioteket
+fick konstant höjd (rymmer alltid två rader) och alla kort samma
+höjd, oavsett hur olika lång namn/prompttext är — begärt efter att
+sett gallret hoppa i höjd mellan genrer med 6 respektive 7 kort.
+`.illustration-style-grid` gick från flexibel (`min-height:0` +
+växer/krymper efter innehåll) till `height: min(34rem, 65vh)` — fast
+på normala skärmar, men krymper mot `65vh` istället för att klippa
+oåtkomligt innehåll på ovanligt korta viewports (samma `overflow-y:
+auto`-mekanism finns kvar för fler kort än två rader).
+
+Kortets namn och prompttext fick egna fasta höjder (`2.6rem`
+respektive `3.3rem`, med absolut `line-height` och `line-clamp`
+2/3 rader) istället för att variera med textlängd — annars fick
+kortgallrets rader olika höjd beroende på om ett kort råkade få ett
+tvåradigt namn. Bugg hittad under implementationen: att bara sätta
+fast höjd på kortets INNEHÅLL (namn/prompt) räckte inte — `.illustration-style-card`
+själv saknade egen höjd, och dess CSS Grid-rad (implicit, auto-storlek)
+räknade fel på hur högt ett `line-clamp`-barn faktiskt behöver, vilket
+klippte bort halva namnet och HELA prompttexten på alla kort. Fixat
+genom att ge `.illustration-style-card` en egen explicit `height:
+16.5rem` — kortets totalhöjd är nu auktoritativ och beror inte på
+grid-radens auto-uträkning av barn med `line-clamp`.
 
 **Ändringslogg v0.24 → v0.25:** Illustrationsbiblioteket byggdes om
 till en två-panels master-detail-vy istället för den kollapsningsbara
