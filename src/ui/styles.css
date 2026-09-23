@@ -3199,9 +3199,17 @@ button.illustration-genre-item:focus-visible {
   gap: 0.25rem;
 }
 
-.illustration-style-card-actions .icon-button {
-  background: var(--overlay);
+.illustration-style-card-actions .icon-button,
+.illustration-style-card-zoom {
+  background: rgb(10 8 6 / 0.6);
+  color: #f3eadc;
   border-radius: 4px;
+}
+
+.illustration-style-card-actions .icon-button:hover,
+.illustration-style-card-zoom:hover {
+  background: rgb(10 8 6 / 0.8);
+  color: #fff;
 }
 
 .illustration-style-card-zoom {
@@ -3211,8 +3219,6 @@ button.illustration-genre-item:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--overlay);
-  border-radius: 4px;
 }
 
 .illustration-lightbox-overlay {

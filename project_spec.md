@@ -1,7 +1,23 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.29
+Status: living document, v0.30
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.29 → v0.30:** Bugfix, förstoringsglas- och
+redigera/radera-ikonerna på illustrationskorten var näst intill
+osynliga mot ljusa/varma fotobilder — rapporterat med skärmdump.
+Grundorsak: bakgrunden bakom ikonerna var `var(--overlay)`, som i
+ljust läge bara är 32% opacitet — knappt märkbar mot en redan ljus
+bild, så ikonens `currentColor`-linjer föll platt mot bakgrunden
+bakom. Bytte till en fast, temaoberoende mörk platta (`rgb(10 8 6 /
+0.6)`, `0.8` vid hover) med ljus ikonfärg (`#f3eadc`, `#fff` vid
+hover) — samma princip som redan användes för lightboxens
+Close-knapp (v0.28): en bildvisares kontroller ska synas mot vilken
+bildinnehåll som helst, inte följa apptemat. Gäller nu både
+förstoringsglaset och penna/×-ikonerna. Explicita hover-regler
+lades till för att inte den globala `.icon-button:hover{color:
+var(--text)}`-regeln (samma specificitet för förstoringsglaset,
+skulle annars vinna på källordning) skulle tvätta ur färgen igen.
 
 **Ändringslogg v0.28 → v0.29:** Bytte förstoringsglas-ikonen från
 emoji (🔍) till en handritad inline-SVG (`ZoomIcon` i
