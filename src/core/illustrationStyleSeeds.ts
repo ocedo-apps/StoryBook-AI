@@ -455,6 +455,7 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
  */
 export const BUILTIN_EXAMPLE_IMAGE_PATHS: Record<string, string> = {
   "builtin-storybook-1": "/illustration-examples/builtin-storybook-1.jpg",
+  "builtin-literary-1": "/illustration-examples/builtin-literary-1.jpg",
   "builtin-literary-2": "/illustration-examples/builtin-literary-2.jpg",
   "builtin-literary-3": "/illustration-examples/builtin-literary-3.jpg",
   "builtin-literary-4": "/illustration-examples/builtin-literary-4.jpg",
