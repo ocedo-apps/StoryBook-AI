@@ -1,7 +1,34 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.38
+Status: living document, v0.39
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.38 → v0.39:** Genomgående fix, illustrationsstilarna
+blandade rendering med konkret scen — plats, tid på dygnet, handling.
+Rapporterat av författaren: en stil som t.ex. bakar in "vid en dimmig
+sjö vid gryning" bär in den scenen i VARJE genererad prompt oavsett
+vad stycket faktiskt handlar om, eftersom kombineringsinstruktionen
+ber modellen väva ihop styckets scen OCH stilens text — och stilens
+egen scen då läcker in på stycken den inte hör hemma i.
+
+Gick igenom alla 55 inbyggda promptar och strök allt scen-specifikt
+(plats, tid på dygnet, väder, konkret handling/karaktär/objekt) —
+behöll bara medium, teknik, penseldragskvalitet, färgpalett,
+ljuskaraktär (som teknik, inte tidpunkt — "dramatisk sidobelysning"
+ja, "vid gryning" nej) och stämningsord. Namngivna konstnärsreferenser
+(Frazetta, Alan Lee, Chris Foss, Beksiński, John Bauer, Carl Larsson,
+Moebius/Giger) och palett-färgnamn som råkar låna tidsord ("twilight
+blue", "moonlight ivory") behölls — de beskriver en kulör, inte att
+scenen faktiskt utspelar sig i skymning. Barnbok-gruppen var redan
+mestadels ren; störst städning i Fantasy, Sci-fi, Horror/Gothic,
+Detective/Noir, Adventure och Romance.
+
+Lade även till en andra försvarslinje i själva kombineringsprompten
+(`src/core/illustrationPrompt.ts`): systeminstruktionen säger nu
+explicit att stilen bara beskriver RENDERING, aldrig VAD som avbildas,
+och att modellen ska ignorera scen/plats/tid om en stiltext råkar
+nämna det — skyddar även mot egna, författarskrivna stilar som
+råkar blanda in scen på samma sätt.
 
 **Ändringslogg v0.37 → v0.38:** Åttonde exempelbilden: "Raw scribble
 portrait" (`builtin-literary-7`) — nedskalad till 1024px bredd (322

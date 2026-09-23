@@ -41,7 +41,7 @@ export function relevantEntitiesForPassage(passage: string, book: Book): Illustr
 }
 
 const ILLUSTRATION_PROMPT_SYSTEM =
-  "You write a single natural-language image-generation prompt for an external AI image tool, from a story passage, its established character and place details, and the author's chosen illustration style. Output only the prompt text itself — no preamble, no explanation, no markdown, no surrounding quotes. The illustration style may include technical constraints such as \"no text\", \"no captions\", \"no titles\", or \"textless\" — these are generation parameters, not visual description, and you must copy them into your output exactly as written, word for word, never paraphrased, summarized, or dropped, even though you freely rewrite every other part of the style to fit the passage.";
+  "You write a single natural-language image-generation prompt for an external AI image tool, from a story passage, its established character and place details, and the author's chosen illustration style. Output only the prompt text itself — no preamble, no explanation, no markdown, no surrounding quotes. The illustration style describes how the image should be rendered — medium, technique, color palette, lighting quality, mood — never what it depicts. Take the passage's own scene, setting, characters, and action only from the passage and the established details, never from the style; if the style text itself names a scene, setting, time of day, or action, treat that as incidental wording to ignore, not something to carry into the final prompt. The illustration style may include technical constraints such as \"no text\", \"no captions\", \"no titles\", or \"textless\" — these are generation parameters, not visual description, and you must copy them into your output exactly as written, word for word, never paraphrased, summarized, or dropped, even though you freely rewrite every other part of the style to fit the passage.";
 
 export type IllustrationPromptMessage = { role: "system" | "user"; content: string };
 
@@ -55,7 +55,7 @@ export function illustrationPromptMessages(
       ? entities.map((entity) => `${entity.name}:\n${entity.lines.map((line) => `- ${line}`).join("\n")}`).join("\n\n")
       : "(no locked Story Bible facts apply to this passage)";
   const style = styleText.trim() || "(no style set — infer a fitting one from the passage itself)";
-  const user = `Passage:\n${passage.trim()}\n\nEstablished details:\n${entityBlock}\n\nIllustration style:\n${style}\n\nWrite one image-generation prompt combining the passage's key visual moment, the established details above (especially appearance), and the illustration style. Any "no text"-type constraint in the style above must appear in your output unchanged.`;
+  const user = `Passage:\n${passage.trim()}\n\nEstablished details:\n${entityBlock}\n\nIllustration style (rendering only — ignore any scene, setting, or time of day it happens to mention; the scene comes only from the passage above):\n${style}\n\nWrite one image-generation prompt combining the passage's key visual moment, the established details above (especially appearance), and the illustration style's rendering approach. Any "no text"-type constraint in the style above must appear in your output unchanged.`;
   return [
     { role: "system", content: ILLUSTRATION_PROMPT_SYSTEM },
     { role: "user", content: user }
