@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.39
+Status: living document, v0.40
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.39 → v0.40:** Nionde exempelbilden, första ur
+Barnbok-gruppen: "Dense ink cross-hatch storybook" (`builtin-
+storybook-5`) — nedskalad till 1024px bredd (232 KB, från 1500×818).
 
 **Ändringslogg v0.38 → v0.39:** Genomgående fix, illustrationsstilarna
 blandade rendering med konkret scen — plats, tid på dygnet, handling.
