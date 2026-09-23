@@ -1,5 +1,6 @@
 import { groupBibleEntities } from "./bibleGroups";
 import { profileFor } from "./characterProfile";
+import { ORIENTATION_HINTS, type IllustrationOrientation } from "./illustrationStyle";
 import { PREDICATE_LABELS } from "./predicates";
 import { entityNameTokens, normalizeWord } from "./proseStats";
 import type { Book } from "./BookSchema";
@@ -81,4 +82,17 @@ export function enforceNoTextConstraint(generatedPrompt: string, styleText: stri
   if (mentionsNoTextConstraint(trimmed)) return trimmed;
   const sep = /[.!?]$/.test(trimmed) ? " " : ". ";
   return `${trimmed}${sep}${NO_TEXT_SUFFIX}`;
+}
+
+/**
+ * Appends a plain-language orientation/aspect-ratio hint so authors who don't know to add
+ * one themselves still get it — deterministic rather than asked of the model, since there's
+ * nothing for the model to paraphrase away here.
+ */
+export function applyOrientationHint(generatedPrompt: string, orientation: IllustrationOrientation): string {
+  const trimmed = generatedPrompt.trim();
+  const hint = ORIENTATION_HINTS[orientation];
+  if (trimmed.includes(hint)) return trimmed;
+  const sep = /[.!?]$/.test(trimmed) ? " " : ". ";
+  return `${trimmed}${sep}${hint}`;
 }

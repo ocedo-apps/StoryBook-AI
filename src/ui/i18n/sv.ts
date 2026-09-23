@@ -212,7 +212,12 @@ export const sv: Messages = {
     noStyleSelected: "Ingen stil vald",
     customStyleLabel: "Egen prompt",
     editTextManually: "Redigera texten manuellt",
-    hideManualEdit: "Dölj manuell text"
+    hideManualEdit: "Dölj manuell text",
+    orientationLabel: "Illustrationsformat",
+    orientations: {
+      landscape: "Liggande",
+      portrait: "Stående"
+    }
   },
   publish: {
     title: "Publicera",

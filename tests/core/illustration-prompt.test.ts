@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createBook } from "@core/BookSchema";
-import { enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
+import {
+  applyOrientationHint,
+  enforceNoTextConstraint,
+  illustrationPromptMessages,
+  relevantEntitiesForPassage
+} from "@core/illustrationPrompt";
 
 function bookWithCast() {
   let book = createBook("Night Keys");
@@ -118,5 +123,22 @@ describe("enforceNoTextConstraint", () => {
   it("leaves the output untouched when the style never declared the constraint", () => {
     const generated = "A quiet dock scene with a hand-painted sign reading WELCOME.";
     expect(enforceNoTextConstraint(generated, "Warm painterly realism")).toBe(generated);
+  });
+});
+
+describe("applyOrientationHint", () => {
+  it("appends a plain-language landscape hint", () => {
+    const result = applyOrientationHint("A quiet dock scene at dusk.", "landscape");
+    expect(result).toBe("A quiet dock scene at dusk. Landscape orientation (4:3 aspect ratio).");
+  });
+
+  it("appends a plain-language portrait hint", () => {
+    const result = applyOrientationHint("A quiet dock scene at dusk.", "portrait");
+    expect(result).toBe("A quiet dock scene at dusk. Portrait orientation (3:4 aspect ratio).");
+  });
+
+  it("does not duplicate the hint if it's already present", () => {
+    const generated = "A quiet dock scene. Landscape orientation (4:3 aspect ratio).";
+    expect(applyOrientationHint(generated, "landscape")).toBe(generated);
   });
 });

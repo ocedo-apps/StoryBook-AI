@@ -3,6 +3,7 @@ import { POV_MODES, TENSES } from "./craft";
 import { CharacterProfileSchema } from "./characterProfile";
 import { EntityKindSchema } from "./bibleGroups";
 import { EntityMediaSchema } from "./entityMedia";
+import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
@@ -86,6 +87,11 @@ export const BookSchema = z.object({
    * editable afterward, independent of the library once set. Missing on older saves.
    */
   illustration_style: z.string().default(""),
+  /**
+   * Aspect ratio to hint into generated illustration prompts. Missing on older
+   * saves — landscape matches the library's own example images.
+   */
+  illustration_orientation: z.enum(ILLUSTRATION_ORIENTATIONS).default("landscape"),
   /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
@@ -185,6 +191,7 @@ export function createBook(title: string): Book {
     viewpoint: "",
     voice: "",
     illustration_style: "",
+    illustration_orientation: "landscape",
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],

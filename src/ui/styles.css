@@ -3329,6 +3329,28 @@ button.illustration-genre-item:focus-visible {
   font-size: 0.75rem;
 }
 
+.illustration-orientation-toggle {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.illustration-orientation-toggle .text-button {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+}
+
+.illustration-orientation-toggle .text-button[aria-pressed="true"] {
+  background: var(--raised);
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
 .illustration-style-image-field {
   display: flex;
   align-items: center;

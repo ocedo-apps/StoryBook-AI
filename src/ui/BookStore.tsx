@@ -19,7 +19,7 @@ import {
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
-import { enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
+import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
@@ -953,7 +953,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           maxTokens: 500,
           signal: abort.signal
         });
-        return enforceNoTextConstraint(raw.trim(), current.illustration_style);
+        const withTextConstraint = enforceNoTextConstraint(raw.trim(), current.illustration_style);
+        return applyOrientationHint(withTextConstraint, current.illustration_orientation);
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") return null;
         setError(ollamaHint(err));

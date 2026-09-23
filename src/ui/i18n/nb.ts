@@ -212,7 +212,12 @@ export const nb: Messages = {
     noStyleSelected: "Ingen stil valgt",
     customStyleLabel: "Egen prompt",
     editTextManually: "Rediger teksten manuelt",
-    hideManualEdit: "Skjul manuell tekst"
+    hideManualEdit: "Skjul manuell tekst",
+    orientationLabel: "Illustrasjonsformat",
+    orientations: {
+      landscape: "Liggende",
+      portrait: "Stående"
+    }
   },
   publish: {
     title: "Publiser",

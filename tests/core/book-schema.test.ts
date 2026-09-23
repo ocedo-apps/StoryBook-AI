@@ -8,6 +8,7 @@ describe("createBook", () => {
     expect(book.pov).toBe("limited");
     expect(book.tense).toBe("past");
     expect(book.viewpoint).toBe("");
+    expect(book.illustration_orientation).toBe("landscape");
     expect(book.prose_language).toBe("");
     expect(book.brainstorm).toBe("");
     expect(book.brainstorm_notes).toEqual([]);
@@ -30,6 +31,7 @@ describe("createBook", () => {
       pov: _pov,
       tense: _tense,
       viewpoint: _viewpoint,
+      illustration_orientation: _orientation,
       prose_language: _language,
       media: _media,
       profiles: _profiles,
@@ -43,6 +45,7 @@ describe("createBook", () => {
     void _pov;
     void _tense;
     void _viewpoint;
+    void _orientation;
     void _language;
     void _media;
     void _profiles;
@@ -55,6 +58,7 @@ describe("createBook", () => {
     expect(parsed.pov).toBe("limited");
     expect(parsed.tense).toBe("past");
     expect(parsed.viewpoint).toBe("");
+    expect(parsed.illustration_orientation).toBe("landscape");
     expect(parsed.prose_language).toBe("");
     expect(parsed.media).toEqual([]);
     expect(parsed.profiles).toEqual([]);

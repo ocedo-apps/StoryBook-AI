@@ -210,7 +210,12 @@ export const en = {
     noStyleSelected: "No style selected",
     customStyleLabel: "Custom prompt",
     editTextManually: "Edit text manually",
-    hideManualEdit: "Hide manual text"
+    hideManualEdit: "Hide manual text",
+    orientationLabel: "Illustration orientation",
+    orientations: {
+      landscape: "Landscape",
+      portrait: "Portrait"
+    }
   },
   publish: {
     title: "Publish",

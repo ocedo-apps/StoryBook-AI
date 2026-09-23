@@ -4,6 +4,15 @@ import { newId, nowIso } from "./ids";
 export const ILLUSTRATION_STYLE_ORIGINS = ["builtin", "custom"] as const;
 export type IllustrationStyleOrigin = (typeof ILLUSTRATION_STYLE_ORIGINS)[number];
 
+export const ILLUSTRATION_ORIENTATIONS = ["landscape", "portrait"] as const;
+export type IllustrationOrientation = (typeof ILLUSTRATION_ORIENTATIONS)[number];
+
+/** Plain-language aspect ratio hint, not a tool-specific flag (like Midjourney's --ar), so it reads sensibly in whatever image generator the author pastes it into. */
+export const ORIENTATION_HINTS: Record<IllustrationOrientation, string> = {
+  landscape: "Landscape orientation (4:3 aspect ratio).",
+  portrait: "Portrait orientation (3:4 aspect ratio)."
+};
+
 export const IllustrationStyleExampleImageSchema = z.object({
   blob: z.instanceof(Blob),
   addedAt: z.string().min(1)

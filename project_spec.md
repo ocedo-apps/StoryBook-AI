@@ -1,7 +1,26 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.64
+Status: living document, v0.65
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.64 → v0.65:** Nytt fält `illustration_orientation`
+("landscape" | "portrait", default "landscape") på `Book` — låter
+författaren välja liggande eller stående format i Settings, som en
+liten växlingsknapp (Landscape/Portrait) precis under
+stilförhandsgranskningskortet. `applyOrientationHint()` i
+`illustrationPrompt.ts` lägger deterministiskt till en klartextrad i
+slutet av den genererade prompten ("Landscape orientation (4:3 aspect
+ratio)." respektive "Portrait orientation (3:4 aspect ratio).") —
+skriven som vanlig text snarare än en verktygsspecifik flagga som
+Midjourneys `--ar`, så den fungerar oavsett vilket externt
+AI-bildverktyg författaren klistrar in prompten i. Byggd enligt samma
+mönster som `enforceNoTextConstraint()`: deterministisk efterbearbetning
+istället för att lita på att modellen själv inkluderar det. Delad
+`ILLUSTRATION_ORIENTATIONS`/`ORIENTATION_HINTS` i `illustrationStyle.ts`
+för att undvika en cirkulär import mellan `BookSchema.ts` och
+`illustrationPrompt.ts`. Nya tester i `illustration-prompt.test.ts`
+(hint-tillägg, ingen dubblering) och `book-schema.test.ts` (default
+"landscape", migrering av äldre sparfiler utan fältet).
 
 **Ändringslogg v0.63 → v0.64:** Tredje exempelbilden i
 Romantik-gruppen: "Regency period pen-and-ink romance"

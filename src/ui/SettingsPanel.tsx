@@ -11,7 +11,7 @@ import {
 import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
 import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
 import { applyReaderAge, parseReaderAge, readerCategory } from "@core/reader";
-import { findStyleByPromptText, type IllustrationStyle } from "@core/illustrationStyle";
+import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
 import type { Book } from "@core/BookSchema";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
@@ -138,6 +138,19 @@ export function SettingsPanel({
               <span className="illustration-style-preview-cta">{m.illustration.browseLibrary}</span>
             </span>
           </button>
+          <div className="illustration-orientation-toggle" role="group" aria-label={m.illustration.orientationLabel}>
+            {ILLUSTRATION_ORIENTATIONS.map((orientation) => (
+              <button
+                key={orientation}
+                type="button"
+                className="text-button"
+                aria-pressed={book.illustration_orientation === orientation}
+                onClick={() => onPatch((current) => ({ ...current, illustration_orientation: orientation }))}
+              >
+                {m.illustration.orientations[orientation]}
+              </button>
+            ))}
+          </div>
           <button type="button" className="text-button illustration-style-edit-toggle" onClick={() => setEditingText((v) => !v)}>
             {editingText ? m.illustration.hideManualEdit : m.illustration.editTextManually}
           </button>
