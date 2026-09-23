@@ -3208,9 +3208,11 @@ button.illustration-genre-item:focus-visible {
   position: absolute;
   top: calc(9rem - 2rem);
   right: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--overlay);
   border-radius: 4px;
-  font-size: 0.85rem;
 }
 
 .illustration-lightbox-overlay {

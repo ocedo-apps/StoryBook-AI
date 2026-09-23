@@ -1,7 +1,17 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.28
+Status: living document, v0.29
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.28 → v0.29:** Bytte förstoringsglas-ikonen från
+emoji (🔍) till en handritad inline-SVG (`ZoomIcon` i
+`IllustrationStyleLibraryCard.tsx`, cirkel + handtag, `stroke:
+currentColor` så den följer knappens textfärg i båda teman). Författaren
+länkade en specifik ikon från Flaticon — flaticon.com är blockerad i
+den här sandboxade miljön så filen gick inte att hämta, och Flaticons
+gratisikoner kräver dessutom normalt attribution. Byggde en egen SVG
+istället: inget licenskrav, ingen extern fil, samma mönster som
+✎/×-ikonerna redan följer.
 
 **Ändringslogg v0.27 → v0.28:** Förstoringsglas-ikon i exempelbildens
 nedre högra hörn på varje kort (visas bara när stilen faktiskt har en
