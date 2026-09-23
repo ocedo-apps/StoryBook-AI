@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.35
+Status: living document, v0.36
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.35 → v0.36:** Sjätte exempelbilden: "Pastoral
+memory prose & coming-of-age" (`builtin-literary-6`) — nedskalad till
+1024px bredd (210 KB, från 1370×1148).
 
 **Ändringslogg v0.34 → v0.35:** Femte exempelbilden: "Psychological
 drama & character study" (`builtin-literary-5`) — nedskalad till
