@@ -1,7 +1,12 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.43
+Status: living document, v0.44
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.43 → v0.44:** Trettonde exempelbilden: "Classic
+pen-and-ink sketch" (`builtin-storybook-2`) — nedskalad till 1024px
+bredd (181 KB, från 2000×1091). Barnbok-gruppen är nu komplett, alla
+sex stilar har exempelbilder.
 
 **Ändringslogg v0.42 → v0.43:** Tolfte exempelbilden: "Gouache & naive
 storybook" (`builtin-storybook-3`) — nedskalad till 1024px bredd (179
