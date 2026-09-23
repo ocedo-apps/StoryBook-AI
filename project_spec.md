@@ -1,7 +1,11 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.32
+Status: living document, v0.33
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.32 → v0.33:** Tredje exempelbilden: "Impressionistic
+urban realism" (`builtin-literary-3`), stilnamn angivet av författaren
+den här gången — nedskalad till 1024px bredd (268 KB, från 1448×1086).
 
 **Ändringslogg v0.31 → v0.32:** Andra exempelbilden på plats:
 "Contemporary quiet everyday realism" (`builtin-literary-2`,
