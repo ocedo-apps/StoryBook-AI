@@ -446,3 +446,13 @@ export const BUILTIN_ILLUSTRATION_STYLES: IllustrationStyle[] = [
     origin: "builtin"
   }
 ];
+
+/**
+ * Example-image source for a builtin style, served as a static asset under public/ and
+ * fetched into a Blob at seed time (a Blob can't be a static import, so it can't live
+ * directly on BUILTIN_ILLUSTRATION_STYLES above). Keyed by style id; a style with no
+ * entry here just seeds without an example image, same as before this existed.
+ */
+export const BUILTIN_EXAMPLE_IMAGE_PATHS: Record<string, string> = {
+  "builtin-storybook-1": "/illustration-examples/builtin-storybook-1.jpg"
+};

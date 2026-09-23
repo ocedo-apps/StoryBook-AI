@@ -1,15 +1,16 @@
 import "fake-indexeddb/auto";
 import { indexedDB } from "fake-indexeddb";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createBook, updateChapter } from "@core/BookSchema";
 import { newIllustrationStyle, withExampleImage } from "@core/illustrationStyle";
-import { BUILTIN_ILLUSTRATION_STYLES } from "@core/illustrationStyleSeeds";
+import { BUILTIN_EXAMPLE_IMAGE_PATHS, BUILTIN_ILLUSTRATION_STYLES } from "@core/illustrationStyleSeeds";
 import { BookRepository } from "@persistence/Repository";
 import { IllustrationStyleRepository } from "@persistence/IllustrationStyleRepository";
 
 describe("IllustrationStyleRepository", () => {
   afterEach(async () => {
     indexedDB.deleteDatabase("storybook-ai");
+    vi.unstubAllGlobals();
   });
 
   it("round-trips a style, including an attached example image blob", async () => {
@@ -36,6 +37,40 @@ describe("IllustrationStyleRepository", () => {
     await repo.ensureSeeded();
     const afterSecondSeed = await repo.list();
     expect(afterSecondSeed).toHaveLength(BUILTIN_ILLUSTRATION_STYLES.length + 1);
+  });
+
+  it("attaches a builtin's example image from its static asset path when fetch succeeds", async () => {
+    const [seededId, path] = Object.entries(BUILTIN_EXAMPLE_IMAGE_PATHS)[0]!;
+    const blob = new Blob(["fake-jpeg-bytes"], { type: "image/jpeg" });
+    const fetchMock = vi.fn(async (url: string) => {
+      expect(url).toBe(path);
+      return { ok: true, blob: async () => blob } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const repo = new IllustrationStyleRepository(indexedDB);
+    await repo.ensureSeeded();
+
+    const seeded = (await repo.list()).find((style) => style.id === seededId);
+    expect(seeded?.exampleImage?.blob).toBeInstanceOf(Blob);
+    expect(seeded?.exampleImage?.blob.size).toBe(blob.size);
+  });
+
+  it("seeds without an example image when the asset fetch fails, rather than failing the whole seed", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("network down");
+      })
+    );
+
+    const repo = new IllustrationStyleRepository(indexedDB);
+    await repo.ensureSeeded();
+
+    const listed = await repo.list();
+    expect(listed).toHaveLength(BUILTIN_ILLUSTRATION_STYLES.length);
+    const seededId = Object.keys(BUILTIN_EXAMPLE_IMAGE_PATHS)[0]!;
+    expect(listed.find((style) => style.id === seededId)?.exampleImage).toBeUndefined();
   });
 
   it("adds newly introduced builtins to an already-seeded library without touching existing rows", async () => {

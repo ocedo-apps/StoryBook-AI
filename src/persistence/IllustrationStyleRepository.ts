@@ -1,6 +1,19 @@
-import { parseIllustrationStyle, type IllustrationStyle } from "@core/illustrationStyle";
-import { BUILTIN_ILLUSTRATION_STYLES } from "@core/illustrationStyleSeeds";
+import { parseIllustrationStyle, withExampleImage, type IllustrationStyle } from "@core/illustrationStyle";
+import { BUILTIN_EXAMPLE_IMAGE_PATHS, BUILTIN_ILLUSTRATION_STYLES } from "@core/illustrationStyleSeeds";
 import { asPromise, ILLUSTRATION_STYLE_STORE, openStorybookDb } from "./Repository";
+
+/** Best-effort: a missing or failed fetch just means that style seeds without an example image. */
+async function withBuiltinExampleImage(style: IllustrationStyle): Promise<IllustrationStyle> {
+  const path = BUILTIN_EXAMPLE_IMAGE_PATHS[style.id];
+  if (!path) return style;
+  try {
+    const response = await fetch(path);
+    if (!response.ok) return style;
+    return withExampleImage(style, await response.blob());
+  } catch {
+    return style;
+  }
+}
 
 export class IllustrationStyleRepository {
   constructor(private readonly factory: IDBFactory = globalThis.indexedDB) {}
@@ -49,11 +62,12 @@ export class IllustrationStyleRepository {
     const existingIds = new Set(existing.map((style) => style.id));
     const missing = BUILTIN_ILLUSTRATION_STYLES.filter((style) => !existingIds.has(style.id));
     if (missing.length === 0) return;
+    const withImages = await Promise.all(missing.map(withBuiltinExampleImage));
     const db = await this.db();
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction(ILLUSTRATION_STYLE_STORE, "readwrite");
       const store = tx.objectStore(ILLUSTRATION_STYLE_STORE);
-      for (const style of missing) store.put(style);
+      for (const style of withImages) store.put(style);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error ?? new Error("Seeding illustration styles failed"));
     });

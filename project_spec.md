@@ -1,7 +1,31 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.30
+Status: living document, v0.31
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.30 → v0.31:** Mekanism för att skeppa riktiga
+exempelbilder med appen istället för att varje författare måste ladda
+upp dem själva i sin egen webbläsare. Bilder läggs som vanliga
+statiska filer under `public/illustration-examples/` (Vite serverar
+dem direkt), och en ny lookup, `BUILTIN_EXAMPLE_IMAGE_PATHS` i
+`illustrationStyleSeeds.ts` (stil-id → sökväg), säger vilken bild som
+hör till vilken inbyggd stil — en separat struktur eftersom en `Blob`
+(vad `exampleImage` faktiskt är) inte går att hårdkoda som ett
+statiskt värde i en TypeScript-fil.
+
+`ensureSeeded()` hämtar (`fetch`) och konverterar till `Blob` för varje
+ny inbyggd stil som har en bildsökväg, innan raden skrivs till
+IndexedDB — `withBuiltinExampleImage` i `IllustrationStyleRepository.ts`.
+Best-effort: misslyckas hämtningen (nätverksfel, saknad fil) skeppas
+stilen ändå, bara utan bild — blockerar aldrig hela fröningen. Testat
+både med mockad `fetch` (lyckad och misslyckad) och i riktig
+webbläsare mot Vites statiska filserver.
+
+Första bilden på plats: "Graphic retro picture book"
+(`builtin-storybook-1`, Barnbok) — författarens flygande-matta-bild,
+nedskalad till 1024px bredd (139 KB, från ett 2000×1091 original).
+Fler bilder droppas in i chatten efter hand, samma inkrementella
+mönster som prompttexterna följde.
 
 **Ändringslogg v0.29 → v0.30:** Bugfix, förstoringsglas- och
 redigera/radera-ikonerna på illustrationskorten var näst intill
