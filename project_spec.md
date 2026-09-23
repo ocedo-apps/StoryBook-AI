@@ -1,7 +1,12 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.50
+Status: living document, v0.51
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.50 → v0.51:** Nittonde exempelbilden: "Solarpunk
+utopian future" (`builtin-scifi-6`) — nedskalad till 1024px bredd
+(232 KB, från 1536×1024). Sci-fi-gruppen är nu komplett, alla sex
+stilar har exempelbilder.
 
 **Ändringslogg v0.49 → v0.50:** Bytte ut "Retro-futurist 70s space
 art"-bilden (`builtin-scifi-2`) mot en liggande version av samma

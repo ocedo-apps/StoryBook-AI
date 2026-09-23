@@ -471,6 +471,7 @@ export const BUILTIN_EXAMPLE_IMAGE_PATHS: Record<string, string> = {
   "builtin-scifi-3": "/illustration-examples/builtin-scifi-3.jpg",
   "builtin-scifi-4": "/illustration-examples/builtin-scifi-4.jpg",
   "builtin-scifi-5": "/illustration-examples/builtin-scifi-5.jpg",
+  "builtin-scifi-6": "/illustration-examples/builtin-scifi-6.jpg",
   "builtin-literary-1": "/illustration-examples/builtin-literary-1.jpg",
   "builtin-literary-2": "/illustration-examples/builtin-literary-2.jpg",
   "builtin-literary-3": "/illustration-examples/builtin-literary-3.jpg",
