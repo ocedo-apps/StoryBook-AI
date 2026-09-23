@@ -1,7 +1,13 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.53
+Status: living document, v0.54
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.53 → v0.54:** Tjugoandra exempelbilden:
+"Hand-colored engraving & fairytale watercolor" (`builtin-historical-2`)
+— liggande scen med resande vid ett vinterläger nära en by, nedskalad
+till 1024×768 (344 KB, från 1448×1086). Historisk/Vintage-gruppen har
+nu 3 av 6 stilar klara.
 
 **Ändringslogg v0.52 → v0.53:** Tjugoförsta exempelbilden: "Edwardian
 pastoral storybook illustration" (`builtin-historical-4`) — liggande
