@@ -38,6 +38,7 @@ export function IllustrationStyleLibraryCard({
   styles,
   currentStyleText,
   onSelect,
+  onReapplyIfCurrent,
   onSave,
   onDelete,
   onClose
@@ -45,6 +46,8 @@ export function IllustrationStyleLibraryCard({
   styles: IllustrationStyle[];
   currentStyleText: string;
   onSelect: (style: IllustrationStyle) => void;
+  /** Called after saving an edit to the style that's already applied to the current book, so the book picks up the new wording instead of keeping the stale copy it took at selection time. */
+  onReapplyIfCurrent: (style: IllustrationStyle) => void;
   onSave: (style: IllustrationStyle) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onClose: () => void;
@@ -85,7 +88,9 @@ export function IllustrationStyleLibraryCard({
   }, []);
 
   async function handleSave(style: IllustrationStyle) {
+    const wasCurrent = selectedStyle?.id === style.id;
     await onSave(style);
+    if (wasCurrent) onReapplyIfCurrent(style);
     setEditing(null);
   }
 

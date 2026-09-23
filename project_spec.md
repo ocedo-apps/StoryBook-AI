@@ -1,7 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.58
+Status: living document, v0.59
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.58 → v0.59:** Bugfix: att redigera prompten på den
+stil som redan var vald för den öppna boken och trycka Spara verkade
+inte göra något. Orsak: `book.illustration_style` sätts som en ren
+textkopia av stilens `promptText` vid valtillfället (`Editor.tsx`,
+`onSelect`) — inte en levande referens till biblioteksposten. Att
+spara en ändring i `IllustrationStyleLibraryCard`s redigeringsformulär
+uppdaterade bara biblioteksposten i IndexedDB, aldrig bokens redan
+kopierade text, så illustrationsgenereringen fortsatte använda den
+gamla prompten. Lade till en ny prop `onReapplyIfCurrent` på
+`IllustrationStyleLibraryCard`: `handleSave` jämför nu stilens id mot
+den stil som matchar bokens aktuella text innan sparningen, och om de
+matchar anropas `onReapplyIfCurrent` så att boken omedelbart får den
+nya prompttexten (utan att stänga dialogen, till skillnad från
+`onSelect`). Verifierat med ett Playwright-skript: väljer en stil,
+öppnar biblioteket igen, redigerar samma stils prompt, sparar — kortet
+behåller sin tjocka markeringsram och manuskriptets stilfält visar
+den nya texten direkt.
 
 **Ändringslogg v0.57 → v0.58:** Bugfix: `ensureSeeded()` lade bara
 till builtin-stilar som helt saknades i biblioteket, men fyllde

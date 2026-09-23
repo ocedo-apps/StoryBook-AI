@@ -1315,6 +1315,9 @@ export function Editor() {
             void store.patchBook((current) => ({ ...current, illustration_style: style.promptText }));
             setIllustrationLibraryOpen(false);
           }}
+          onReapplyIfCurrent={(style) => {
+            void store.patchBook((current) => ({ ...current, illustration_style: style.promptText }));
+          }}
           onSave={illustrationStyles.saveStyle}
           onDelete={illustrationStyles.deleteStyle}
           onClose={() => setIllustrationLibraryOpen(false)}
