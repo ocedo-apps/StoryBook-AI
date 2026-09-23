@@ -86,6 +86,50 @@ describe("IllustrationStyleRepository", () => {
     expect(edited?.promptText).toBe("author-edited wording");
   });
 
+  it("backfills a missing example image onto an already-seeded builtin style", async () => {
+    const [seededId, path] = Object.entries(BUILTIN_EXAMPLE_IMAGE_PATHS)[0]!;
+    const repo = new IllustrationStyleRepository(indexedDB);
+    await repo.ensureSeeded();
+
+    const beforeBackfill = (await repo.list()).find((style) => style.id === seededId);
+    expect(beforeBackfill?.exampleImage).toBeUndefined();
+
+    const blob = new Blob(["fake-jpeg-bytes"], { type: "image/jpeg" });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        expect(url).toBe(path);
+        return { ok: true, blob: async () => blob } as Response;
+      })
+    );
+    await repo.ensureSeeded();
+
+    const afterBackfill = (await repo.list()).find((style) => style.id === seededId);
+    expect(afterBackfill?.exampleImage?.blob).toBeInstanceOf(Blob);
+    expect(afterBackfill?.exampleImage?.blob.size).toBe(blob.size);
+  });
+
+  it("never overwrites a builtin style's existing example image when re-seeding", async () => {
+    const seededId = Object.keys(BUILTIN_EXAMPLE_IMAGE_PATHS)[0]!;
+    const repo = new IllustrationStyleRepository(indexedDB);
+    await repo.ensureSeeded();
+
+    const original = (await repo.list()).find((style) => style.id === seededId)!;
+    const ownBlob = new Blob(["author-uploaded-bytes"]);
+    await repo.save(withExampleImage(original, ownBlob));
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("should not be called for a style that already has an image");
+      })
+    );
+    await repo.ensureSeeded();
+
+    const listed = (await repo.list()).find((style) => style.id === seededId);
+    expect(listed?.exampleImage?.blob.size).toBe(ownBlob.size);
+  });
+
   it("replaces an existing style's image on re-save rather than keeping both", async () => {
     const repo = new IllustrationStyleRepository(indexedDB);
     const style = newIllustrationStyle("Style", "text", []);

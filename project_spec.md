@@ -1,7 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.57
+Status: living document, v0.58
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.57 → v0.58:** Bugfix: `ensureSeeded()` lade bara
+till builtin-stilar som helt saknades i biblioteket, men fyllde
+aldrig i en exempelbild på en redan seedad stil i efterhand. Eftersom
+författaren redan hade kört appen innan de flesta exempelbilderna
+fanns, låg alla 55 builtin-stilar redan i IndexedDB utan bild — nya
+bildvägar i `BUILTIN_EXAMPLE_IMAGE_PATHS` gjorde därför ingenting vid
+`git pull` + omstart, eftersom ingen stil räknades som "saknad".
+Lade till en separat efterhandsfyllning i `ensureSeeded()`: varje
+befintlig builtin-rad utan `exampleImage` som nu har en bildväg får
+bilden hämtad och sparad, utan att röra namn/prompt/taggar eller
+skriva över en bild som redan finns (author-uppladdad eller
+tidigare seedad). Två nya tester i
+`illustration-style-repository.test.ts` täcker efterhandsfyllningen
+och att en befintlig bild aldrig skrivs över.
 
 **Ändringslogg v0.56 → v0.57:** Tjugofemte exempelbilden: "Victorian
 woodcut & engraving (19th century)" (`builtin-historical-1`) —
