@@ -1,7 +1,19 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.62
+Status: living document, v0.63
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.62 → v0.63:** Andra exempelbilden i
+Romantik-gruppen: "Modern chick-lit romance" (`builtin-romance-5`) —
+liggande digital målning med rosa akvarellstänk-bakgrund, nedskalad
+till 1024×768 (144 KB, från 1448×1086). Författaren hade först märkt
+bilden som "Regency period", men eftersom `builtin-romance-4`
+("Regency period pen-and-ink romance") uttryckligen beskrivs som
+monokrom bläckteckning och bilden är i färg med akvarellstänk,
+flaggade jag mismatchen innan jag lade in den — författaren höll med
+och bekräftade att den passar `builtin-romance-5` istället (rosa/
+vinröd akvarellpalett matchar den stilens beskrivning). Romantik-
+gruppen har nu 2 av 6 stilar klara.
 
 **Ändringslogg v0.61 → v0.62:** Första exempelbilden i
 Romantik-gruppen: "1980s romance painterly illustration"
