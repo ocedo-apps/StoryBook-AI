@@ -1,7 +1,18 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.31
+Status: living document, v0.32
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.31 → v0.32:** Andra exempelbilden på plats:
+"Contemporary quiet everyday realism" (`builtin-literary-2`,
+Litterär/Realistisk) — nedskalad till 1024px bredd (159 KB, från
+1448×1086). Filsökvägen chatten ger mig är ett systemgenererat
+sekvensnummer (`15.webp` i en delad mapp), inte författarens riktiga
+filnamn — kunde alltså inte läsa stilen därifrån som hoppats, matchade
+istället mot bildens faktiska innehåll: matbord med kaffekopp,
+uppslagen anteckningsbok, ljusstake, och paletten
+terrakotta/salvia/cream/bärnsten — alla specifikt nämnda i just den
+stilens promptext, ett tydligt fall att lita på utan att fråga.
 
 **Ändringslogg v0.30 → v0.31:** Mekanism för att skeppa riktiga
 exempelbilder med appen istället för att varje författare måste ladda
