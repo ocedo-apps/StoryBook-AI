@@ -15,6 +15,8 @@ import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyl
 import type { Book } from "@core/BookSchema";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
+import { PromptInspectorCard } from "./PromptInspector";
+import type { PromptDebugEntry } from "./promptDebug";
 
 export function SettingsPanel({
   book,
@@ -24,6 +26,7 @@ export function SettingsPanel({
   writingPrimer,
   historyLimit,
   illustrationStyles,
+  lastPrompt,
   onPatch,
   onModel,
   onReviewModel,
@@ -39,6 +42,7 @@ export function SettingsPanel({
   writingPrimer: string;
   historyLimit: number;
   illustrationStyles: IllustrationStyle[];
+  lastPrompt: PromptDebugEntry | null;
   onPatch: (mutate: (book: Book) => Book) => void;
   onModel: (name: string) => void;
   onReviewModel: (name: string) => void;
@@ -48,6 +52,7 @@ export function SettingsPanel({
   onBrowseIllustrationLibrary: () => void;
 }) {
   const { messages: m } = useLocale();
+  const [contextOpen, setContextOpen] = useState(false);
   const people = peopleLabels(book.facts, book.entity_kinds);
   const showViewpoint = needsViewpoint(book.pov);
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
@@ -202,6 +207,12 @@ export function SettingsPanel({
             onChange={onReviewModel}
           />
         </div>
+        <div className="edit-actions">
+          <button type="button" className="text-button" onClick={() => setContextOpen(true)}>
+            {m.aiContext.trigger}
+          </button>
+        </div>
+        {contextOpen ? <PromptInspectorCard entry={lastPrompt} onClose={() => setContextOpen(false)} /> : null}
         <label className="reader-field">
           <span>{m.editor.historyLimit}</span>
           <input

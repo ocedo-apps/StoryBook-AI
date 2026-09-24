@@ -4,6 +4,7 @@ import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { TextSpan } from "@core/textSpan";
+import type { PromptDebugEntry } from "./promptDebug";
 
 export type Busy =
   | "draft"
@@ -33,6 +34,7 @@ export type BookStoreValue = {
   error: string | null;
   chapterFeedback: ChapterFeedback | null;
   modelAsides: string[];
+  lastPrompt: PromptDebugEntry | null;
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
   closeBook: () => void;

@@ -222,6 +222,37 @@ export const sv: Messages = {
       portrait: "Stående"
     }
   },
+  aiContext: {
+    trigger: "Visa AI-kontext…",
+    title: "AI-kontext",
+    hint: "Exakt vad som skickades till modellen för det senaste jobbet, inklusive det som uteslöts.",
+    empty: "Inget AI-jobb har körts än den här sessionen. Kör ett skriv- eller granskningsjobb och kom sedan tillbaka hit.",
+    operation: "Jobb",
+    model: "Modell",
+    tokensEstimate: "~{n} tokens (grov uppskattning)",
+    systemInstructions: "Systeminstruktion",
+    whatWasSent: "Det som skickades",
+    target: {
+      prose: "kapitel",
+      synopsis: "synopsis",
+      brainstorm: "brainstorm-lapp"
+    },
+    operations: {
+      draft: "Skriv utkast",
+      recast: "Recast",
+      extend: "Fortsätt",
+      elaborate: "Utveckla",
+      instruct: "Skriv om",
+      ask: "Fråga brainstorm",
+      "word-swap": "Ordalternativ",
+      "sentence-split": "Meningsbrytning",
+      "paragraph-break": "Styckebrytning",
+      extract: "Extrahera fakta",
+      analyze: "Analysera",
+      illustrate: "Illustrationsprompt",
+      proofread: "Korrekturläsning"
+    }
+  },
   publish: {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",

@@ -58,7 +58,7 @@ nedan — inte punkt 1 i kön.
 
 ## Kodningsordning — vad vi bygger, och i vilken ordning
 
-### 1. AI Context Inspector (näst i tur — påbörjas nu)
+### 1. AI Context Inspector ✅ byggd (v0.69)
 En yta som visar exakt vad som skickas till modellen för det jobb som
 körs: operation, modell, systeminstruktion, vilka delar av manus/Story
 Bible/skrivinstruktion som är med, tokenantal, och en "Show raw prompt"-

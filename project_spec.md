@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.68
+Status: living document, v0.69
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.68 → v0.69:** Första punkten från `roadmap-ideas.md`
+byggd: **AI Context Inspector**, v1 read-only enligt planen (inga
+include/exclude-kryssrutor än). En "Visa AI-kontext…"-länk i
+Settings, bredvid modellval, öppnar en dialog som visar operation,
+modell, en grov tokenuppskattning och de faktiska system- och
+användarmeddelandena som skickades för det senaste jobbet som körts —
+inte en separat sammanfattning som kan hamna fel, utan den riktiga
+texten.
+
+Instrumenterat vid alla 13 ställen appen pratar med modellen
+(`draftChapter`, `recastChapter`, `rewriteSpan` [extend/elaborate/
+instruct × kapitel/synopsis/brainstorm], `askBrainstorm`,
+`suggestAlternatives`, `suggestSentenceSplit`, `suggestParagraphBreak`,
+`extractChapter`, `analyzeChapter`, `generateIllustrationPrompt`,
+`startProofread`) — ett `recordPrompt()`-anrop direkt i
+`BookStore.tsx` före varje faktiskt anrop, inte i transportlagret
+(`src/llm/ollama.ts`), för att inte koppla ihop en framtida
+provider-abstraktion (nästa punkt i roadmapen) med detta
+debug-lager. Fångar avsikten innan anropet skickas, så den syns i
+inspektorn även om själva Ollama-anropet sedan misslyckas eller
+avbryts. Ny typ `PromptDebugEntry` (`src/ui/promptDebug.ts`) plus en
+grov tokenuppskattning (~4 tecken/token, ingen riktig tokenizer
+kopplad). Fem nya tester för uppskattningsfunktionerna.
+
+Verifierat med Playwright mot en mockad Ollama (route-interception av
+`/api/tags` och `/api/chat`, eftersom den riktiga Ollama-instansen
+inte är nåbar i den här sandlådan): tomt läge innan något jobb körts,
+sedan en riktig Draft-körning som visar korrekt operation ("Draft"),
+skrivmodell, ~522 tokens uppskattat, och de faktiska system-/
+användarmeddelandena — läsbara, inte trunkerade eller
+sammanfattade.
 
 **Ändringslogg v0.67 → v0.68:** Nytt dokument `roadmap-ideas.md` —
 sammanfattar och rangordnar idéerna från ett flerpassdiskussion med

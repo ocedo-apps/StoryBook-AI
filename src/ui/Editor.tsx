@@ -929,6 +929,7 @@ export function Editor() {
             writingPrimer={writingPrimer}
             historyLimit={store.historyLimit}
             illustrationStyles={illustrationStyles.styles}
+            lastPrompt={store.lastPrompt}
             onPatch={(mutate) => void store.patchBook(mutate)}
             onModel={store.setModel}
             onReviewModel={store.setReviewModel}

@@ -39,7 +39,7 @@ import { applyExtend, applyReplace, surroundingPassage, type TextSpan } from "@c
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
 import { BREAK_SYSTEM, breakUserPrompt, parseParagraphBreak } from "@core/paragraphBreak";
 import { SPLIT_SYSTEM, parseSplitSuggestion, splitUserPrompt } from "@core/sentenceSplit";
-import { newId, slugify } from "@core/ids";
+import { newId, nowIso, slugify } from "@core/ids";
 import type { CorePredicate } from "@core/predicates";
 import type { FactDraft } from "@core/NarrativeFact";
 import {
@@ -57,6 +57,7 @@ import {
   parseManuscriptBackup
 } from "@core/manuscriptBackup";
 import { forgetLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
+import type { PromptDebugEntry, PromptDebugMessage, PromptOperation, PromptDebugTarget } from "./promptDebug";
 import { BookStoreContext, type BookStoreValue, type Busy } from "./useBookStore";
 import { format, getMessages, STORE_ERROR } from "./i18n";
 
@@ -104,6 +105,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [chapterFeedback, setChapterFeedback] = useState<ChapterFeedback | null>(null);
   const [modelAsides, setModelAsides] = useState<string[]>([]);
+  const [lastPrompt, setLastPrompt] = useState<PromptDebugEntry | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
@@ -389,6 +391,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     return prose.trim() ? prose : fallback;
   };
 
+  /**
+   * Records exactly what's about to be sent to the model, for the AI Context Inspector.
+   * Called right before the request goes out, so it captures intent even if the
+   * request itself later fails or is aborted.
+   */
+  const recordPrompt = useCallback(
+    (operation: PromptOperation, model: string, messages: PromptDebugMessage[], target?: PromptDebugTarget) => {
+      setLastPrompt({ operation, model, messages, at: nowIso(), ...(target ? { target } : {}) });
+    },
+    []
+  );
+
   const draftChapter = useCallback(async () => {
     const current = bookRef.current;
     const id = chapterRef.current;
@@ -416,11 +430,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await patchBook((book) => updateChapter(book, id, { prose: assembled }));
+      const draftMessages: PromptDebugMessage[] = [
+        { role: "system", content: writingSystem(DRAFT_SYSTEM) },
+        { role: "user", content: draftUserPrompt(current, chapter) }
+      ];
+      recordPrompt("draft", model, draftMessages);
       for await (const chunk of provider.streamCompletion({
-        messages: [
-          { role: "system", content: writingSystem(DRAFT_SYSTEM) },
-          { role: "user", content: draftUserPrompt(current, chapter) }
-        ],
+        messages: draftMessages,
         temperature: 0.85,
         maxTokens: 900,
         signal: abort.signal
@@ -475,11 +491,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const provider = new OllamaProvider({ model });
+      const recastMessages: PromptDebugMessage[] = [
+        { role: "system", content: writingSystem(RECAST_SYSTEM) },
+        { role: "user", content: recastUserPrompt(current, chapter) }
+      ];
+      recordPrompt("recast", model, recastMessages);
       for await (const chunk of provider.streamCompletion({
-        messages: [
-          { role: "system", content: writingSystem(RECAST_SYSTEM) },
-          { role: "user", content: recastUserPrompt(current, chapter) }
-        ],
+        messages: recastMessages,
         temperature: 0.5,
         maxTokens: 1600,
         signal: abort.signal
@@ -606,11 +624,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const provider = new OllamaProvider({ model });
+        const rewriteMessages: PromptDebugMessage[] = [
+          { role: "system", content: writingSystem(args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM) },
+          { role: "user", content: userContent }
+        ];
+        recordPrompt(args.mode, model, rewriteMessages, args.target);
         for await (const chunk of provider.streamCompletion({
-          messages: [
-            { role: "system", content: writingSystem(args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM) },
-            { role: "user", content: userContent }
-          ],
+          messages: rewriteMessages,
           temperature: args.target === "brainstorm" ? 0.9 : 0.8,
           maxTokens: args.mode === "extend" ? 280 : 420,
           signal: abort.signal
@@ -679,11 +699,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       try {
         await patchBook((book) => addBrainstormNote(book, { id: noteId, text: "", x: pos.x, y: pos.y }));
         const provider = new OllamaProvider({ model });
+        const askMessages: PromptDebugMessage[] = [
+          { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
+          { role: "user", content: brainstormAskUserPrompt(current, question) }
+        ];
+        recordPrompt("ask", model, askMessages);
         for await (const chunk of provider.streamCompletion({
-          messages: [
-            { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
-            { role: "user", content: brainstormAskUserPrompt(current, question) }
-          ],
+          messages: askMessages,
           temperature: 0.9,
           maxTokens: 700,
           signal: abort.signal
@@ -753,24 +775,26 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         throw new Error(message);
       }
       try {
+        const alternativesMessages: PromptDebugMessage[] = [
+          { role: "system", content: ALTERNATIVES_SYSTEM },
+          {
+            role: "user",
+            content: alternativesUserPrompt(
+              args.word,
+              args.sentence,
+              bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "",
+              {
+                ...(args.before ? { before: args.before } : {}),
+                ...(args.after ? { after: args.after } : {})
+              },
+              bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined
+            )
+          }
+        ];
+        recordPrompt("word-swap", reviewModel, alternativesMessages);
         const raw = await completeOllamaChat({
           model: reviewModel,
-          messages: [
-            { role: "system", content: ALTERNATIVES_SYSTEM },
-            {
-              role: "user",
-              content: alternativesUserPrompt(
-                args.word,
-                args.sentence,
-                bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "",
-                {
-                  ...(args.before ? { before: args.before } : {}),
-                  ...(args.after ? { after: args.after } : {})
-                },
-                bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined
-              )
-            }
-          ],
+          messages: alternativesMessages,
           temperature: 0.3,
           maxTokens: 140,
           ...(args.signal ? { signal: args.signal } : {})
@@ -793,12 +817,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         throw new Error(message);
       }
       try {
+        const splitMessages: PromptDebugMessage[] = [
+          { role: "system", content: SPLIT_SYSTEM },
+          { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
+        ];
+        recordPrompt("sentence-split", reviewModel, splitMessages);
         const raw = await completeOllamaChat({
           model: reviewModel,
-          messages: [
-            { role: "system", content: SPLIT_SYSTEM },
-            { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
-          ],
+          messages: splitMessages,
           temperature: 0.55,
           maxTokens: 280,
           ...(signal ? { signal } : {})
@@ -823,12 +849,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         throw new Error(message);
       }
       try {
+        const breakMessages: PromptDebugMessage[] = [
+          { role: "system", content: BREAK_SYSTEM },
+          { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
+        ];
+        recordPrompt("paragraph-break", reviewModel, breakMessages);
         const raw = await completeOllamaChat({
           model: reviewModel,
-          messages: [
-            { role: "system", content: BREAK_SYSTEM },
-            { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
-          ],
+          messages: breakMessages,
           temperature: 0.4,
           maxTokens: 700,
           ...(signal ? { signal } : {})
@@ -863,12 +891,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setBusy("extract");
     setError(null);
     try {
+      const extractMessages: PromptDebugMessage[] = [
+        { role: "system", content: EXTRACTOR_SYSTEM },
+        { role: "user", content: extractorUserPrompt(chapter.prose, chapter.title) }
+      ];
+      recordPrompt("extract", reviewModel, extractMessages);
       const raw = await completeOllamaChat({
         model: reviewModel,
-        messages: [
-          { role: "system", content: EXTRACTOR_SYSTEM },
-          { role: "user", content: extractorUserPrompt(chapter.prose, chapter.title) }
-        ],
+        messages: extractMessages,
         temperature: 0.1,
         maxTokens: 1200
       });
@@ -904,12 +934,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setBusy("analyze");
     setError(null);
     try {
+      const analyzeMessages: PromptDebugMessage[] = [
+        { role: "system", content: ANALYZE_SYSTEM },
+        { role: "user", content: analyzeUserPrompt(current, chapter) }
+      ];
+      recordPrompt("analyze", reviewModel, analyzeMessages);
       const raw = await completeOllamaChat({
         model: reviewModel,
-        messages: [
-          { role: "system", content: ANALYZE_SYSTEM },
-          { role: "user", content: analyzeUserPrompt(current, chapter) }
-        ],
+        messages: analyzeMessages,
         temperature: 0.25,
         maxTokens: 1800,
         signal: abort.signal
@@ -946,9 +978,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       try {
         const entities = relevantEntitiesForPassage(passage, current);
+        const illustrateMessages = illustrationPromptMessages(passage, entities, current.illustration_style);
+        recordPrompt("illustrate", reviewModel, illustrateMessages);
         const raw = await completeOllamaChat({
           model: reviewModel,
-          messages: illustrationPromptMessages(passage, entities, current.illustration_style),
+          messages: illustrateMessages,
           temperature: 0.4,
           maxTokens: 500,
           signal: abort.signal
@@ -997,17 +1031,20 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         await runProofread(
           job,
           {
-            complete: (system, user, signal) =>
-              completeOllamaChat({
+            complete: (system, user, signal) => {
+              const proofreadMessages: PromptDebugMessage[] = [
+                { role: "system", content: system },
+                { role: "user", content: user }
+              ];
+              recordPrompt("proofread", reviewModel, proofreadMessages);
+              return completeOllamaChat({
                 model: reviewModel,
-                messages: [
-                  { role: "system", content: system },
-                  { role: "user", content: user }
-                ],
+                messages: proofreadMessages,
                 temperature: 0.2,
                 maxTokens: 1600,
                 signal
-              }),
+              });
+            },
             getBook: () => bookRef.current ?? current,
             save: async (next) => {
               const latest = bookRef.current;
@@ -1108,6 +1145,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     error,
     chapterFeedback,
     modelAsides,
+    lastPrompt,
     refresh,
     openBook,
     closeBook,

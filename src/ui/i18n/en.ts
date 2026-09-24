@@ -220,6 +220,37 @@ export const en = {
       portrait: "Portrait"
     }
   },
+  aiContext: {
+    trigger: "View AI context…",
+    title: "AI context",
+    hint: "Exactly what was sent to the model for the last job that ran, including anything it excluded.",
+    empty: "No AI request yet this session. Run a writing or review job, then come back here.",
+    operation: "Operation",
+    model: "Model",
+    tokensEstimate: "~{n} tokens (rough estimate)",
+    systemInstructions: "System instructions",
+    whatWasSent: "What was sent",
+    target: {
+      prose: "chapter",
+      synopsis: "synopsis",
+      brainstorm: "brainstorm note"
+    },
+    operations: {
+      draft: "Draft",
+      recast: "Recast",
+      extend: "Extend",
+      elaborate: "Elaborate",
+      instruct: "Rewrite",
+      ask: "Ask Brainstorm",
+      "word-swap": "Word alternatives",
+      "sentence-split": "Sentence split",
+      "paragraph-break": "Paragraph break",
+      extract: "Extract facts",
+      analyze: "Analyze",
+      illustrate: "Illustration prompt",
+      proofread: "Proofread"
+    }
+  },
   publish: {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",

@@ -1959,6 +1959,57 @@ button:disabled {
   line-height: 1.55;
 }
 
+.prompt-inspector-card {
+  width: min(46rem, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.prompt-inspector-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.6rem 1rem;
+  margin: 0;
+}
+
+.prompt-inspector-meta dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.15rem;
+  font-weight: 600;
+}
+
+.prompt-inspector-meta dd {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.prompt-inspector-heading {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.prompt-inspector-block {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  background: var(--paper);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
 .marked-passage {
   margin: 0;
   padding: 0.55rem 0.7rem;
