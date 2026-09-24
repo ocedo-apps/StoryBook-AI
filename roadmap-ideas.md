@@ -141,7 +141,7 @@ provenance och citatlänkar om när Scene väl landar). Svar ska alltid
 komma med belägg: käll-scen, citat, klickbar länk — aldrig bara
 genererad prosa.
 
-### 9. Story time + Timeline
+### 9. Story time + Timeline ✅ byggd (v0.76)
 Narrative order (läsordning) mot story time (när det faktiskt händer).
 Bygger på scenens `story_time`-fält (punkt 5) och löser det öppna
 specfrågan om att `sequence_index` är bokordning, inte story-clock

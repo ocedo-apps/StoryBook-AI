@@ -266,6 +266,17 @@ export const nb: Messages = {
     jumpToChapter: "Åpne «{chapter}»",
     empty: "Still et spørsmål om manuset ditt, så vises svaret her, sammen med kildene."
   },
+  timeline: {
+    nav: "Tidslinje",
+    title: "Tidslinje",
+    lede: "Leserekkefølgen er ikke alltid når ting skjer. Gi et kapittel en tidsnotat og flytt det for å se hvor det egentlig hører hjemme, sammenlignet med hvor det ligger i manuset.",
+    readingPosition: "Manusposisjon {n}",
+    storyTimePlaceholder: "Når skjer dette? F.eks. «Tre år tidligere»",
+    storyTimeLabel: "Fortellertid for «{chapter}»",
+    outOfOrder: "Avviker fra leserekkefølgen",
+    moveEarlier: "Flytt tidligere",
+    moveLater: "Flytt senere"
+  },
   publish: {
     title: "Publiser",
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",

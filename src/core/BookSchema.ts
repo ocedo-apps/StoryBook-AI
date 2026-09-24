@@ -63,7 +63,23 @@ export const ChapterSchema = z.object({
    * exists — chapterScenes() (bookScene.ts) derives a single scene from
    * `prose` in that case, always fresh, never a stale snapshot.
    */
-  scenes: z.array(SceneSchema).optional()
+  scenes: z.array(SceneSchema).optional(),
+  /**
+   * Free-text "when this happens in-world" label — a writing note, not a
+   * date. Chapter-level in v1 since a chapter is still exactly one scene
+   * (bookScene.ts); moves onto the scene itself once real scene-splitting
+   * exists. Missing on older saves.
+   */
+  story_time: z.string().min(1).optional(),
+  /**
+   * Sort key for the Timeline's story-clock ordering, independent of
+   * `sequence_index` (manuscript/reading order). Missing = falls back to
+   * `sequence_index`, so an untouched book's timeline matches its
+   * manuscript order exactly. Only ever written by timeline.ts's
+   * moveStoryTimeOrder() so it always stays a consistent 0..N-1 ranking
+   * across live chapters — never patched ad hoc via updateChapter().
+   */
+  story_time_order: z.number().int().nonnegative().optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 
@@ -220,7 +236,7 @@ export function createBook(title: string): Book {
   };
 }
 
-export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask";
+export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask" | "timeline";
 
 /**
  * A blank manuscript opens on Settings. Brainstorm once notes exist.
@@ -295,7 +311,7 @@ export function addChapter(book: Book): Book {
 export function updateChapter(
   book: Book,
   chapterId: string,
-  patch: Partial<Omit<Chapter, "id" | "sequence_index" | "discarded_at">>
+  patch: Partial<Omit<Chapter, "id" | "sequence_index" | "discarded_at" | "story_time_order">>
 ): Book {
   return touch(book, {
     chapters: book.chapters.map((chapter) => {

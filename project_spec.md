@@ -1,9 +1,47 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.75
+Status: living document, v0.76
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.75 → v0.76:** Nionde punkten från `roadmap-ideas.md`
+byggd: **Story time + Timeline**. Löser den öppna specfrågan i §11
+("`sequence_index` är kapitelordning i boken, inte RPG:ts story-clock")
+genom att göra skillnaden synlig och redigerbar för författaren, i en
+ny sida "Timeline" i sidonavigeringen.
+
+Två nya fält på `Chapter` (`src/core/BookSchema.ts`): `story_time`
+(fri text, en skrivnotering som "Tre år tidigare") och
+`story_time_order` (sorteringsnyckel, saknas = faller tillbaka på
+`sequence_index` så en oredigerad bok har en tidslinje som exakt
+matchar manusordningen). Medvetet kapitel-nivå i v1, inte
+scen-nivå — eftersom ett kapitel fortfarande bara är en enda scen
+(punkt 5), skulle ett scen-nivå-fält bara duplicera samma data och
+riskera att bli inaktuellt mot `prose`-redigeringar, samma
+resonemang som styrde `chapterScenes()`-designen. Flyttas till scenen
+själv den dagen riktig scen-uppdelning finns.
+
+Ny ren logik i `src/core/timeline.ts`: `timelineEntries()` sorterar
+levande kapitel efter `story_time_order` och flaggar varje kapitel
+vars position där skiljer sig från dess läsordning (`outOfOrder`) —
+en tydlig signal om en flashback/framåtblick. `moveStoryTimeOrder()`
+byter plats på ett kapitel med sin granne och skriver om hela
+tidslinjens `story_time_order` till en ren 0..N-1-rangordning — den
+enda platsen det fältet någonsin skrivs.
+
+Timeline-sidan visar varje levande kapitel: titel (klickbar,
+hoppar till kapitlet — samma mönster som Mentions och Ask Manuscript),
+ursprunglig manusposition, en redigerbar textruta för `story_time`,
+upp/ner-knappar för att flytta det på tidslinjen, och en orange
+"OUT OF READING ORDER"-flagga när ordningen skiljer sig.
+
+7 nya tester i `timeline.test.ts`. Verifierat i webbläsaren: skapade
+tre kapitel, gav ett en tidsnotering och flyttade det till toppen av
+tidslinjen — flaggan visades korrekt på båda påverkade raderna,
+manuspositionen förblev oförändrad, klick hoppade till rätt kapitel,
+och både ordningen och tidsnoteringen överlevde en omladdning av
+sidan.
 
 **Ändringslogg v0.74 → v0.75:** Åttonde punkten från `roadmap-ideas.md`
 byggd: **Lokalt semantiskt index + Ask Manuscript v1** — första

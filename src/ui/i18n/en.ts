@@ -264,6 +264,17 @@ export const en = {
     jumpToChapter: "Open “{chapter}”",
     empty: "Ask a question about your manuscript and the answer will appear here, with its sources."
   },
+  timeline: {
+    nav: "Timeline",
+    title: "Timeline",
+    lede: "Reading order is not always when things happen. Give a chapter a story-time note and move it to see how it actually falls, compared to where it sits in the manuscript.",
+    readingPosition: "Manuscript position {n}",
+    storyTimePlaceholder: "When does this happen? E.g. “Three years earlier”",
+    storyTimeLabel: "Story time for “{chapter}”",
+    outOfOrder: "Out of reading order",
+    moveEarlier: "Move earlier",
+    moveLater: "Move later"
+  },
   publish: {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",

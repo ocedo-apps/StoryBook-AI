@@ -397,6 +397,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setSurface("ask");
   }, []);
 
+  const showTimeline = useCallback(() => {
+    setSurface("timeline");
+  }, []);
+
   const dismissModelAside = useCallback(() => setModelAsides([]), []);
 
   const manuscriptFromModel = (raw: string, fallback: string) => {
@@ -1244,6 +1248,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showBrainstorm,
     showSynopsis,
     showAsk,
+    showTimeline,
     dismissModelAside,
     setModel,
     setWritingPrimer,

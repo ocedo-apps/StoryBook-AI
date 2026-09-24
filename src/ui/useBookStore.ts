@@ -51,6 +51,7 @@ export type BookStoreValue = {
   showBrainstorm: () => void;
   showSynopsis: () => void;
   showAsk: () => void;
+  showTimeline: () => void;
   dismissModelAside: () => void;
   setModel: (name: string) => void;
   setWritingPrimer: (text: string) => void;

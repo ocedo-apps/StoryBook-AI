@@ -266,6 +266,17 @@ export const sv: Messages = {
     jumpToChapter: "Öppna ”{chapter}”",
     empty: "Ställ en fråga om ditt manus så visas svaret här, tillsammans med källorna."
   },
+  timeline: {
+    nav: "Tidslinje",
+    title: "Tidslinje",
+    lede: "Läsordningen är inte alltid när saker händer. Ge ett kapitel en tidsnotering och flytta det för att se var det egentligen hör hemma, jämfört med var det ligger i manuset.",
+    readingPosition: "Manusposition {n}",
+    storyTimePlaceholder: "När händer det här? T.ex. ”Tre år tidigare”",
+    storyTimeLabel: "Berättelsetid för ”{chapter}”",
+    outOfOrder: "Avviker från läsordningen",
+    moveEarlier: "Flytta tidigare",
+    moveLater: "Flytta senare"
+  },
   publish: {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",
