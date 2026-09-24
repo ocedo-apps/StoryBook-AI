@@ -77,7 +77,7 @@ Nästan gratis. `NarrativeFact` har redan `chapter_id` och
 `superseded_by`-kedjan på varje rad — UI:t blir i praktiken en ren
 rendering av data som redan finns, ingen ny lagring.
 
-### 3. Story Bible: Mentions v1
+### 3. Story Bible: Mentions v1 ✅ byggd (v0.71)
 Skild fråga från History. "Visa alla fakta om Henrik" (History) är
 inte samma sak som "visa alla gånger Henrik nämns i manuset"
 (Mentions) — det senare kräver mention-detection. Görs billigt först:

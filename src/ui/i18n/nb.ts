@@ -408,6 +408,8 @@ export const nb: Messages = {
     lockInto: "Lås til Story Bible",
     history: "Historikk",
     historyCurrent: "nå",
+    mentions: "Omtaler",
+    mentionsAside: "(Hvert kapittel som nevner denne entiteten i prosaen.)",
     replaceTitle: "Erstatt i manuskriptet?",
     replaceBody: "Erstatt “{from}” med “{to}” på {places}. Brainstorm blir liggende urørt.",
     places: { one: "{count} sted", other: "{count} steder" },

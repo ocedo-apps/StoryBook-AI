@@ -406,6 +406,8 @@ export const en = {
     lockInto: "Lock into Story Bible",
     history: "History",
     historyCurrent: "current",
+    mentions: "Mentions",
+    mentionsAside: "(Every chapter that names this entity in its prose.)",
     replaceTitle: "Replace in manuscript?",
     replaceBody: "Replace “{from}” with “{to}” in {places}. Brainstorm is left alone.",
     places: { one: "{count} place", other: "{count} places" },

@@ -1,9 +1,34 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.70
+Status: living document, v0.71
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.70 → v0.71:** Tredje punkten från `roadmap-ideas.md`
+byggd: **Story Bible Mentions v1**, deterministisk namn-sökning enligt
+planen — ingen embedding. Ny funktion `mentionsForEntity()`
+(`src/core/bibleMentions.ts`) bygger en kombinerad regex av entitetens
+fulla namn plus dess enskilda namn-tokens (`nameVariantsForLabel()`,
+återanvänder `entityNameTokens()` från `proseStats.ts`), längst-först
+sorterad så "Henrik Andersson" vinner över bara "Henrik" där båda
+skulle matcha samma ställe — annars hade en fras dubbelräknats som
+både helnamn och förnamn. `snippetAround()` i `findReplace.ts`
+exporterad för återanvändning istället för att skriva om samma
+kontext-utklippslogik. Matchar bara levande kapitels prosa (inte
+synopsis eller brainstorm — brainstorm är uttryckligen privat, §9).
+
+Ny sektion "Mentions" i `EntityOverlay`, direkt under History: ett
+kapitel per rad med träffantal och upp till två citat, och hela raden
+är klickbar — klick hoppar direkt till det kapitlet i
+manusredigeraren och stänger Story Bible-kortet. Tolv nya tester i
+`bible-mentions.test.ts` (grundläggande räkning, skiftlägesokänslig
+matchning, helordsgräns, ingen dubbelräkning av fullnamn+förnamn,
+uteslutning av borttagna kapitel, kapitelordning). Verifierat i
+webbläsaren: skapade två kapitel som nämnde "Henrik" olika många
+gånger, skapade karaktären, och Mentions-sektionen visade rätt
+kapitel, rätt antal, citat, och klick på en rad navigerade korrekt
+till rätt kapitel och stängde kortet.
 
 **Ändringslogg v0.69 → v0.70:** Andra punkten från `roadmap-ideas.md`
 byggd: **Story Bible History-vy**. Precis som förutspått var det

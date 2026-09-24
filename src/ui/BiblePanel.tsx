@@ -11,6 +11,7 @@ import {
 } from "@core/bibleGroups";
 import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
 import { chainsWithHistory, factHistoryForEntity, type FactHistoryChain } from "@core/bibleHistory";
+import { mentionsForEntity, type MentionHit } from "@core/bibleMentions";
 import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
 import { slugify } from "@core/ids";
 import {
@@ -51,7 +52,7 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
 }
 
 export function BiblePanel() {
-  const { book, approve, reject, addFact, reviseFact, patchBook } = useBookStore();
+  const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
@@ -212,7 +213,12 @@ export function BiblePanel() {
           profile={profileFor(book.profiles, openEntity.entity_ref)}
           pictures={picturesFor(book.media, openEntity.entity_ref)}
           history={chainsWithHistory(factHistoryForEntity(book.facts, openEntity.entity_ref))}
+          mentions={mentionsForEntity(book, openEntity.entity_label)}
           chapters={book.chapters}
+          onJumpToChapter={(chapterId) => {
+            setChapterId(chapterId);
+            setOverlay(null);
+          }}
           onAdd={(predicate, value) => void addFact({ label: openEntity.entity_label, predicate, value })}
           onSave={(id, value) => void reviseFact(id, value)}
           onToggleHidden={() =>
@@ -456,7 +462,9 @@ function EntityOverlay({
   profile,
   pictures,
   history,
+  mentions,
   chapters,
+  onJumpToChapter,
   onAdd,
   onSave,
   onToggleHidden,
@@ -475,7 +483,9 @@ function EntityOverlay({
   profile: CharacterProfile;
   pictures: EntityPicture[];
   history: FactHistoryChain[];
+  mentions: MentionHit[];
   chapters: Chapter[];
+  onJumpToChapter: (chapterId: string) => void;
   onAdd: (predicate: CorePredicate, value: string) => void;
   onSave: (factId: string, value: string) => void;
   onToggleHidden: () => void;
@@ -625,6 +635,28 @@ function EntityOverlay({
                     </li>
                   ))}
                 </ol>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {mentions.length > 0 ? (
+        <section className="bible-mentions">
+          <h3 className="bible-field-label">
+            {m.bible.mentions} <span className="bible-field-aside">{m.bible.mentionsAside}</span>
+          </h3>
+          <ul className="bible-mentions-list">
+            {mentions.map((mention) => (
+              <li key={mention.chapterId} className="bible-mention-chapter">
+                <button type="button" className="bible-mention-jump" onClick={() => onJumpToChapter(mention.chapterId)}>
+                  {chapterLabel(mention.chapterId, chapters, m.editor.untitled)}
+                  <span className="bible-mention-count">{mention.count}</span>
+                </button>
+                {mention.snippets.map((snippet, index) => (
+                  <p key={index} className="bible-mention-snippet">
+                    {snippet}
+                  </p>
+                ))}
               </li>
             ))}
           </ul>

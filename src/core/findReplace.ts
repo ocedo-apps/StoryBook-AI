@@ -102,7 +102,7 @@ export function snippetsInText(
     .map((match) => ({ field, preview: snippetAround(text, match.start, match.end) }));
 }
 
-function snippetAround(text: string, start: number, end: number): string {
+export function snippetAround(text: string, start: number, end: number): string {
   let from = Math.max(0, start - SNIPPET_RADIUS);
   let to = Math.min(text.length, end + SNIPPET_RADIUS);
   while (from > 0 && !/\s/.test(text[from] ?? " ")) from -= 1;

@@ -2892,6 +2892,60 @@ button:disabled {
   font-weight: 600;
 }
 
+.bible-mentions {
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-soft);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bible-mentions-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bible-mention-chapter {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.bible-mention-jump {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.bible-mention-jump:hover {
+  text-decoration: underline;
+}
+
+.bible-mention-count {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  background: var(--raised);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+}
+
+.bible-mention-snippet {
+  margin: 0 0 0 0.1rem;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
 .bible-pictures {
   display: grid;
   gap: 0.4rem;
