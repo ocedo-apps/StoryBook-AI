@@ -99,7 +99,7 @@ identitet (§9: "Inga molnnycklar").
 
 Oberoende av Scene-arbetet, kan göras när som helst i kön.
 
-### 5. Scene-migrering — "tråkig" v1
+### 5. Scene-migrering — "tråkig" v1 ✅ byggd (v0.73)
 Ingen big bang. Första versionen bygger inte samtidigt Timeline, plot-
 grid, scen-redigerare, continuity och nya AI-prompter. Bara:
 

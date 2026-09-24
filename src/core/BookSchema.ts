@@ -8,6 +8,7 @@ import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
+import { SceneSchema } from "./bookScene";
 
 export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "restore"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
@@ -56,7 +57,13 @@ export const ChapterSchema = z.object({
    * carried into Publish's HTML/ePub/PDF exports. Missing until the author
    * uploads one.
    */
-  startImage: EntityPictureSchema.optional()
+  startImage: EntityPictureSchema.optional(),
+  /**
+   * The chapter's internal scene beats. Missing/empty until scene-splitting
+   * exists — chapterScenes() (bookScene.ts) derives a single scene from
+   * `prose` in that case, always fresh, never a stale snapshot.
+   */
+  scenes: z.array(SceneSchema).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 

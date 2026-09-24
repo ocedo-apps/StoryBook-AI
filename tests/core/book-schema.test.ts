@@ -179,6 +179,23 @@ describe("chapters", () => {
     expect(parsed.chapters[0]?.continues_from).toBeUndefined();
     expect(parsed.chapters[0]?.revisions).toEqual([]);
     expect(parsed.chapters[0]?.startImage).toBeUndefined();
+    expect(parsed.chapters[0]?.scenes).toBeUndefined();
+  });
+
+  it("round-trips a chapter's explicit scenes", () => {
+    const book = createBook("Legacy");
+    const chapter = book.chapters[0]!;
+    const withScenes = updateChapter(book, chapter.id, {
+      scenes: [
+        { id: "s1", sequence_index: 0, prose: "The dock at dawn." },
+        { id: "s2", sequence_index: 1, prose: "The dock at dusk." }
+      ]
+    });
+    const parsed = parseBook(withScenes);
+    expect(parsed.chapters[0]?.scenes).toEqual([
+      { id: "s1", sequence_index: 0, prose: "The dock at dawn." },
+      { id: "s2", sequence_index: 1, prose: "The dock at dusk." }
+    ]);
   });
 
   it("round-trips a chapter's start image", () => {

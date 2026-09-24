@@ -1,9 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.72
+Status: living document, v0.73
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.72 → v0.73:** Femte punkten från `roadmap-ideas.md`
+byggd: **Scene-migrering, "tråkig" v1** — helt osynlig för författaren,
+ingen big bang. Nytt `BookScene`-schema (`src/core/bookScene.ts`),
+medvetet minimalt (bara `id`, `sequence_index`, `prose` — fältytan
+växer stegvis i senare roadmap-punkter, inte allt på en gång).
+`Chapter.scenes` är ett nytt `.optional()`-fält på `ChapterSchema`,
+samma "missing on older saves"-mönster som `continues_from`,
+`discarded_at` och `startImage` redan använder.
+
+Medvetet val: ingen eager backfill vid inläsning (till skillnad från
+`ensureBrainstormNotes`). Istället en ren härledningsfunktion
+`chapterScenes(chapter)`: har kapitlet redan explicita scener
+returneras de som de är, annars beräknas en enda scen som omsluter
+`chapter.prose` **vid varje anrop** — aldrig en lagrad ögonblicksbild
+som kan bli inaktuell när prosan redigeras. `chapter.prose` förblir
+den faktiska sanningskällan tills riktig scen-uppdelning finns; inget
+befintligt kod läser ännu från `scenes`. Grunden är därmed på plats
+för nästa steg (fakta får scenproveniens, punkt 6) utan risk att
+bygga in ett tyst inaktuellt-data-fel. 4 nya tester i
+`book-scene.test.ts`, plus två nya i `book-schema.test.ts` (rundtur
+av explicita scener, bekräftar att äldre kapitel utan `scenes`
+fortfarande laddas). Ingen UI-yta att verifiera i webbläsaren — rent
+datamodells-fundament.
 
 **Ändringslogg v0.71 → v0.72:** Fjärde punkten från `roadmap-ideas.md`
 byggd: **Model-provider-abstraktion**. Nytt gränssnitt
