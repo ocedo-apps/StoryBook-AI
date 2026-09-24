@@ -1,7 +1,35 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.66
+Status: living document, v0.67
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+
+**Ändringslogg v0.66 → v0.67:** Kapitelbilden låg tidigare som fast
+chrome ovanför den skrollbara textrutan, vilket krympte ytan för
+själva texten. Flyttade in kapitelbilden i samma scrollbox som
+prosan, via `ProseCanvas`s befintliga `aside`-slot (kombinerad med
+`ModelAsideCallout` i en fragment i stället för att lägga
+`ChapterStartImageBanner` som en fast syskon-nod före
+`<ProseCanvas>`). Krävde en omstrukturering av hur `ProseCanvas`
+skrollar: `.prose-wrap` är nu själva scrollboxen (`overflow-y: auto`)
+istället för `.prose` (textfältet) självt. `.prose` och dess osynliga
+overlay `.prose-rare` (används för att markera ovanliga ord och
+sök-träffar utan att röra den redigerbara DOM:en) skrollade tidigare
+oberoende av varandra och synkades manuellt via `syncRareScroll()`
+(`rare.scrollTop = area.scrollTop`); nu växer båda till sin naturliga
+höjd och skrollar tillsammans automatiskt som en enda region, så hela
+synkfunktionen och `onScroll`-hanteraren kunde tas bort helt.
+"Hoppa till sökträff"-effekten riktar nu om sin `scrollTop`-justering
+mot den nya yttre scrollboxen istället för textfältet. Detta är en
+känslig del av appen (ordmarkering, sök-i-kapitel), så verifierat
+grundligt med Playwright: bifogade en bild, fyllde kapitlet med 60
+stycken text, bekräftade att `.prose-wrap` faktiskt blir skrollbart
+och att bilden försvinner ur vy vid nedskrollning; skrev text direkt
+i fältet för att bekräfta redigering fungerar; slog på
+"ovanliga ord"-markering och mätte att `.prose` och `.prose-rare` får
+exakt samma höjd (ingen förskjutning) både före och efter skrollning;
+körde Sök-i-kapitel och bekräftade att det hoppar till och markerar
+rätt träff. Alla fyra beteenden skärmdumpade och kontrollerade
+visuellt.
 
 **Ändringslogg v0.65 → v0.66:** Kapitel kan nu få en egen
 illustration — en bred banderollbild högst upp i kapitelredigeraren,

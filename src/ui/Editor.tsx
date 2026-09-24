@@ -1162,11 +1162,6 @@ export function Editor() {
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
               />
             </div>
-            <ChapterStartImageBanner
-              image={chapter.startImage}
-              onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
-              onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
-            />
             <ProseCanvas
               value={chapter.prose}
               onChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { prose: next }))}
@@ -1188,7 +1183,16 @@ export function Editor() {
                 void store.generateIllustrationPrompt(selectedText(chapter.prose, span)).then((prompt) => setIllustratePrompt(prompt));
               }}
               rewriteWho={rewriteWhoFrom(resolveCraft(book, chapter))}
-              aside={<ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />}
+              aside={
+                <>
+                  <ChapterStartImageBanner
+                    image={chapter.startImage}
+                    onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
+                    onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
+                  />
+                  <ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />
+                </>
+              }
             />
             <footer className="manuscript-foot">
               <StatsTrigger

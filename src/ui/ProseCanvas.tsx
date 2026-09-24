@@ -95,6 +95,7 @@ export function ProseCanvas({
   const rewriteHint = instructHint ?? m.canvas.rewriteHint;
   const rewritePlaceholder = instructPlaceholder ?? m.canvas.rewritePlaceholder;
   const rewriteAction = instructAction ?? m.canvas.rewriteAction;
+  const scrollRef = useRef<HTMLDivElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const rareRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -255,28 +256,15 @@ export function ProseCanvas({
     onInstruct(next.span, next.instruction.trim());
   }
 
-  function syncRareScroll() {
-    const area = areaRef.current;
-    const rare = rareRef.current;
-    if (!area || !rare) return;
-    rare.scrollTop = area.scrollTop;
-    rare.scrollLeft = area.scrollLeft;
-  }
-
-  useEffect(() => {
-    syncRareScroll();
-  }, [findActiveStart, findNeedle, highlightRare, value]);
-
   useEffect(() => {
     if (!findNeedle?.trim() || findActiveStart === undefined) return;
-    const area = areaRef.current;
+    const scroller = scrollRef.current;
     const overlay = rareRef.current;
     const mark = overlay?.querySelector("mark.is-current");
-    if (!area || !overlay || !(mark instanceof HTMLElement)) return;
+    if (!scroller || !(mark instanceof HTMLElement)) return;
     const markRect = mark.getBoundingClientRect();
-    const areaRect = area.getBoundingClientRect();
-    area.scrollTop += markRect.top - areaRect.top - area.clientHeight / 3;
-    overlay.scrollTop = area.scrollTop;
+    const scrollerRect = scroller.getBoundingClientRect();
+    scroller.scrollTop += markRect.top - scrollerRect.top - scroller.clientHeight / 3;
   }, [findActiveStart, findNeedle, value]);
 
   useEffect(() => {
@@ -305,7 +293,7 @@ export function ProseCanvas({
   const overlayOn = findOn || highlightRare;
 
   return (
-    <div className={overlayOn ? findOn ? "prose-wrap is-rare is-find" : "prose-wrap is-rare" : "prose-wrap"}>
+    <div ref={scrollRef} className={overlayOn ? findOn ? "prose-wrap is-rare is-find" : "prose-wrap is-rare" : "prose-wrap"}>
       {aside}
       <div className="prose-body">
       {overlayOn ? (
@@ -336,7 +324,6 @@ export function ProseCanvas({
         suppressContentEditableWarning
         spellCheck
         onInput={emitProse}
-        onScroll={syncRareScroll}
         onContextMenu={onContextMenu}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.shiftKey) return;

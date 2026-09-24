@@ -1728,6 +1728,8 @@ button:disabled {
   margin-top: 1.35rem;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .prose-wrap .model-aside {
@@ -1737,17 +1739,10 @@ button:disabled {
 
 .prose-body {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .prose {
   width: 100%;
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
   resize: none;
   border: 0;
   background: transparent;
@@ -1827,13 +1822,6 @@ button:disabled {
   color: transparent;
   -webkit-text-fill-color: transparent;
   caret-color: var(--text);
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-}
-
-.prose-wrap.is-rare .prose-rare {
-  overflow-y: auto;
-  scrollbar-gutter: stable;
 }
 
 .selection-menu {
