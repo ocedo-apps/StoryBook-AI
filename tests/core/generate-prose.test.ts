@@ -1,6 +1,30 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, updateChapter, type Book } from "@core/BookSchema";
-import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, formatVoiceForPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
+import {
+  DRAFT_SYSTEM,
+  PASSAGE_SYSTEM,
+  RECAST_SYSTEM,
+  draftSceneUserPrompt,
+  draftUserPrompt,
+  formatVoiceForPrompt,
+  passageUserPrompt,
+  recastSceneUserPrompt,
+  recastUserPrompt,
+  resolveVoice
+} from "@core/generateProse";
+
+function splitBook() {
+  let book = createBook("The Salt Road");
+  const chapterId = book.chapters[0]!.id;
+  book = updateChapter(book, chapterId, {
+    prose: "Henrik walked to the quay at dawn.\n\nA gull cried overhead.\n\nHe cast off at last.",
+    scenes: [
+      { id: "s1", startParagraph: 0, title: "The quay", brief: "Keep it quiet." },
+      { id: "s2", startParagraph: 2 }
+    ]
+  });
+  return { book, chapterId };
+}
 
 describe("draftUserPrompt", () => {
   it("includes the synopsis as the story map", () => {
@@ -351,5 +375,51 @@ describe("recastUserPrompt", () => {
     expect(prompt).toContain("Present tense throughout");
     expect(prompt).toContain("Recast the whole chapter");
     expect(prompt).toContain("3rd limited to Emma");
+  });
+});
+
+describe("draftSceneUserPrompt", () => {
+  it("sends only the target scene's prose to continue, with its title and brief", () => {
+    const { book, chapterId } = splitBook();
+    const prompt = draftSceneUserPrompt(book, book.chapters.find((c) => c.id === chapterId)!, "s1");
+    expect(prompt).toContain("scene 1 of 2");
+    expect(prompt).toContain("Scene title: The quay");
+    expect(prompt).toContain("Keep it quiet.");
+    expect(prompt).toContain(
+      "Existing prose for this scene (continue from the end, do not repeat):\nHenrik walked to the quay at dawn.\n\nA gull cried overhead."
+    );
+  });
+
+  it("shows the next scene's opening as context without asking to repeat it", () => {
+    const { book, chapterId } = splitBook();
+    const prompt = draftSceneUserPrompt(book, book.chapters.find((c) => c.id === chapterId)!, "s1");
+    expect(prompt).toContain("next scene in this chapter already begins");
+    expect(prompt).toContain("He cast off at last.");
+  });
+
+  it("uses the previous scene's tail, not the previous chapter, for a later scene", () => {
+    const { book, chapterId } = splitBook();
+    const prompt = draftSceneUserPrompt(book, book.chapters.find((c) => c.id === chapterId)!, "s2");
+    expect(prompt).toContain("scene 2 of 2");
+    expect(prompt).toContain("End of the previous scene in this chapter");
+    expect(prompt).toContain("A gull cried overhead.");
+    expect(prompt).toContain("Existing prose for this scene (continue from the end, do not repeat):\nHe cast off at last.");
+  });
+
+  it("falls back to the whole-chapter prompt for an unknown scene id", () => {
+    const { book, chapterId } = splitBook();
+    const chapter = book.chapters.find((c) => c.id === chapterId)!;
+    expect(draftSceneUserPrompt(book, chapter, "ghost")).toBe(draftUserPrompt(book, chapter));
+  });
+});
+
+describe("recastSceneUserPrompt", () => {
+  it("sends only the target scene's prose and asks to recast just that scene", () => {
+    const { book, chapterId } = splitBook();
+    const prompt = recastSceneUserPrompt(book, book.chapters.find((c) => c.id === chapterId)!, "s2");
+    expect(prompt).toContain("scene 2 of 2");
+    expect(prompt).toContain("Current prose for this scene:\nHe cast off at last.");
+    expect(prompt).toContain("Recast only this scene");
+    expect(prompt).not.toContain("Henrik walked to the quay at dawn.");
   });
 });

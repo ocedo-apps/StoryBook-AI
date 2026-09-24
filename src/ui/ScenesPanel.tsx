@@ -15,10 +15,18 @@ const PARA_PREVIEW_LEN = 60;
 
 export function ScenesPanel({
   chapter,
-  onPatch
+  onPatch,
+  busy,
+  onDraftScene,
+  onRecastScene,
+  onAnalyzeScene
 }: {
   chapter: Chapter;
   onPatch: (scenes: SceneMeta[]) => void;
+  busy: boolean;
+  onDraftScene: (sceneId: string) => void;
+  onRecastScene: (sceneId: string) => void;
+  onAnalyzeScene: (sceneId: string) => void;
 }) {
   const { messages: m } = useLocale();
   const scenes = chapterScenes(chapter);
@@ -72,6 +80,27 @@ export function ScenesPanel({
                     {preview}
                     {scene.prose.trim().length > PREVIEW_LEN ? "…" : ""}
                   </p>
+                ) : null}
+                {scenes.length > 1 ? (
+                  <div className="scene-actions">
+                    <button type="button" disabled={busy} onClick={() => onDraftScene(scene.id)}>
+                      {m.scenes.draft}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy || !scene.prose.trim()}
+                      onClick={() => onRecastScene(scene.id)}
+                    >
+                      {m.scenes.recast}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy || !scene.prose.trim()}
+                      onClick={() => onAnalyzeScene(scene.id)}
+                    >
+                      {m.scenes.analyze}
+                    </button>
+                  </div>
                 ) : null}
                 {paragraphs.length > 1 ? (
                   <div className="scene-split">

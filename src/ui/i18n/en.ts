@@ -307,7 +307,10 @@ export const en = {
     briefLabel: "Scene {index} brief",
     mergeWithNext: "Merge with next ↓",
     splitHere: "Split into two…",
-    splitHint: "Pick where the new scene starts:"
+    splitHint: "Pick where the new scene starts:",
+    draft: "Draft",
+    recast: "Recast",
+    analyze: "Analyze"
   },
   publish: {
     title: "Publish",

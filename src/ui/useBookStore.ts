@@ -61,6 +61,9 @@ export type BookStoreValue = {
   setHistoryLimit: (n: number) => void;
   draftChapter: () => Promise<void>;
   recastChapter: () => Promise<void>;
+  draftScene: (sceneId: string) => Promise<void>;
+  recastScene: (sceneId: string) => Promise<void>;
+  analyzeScene: (sceneId: string) => Promise<boolean>;
   rewriteSpan: (args: {
     target: "prose" | "synopsis" | "brainstorm";
     mode: "extend" | "elaborate" | "instruct";

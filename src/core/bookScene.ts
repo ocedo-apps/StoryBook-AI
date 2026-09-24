@@ -102,6 +102,33 @@ export function mergeSceneWithNext(chapter: Chapter, sceneId: string): SceneMeta
   return current.filter((_, i) => i !== index + 1);
 }
 
+/**
+ * Replaces one scene's prose in place, shifting every later scene's split
+ * point by the resulting paragraph-count delta. Everything before and
+ * after the scene's span is untouched. On the common single-scene chapter
+ * (no stored splits), this simply replaces the whole chapter's prose.
+ */
+export function replaceSceneProse(
+  chapter: Chapter,
+  sceneId: string,
+  nextSceneProse: string
+): { prose: string; scenes: SceneMeta[] } {
+  const paragraphs = splitFlowParagraphs(chapter.prose);
+  const metas = normalizeSceneMetas(chapter.scenes, paragraphs.length);
+  const list = metas.length > 0 ? metas : [{ id: `${chapter.id}:scene-1`, startParagraph: 0 }];
+  const index = list.findIndex((meta) => meta.id === sceneId);
+  if (index === -1) return { prose: chapter.prose, scenes: chapter.scenes ?? [] };
+
+  const start = list[index]!.startParagraph;
+  const end = index + 1 < list.length ? list[index + 1]!.startParagraph : paragraphs.length;
+  const nextSceneParagraphs = splitFlowParagraphs(nextSceneProse);
+  const nextParagraphs = [...paragraphs.slice(0, start), ...nextSceneParagraphs, ...paragraphs.slice(end)];
+  const delta = nextSceneParagraphs.length - (end - start);
+  const nextMetas = list.map((meta, i) => (i > index ? { ...meta, startParagraph: meta.startParagraph + delta } : meta));
+
+  return { prose: nextParagraphs.join("\n\n"), scenes: metas.length > 0 ? nextMetas : [] };
+}
+
 /** Renames a scene or edits its brief. An empty/whitespace-only value clears that field. */
 export function updateSceneMeta(
   chapter: Chapter,

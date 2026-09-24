@@ -1,9 +1,49 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.81
+Status: living document, v0.82
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.81 → v0.82:** Sista delen av roadmap-punkt 7:
+Draft, Recast och Analyze blir scen-medvetna. Extract facts stämplade
+redan `scene_id` (v0.74); nu när riktig scen-uppdelning finns (v0.81)
+kunde de tre skrivfunktionerna byggas ut till att fungera på en
+enskild scen.
+
+Varje scenkort i "Scener"-panelen (synligt bara när kapitlet är delat
+i fler än en scen) fick tre knappar: Skriv utkast, Omskriv och
+Analysera — alla riktade mot bara den scenens text, inte hela
+kapitlet. Draft för en scen får dessutom kontext om föregående/nästa
+scens kant (sista raderna respektive första raderna), så den nya
+texten varken upprepar eller motsäger sina grannar.
+
+Den avgörande tekniska biten: en scen äger ingen egen text, bara en
+delningspunkt i `chapter.prose` (v0.81-beslutet). Ny funktion
+`replaceSceneProse()` i `bookScene.ts` löser skrivbacken generellt —
+ersätter en scens del av kapitlets stycken och flyttar alla senare
+sceners delningspunkter med exakt det antal stycken skillnaden blev,
+oavsett om scenen växer eller krymper. Draft och Recast strömmar
+live precis som kapitel-varianterna, spliced mot scenens eget
+stycke-intervall på varje textbit. Analyze skickar bara scenens prosa
+och räknar om `paragraphIndex` från scen-relativ till kapitel-absolut
+innan resultatet visas — Chapter notes-vyn behövde ingen ändring alls.
+
+Känd öppen lucka, inte löst nu: `extractFactsFromProse` (manuell
+Extract facts-knapp, Korrekturläsningens faktasteg) arbetar
+fortfarande över hela kapitlets prosa och stämplar `scene_id` från
+den första scenen — en fakta som etableras i scen 3 av ett delat
+kapitel stämplas idag felaktigt som scen 1. Ingen regression (samma
+beteende som innan v0.81, bara mer synlig nu när riktiga
+flerscenskapitel kan finnas), men värd en egen uppföljning.
+
+24 nya tester (`bookScene.ts`s `replaceSceneProse`, samt prompt-
+byggarna `draftSceneUserPrompt`/`recastSceneUserPrompt`/
+`analyzeSceneUserPrompt`). 560/560 gröna totalt. Verifierat i
+webbläsaren: delade ett kapitel i två scener, körde Draft på scen 1
+(texten hamnade rätt, scen 2 orörd), Recast på scen 2 (bytte bara den
+scenens text, scen 1:s nya text orörd), och Analyze på scen 1 (hittade
+bara ett påstått fel i den scenens egen text).
 
 **Ändringslogg v0.80 → v0.81:** ChatGPT granskade `roadmap-ideas.md` och
 pekade på en verklig lucka: statustabellens "Scene-migrering ✅ byggd"

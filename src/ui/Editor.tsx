@@ -1254,6 +1254,14 @@ export function Editor() {
             <ScenesPanel
               chapter={chapter}
               onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
+              busy={busy !== null}
+              onDraftScene={(sceneId) => void store.draftScene(sceneId)}
+              onRecastScene={(sceneId) => void store.recastScene(sceneId)}
+              onAnalyzeScene={(sceneId) => {
+                void store.analyzeScene(sceneId).then((ok) => {
+                  if (ok) setNotesOpen(true);
+                });
+              }}
             />
             <ProseCanvas
               value={chapter.prose}

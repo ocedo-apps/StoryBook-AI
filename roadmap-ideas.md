@@ -22,7 +22,7 @@ inte en ensidig lista.
 | 5b | Minimal scen-delning/sammanslagning + arkitekturbeslutet låst | ✅ byggd (v0.81) |
 | 6 | Fakta får scenproveniens | ✅ byggd (v0.74) |
 | 6b | Sammanslagningsförslag för snarlika fakta | ✅ byggd (v0.77) |
-| 7 | AI-pipelinen blir scen-medveten | 🟡 delvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår |
+| 7 | AI-pipelinen blir scen-medveten | ✅ byggd (v0.82) |
 | 8 | Lokalt semantiskt index + Ask Manuscript | ✅ byggd (v0.75) |
 | 9 | Story time + Timeline | ✅ byggd (v0.76) |
 | 10 | Continuity 2.0 | 🟡 delvis — kunskapsläckor klara (v0.78), spatial kontinuitet + objekttillstånd återstår |
@@ -213,13 +213,43 @@ bit av det LLM-steg-3-territorium punkt 10 (Continuity 2.0) redan
 pekar mot — inte ett substitut för semantisk motsägelseanalys, bara
 den enkla delmängden som inte kräver ett modellanrop.
 
-### 7. AI-pipelinen blir scen-medveten, gradvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår
-Draft, Recast, Analyze, `extractFactsFromProse` lär sig förstå en
-enskild scen istället för ett helt kapitel — införs stegvis, inte som
-en enda stor omskrivning. Extract facts-flödet stämplar nu `scene_id`
-(v0.74). Draft/Recast/Analyze rör inte fakta och har inget att stämpla
-— deras prompter blir meningsfullt scen-medvetna först när riktig
-scen-uppdelning finns att rikta dem mot, inte innan.
+### 7. AI-pipelinen blir scen-medveten ✅ byggd (v0.82)
+Extract facts stämplade `scene_id` redan från v0.74. Nu när riktig
+scen-uppdelning finns (punkt 5b) kunde Draft, Recast och Analyze
+byggas ut till att fungera på en enskild scen, inte bara hela
+kapitlet — den sista delen av den här punkten.
+
+Varje scenkort i "Scener"-panelen (bara synligt när kapitlet faktiskt
+är delat i fler än en scen) fick tre knappar:
+
+- **Skriv utkast (Draft)** för just den scenen — samma prompt-uppbyggnad
+  som kapitel-varianten (Story Bible, Voice, Reader, synopsis), men
+  "fortsätt från slutet" pekar bara på scenens egen text. Får dessutom
+  ett stycke kontext om föregående scens sista rader och nästa scens
+  första rader, så nya scenen varken upprepar eller motsäger sina
+  grannar.
+- **Omskriv (Recast)** kameran för bara den scenen.
+- **Analysera (Analyze)** bara den scenens text — nyttigt i ett långt
+  kapitel med många scener, då hela-kapitlet-analysen annars kan
+  drunkna en enskild scens problem i mängden.
+
+Den tekniska knuten var hur AI-resultatet skrivs tillbaka: en scen
+äger ingen egen text (punkt 5b), bara en delningspunkt i
+`chapter.prose`. Ny funktion `replaceSceneProse()` i `bookScene.ts`
+löser det generellt — ersätter en scens del av kapitlets stycken och
+flyttar alla senare sceners delningspunkter med exakt det antal stycken
+som skillnaden blev. Både Draft och Recast strömmas precis som
+kapitel-varianterna, med samma "sikt live medan modellen skriver"-känsla
+— bara riktad mot scenens eget stycke-intervall i stället för hela
+kapitlet.
+
+`extractFactsFromProse` (Extract facts-knappen, Korrekturläsningens
+faktasteg) rör inte det här ännu — de arbetar fortfarande över hela
+kapitlets prosa i ett svep och stämplar `scene_id` från den första
+scenen. En känd, medveten lucka: nu när ett kapitel kan ha flera
+riktiga scener blir den stämplingen ibland fel (en fakta som faktiskt
+etablerades i scen 3 stämplas som scen 1). Sparad som en öppen
+uppföljning, inte löst i den här omgången.
 
 ### 8. Lokalt semantiskt index + Ask Manuscript ✅ byggd (v0.75)
 Byggs medvetet efter Scene, inte parallellt — inte för att det är

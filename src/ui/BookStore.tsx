@@ -18,7 +18,7 @@ import {
   updateBrainstormNote
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
-import { chapterScenes } from "@core/bookScene";
+import { chapterScenes, replaceSceneProse } from "@core/bookScene";
 import {
   ASK_MANUSCRIPT_SYSTEM,
   askManuscriptUserPrompt,
@@ -28,12 +28,28 @@ import {
   type ManuscriptEvidence,
   type ManuscriptSource
 } from "@core/askManuscript";
-import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
+import {
+  ANALYZE_SYSTEM,
+  analyzeSceneUserPrompt,
+  analyzeUserPrompt,
+  parseChapterFeedback,
+  type ChapterFeedback
+} from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
-import { DRAFT_SYSTEM, PASSAGE_SYSTEM, RECAST_SYSTEM, draftUserPrompt, passageUserPrompt, recastUserPrompt, resolveVoice } from "@core/generateProse";
+import {
+  DRAFT_SYSTEM,
+  PASSAGE_SYSTEM,
+  RECAST_SYSTEM,
+  draftSceneUserPrompt,
+  draftUserPrompt,
+  passageUserPrompt,
+  recastSceneUserPrompt,
+  recastUserPrompt,
+  resolveVoice
+} from "@core/generateProse";
 import {
   readProseHistoryLimit,
   recordProseRevision,
@@ -554,6 +570,202 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       abortRef.current = null;
     }
   }, [busy, flushSave, model, models.length, ollamaError, persistProseWrite]);
+
+  const draftScene = useCallback(
+    async (sceneId: string) => {
+      const current = bookRef.current;
+      const id = chapterRef.current;
+      if (!current || !id || busy) return;
+      const chapter = current.chapters.find((item) => item.id === id);
+      const scene = chapter ? chapterScenes(chapter).find((item) => item.id === sceneId) : undefined;
+      if (!chapter || !scene) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("draft");
+      setError(null);
+      setModelAsides([]);
+
+      const provider = new OllamaModelProvider({ model });
+      const before = chapter.prose;
+      const prefix = scene.prose.trim() ? `${scene.prose.replace(/\s+$/, "")}\n\n` : "";
+      let raw = "";
+
+      const finish = async (sceneAssembled: string) => {
+        const spliced = replaceSceneProse(chapter, sceneId, sceneAssembled);
+        const latest = bookRef.current ?? current;
+        await persistProseWrite(updateChapter(latest, id, { scenes: spliced.scenes }), id, spliced.prose, "draft", before);
+      };
+
+      try {
+        const draftMessages: PromptDebugMessage[] = [
+          { role: "system", content: writingSystem(DRAFT_SYSTEM) },
+          { role: "user", content: draftSceneUserPrompt(current, chapter, sceneId) }
+        ];
+        recordPrompt("draft", model, draftMessages);
+        for await (const chunk of provider.streamChat({
+          messages: draftMessages,
+          temperature: 0.85,
+          maxTokens: 900,
+          signal: abort.signal
+        })) {
+          if (chunk.type === "text_delta") {
+            raw += chunk.text;
+            const sceneAssembled = prefix + manuscriptFromModel(raw, "");
+            const spliced = replaceSceneProse(chapter, sceneId, sceneAssembled);
+            setBook((prev) => (prev ? updateChapter(prev, id, { prose: spliced.prose, scenes: spliced.scenes }) : prev));
+          } else if (chunk.type === "error") {
+            throw new Error(chunk.message);
+          }
+        }
+        await finish(prefix + manuscriptFromModel(raw, ""));
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") {
+          await finish(prefix + manuscriptFromModel(raw, ""));
+        } else {
+          setError(ollamaHint(err));
+        }
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, model, models.length, ollamaError, persistProseWrite]
+  );
+
+  const recastScene = useCallback(
+    async (sceneId: string) => {
+      const current = bookRef.current;
+      const id = chapterRef.current;
+      if (!current || !id || busy) return;
+      const chapter = current.chapters.find((item) => item.id === id);
+      const scene = chapter ? chapterScenes(chapter).find((item) => item.id === sceneId) : undefined;
+      if (!chapter || !scene?.prose.trim()) {
+        setError(STORE_ERROR.recastEmpty);
+        return;
+      }
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("recast");
+      setError(null);
+      setModelAsides([]);
+
+      const before = chapter.prose;
+      const originalScene = scene.prose;
+      let raw = "";
+
+      const finish = async (sceneAssembled: string) => {
+        const finalScene = sceneAssembled.trim() ? sceneAssembled : originalScene;
+        const spliced = replaceSceneProse(chapter, sceneId, finalScene);
+        const latest = bookRef.current ?? current;
+        await persistProseWrite(updateChapter(latest, id, { scenes: spliced.scenes }), id, spliced.prose, "recast", before);
+      };
+
+      try {
+        const provider = new OllamaModelProvider({ model });
+        const recastMessages: PromptDebugMessage[] = [
+          { role: "system", content: writingSystem(RECAST_SYSTEM) },
+          { role: "user", content: recastSceneUserPrompt(current, chapter, sceneId) }
+        ];
+        recordPrompt("recast", model, recastMessages);
+        let assembled = "";
+        for await (const chunk of provider.streamChat({
+          messages: recastMessages,
+          temperature: 0.5,
+          maxTokens: 1600,
+          signal: abort.signal
+        })) {
+          if (chunk.type === "text_delta") {
+            raw += chunk.text;
+            assembled = manuscriptFromModel(raw, "");
+            const spliced = replaceSceneProse(chapter, sceneId, assembled.trim() ? assembled : originalScene);
+            setBook((prev) => (prev ? updateChapter(prev, id, { prose: spliced.prose, scenes: spliced.scenes }) : prev));
+          } else if (chunk.type === "error") {
+            throw new Error(chunk.message);
+          }
+        }
+        await finish(assembled);
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") {
+          await finish(manuscriptFromModel(raw, ""));
+        } else {
+          setError(ollamaHint(err));
+          const spliced = replaceSceneProse(chapter, sceneId, originalScene);
+          const latest = bookRef.current ?? current;
+          await flushSave(updateChapter(latest, id, { prose: spliced.prose, scenes: spliced.scenes }));
+        }
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, flushSave, model, models.length, ollamaError, persistProseWrite]
+  );
+
+  const analyzeScene = useCallback(
+    async (sceneId: string) => {
+      const current = bookRef.current;
+      const id = chapterRef.current;
+      if (!current || !id || busy) return false;
+      const chapter = current.chapters.find((item) => item.id === id);
+      const scene = chapter ? chapterScenes(chapter).find((item) => item.id === sceneId) : undefined;
+      if (!chapter || !scene?.prose.trim()) {
+        setError(STORE_ERROR.analyzeEmpty);
+        return false;
+      }
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return false;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("analyze");
+      setError(null);
+      try {
+        const analyzeMessages: PromptDebugMessage[] = [
+          { role: "system", content: ANALYZE_SYSTEM },
+          { role: "user", content: analyzeSceneUserPrompt(current, chapter, sceneId) }
+        ];
+        recordPrompt("analyze", reviewModel, analyzeMessages);
+        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+          messages: analyzeMessages,
+          temperature: 0.25,
+          maxTokens: 1800,
+          signal: abort.signal
+        });
+        const items = parseChapterFeedback(raw, scene.prose, {
+          voice: resolveVoice(current, chapter),
+          ...(kidlitReader(resolveReader(current, chapter)) ? { kidlit: true } : {})
+        }).map((item) => ({
+          ...item,
+          paragraphIndex: item.paragraphIndex === null ? null : item.paragraphIndex + scene.startParagraph
+        }));
+        setChapterFeedback({ chapterId: id, items });
+        return true;
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return false;
+        setError(ollamaHint(err));
+        return false;
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, reviewModel, models.length, ollamaError]
+  );
 
   const rewriteSpan = useCallback(
     async (args: {
@@ -1267,6 +1479,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setHistoryLimit,
     draftChapter,
     recastChapter,
+    draftScene,
+    recastScene,
+    analyzeScene,
     rewriteSpan,
     restoreChapterProse,
     askBrainstorm,

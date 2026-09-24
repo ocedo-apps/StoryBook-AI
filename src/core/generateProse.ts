@@ -3,9 +3,18 @@ import { formatPredecessorForDraft } from "./continuesFrom";
 import { PREDICATE_LABELS } from "./predicates";
 import type { Book, Chapter } from "./BookSchema";
 import { sortedChapters } from "./BookSchema";
+import { chapterScenes } from "./bookScene";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
 import { formatReaderForPrompt, resolveReader } from "./reader";
 import { visibleLockedFacts } from "./visibility";
+
+function sceneTail(prose: string): string {
+  return prose.trim().split(/\n+/).slice(-3).join("\n");
+}
+
+function sceneHead(prose: string): string {
+  return prose.trim().split(/\n+/).slice(0, 2).join("\n");
+}
 
 /** Chapter Voice, if set, wins. Empty after trim still counts as unset. */
 export function resolveVoice(book: { voice: string }, chapter?: { voice?: string | undefined } | null): string {
@@ -71,6 +80,78 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
     chapter.prose.trim()
       ? `Existing prose for this chapter (continue from the end, do not repeat):\n${chapter.prose.trim()}`
       : "This chapter is empty. Write the opening."
+  ];
+  return parts.filter(Boolean).join("\n\n");
+}
+
+/**
+ * Draft, scoped to one scene instead of the whole chapter (roadmap-ideas.md
+ * #7). Same instructions and Story Bible as `draftUserPrompt`; only the
+ * "existing prose to continue" and the predecessor block narrow to the
+ * scene's own span, with the neighbouring scenes' edges as light context
+ * so the new prose doesn't repeat or contradict what's already written
+ * right before or after it.
+ */
+export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: string): string {
+  const scenes = chapterScenes(chapter);
+  const index = scenes.findIndex((scene) => scene.id === sceneId);
+  const scene = scenes[index];
+  if (!scene) return draftUserPrompt(book, chapter);
+
+  const previous = scenes[index - 1];
+  const predecessorBlock = previous
+    ? `End of the previous scene in this chapter:\n${sceneTail(previous.prose)}`
+    : formatPredecessorForDraft(sortedChapters(book), chapter);
+  const next = scenes[index + 1];
+  const nextSceneBlock = next
+    ? `The next scene in this chapter already begins:\n${sceneHead(next.prose)}\nWrite what leads into it — do not repeat it, do not contradict it.`
+    : "";
+
+  const parts = [
+    `Manuscript: ${book.title}`,
+    formatCraftForDraft(resolveCraft(book, chapter), book),
+    formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
+    formatReaderForPrompt(resolveReader(book, chapter), book.reader_age),
+    formatLanguageForPrompt(book.prose_language),
+    book.synopsis.trim()
+      ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
+      : "",
+    `Story Bible:\n${formatBibleForPrompt(book)}`,
+    `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
+    chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
+    `You are drafting scene ${index + 1} of ${scenes.length} in this chapter.`,
+    scene.title ? `Scene title: ${scene.title}` : "",
+    scene.brief ? `Scene brief (writing instruction for this scene only):\n${scene.brief}` : "",
+    predecessorBlock,
+    scene.prose.trim()
+      ? `Existing prose for this scene (continue from the end, do not repeat):\n${scene.prose.trim()}`
+      : "This scene is empty. Write its opening.",
+    nextSceneBlock
+  ];
+  return parts.filter(Boolean).join("\n\n");
+}
+
+/** Recast, scoped to one scene — same POV/tense change, but only that scene's prose is sent and returned. */
+export function recastSceneUserPrompt(book: Book, chapter: Chapter, sceneId: string): string {
+  const scenes = chapterScenes(chapter);
+  const index = scenes.findIndex((scene) => scene.id === sceneId);
+  const scene = scenes[index];
+  if (!scene) return recastUserPrompt(book, chapter);
+  const craft = resolveCraft(book, chapter);
+  const parts = [
+    `Manuscript: ${book.title}`,
+    formatCraftForDraft(craft, book),
+    formatVoiceForPrompt(resolveVoice(book, chapter), book.voice),
+    formatReaderForPrompt(resolveReader(book, chapter), book.reader_age),
+    formatLanguageForPrompt(book.prose_language),
+    `Story Bible:\n${formatBibleForPrompt(book)}`,
+    `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
+    chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
+    `You are recasting scene ${index + 1} of ${scenes.length} in this chapter.`,
+    scene.title ? `Scene title: ${scene.title}` : "",
+    scene.brief ? `Scene brief (writing instruction for this scene only):\n${scene.brief}` : "",
+    `Current prose for this scene:\n${scene.prose.trim()}`,
+    `Recast only this scene to this point of view: ${summarizeCraft(craft)}. Keep the same story and the same events. Output only the recast prose for this scene.`
   ];
   return parts.filter(Boolean).join("\n\n");
 }

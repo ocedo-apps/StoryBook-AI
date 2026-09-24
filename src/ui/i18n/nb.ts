@@ -309,7 +309,10 @@ export const nb: Messages = {
     briefLabel: "Notat for scene {index}",
     mergeWithNext: "Slå sammen med neste ↓",
     splitHere: "Del i to…",
-    splitHint: "Velg hvor den nye scenen skal starte:"
+    splitHint: "Velg hvor den nye scenen skal starte:",
+    draft: "Lag utkast",
+    recast: "Omskriv",
+    analyze: "Analyser"
   },
   publish: {
     title: "Publiser",

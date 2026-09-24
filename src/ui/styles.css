@@ -4070,3 +4070,14 @@ button.illustration-genre-item:focus-visible {
   background: var(--raised);
   color: var(--text);
 }
+
+.scene-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.scene-actions button {
+  font-size: 0.8rem;
+  padding: 0.28rem 0.55rem;
+}

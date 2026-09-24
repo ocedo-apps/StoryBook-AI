@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   chapterScenes,
   mergeSceneWithNext,
+  replaceSceneProse,
   splitSceneAtParagraph,
   updateSceneMeta
 } from "@core/bookScene";
@@ -143,5 +144,39 @@ describe("updateSceneMeta", () => {
     const next = updateSceneMeta(chapter, "s2", { title: "The rope" });
     expect(next[0]).toEqual({ id: "s1", startParagraph: 0 });
     expect(next[1]).toEqual({ id: "s2", startParagraph: 2, title: "The rope" });
+  });
+});
+
+describe("replaceSceneProse", () => {
+  it("replaces just one scene's span and leaves the rest of the chapter untouched", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    const { prose, scenes } = replaceSceneProse(chapter, "s1", "The dock at dawn.\n\nA gull screamed.");
+    expect(prose).toBe("The dock at dawn.\n\nA gull screamed.\n\nEmma untied the rope.");
+    expect(scenes).toEqual([{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }]);
+  });
+
+  it("shifts every later scene's start by the paragraph-count delta when the scene grows", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    const { prose, scenes } = replaceSceneProse(chapter, "s1", "One.\n\nTwo.\n\nThree.\n\nFour.");
+    expect(prose).toBe("One.\n\nTwo.\n\nThree.\n\nFour.\n\nEmma untied the rope.");
+    expect(scenes).toEqual([{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 4 }]);
+  });
+
+  it("shifts later scenes back when the scene shrinks", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    const { scenes } = replaceSceneProse(chapter, "s1", "Only one paragraph now.");
+    expect(scenes).toEqual([{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 1 }]);
+  });
+
+  it("replaces the whole chapter when there are no stored splits", () => {
+    const chapter = { ...createChapter(0, "One"), prose: "Old prose." };
+    const { prose, scenes } = replaceSceneProse(chapter, `${chapter.id}:scene-1`, "New prose.");
+    expect(prose).toBe("New prose.");
+    expect(scenes).toEqual([]);
+  });
+
+  it("no-ops on an unknown scene id", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }] };
+    expect(replaceSceneProse(chapter, "ghost", "New text.")).toEqual({ prose: chapter.prose, scenes: chapter.scenes });
   });
 });

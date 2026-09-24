@@ -309,7 +309,10 @@ export const sv: Messages = {
     briefLabel: "Anteckning för scen {index}",
     mergeWithNext: "Slå ihop med nästa ↓",
     splitHere: "Dela i två…",
-    splitHint: "Välj var den nya scenen ska börja:"
+    splitHint: "Välj var den nya scenen ska börja:",
+    draft: "Skriv utkast",
+    recast: "Omskriv",
+    analyze: "Analysera"
   },
   publish: {
     title: "Publicera",

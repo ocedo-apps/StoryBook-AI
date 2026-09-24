@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook, updateChapter } from "@core/BookSchema";
-import { ANALYZE_SYSTEM, analyzeUserPrompt, locateQuote, parseChapterFeedback } from "@core/chapterFeedback";
+import { ANALYZE_SYSTEM, analyzeSceneUserPrompt, analyzeUserPrompt, locateQuote, parseChapterFeedback } from "@core/chapterFeedback";
 
 function bookWithProse(prose: string) {
   const book = createBook("Night Keys");
@@ -289,5 +289,30 @@ describe("parseChapterFeedback", () => {
 describe("locateQuote", () => {
   it("returns null when the quote is not in the chapter", () => {
     expect(locateQuote("Emma locked the quay.", "Jeff wondered about the keys.")).toBeNull();
+  });
+});
+
+describe("analyzeSceneUserPrompt", () => {
+  it("sends only the target scene's prose, named by its position and title", () => {
+    const book = createBook("Night Keys");
+    const updated = updateChapter(book, book.chapters[0]!.id, {
+      prose: "Emma locked the quay door. She felt tired to her bones.\n\nJeff whistled an old tune.",
+      scenes: [
+        { id: "s1", startParagraph: 0, title: "The lock" },
+        { id: "s2", startParagraph: 1 }
+      ]
+    });
+    const chapter = updated.chapters[0]!;
+    const prompt = analyzeSceneUserPrompt(updated, chapter, "s1");
+    expect(prompt).toContain("Scene 1 of 2 in this chapter: The lock");
+    expect(prompt).toContain("Emma locked the quay door. She felt tired to her bones.");
+    expect(prompt).not.toContain("Jeff whistled an old tune.");
+    expect(prompt).toContain("Review only this scene.");
+  });
+
+  it("falls back to the whole-chapter prompt for an unknown scene id", () => {
+    const book = createBook("Night Keys");
+    const chapter = updateChapter(book, book.chapters[0]!.id, { prose: "Emma locked the door." }).chapters[0]!;
+    expect(analyzeSceneUserPrompt(book, chapter, "ghost")).toBe(analyzeUserPrompt(book, chapter));
   });
 });

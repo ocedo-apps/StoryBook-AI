@@ -1,4 +1,5 @@
 import type { Book, Chapter } from "./BookSchema";
+import { chapterScenes } from "./bookScene";
 import { recoverJsonObject } from "./extractFacts";
 import { formatBibleForPrompt, resolveVoice } from "./generateProse";
 import { formatReaderForReview, resolveReader } from "./reader";
@@ -82,6 +83,33 @@ export function analyzeUserPrompt(book: Book, chapter: Chapter): string {
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     `Prose:\n${chapter.prose.trim()}`,
     "Review only this chapter. JSON only."
+  ];
+  return parts.filter(Boolean).join("\n\n");
+}
+
+/**
+ * Analyze, scoped to one scene instead of the whole chapter (roadmap-ideas.md
+ * #7). Same categories and rules as `analyzeUserPrompt` — only the prose
+ * sent narrows to the scene's own span. `parseChapterFeedback`'s
+ * `paragraphIndex` then comes back scene-relative; the caller shifts it by
+ * the scene's `startParagraph` to land on the chapter's own paragraphs.
+ */
+export function analyzeSceneUserPrompt(book: Book, chapter: Chapter, sceneId: string): string {
+  const scenes = chapterScenes(chapter);
+  const index = scenes.findIndex((item) => item.id === sceneId);
+  const scene = scenes[index];
+  if (!scene) return analyzeUserPrompt(book, chapter);
+  const voice = resolveVoice(book, chapter);
+  const reader = formatReaderForReview(resolveReader(book, chapter));
+  const parts = [
+    `Manuscript: ${book.title}`,
+    `Story Bible:\n${formatBibleForPrompt(book, "No locked facts yet. Skip character_fidelity.")}`,
+    voice ? `Voice (intended register):\n${voice}` : "Voice is unset. Skip voice_drift.",
+    reader,
+    `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
+    `Scene ${index + 1} of ${scenes.length} in this chapter${scene.title ? `: ${scene.title}` : ""}`,
+    `Prose:\n${scene.prose.trim()}`,
+    "Review only this scene. JSON only."
   ];
   return parts.filter(Boolean).join("\n\n");
 }
