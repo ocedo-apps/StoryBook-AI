@@ -125,6 +125,26 @@ som `chapter_id` redan är). Ger utan LLM-anrop: när etablerades detta,
 var etablerades det, vad var sant före/efter den här scenen, vad visste
 läsaren vid den här punkten. Grunden för Continuity 2.0 (punkt 9).
 
+### 6b. Sammanslagningsförslag för snarlika fakta ✅ byggd (v0.77)
+Tillkom utanför ursprungssamtalet — författaren märkte att extraktorn
+ibland skapar flera fakta under samma predikat som egentligen är
+samma påstående, bara mer detaljerat ("Jeff is a captain" → "Jeff is
+a captain on a space ship" → "Jeff is a captain on the Odyssey"), och
+att var och en idag blir en egen konflikt att ta ställning till.
+Deterministisk v1 (ingen AI-anrop): `isPossibleEnrichment()` i
+`ConsistencyGate.ts` känner igen delsträngs-innehåll och hög
+ordöverlapp mellan två värden under samma entitet+predikat. En
+extraherad nästan-dubblett blir ett `is_merge_suggestion`-flaggat
+fakta med det längre/mer detaljerade värdet förifyllt, istället för
+en hård konflikt — granskningskön visar "Similar to: …" med en
+"Slå ihop"-knapp (lugn grön ram) snarare än "Conflicts with…" (orange
+larm). Genuint motsägande värden ("en rymdskeppskapten" vs "en
+fånge") faller fortfarande igenom till den befintliga
+konflikt-flaggningen, oförändrad. Detta är en liten, deterministisk
+bit av det LLM-steg-3-territorium punkt 10 (Continuity 2.0) redan
+pekar mot — inte ett substitut för semantisk motsägelseanalys, bara
+den enkla delmängden som inte kräver ett modellanrop.
+
 ### 7. AI-pipelinen blir scen-medveten, gradvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår
 Draft, Recast, Analyze, `extractFactsFromProse` lär sig förstå en
 enskild scen istället för ett helt kapitel — införs stegvis, inte som

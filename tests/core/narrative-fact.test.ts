@@ -55,6 +55,37 @@ describe("NarrativeFactSchema", () => {
     expect(legacy.scene_id).toBeUndefined();
   });
 
+  it("accepts an optional is_merge_suggestion flag, additive and missing by default", () => {
+    const fact = NarrativeFactSchema.parse({
+      id: "f1",
+      entity_ref: "jeff",
+      entity_label: "Jeff",
+      predicate: "core.identity",
+      value: "A captain on a space ship",
+      sequence_index: 0,
+      status: "flagged",
+      source: "extractor",
+      conflict_with: "locked-jeff",
+      is_merge_suggestion: true,
+      created_at: "2026-09-14T00:00:00.000Z"
+    });
+    expect(fact.is_merge_suggestion).toBe(true);
+
+    const conflict = NarrativeFactSchema.parse({
+      id: "f2",
+      entity_ref: "jeff",
+      entity_label: "Jeff",
+      predicate: "core.identity",
+      value: "A cook",
+      sequence_index: 0,
+      status: "flagged",
+      source: "extractor",
+      conflict_with: "locked-jeff",
+      created_at: "2026-09-14T00:00:00.000Z"
+    });
+    expect(conflict.is_merge_suggestion).toBeUndefined();
+  });
+
   it("rejects rpg predicates — they do not belong in this app's bible", () => {
     expect(() =>
       NarrativeFactSchema.parse({

@@ -1,9 +1,53 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.76
+Status: living document, v0.77
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.76 → v0.77:** **Sammanslagningsförslag för snarlika
+fakta** (`roadmap-ideas.md` punkt 6b, utanför ursprungssamtalet).
+Löser en konkret irritation: extraktorn skapade tidigare en egen
+flaggad konflikt varje gång ett kapitel omnämnde samma fakta lite mer
+detaljerat än förut ("Jeff is a captain" → "Jeff is a captain on a
+space ship"), trots att det inte är en motsägelse.
+
+Ny deterministisk funktion `isPossibleEnrichment()`
+(`src/core/ConsistencyGate.ts`, inget AI-anrop): två värden under
+samma entitet+predikat räknas som samma påstående, bara mer
+detaljerat, om det ena värdet innehåller det andra som delsträng,
+eller om de flesta av det kortare värdets meningsbärande ord (efter
+att stoppord som "a/the/on/in" filtrerats bort) också finns i det
+längre. `evaluateCandidate()` skiljer nu på tre lägen istället för
+två när ett extraherat värde skiljer sig från en låst fakta: om det
+nya värdet inte tillför något (redan täckt av det befintliga) hoppas
+det helt över — inget att granska; om det är en tydlig nästan-dubblett
+föreslås en sammanslagning; annars flaggas en riktig konflikt precis
+som förut. Genuint divergerande detaljer ("en rymdskeppskapten" vs
+"kaptenen på Odyssey") känns korrekt igen som en riktig konflikt, inte
+en sammanslagning — den skillnaden kräver fortfarande ett
+författarbeslut.
+
+Nytt `.optional()`-fält `NarrativeFact.is_merge_suggestion` (samma
+additiva mönster som `hidden_from_ai`). Granskningskön i Story Bible
+(`BiblePanel.tsx`) visar en sammanslagningsrad annorlunda än en
+konflikt: lugn grön ram istället för larmfärgad, "Similar to: …,
+looks like the same fact, more detailed" istället för "Conflicts
+with…", och en "Merge"-knapp istället för "Lock" — texten är redan
+förifylld med det föreslagna sammanslagna värdet, redigerbar innan
+låsning precis som idag. "Review"-knappens larmfärgade läge triggas
+nu bara av riktiga konflikter, inte rena sammanslagningsförslag.
+Godkännande återanvänder exakt samma `approveFact()`-mekanik som
+konflikter redan har (ersätter den gamla fakta, låser den nya) — ingen
+ny kod behövdes där.
+
+16 nya tester (11 i `consistency-gate.test.ts`, 2 i
+`narrative-fact.test.ts` för schema-rundturen). Verifierat i
+webbläsaren: skapade en låst fakta "Jeff: A captain", körde Extract
+facts med en mockad modell som föreslog "A captain on a space ship" —
+granskningsraden visade rätt grön styling, rätt förifylld text, rätt
+"Similar to"-notering, och klick på "Merge" låste den sammanslagna
+fakta korrekt utan att någon konflikt-UI visades.
 
 **Ändringslogg v0.75 → v0.76:** Nionde punkten från `roadmap-ideas.md`
 byggd: **Story time + Timeline**. Löser den öppna specfrågan i §11

@@ -4,6 +4,7 @@ import {
   applyExtractorDrafts,
   approveFact,
   evaluateCandidate,
+  isPossibleEnrichment,
   rejectFact,
   reviseFact
 } from "@core/ConsistencyGate";
@@ -200,5 +201,87 @@ describe("scene provenance", () => {
     const added = applyAuthorDraft([], emmaIdentity, 0);
     expect(added[0]?.chapter_id).toBeUndefined();
     expect(added[0]?.scene_id).toBeUndefined();
+  });
+});
+
+describe("isPossibleEnrichment", () => {
+  it("treats containment either direction as a near-duplicate", () => {
+    expect(isPossibleEnrichment("A captain", "A captain on a space ship")).toBe(true);
+    expect(isPossibleEnrichment("A captain on a space ship", "A captain")).toBe(true);
+  });
+
+  it("treats a high shared-word ratio as a near-duplicate even without containment", () => {
+    expect(isPossibleEnrichment("Captain of the ship", "Captain and commander of the ship")).toBe(true);
+  });
+
+  it("does not flag genuinely different claims as near-duplicates", () => {
+    expect(isPossibleEnrichment("A captain", "A cook")).toBe(false);
+    expect(isPossibleEnrichment("A captain on a space ship", "A prisoner on the Odyssey")).toBe(false);
+  });
+
+  it("is false for an identical value", () => {
+    expect(isPossibleEnrichment("A captain", "a captain")).toBe(false);
+  });
+});
+
+function lockedJeffCaptain(): NarrativeFact {
+  return {
+    id: "locked-jeff",
+    entity_ref: "jeff",
+    entity_label: "Jeff",
+    predicate: "core.identity",
+    value: "A captain",
+    sequence_index: 0,
+    status: "locked",
+    source: "author",
+    created_at: "2026-09-14T00:00:00.000Z"
+  };
+}
+
+describe("possible_enrichment — near-duplicate facts get a merge suggestion", () => {
+  it("evaluateCandidate proposes a merge instead of a hard conflict for an extractor near-duplicate", () => {
+    const draft: FactDraft = { ...emmaIdentity, entity_ref: "jeff", entity_label: "Jeff", value: "A captain on a space ship" };
+    const decision = evaluateCandidate(draft, [lockedJeffCaptain()], "extractor");
+    expect(decision).toEqual({
+      kind: "possible_enrichment",
+      supersedesId: "locked-jeff",
+      suggestedValue: "A captain on a space ship"
+    });
+  });
+
+  it("applyExtractorDrafts creates a flagged, pre-merged suggestion rather than a conflict", () => {
+    const draft: FactDraft = { entity_ref: "jeff", entity_label: "Jeff", predicate: "core.identity", value: "A captain on a space ship" };
+    const next = applyExtractorDrafts([lockedJeffCaptain()], [draft], 1, "ch1");
+    const suggestion = next.find((fact) => fact.is_merge_suggestion);
+    expect(suggestion?.status).toBe("flagged");
+    expect(suggestion?.value).toBe("A captain on a space ship");
+    expect(suggestion?.conflict_with).toBe("locked-jeff");
+  });
+
+  it("a genuine conflict is never marked as a merge suggestion", () => {
+    const draft: FactDraft = { entity_ref: "jeff", entity_label: "Jeff", predicate: "core.identity", value: "A cook" };
+    const next = applyExtractorDrafts([lockedJeffCaptain()], [draft], 1, "ch1");
+    const flagged = next.find((fact) => fact.status === "flagged");
+    expect(flagged?.is_merge_suggestion).toBeUndefined();
+  });
+
+  it("approving a merge suggestion supersedes the old fact and locks the merged value, same mechanics as a conflict", () => {
+    const draft: FactDraft = { entity_ref: "jeff", entity_label: "Jeff", predicate: "core.identity", value: "A captain on a space ship" };
+    const withSuggestion = applyExtractorDrafts([lockedJeffCaptain()], [draft], 1, "ch1");
+    const suggestion = withSuggestion.find((fact) => fact.is_merge_suggestion)!;
+    const approved = approveFact(withSuggestion, suggestion.id);
+    expect(approved.find((fact) => fact.id === "locked-jeff")?.superseded_by).toBe(suggestion.id);
+    const live = approved.find((fact) => !fact.superseded_by);
+    expect(live?.status).toBe("locked");
+    expect(live?.value).toBe("A captain on a space ship");
+    expect(live?.is_merge_suggestion).toBeUndefined();
+  });
+
+  it("skips a strictly less detailed restatement entirely — nothing new to review", () => {
+    const detailed: NarrativeFact = { ...lockedJeffCaptain(), value: "A captain on the Odyssey, a cargo ship" };
+    const draft: FactDraft = { entity_ref: "jeff", entity_label: "Jeff", predicate: "core.identity", value: "A captain" };
+    const next = applyExtractorDrafts([detailed], [draft], 1, "ch1");
+    expect(next).toHaveLength(1);
+    expect(next[0]?.value).toBe("A captain on the Odyssey, a cargo ship");
   });
 });

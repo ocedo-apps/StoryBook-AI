@@ -3279,6 +3279,10 @@ button:disabled {
   border-color: var(--flag);
 }
 
+.proposal.is-merge-suggestion {
+  border-color: var(--sage);
+}
+
 .proposal p {
   margin: 0 0 0.35rem;
   font-size: 0.9rem;
@@ -3287,6 +3291,11 @@ button:disabled {
 
 .conflict-note {
   color: var(--flag);
+  font-size: 0.8rem !important;
+}
+
+.merge-note {
+  color: var(--sage);
   font-size: 0.8rem !important;
 }
 

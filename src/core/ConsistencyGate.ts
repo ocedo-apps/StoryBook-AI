@@ -10,7 +10,57 @@ export type GateDecision =
   | { kind: "auto_approve"; existingId: string }
   | { kind: "propose_new" }
   | { kind: "flagged_conflict"; againstId: string }
+  | { kind: "possible_enrichment"; supersedesId: string; suggestedValue: string }
   | { kind: "valid_change"; supersedesId: string };
+
+const MERGE_STOP_WORDS = new Set([
+  "a", "an", "the", "is", "was", "were", "are", "be", "been", "on", "in", "at", "of", "to", "and", "or",
+  "with", "for", "as", "by", "from", "that", "this", "his", "her", "their", "its"
+]);
+
+function meaningfulTokens(value: string): Set<string> {
+  const tokens = new Set<string>();
+  for (const raw of value.split(/[^\p{L}\p{N}]+/u)) {
+    const token = raw.toLowerCase();
+    if (!token || token.length < 2 || MERGE_STOP_WORDS.has(token)) continue;
+    tokens.add(token);
+  }
+  return tokens;
+}
+
+/**
+ * True when two values under the same entity+predicate look like the same
+ * underlying claim restated with more (or less) detail — "captain" vs
+ * "captain on a space ship" — rather than a genuine disagreement. Purely
+ * deterministic (no AI call): either value contains the other, or most of
+ * the shorter value's meaningful words also appear in the longer one.
+ * Diverging specifics ("a space ship" vs "the Odyssey") correctly fall
+ * through to a real flagged conflict — a human call, not a merge.
+ */
+export function isPossibleEnrichment(oldValue: string, newValue: string): boolean {
+  const a = normalizeValue(oldValue);
+  const b = normalizeValue(newValue);
+  if (!a || !b || a === b) return false;
+  if (a.includes(b) || b.includes(a)) return true;
+
+  const tokensA = meaningfulTokens(oldValue);
+  const tokensB = meaningfulTokens(newValue);
+  if (tokensA.size === 0 || tokensB.size === 0) return false;
+  let shared = 0;
+  for (const token of tokensA) {
+    if (tokensB.has(token)) shared += 1;
+  }
+  return shared / Math.min(tokensA.size, tokensB.size) >= 0.6;
+}
+
+/** The longer value already contains the shorter one; otherwise default to the newest telling. */
+function suggestedMergedValue(oldValue: string, newValue: string): string {
+  const a = normalizeValue(oldValue);
+  const b = normalizeValue(newValue);
+  if (a.includes(b)) return oldValue.trim();
+  if (b.includes(a)) return newValue.trim();
+  return newValue.trim();
+}
 
 /**
  * Deterministic ConsistencyGate steps 1–2.
@@ -41,6 +91,17 @@ export function evaluateCandidate(
   if (source === "author") {
     return { kind: "valid_change", supersedesId: other.id };
   }
+  if (normalizeValue(other.value).includes(normalizeValue(draft.value))) {
+    // The new claim adds nothing beyond what is already locked truth.
+    return { kind: "auto_approve", existingId: other.id };
+  }
+  if (isPossibleEnrichment(other.value, draft.value)) {
+    return {
+      kind: "possible_enrichment",
+      supersedesId: other.id,
+      suggestedValue: suggestedMergedValue(other.value, draft.value)
+    };
+  }
   return { kind: "flagged_conflict", againstId: other.id };
 }
 
@@ -53,6 +114,7 @@ export function factFromDraft(
     chapter_id?: string;
     scene_id?: string;
     conflict_with?: string;
+    is_merge_suggestion?: boolean;
   }
 ): NarrativeFact {
   const fact: NarrativeFact = {
@@ -69,6 +131,7 @@ export function factFromDraft(
   if (args.chapter_id) fact.chapter_id = args.chapter_id;
   if (args.scene_id) fact.scene_id = args.scene_id;
   if (args.conflict_with) fact.conflict_with = args.conflict_with;
+  if (args.is_merge_suggestion) fact.is_merge_suggestion = true;
   return fact;
 }
 
@@ -137,6 +200,24 @@ export function applyExtractorDrafts(
           ...(scene_id ? { scene_id } : {}),
           conflict_with: decision.againstId
         })
+      );
+      continue;
+    }
+
+    if (decision.kind === "possible_enrichment") {
+      next = next.concat(
+        factFromDraft(
+          { ...draft, value: decision.suggestedValue },
+          {
+            status: "flagged",
+            source: "extractor",
+            sequence_index,
+            chapter_id,
+            ...(scene_id ? { scene_id } : {}),
+            conflict_with: decision.supersedesId,
+            is_merge_suggestion: true
+          }
+        )
       );
       continue;
     }

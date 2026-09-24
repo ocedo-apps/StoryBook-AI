@@ -37,6 +37,13 @@ export const NarrativeFactSchema = z.object({
    * Missing on older saves — the claim stays visible to the model.
    */
   hidden_from_ai: z.boolean().optional(),
+  /**
+   * True when this flagged row is a near-duplicate of `conflict_with`
+   * (e.g. "captain" vs "captain on a space ship") rather than a genuine
+   * contradiction — the review UI offers "Merge" instead of "pick a side".
+   * Missing on older saves and on genuine conflicts.
+   */
+  is_merge_suggestion: z.boolean().optional(),
   created_at: z.string().min(1)
 });
 export type NarrativeFact = z.infer<typeof NarrativeFactSchema>;

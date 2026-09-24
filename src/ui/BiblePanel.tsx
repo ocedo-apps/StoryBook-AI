@@ -61,7 +61,7 @@ export function BiblePanel() {
 
   const sections = useMemo(() => (book ? groupBibleEntities(book.facts, book.entity_kinds) : []), [book]);
   const pending = book ? activeFacts(book.facts).filter((fact) => fact.status !== "locked") : [];
-  const flagged = pending.some((fact) => fact.status === "flagged");
+  const flagged = pending.some((fact) => fact.status === "flagged" && !fact.is_merge_suggestion);
   const canExportCards = sections.some(
     (section) =>
       (section.kind === "characters" || section.kind === "locations" || section.kind === "objects") &&
@@ -929,24 +929,38 @@ function PendingFact({
   onLock,
   onReject
 }: {
-  fact: { id: string; entity_label: string; predicate: CorePredicate; value: string; status: string };
+  fact: {
+    id: string;
+    entity_label: string;
+    predicate: CorePredicate;
+    value: string;
+    status: string;
+    is_merge_suggestion?: boolean | undefined;
+  };
   against?: { value: string };
   onLock: (value: string) => void;
   onReject: () => void;
 }) {
   const [draft, setDraft] = useState(fact.value);
   const { messages: m } = useLocale();
+  const isMergeSuggestion = fact.is_merge_suggestion === true;
+  const rowClass =
+    fact.status !== "flagged" ? "proposal" : isMergeSuggestion ? "proposal is-merge-suggestion" : "proposal is-flagged";
   return (
-    <li className={fact.status === "flagged" ? "proposal is-flagged" : "proposal"}>
+    <li className={rowClass}>
       <p>
         <strong>{fact.entity_label}</strong>
         <span className="quiet"> {m.bible.predicates[fact.predicate]}</span>
       </p>
       <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label={m.bible.factText} />
-      {against ? <p className="conflict-note">{format(m.bible.conflictsWith, { value: against.value })}</p> : null}
+      {against ? (
+        <p className={isMergeSuggestion ? "merge-note" : "conflict-note"}>
+          {format(isMergeSuggestion ? m.bible.similarTo : m.bible.conflictsWith, { value: against.value })}
+        </p>
+      ) : null}
       <div className="proposal-actions">
         <button type="button" className="primary" onClick={() => onLock(draft)} disabled={!draft.trim()}>
-          {m.bible.lock}
+          {isMergeSuggestion ? m.bible.merge : m.bible.lock}
         </button>
         <button type="button" className="text-button" onClick={onReject}>
           {m.bible.reject}
