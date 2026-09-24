@@ -43,14 +43,13 @@ import { newId, nowIso, slugify } from "@core/ids";
 import type { CorePredicate } from "@core/predicates";
 import type { FactDraft } from "@core/NarrativeFact";
 import {
-  completeOllamaChat,
   DEFAULT_OLLAMA_MODEL,
   DEFAULT_REVIEW_MODEL,
   listOllamaModels,
-  OllamaProvider,
   pickListedOllamaModel,
   pickListedReviewModel
 } from "@llm/ollama";
+import { OllamaModelProvider } from "@llm/provider";
 import { BookNotFoundError, BookRepository } from "@persistence/Repository";
 import {
   ManuscriptBackupError,
@@ -421,7 +420,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     setModelAsides([]);
 
-    const provider = new OllamaProvider({ model });
+    const provider = new OllamaModelProvider({ model });
     const before = chapter.prose;
     let assembled = chapter.prose;
     const prefix = assembled.trim() ? `${assembled.replace(/\s+$/, "")}\n\n` : "";
@@ -435,7 +434,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         { role: "user", content: draftUserPrompt(current, chapter) }
       ];
       recordPrompt("draft", model, draftMessages);
-      for await (const chunk of provider.streamCompletion({
+      for await (const chunk of provider.streamChat({
         messages: draftMessages,
         temperature: 0.85,
         maxTokens: 900,
@@ -490,13 +489,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     let raw = "";
 
     try {
-      const provider = new OllamaProvider({ model });
+      const provider = new OllamaModelProvider({ model });
       const recastMessages: PromptDebugMessage[] = [
         { role: "system", content: writingSystem(RECAST_SYSTEM) },
         { role: "user", content: recastUserPrompt(current, chapter) }
       ];
       recordPrompt("recast", model, recastMessages);
-      for await (const chunk of provider.streamCompletion({
+      for await (const chunk of provider.streamChat({
         messages: recastMessages,
         temperature: 0.5,
         maxTokens: 1600,
@@ -623,13 +622,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             });
 
       try {
-        const provider = new OllamaProvider({ model });
+        const provider = new OllamaModelProvider({ model });
         const rewriteMessages: PromptDebugMessage[] = [
           { role: "system", content: writingSystem(args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM) },
           { role: "user", content: userContent }
         ];
         recordPrompt(args.mode, model, rewriteMessages, args.target);
-        for await (const chunk of provider.streamCompletion({
+        for await (const chunk of provider.streamChat({
           messages: rewriteMessages,
           temperature: args.target === "brainstorm" ? 0.9 : 0.8,
           maxTokens: args.mode === "extend" ? 280 : 420,
@@ -698,13 +697,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await patchBook((book) => addBrainstormNote(book, { id: noteId, text: "", x: pos.x, y: pos.y }));
-        const provider = new OllamaProvider({ model });
+        const provider = new OllamaModelProvider({ model });
         const askMessages: PromptDebugMessage[] = [
           { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
           { role: "user", content: brainstormAskUserPrompt(current, question) }
         ];
         recordPrompt("ask", model, askMessages);
-        for await (const chunk of provider.streamCompletion({
+        for await (const chunk of provider.streamChat({
           messages: askMessages,
           temperature: 0.9,
           maxTokens: 700,
@@ -792,8 +791,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           }
         ];
         recordPrompt("word-swap", reviewModel, alternativesMessages);
-        const raw = await completeOllamaChat({
-          model: reviewModel,
+        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
           messages: alternativesMessages,
           temperature: 0.3,
           maxTokens: 140,
@@ -822,8 +820,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
         ];
         recordPrompt("sentence-split", reviewModel, splitMessages);
-        const raw = await completeOllamaChat({
-          model: reviewModel,
+        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
           messages: splitMessages,
           temperature: 0.55,
           maxTokens: 280,
@@ -854,8 +851,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
         ];
         recordPrompt("paragraph-break", reviewModel, breakMessages);
-        const raw = await completeOllamaChat({
-          model: reviewModel,
+        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
           messages: breakMessages,
           temperature: 0.4,
           maxTokens: 700,
@@ -896,8 +892,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         { role: "user", content: extractorUserPrompt(chapter.prose, chapter.title) }
       ];
       recordPrompt("extract", reviewModel, extractMessages);
-      const raw = await completeOllamaChat({
-        model: reviewModel,
+      const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
         messages: extractMessages,
         temperature: 0.1,
         maxTokens: 1200
@@ -939,8 +934,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         { role: "user", content: analyzeUserPrompt(current, chapter) }
       ];
       recordPrompt("analyze", reviewModel, analyzeMessages);
-      const raw = await completeOllamaChat({
-        model: reviewModel,
+      const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
         messages: analyzeMessages,
         temperature: 0.25,
         maxTokens: 1800,
@@ -980,8 +974,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const entities = relevantEntitiesForPassage(passage, current);
         const illustrateMessages = illustrationPromptMessages(passage, entities, current.illustration_style);
         recordPrompt("illustrate", reviewModel, illustrateMessages);
-        const raw = await completeOllamaChat({
-          model: reviewModel,
+        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
           messages: illustrateMessages,
           temperature: 0.4,
           maxTokens: 500,
@@ -1037,8 +1030,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
                 { role: "user", content: user }
               ];
               recordPrompt("proofread", reviewModel, proofreadMessages);
-              return completeOllamaChat({
-                model: reviewModel,
+              return new OllamaModelProvider({ model: reviewModel }).chat({
                 messages: proofreadMessages,
                 temperature: 0.2,
                 maxTokens: 1600,

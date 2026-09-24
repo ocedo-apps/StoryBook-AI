@@ -1,11 +1,46 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.71
+Status: living document, v0.72
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
-**Ändringslogg v0.70 → v0.71:** Tredje punkten från `roadmap-ideas.md`
+**Ändringslogg v0.71 → v0.72:** Fjärde punkten från `roadmap-ideas.md`
+byggd: **Model-provider-abstraktion**. Nytt gränssnitt
+`LocalModelProvider` (`src/llm/provider.ts`) med `chat()`,
+`streamChat()`, `embed()`, `supportsEmbeddings()`, `listModels()`,
+`healthCheck()` — designat med embeddings-behovet för framtida Ask
+Manuscript (punkt 8) i åtanke, utan att bygga den funktionen än.
+
+Två adaptrar: `OllamaModelProvider` — ett tunt omslag runt det
+befintliga Ollama-transportlagret (`completeOllamaChat`,
+`OllamaProvider.streamCompletion`, `listOllamaModels`), utan att ändra
+dess request/response-format, plus ett nytt `embed()` mot Ollamas
+`/api/embed`. `OpenAICompatibleLocalProvider` — andra adaptern för
+LM Studio/llama.cpp-server-typ av lokala servrar via det
+OpenAI-kompatibla REST-kontraktet (`/v1/chat/completions` med SSE-
+streaming, `/v1/models`, `/v1/embeddings`).
+
+**Explicit regel, inte bara konvention:** `assertLocalOnlyBaseUrl()`
+stoppar konstruktion av båda adaptrarna mot kända molnvärdar (OpenAI,
+Anthropic, Google, Azure, Cohere, Together, Groq, OpenRouter,
+Perplexity, Mistral, Fireworks, DeepSeek) — abstraktionen kan aldrig
+tyst glida in i molnstöd, i linje med §9 "Inga molnnycklar".
+
+BookStore.tsx migrerad att faktiskt använda den nya abstraktionen:
+alla fyra strömmande anropsställen (draft, recast, rewriteSpan,
+askBrainstorm) byter `new OllamaProvider({model})` mot
+`new OllamaModelProvider({model})`, alla sju icke-strömmande
+anropsställen (word-swap, sentence-split, paragraph-break, extract,
+analyze, illustrate, proofread) byter `completeOllamaChat({model, ...})`
+mot `new OllamaModelProvider({model}).chat({...})` — samma
+underliggande fetch-anrop, bara via det nya gränssnittet, så
+abstraktionen är i skarpt bruk och inte död kod. 16 nya tester i
+`tests/llm/provider.test.ts` (cloud-host-spärren, Ollama-delegering,
+OpenAI-kompatibel SSE-parsning, listModels/embed/healthCheck för
+båda adaptrarna). Verifierat i webbläsaren med mockad Ollama: både det
+strömmande Draft-flödet och det icke-strömmande Extract-flödet
+fungerade som förut genom den nya provider-koden. Tredje punkten från `roadmap-ideas.md`
 byggd: **Story Bible Mentions v1**, deterministisk namn-sökning enligt
 planen — ingen embedding. Ny funktion `mentionsForEntity()`
 (`src/core/bibleMentions.ts`) bygger en kombinerad regex av entitetens

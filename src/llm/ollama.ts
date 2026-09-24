@@ -1,6 +1,6 @@
 import type { ChatMessage, CompletionRequest, LLMProvider, ProviderCapabilities, StreamChunk } from "./types";
 
-const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+export const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
 export const DEFAULT_OLLAMA_MODEL = "stheno-custom:latest";
 export const DEFAULT_REVIEW_MODEL = "qwen2.5-coder:7b";
 
@@ -18,7 +18,7 @@ function boundFetch(fetchImpl?: typeof fetch): typeof fetch {
   return fetchImpl ?? globalThis.fetch.bind(globalThis);
 }
 
-function normalizeBaseUrl(baseUrl?: string): string {
+export function normalizeBaseUrl(baseUrl?: string): string {
   return (baseUrl ?? DEFAULT_OLLAMA_BASE_URL).replace(/\/$/, "");
 }
 

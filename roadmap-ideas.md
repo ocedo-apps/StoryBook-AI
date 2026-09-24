@@ -86,7 +86,7 @@ Andersson`) över manus, ingen embedding. Semantisk träff ("hennes
 äldre bror" utan att namnet nämns) är ett senare, separat steg —
 se punkt 7.
 
-### 4. Model-provider-abstraktion
+### 4. Model-provider-abstraktion ✅ byggd (v0.72)
 `LocalModelProvider`-gränssnitt (`chat()`, `streamChat()`, `embed()`,
 `supportsEmbeddings()`, `listModels()`, `healthCheck()`) med
 `OllamaProvider` som första adapter, `OpenAICompatibleLocalProvider`
