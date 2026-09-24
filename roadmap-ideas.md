@@ -29,6 +29,10 @@ inte en ensidig lista.
 | 12 | Setup/payoff/ledtrådsspårning | ⬜ ej påbörjad |
 | 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
+| 15 | Klickbara namn i manuset → Story Bible | ⬜ ej påbörjad |
+| 16 | Tidsmedveten Story Bible | ⬜ ej påbörjad |
+| 17 | AI-skrivtics-markering | ⬜ ej påbörjad |
+| 18 | Character Interviews | ⬜ ej påbörjad |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -230,6 +234,52 @@ manus-rapport. Aldrig hela manuset i ett enda modellanrop. Sist i kön
 
 ---
 
+## Idéer från konkurrensjämförelse (Novelcrafter, 2026-09-24)
+
+Författaren bad om en granskning av novelcrafter.com/features för att se
+om något var smart att ta till sig. De flesta funktionerna där var
+antingen redan täckta (Draft/Recast är redan "generera text som bara
+lutar sig mot låsta Story Bible-fakta" — deras "Contextual Expansion"),
+eller filosofiskt fel för den här appen (fritt anpassningsbara
+kategorier/fält skulle bryta den medvetna gränsen mellan kanon och
+skrivinstruktion som `core.*`-namnrymden finns för att hålla; fler-
+boks-/serie-stöd är en helt annan arkitekturnivå). Fyra idéer var
+värda att spara:
+
+### 15. Klickbara namn i manuset → hoppa till Story Bible-kortet
+Omvänd riktning mot Mentions (punkt 3): Mentions går Story Bible →
+manus ("var nämns Henrik"), den här går manus → Story Bible (klicka på
+"Henrik" medan du skriver → öppna hans kort direkt). Samma
+matchningslogik som redan finns i `bibleMentions.ts` går att återanvända
+— jobbet är en klickbar overlay ovanpå prosan, liknande hur
+"rare words"-markeringen redan fungerar i `ProseCanvas`.
+
+### 16. Tidsmedveten Story Bible ("fakta som de var då")
+Den starkaste av de fyra. Visa en entitets tillstånd vid en viss punkt
+i berättelsen istället för bara den senaste låsta versionen — när man
+skriver kapitel 5 ser man vad som var sant *vid* kapitel 5, inte det
+slutgiltiga svaret. Alla byggstenar finns redan (History-kedjan från
+punkt 2, scenprovenens från punkt 6, story-tid-ordningen från punkt 9)
+— det som saknas är att koppla ihop dem i ett UI.
+
+### 17. AI-skrivtics-markering
+En lista med vanliga AI-klichéer ("a testament to", "tapestry of",
+överdrivet tankstreck-bruk) markerade i texten, samma mekanism som
+"rare words"-highlighting redan använder. Extra relevant eftersom
+appen själv genererar text via AI. Billigt att bygga, inget nytt
+AI-anrop.
+
+### 18. Character Interviews — chatta med en karaktär
+En tredje chattform utöver Ask Manuscript (punkt 8, frågar om
+manuset) och Brainstorms generiska "Ask": chatta MED en specifik
+karaktär, i deras egen röst, byggt bara på deras låsta fakta —
+för att upptäcka röst, bakgrund och luckor i vad som är etablerat.
+Återanvänder samma AI-infrastruktur (`OllamaModelProvider`,
+`visibleLockedFacts` filtrerat per `entity_ref`) och samma
+"bara låsta fakta som kontext"-princip som Draft redan har.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
@@ -251,3 +301,13 @@ manus-rapport. Aldrig hela manuset i ett enda modellanrop. Sist i kön
 - **Cloud-modellstöd i provider-abstraktionen.** Explicit uteslutet —
   se punkt 4 ovan. Lokala endpoints only, för alltid, oavsett hur
   bekvämt det vore att lägga till OpenAI-stöd senare.
+- **"Assisted Research" — webbsökning kombinerad med Story Bible**
+  (Novelcrafter-jämförelsen ovan, punkt 15–18). Kräver internet/
+  molntjänst för att fungera, rakt emot "allt lokalt, inget lämnar
+  din dator"-principen — samma skäl som cloud-modellstöd ovan.
+  Skulle kräva att appens grundidentitet omdefinierades, inte ett
+  litet tillägg.
+- **"Contextual Expansion" (Novelcrafter).** Inget nytt att bygga —
+  det är redan vad Draft/Recast gör (generera text som bara lutar sig
+  mot låsta Story Bible-fakta). Sparas här bara som anteckning om att
+  jämförelsen redan är täckt, inte som en byggpunkt.
