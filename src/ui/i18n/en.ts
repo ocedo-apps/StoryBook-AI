@@ -404,6 +404,8 @@ export const en = {
     addFact: "Add fact",
     claimPlaceholder: "The claim, in one line",
     lockInto: "Lock into Story Bible",
+    history: "History",
+    historyCurrent: "current",
     replaceTitle: "Replace in manuscript?",
     replaceBody: "Replace “{from}” with “{to}” in {places}. Brainstorm is left alone.",
     places: { one: "{count} place", other: "{count} places" },

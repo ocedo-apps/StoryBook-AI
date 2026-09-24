@@ -10,6 +10,7 @@ import {
   type BibleKind
 } from "@core/bibleGroups";
 import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
+import { chainsWithHistory, factHistoryForEntity, type FactHistoryChain } from "@core/bibleHistory";
 import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
 import { slugify } from "@core/ids";
 import {
@@ -29,7 +30,7 @@ import {
   type EntityMedia,
   type EntityPicture
 } from "@core/entityMedia";
-import { touch } from "@core/BookSchema";
+import { touch, type Chapter } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
 import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
 import { count, format, useLocale } from "./i18n";
@@ -42,6 +43,12 @@ type Overlay =
   | { type: "review" }
   | { type: "entity"; ref: string }
   | { type: "new"; kind: BibleKind };
+
+function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitled: string): string {
+  const chapter = chapterId ? chapters.find((item) => item.id === chapterId) : undefined;
+  if (!chapter) return "—";
+  return `${chapter.sequence_index + 1} · ${chapter.title.trim() || untitled}`;
+}
 
 export function BiblePanel() {
   const { book, approve, reject, addFact, reviseFact, patchBook } = useBookStore();
@@ -204,6 +211,8 @@ export function BiblePanel() {
           hidden={entityIsHidden(book.hidden_entities, openEntity.entity_ref)}
           profile={profileFor(book.profiles, openEntity.entity_ref)}
           pictures={picturesFor(book.media, openEntity.entity_ref)}
+          history={chainsWithHistory(factHistoryForEntity(book.facts, openEntity.entity_ref))}
+          chapters={book.chapters}
           onAdd={(predicate, value) => void addFact({ label: openEntity.entity_label, predicate, value })}
           onSave={(id, value) => void reviseFact(id, value)}
           onToggleHidden={() =>
@@ -446,6 +455,8 @@ function EntityOverlay({
   hidden,
   profile,
   pictures,
+  history,
+  chapters,
   onAdd,
   onSave,
   onToggleHidden,
@@ -463,6 +474,8 @@ function EntityOverlay({
   hidden: boolean;
   profile: CharacterProfile;
   pictures: EntityPicture[];
+  history: FactHistoryChain[];
+  chapters: Chapter[];
   onAdd: (predicate: CorePredicate, value: string) => void;
   onSave: (factId: string, value: string) => void;
   onToggleHidden: () => void;
@@ -594,6 +607,29 @@ function EntityOverlay({
           />
         ))}
       </ul>
+      {history.length > 0 ? (
+        <section className="bible-history">
+          <h3 className="bible-field-label">{m.bible.history}</h3>
+          <ul className="bible-history-list">
+            {history.map((chain) => (
+              <li key={`${chain.predicate}-${chain.entries[0]!.id}`} className="bible-history-chain">
+                <span className="bible-history-predicate">{m.bible.predicates[chain.predicate]}</span>
+                <ol>
+                  {chain.entries.map((fact, index) => (
+                    <li key={fact.id}>
+                      <span className="bible-history-chapter">{chapterLabel(fact.chapter_id, chapters, m.editor.untitled)}</span>
+                      <span className="bible-history-value">{fact.value}</span>
+                      {index === chain.entries.length - 1 ? (
+                        <span className="bible-history-current">{m.bible.historyCurrent}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <form
         className="add-fact bible-card-add"
         action="#"

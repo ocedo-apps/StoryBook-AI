@@ -1,9 +1,31 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.69
+Status: living document, v0.70
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.69 → v0.70:** Andra punkten från `roadmap-ideas.md`
+byggd: **Story Bible History-vy**. Precis som förutspått var det
+nästan gratis — `NarrativeFact` hade redan `chapter_id` och
+`superseded_by`-kedjan, ingen ny lagring behövdes. Ny funktion
+`factHistoryForEntity()` (`src/core/bibleHistory.ts`) bygger kedjor
+genom att gå baklänges från varje "head"-fakta (den utan
+`superseded_by`) via `facts.find(f => f.superseded_by === current.id)`
+— en kedja per oberoende "plats", inte en per predikat, så flera
+samtidiga `core.trait`-rader som aldrig efterträtt varandra blir
+korrekt separata enradskedjor istället för att felaktigt slås ihop.
+`chainsWithHistory()` filtrerar bort enradskedjor (inget att visa).
+Ny sektion "History" i `EntityOverlay` (`BiblePanel.tsx`), mellan
+faktalistan och "Add fact"-formuläret: varje kedja visar
+predikatnamn, en tidslinje med kapitel-etikett + värde per rad, och
+en "CURRENT"-markering på den aktiva raden. Sju nya tester i
+`bible-history.test.ts` (kedjebyggning, oberoende samtidiga fakta,
+uteslutning av aldrig-låsta ai_proposed/flagged-rader, sortering).
+Verifierat i webbläsaren: skapade en karaktär med en `core.trait`-
+fakta, låste sedan en motstridande fakta för samma predikat, och
+History-sektionen visade korrekt båda raderna i ordning med
+kapitel-etiketter och CURRENT-märkning på den senaste.
 
 **Ändringslogg v0.68 → v0.69:** Första punkten från `roadmap-ideas.md`
 byggd: **AI Context Inspector**, v1 read-only enligt planen (inga

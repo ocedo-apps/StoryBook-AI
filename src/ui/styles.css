@@ -2830,6 +2830,68 @@ button:disabled {
   border-top: 1px solid var(--border-soft);
 }
 
+.bible-history {
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-soft);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bible-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.bible-history-chain {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.bible-history-predicate {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.bible-history-chain ol {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.7rem;
+  border-left: 2px solid var(--border-soft);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.bible-history-chain li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.bible-history-chapter {
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.bible-history-value {
+  color: var(--text);
+}
+
+.bible-history-current {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .bible-pictures {
   display: grid;
   gap: 0.4rem;

@@ -72,7 +72,7 @@ läser bara de prompt-byggande funktioner som redan finns
 Förstärker appens kärnprincip (Author > AI, transparens) direkt, medan
 Scene-designfrågan ovan får ta den tid den behöver.
 
-### 2. Story Bible: History-vy
+### 2. Story Bible: History-vy ✅ byggd (v0.70)
 Nästan gratis. `NarrativeFact` har redan `chapter_id` och
 `superseded_by`-kedjan på varje rad — UI:t blir i praktiken en ren
 rendering av data som redan finns, ingen ny lagring.

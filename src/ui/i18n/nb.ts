@@ -406,6 +406,8 @@ export const nb: Messages = {
     addFact: "Legg til fakta",
     claimPlaceholder: "Påstanden, på én linje",
     lockInto: "Lås til Story Bible",
+    history: "Historikk",
+    historyCurrent: "nå",
     replaceTitle: "Erstatt i manuskriptet?",
     replaceBody: "Erstatt “{from}” med “{to}” på {places}. Brainstorm blir liggende urørt.",
     places: { one: "{count} sted", other: "{count} steder" },
