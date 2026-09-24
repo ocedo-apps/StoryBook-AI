@@ -283,6 +283,19 @@ export const en = {
     leakHint: "These are already locked truth, but established after this chapter — the model can still see them here. Not necessarily a problem (maybe this chapter is a flash-forward), just worth a glance.",
     establishedIn: "Established in “{chapter}”"
   },
+  plotlines: {
+    nav: "Plotlines",
+    title: "Plotlines",
+    lede: "Which threads run through which chapter, at a glance. Mark a chapter against every thread it touches.",
+    chapterColumn: "Chapter",
+    addPlaceholder: "New thread name",
+    addAction: "Add",
+    removeThread: "Remove thread “{title}”",
+    renameLabel: "Thread name",
+    cellLabel: "{chapter} — {thread}",
+    emptyPlotlines: "No threads yet. Add one below to start the matrix.",
+    emptyChapters: "Write a chapter first — the matrix needs something to show."
+  },
   publish: {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",

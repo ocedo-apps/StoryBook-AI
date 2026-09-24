@@ -181,9 +181,12 @@ lässordningen. Spatial kontinuitet och objekttillstånd väntar —
 de kräver antingen en platskarta författaren måste underhålla, eller
 ett AI-anrop, inget av det byggt än.
 
-### 11. Plotlines / scen-matris
+### 11. Plotlines / scen-matris ✅ byggd (v0.79)
 Trådar kopplade direkt till scener (`scene.plotline_ids[]`), visuellt
-som en matris scen × plotline.
+som en matris scen × plotline. Byggd som en riktig tabell (kapitel ×
+tråd), inte en nodgraf som Sandbox-sidans Storyboard — de löser olika
+problem. `plotline_ids` hamnade på `Chapter`, inte på scenen, samma
+motivering som `story_time` (punkt 9).
 
 ### 12. Setup/payoff/ledtrådsspårning
 "Pistolen introducerades scen 4, ingen payoff än." AI kan föreslå,

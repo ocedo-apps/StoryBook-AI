@@ -401,6 +401,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setSurface("timeline");
   }, []);
 
+  const showPlotlines = useCallback(() => {
+    setSurface("plotlines");
+  }, []);
+
   const dismissModelAside = useCallback(() => setModelAsides([]), []);
 
   const manuscriptFromModel = (raw: string, fallback: string) => {
@@ -1249,6 +1253,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showSynopsis,
     showAsk,
     showTimeline,
+    showPlotlines,
     dismissModelAside,
     setModel,
     setWritingPrimer,

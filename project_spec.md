@@ -1,9 +1,42 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.78
+Status: living document, v0.79
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.78 → v0.79:** Elfte punkten från `roadmap-ideas.md`
+byggd: **Plotlines / scen-matris**. Uttryckligen INTE en nodgraf som
+Sandbox-sidans Storyboard (scenkopplingar, story-flaggor för
+spelbara förgreningar) — ett medvetet vägval efter en snabb
+diskussion, eftersom de löser olika problem: Sandbox-noderna är för
+spelbara scenövergångar i ett RPG, det här är bara en tabell för att
+se vilka trådar som rör sig genom vilka kapitel.
+
+Ny `Plotline`-typ (`{id, title, color}`, `src/core/BookSchema.ts`) på
+`book.plotlines[]`, och `Chapter.plotline_ids?: string[]` — precis
+som `story_time` (punkt 9) medvetet på kapitel-nivå i v1, inte på
+scenen, eftersom ett kapitel fortfarande är en enda scen.
+
+`src/core/plotlines.ts`: `addPlotline()`/`renamePlotline()`/
+`removePlotline()` (tar bort tråden ur varje kapitel som bar den)/
+`toggleChapterPlotline()`, plus `plotlineMatrixRows()` som bygger
+matrisens rader (ett per levande kapitel, i lässordning). Nya trådar
+cyklar genom samma femfärgspalett som brainstorm-lapparna redan
+använder (`NOTE_COLORS`), så varje kolumn syns tydligt isär.
+
+Ny sida "Plotlines" i sidonavigeringen: en riktig HTML-tabell,
+kapitel som rader (klickbara, hoppar till kapitlet), trådar som
+färgkodade kolumner med redigerbar rubrik och en borttagningsknapp,
+och en rund kryssruta-liknande cell i varje skärningspunkt som fylls
+med trådens färg när den är aktiv. Ett formulär under tabellen för
+att lägga till nya trådar.
+
+9 nya tester i `plotlines.test.ts`. Verifierat i webbläsaren: skapade
+två trådar, bockade av två olika kapitel mot olika trådar, döpte om
+en tråd, hoppade till ett kapitel via radrubriken, bekräftade att
+allt överlevde en omladdning, och tog sedan bort en tråd och
+bekräftade att den försvann ur matrisen utan att röra den andra.
 
 **Ändringslogg v0.77 → v0.78:** Tionde punkten från `roadmap-ideas.md`
 byggd, första skivan: **Continuity 2.0 — kunskapsläckor**. Punkt 10

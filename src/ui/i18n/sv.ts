@@ -285,6 +285,19 @@ export const sv: Messages = {
     leakHint: "De här är redan låst sanning, men etablerade efter det här kapitlet — modellen kan ändå se dem här. Inte nödvändigtvis ett problem (kanske är det här kapitlet ett hopp framåt), men värt en snabb koll.",
     establishedIn: "Etablerad i ”{chapter}”"
   },
+  plotlines: {
+    nav: "Trådar",
+    title: "Trådar",
+    lede: "Vilka trådar som går genom vilket kapitel, på en snabb blick. Bocka av ett kapitel mot varje tråd det rör.",
+    chapterColumn: "Kapitel",
+    addPlaceholder: "Ny tråds namn",
+    addAction: "Lägg till",
+    removeThread: "Ta bort tråden ”{title}”",
+    renameLabel: "Trådens namn",
+    cellLabel: "{chapter} — {thread}",
+    emptyPlotlines: "Inga trådar än. Lägg till en nedanför för att starta matrisen.",
+    emptyChapters: "Skriv ett kapitel först — matrisen behöver något att visa."
+  },
   publish: {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",

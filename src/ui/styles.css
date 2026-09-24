@@ -1651,6 +1651,124 @@ button:disabled {
   font-size: 0.85rem;
 }
 
+.plotline-matrix-page {
+  overflow: auto;
+  padding-bottom: 2.5rem;
+}
+
+.plotline-matrix-scroll {
+  overflow-x: auto;
+  margin-top: 1.2rem;
+  max-width: 100%;
+}
+
+.plotline-matrix {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.plotline-matrix th,
+.plotline-matrix td {
+  border: 1px solid var(--border-soft);
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.plotline-matrix-corner {
+  background: transparent;
+  border: 0 !important;
+}
+
+.plotline-row-head {
+  text-align: left !important;
+  font-weight: 400;
+}
+
+.plotline-column-head {
+  min-width: 8rem;
+  background: var(--paper);
+}
+
+.plotline-column-head.is-rust {
+  background: var(--note-rust);
+}
+
+.plotline-column-head.is-sage {
+  background: var(--note-sage);
+}
+
+.plotline-column-head.is-gold {
+  background: var(--note-gold);
+}
+
+.plotline-column-head.is-lilac {
+  background: var(--note-lilac);
+}
+
+.plotline-column-title {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-weight: 650;
+  text-align: center;
+  color: var(--ink);
+}
+
+.plotline-remove {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  padding: 0;
+  margin-top: 0.1rem;
+}
+
+.plotline-cell {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.plotline-cell.is-active.is-paper {
+  background: var(--paper);
+  border-color: var(--ink);
+}
+
+.plotline-cell.is-active.is-rust {
+  background: var(--note-rust);
+  border-color: var(--ink);
+}
+
+.plotline-cell.is-active.is-sage {
+  background: var(--note-sage);
+  border-color: var(--ink);
+}
+
+.plotline-cell.is-active.is-gold {
+  background: var(--note-gold);
+  border-color: var(--ink);
+}
+
+.plotline-cell.is-active.is-lilac {
+  background: var(--note-lilac);
+  border-color: var(--ink);
+}
+
+.plotline-add-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  max-width: 24rem;
+}
+
+.plotline-add-form input {
+  flex: 1;
+}
+
 .chapter-voice-reset {
   grid-area: 1 / 1;
   justify-self: end;

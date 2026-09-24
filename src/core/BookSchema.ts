@@ -79,9 +79,22 @@ export const ChapterSchema = z.object({
    * moveStoryTimeOrder() so it always stays a consistent 0..N-1 ranking
    * across live chapters — never patched ad hoc via updateChapter().
    */
-  story_time_order: z.number().int().nonnegative().optional()
+  story_time_order: z.number().int().nonnegative().optional(),
+  /**
+   * Which of the book's plotlines run through this chapter. Chapter-level
+   * in v1, same reasoning as story_time — a chapter is still one scene.
+   * Missing/empty on older saves and untouched chapters.
+   */
+  plotline_ids: z.array(z.string().min(1)).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
+
+export const PlotlineSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  color: z.enum(NOTE_COLORS).default("paper")
+});
+export type Plotline = z.infer<typeof PlotlineSchema>;
 
 export const WritingGoalSchema = z.object({
   targetWords: z.number().int().positive(),
@@ -171,6 +184,11 @@ export const BookSchema = z.object({
    */
   entity_kinds: z.array(EntityKindSchema).default([]),
   /**
+   * Named threads (plotlines) an author can mark chapters against, shown
+   * as a chapter × plotline matrix. Missing on older saves.
+   */
+  plotlines: z.array(PlotlineSchema).default([]),
+  /**
    * Last-pass Review job over the manuscript. Missing on older saves.
    */
   proofread: ProofreadJobSchema.optional(),
@@ -231,12 +249,13 @@ export function createBook(title: string): Book {
     profiles: [],
     hidden_entities: [],
     entity_kinds: [],
+    plotlines: [],
     created_at: timestamp,
     updated_at: timestamp
   };
 }
 
-export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask" | "timeline";
+export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask" | "timeline" | "plotlines";
 
 /**
  * A blank manuscript opens on Settings. Brainstorm once notes exist.

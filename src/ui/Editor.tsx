@@ -52,6 +52,7 @@ import {
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
 import { knowledgeLeaksForChapter } from "@core/continuity";
+import { addPlotline, plotlineMatrixRows, removePlotline, renamePlotline, toggleChapterPlotline } from "@core/plotlines";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
 import { selectedText } from "@core/textSpan";
@@ -70,6 +71,7 @@ import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
+import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
@@ -288,6 +290,7 @@ export function Editor() {
   const onSettings = surface === "settings";
   const onAskManuscript = surface === "ask";
   const onTimeline = surface === "timeline";
+  const onPlotlines = surface === "plotlines";
   const [boardOpen, setBoardOpen] = useState(false);
   const onBoard = boardOpen;
   const [askOpen, setAskOpen] = useState(false);
@@ -325,7 +328,7 @@ export function Editor() {
   const dragChapterIdRef = useRef<string | null>(null);
   const names = entityLabels(book.facts, book.entity_kinds);
   const pageText =
-    onSettings || onAskManuscript || onTimeline
+    onSettings || onAskManuscript || onTimeline || onPlotlines
       ? ""
       : onBrainstorm
         ? book.brainstorm
@@ -334,7 +337,7 @@ export function Editor() {
           : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
   const activeReaderAge =
-    onBrainstorm || onSynopsis || onSettings || onAskManuscript || onTimeline
+    onBrainstorm || onSynopsis || onSettings || onAskManuscript || onTimeline || onPlotlines
       ? book.reader_age
       : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
@@ -707,6 +710,17 @@ export function Editor() {
             }}
           >
             {m.timeline.nav}
+          </button>
+          <button
+            type="button"
+            className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showPlotlines();
+            }}
+          >
+            {m.plotlines.nav}
           </button>
           <button
             type="button"
@@ -1083,6 +1097,20 @@ export function Editor() {
             onMove={(chapterIdToMove, direction) =>
               void store.patchBook((current) => moveStoryTimeOrder(current, chapterIdToMove, direction))
             }
+            onJumpToChapter={store.setChapterId}
+          />
+        ) : onPlotlines ? (
+          <PlotlineMatrixPanel
+            rows={plotlineMatrixRows(book)}
+            plotlines={book.plotlines}
+            onToggle={(chapterIdToMark, plotlineId) =>
+              void store.patchBook((current) => toggleChapterPlotline(current, chapterIdToMark, plotlineId))
+            }
+            onAddPlotline={(title) => void store.patchBook((current) => addPlotline(current, title))}
+            onRenamePlotline={(plotlineId, title) =>
+              void store.patchBook((current) => renamePlotline(current, plotlineId, title))
+            }
+            onRemovePlotline={(plotlineId) => void store.patchBook((current) => removePlotline(current, plotlineId))}
             onJumpToChapter={store.setChapterId}
           />
         ) : onSynopsis ? (

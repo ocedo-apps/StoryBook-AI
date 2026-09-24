@@ -285,6 +285,19 @@ export const nb: Messages = {
     leakHint: "Disse er allerede låst sannhet, men etablert etter dette kapitlet — modellen kan likevel se dem her. Ikke nødvendigvis et problem (kanskje er dette kapitlet et hopp fremover), men verdt en rask sjekk.",
     establishedIn: "Etablert i «{chapter}»"
   },
+  plotlines: {
+    nav: "Tråder",
+    title: "Tråder",
+    lede: "Hvilke tråder som går gjennom hvilket kapittel, på et blikk. Merk et kapittel mot hver tråd det berører.",
+    chapterColumn: "Kapittel",
+    addPlaceholder: "Nytt trådnavn",
+    addAction: "Legg til",
+    removeThread: "Fjern tråden «{title}»",
+    renameLabel: "Trådens navn",
+    cellLabel: "{chapter} — {thread}",
+    emptyPlotlines: "Ingen tråder ennå. Legg til en under for å starte matrisen.",
+    emptyChapters: "Skriv et kapittel først — matrisen trenger noe å vise."
+  },
   publish: {
     title: "Publiser",
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",
