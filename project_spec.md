@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.77
+Status: living document, v0.78
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.77 → v0.78:** Tionde punkten från `roadmap-ideas.md`
+byggd, första skivan: **Continuity 2.0 — kunskapsläckor**. Punkt 10
+täcker tre olika saker (spatial kontinuitet, objekttillstånd,
+kunskapstillstånd); bara den sista är byggbar utan antingen en
+författar-underhållen platskarta eller ett AI-anrop, så den kom
+först. Spatial kontinuitet och full objekttillståndsspårning kräver
+strukturerad platsdata författaren inte skriver in idag — kvar i kön.
+
+Ny ren funktion `knowledgeLeaksForChapter()` (`src/core/continuity.ts`,
+inget AI-anrop): för ett kapitel, hitta varje låst fakta modellen kan
+se som etablerades i ett levande kapitel SENARE i lässordningen —
+möjligt eftersom fakta redan bär `chapter_id` (och `sequence_index`
+på både fakta och kapitel). Fakta utan `chapter_id` (allmän
+worldbuilding), gömda fakta, och fakta i borttagna kapitel flaggas
+aldrig — inget att jämföra mot.
+
+Ny `ContinuityWarning`-komponent i kapitelredigeraren (samma `aside`-
+plats som kapitelbilden): en ihopfälld rad "N fakta från senare i
+berättelsen" i varningsfärg, som vid klick expanderar till en lista
+med varje fakta och en "Etablerad i "..."-länk som hoppar dit — samma
+klick-och-hoppa-mönster som Mentions/Ask Manuscript/Timeline redan
+använder. Medvetet informativ, inte blockerande: en tidig-kapitel-
+läcka kan vara helt avsiktlig (ett hopp framåt i tiden), så texten
+säger uttryckligen "inte nödvändigtvis ett problem".
+
+10 nya tester i `continuity.test.ts`. Verifierat i webbläsaren: låste
+en fakta ("Henrik: Secretly the killer") medan kapitel 2 var aktivt,
+bekräftade att kapitel 2 självt inte visar någon varning, att kapitel
+1 (tidigare i lässordningen) korrekt visar och expanderar varningen,
+och att klick på "Established in" hoppar till rätt kapitel.
 
 **Ändringslogg v0.76 → v0.77:** **Sammanslagningsförslag för snarlika
 fakta** (`roadmap-ideas.md` punkt 6b, utanför ursprungssamtalet).

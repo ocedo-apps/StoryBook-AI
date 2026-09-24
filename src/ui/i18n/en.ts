@@ -275,6 +275,14 @@ export const en = {
     moveEarlier: "Move earlier",
     moveLater: "Move later"
   },
+  continuity: {
+    leakCount: {
+      one: "{count} fact from later in the story",
+      other: "{count} facts from later in the story"
+    },
+    leakHint: "These are already locked truth, but established after this chapter — the model can still see them here. Not necessarily a problem (maybe this chapter is a flash-forward), just worth a glance.",
+    establishedIn: "Established in “{chapter}”"
+  },
   publish: {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",

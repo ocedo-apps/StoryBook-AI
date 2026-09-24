@@ -51,6 +51,7 @@ import {
 } from "@core/BookSchema";
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
+import { knowledgeLeaksForChapter } from "@core/continuity";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
 import { selectedText } from "@core/textSpan";
@@ -68,6 +69,7 @@ import { LocaleSelect } from "./LocaleSelect";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
+import { ContinuityWarning } from "./ContinuityWarning";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
@@ -1248,6 +1250,7 @@ export function Editor() {
                     onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
                     onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
                   />
+                  <ContinuityWarning leaks={knowledgeLeaksForChapter(book, chapter.id)} onJumpToChapter={store.setChapterId} />
                   <ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />
                 </>
               }

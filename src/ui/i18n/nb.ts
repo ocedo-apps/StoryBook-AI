@@ -277,6 +277,14 @@ export const nb: Messages = {
     moveEarlier: "Flytt tidligere",
     moveLater: "Flytt senere"
   },
+  continuity: {
+    leakCount: {
+      one: "{count} faktum fra senere i historien",
+      other: "{count} fakta fra senere i historien"
+    },
+    leakHint: "Disse er allerede låst sannhet, men etablert etter dette kapitlet — modellen kan likevel se dem her. Ikke nødvendigvis et problem (kanskje er dette kapitlet et hopp fremover), men verdt en rask sjekk.",
+    establishedIn: "Etablert i «{chapter}»"
+  },
   publish: {
     title: "Publiser",
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",

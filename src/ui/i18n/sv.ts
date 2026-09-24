@@ -277,6 +277,14 @@ export const sv: Messages = {
     moveEarlier: "Flytta tidigare",
     moveLater: "Flytta senare"
   },
+  continuity: {
+    leakCount: {
+      one: "{count} fakta från senare i berättelsen",
+      other: "{count} fakta från senare i berättelsen"
+    },
+    leakHint: "De här är redan låst sanning, men etablerade efter det här kapitlet — modellen kan ändå se dem här. Inte nödvändigtvis ett problem (kanske är det här kapitlet ett hopp framåt), men värt en snabb koll.",
+    establishedIn: "Etablerad i ”{chapter}”"
+  },
   publish: {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",

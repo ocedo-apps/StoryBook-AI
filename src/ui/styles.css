@@ -1619,6 +1619,38 @@ button:disabled {
   color: #ffb4a8;
 }
 
+.continuity-warning {
+  margin: 0.6rem 0;
+}
+
+.continuity-warning-trigger {
+  font-size: 0.78rem;
+  color: var(--flag);
+}
+
+.continuity-warning-hint {
+  font-size: 0.8rem !important;
+  margin: 0.3rem 0 0.5rem !important;
+}
+
+.continuity-leak-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.continuity-leak-item {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.continuity-leak-value {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
 .chapter-voice-reset {
   grid-area: 1 / 1;
   justify-self: end;

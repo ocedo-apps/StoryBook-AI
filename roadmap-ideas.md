@@ -167,13 +167,19 @@ Bygger på scenens `story_time`-fält (punkt 5) och löser det öppna
 specfrågan om att `sequence_index` är bokordning, inte story-clock
 (§11).
 
-### 10. Continuity 2.0
+### 10. Continuity 2.0 — kunskapsläckor klara (v0.78), spatial/objekttillstånd återstår
 Spatial kontinuitet (omöjlig förflyttning), objekttillstånd
 (`gun.location`), kunskapstillstånd ("possible knowledge leak: Henrik
 vet inte det här än"). Detta är LLM-steg 3-territoriet som
 `ConsistencyGate` medvetet lämnat utanför v1 (§5, §6, §11) — men
 strukturerad data från scenproveniens (punkt 6) gör att mycket av det
 kan lösas deterministiskt, utan modellanrop.
+
+Kunskapsläckor byggda (v0.78): `knowledgeLeaksForChapter()` varnar
+när ett kapitel har fakta synliga som etablerades senare i
+lässordningen. Spatial kontinuitet och objekttillstånd väntar —
+de kräver antingen en platskarta författaren måste underhålla, eller
+ett AI-anrop, inget av det byggt än.
 
 ### 11. Plotlines / scen-matris
 Trådar kopplade direkt till scener (`scene.plotline_ids[]`), visuellt
