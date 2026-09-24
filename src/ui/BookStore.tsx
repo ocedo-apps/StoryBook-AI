@@ -19,6 +19,15 @@ import {
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { chapterScenes } from "@core/bookScene";
+import {
+  ASK_MANUSCRIPT_SYSTEM,
+  askManuscriptUserPrompt,
+  rankByKeywordOverlap,
+  rankBySimilarity,
+  type AskManuscriptAnswer,
+  type ManuscriptEvidence,
+  type ManuscriptSource
+} from "@core/askManuscript";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
@@ -106,6 +115,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [chapterFeedback, setChapterFeedback] = useState<ChapterFeedback | null>(null);
   const [modelAsides, setModelAsides] = useState<string[]>([]);
   const [lastPrompt, setLastPrompt] = useState<PromptDebugEntry | null>(null);
+  const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
@@ -381,6 +391,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
   const showSynopsis = useCallback(() => {
     setSurface("synopsis");
+  }, []);
+
+  const showAsk = useCallback(() => {
+    setSurface("ask");
   }, []);
 
   const dismissModelAside = useCallback(() => setModelAsides([]), []);
@@ -996,6 +1010,81 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, reviewModel, models.length, ollamaError]
   );
 
+  const askManuscript = useCallback(
+    async (question: string) => {
+      const current = bookRef.current;
+      const trimmed = question.trim();
+      if (!current || busy || !trimmed) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      const chaptersWithProse = proseChapters(current);
+      if (chaptersWithProse.length === 0) {
+        setError(STORE_ERROR.askManuscriptEmpty);
+        return;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("ask-manuscript");
+      setError(null);
+
+      const sources: ManuscriptSource[] = chaptersWithProse.map((chapterItem) => {
+        const scene = chapterScenes(chapterItem)[0];
+        return {
+          sceneId: scene?.id ?? chapterItem.id,
+          chapterId: chapterItem.id,
+          chapterTitle: chapterItem.title,
+          prose: scene?.prose ?? chapterItem.prose
+        };
+      });
+
+      try {
+        const provider = new OllamaModelProvider({ model: reviewModel });
+        let evidence: ManuscriptEvidence[];
+        try {
+          const [sourceEmbeddings, queryEmbeddings] = await Promise.all([
+            provider.embed({ texts: sources.map((source) => source.prose), signal: abort.signal }),
+            provider.embed({ texts: [trimmed], signal: abort.signal })
+          ]);
+          const queryEmbedding = queryEmbeddings[0];
+          if (!queryEmbedding) throw new Error("No query embedding returned.");
+          evidence = rankBySimilarity(queryEmbedding, sources, sourceEmbeddings);
+        } catch (embedErr) {
+          if ((embedErr as { name?: string }).name === "AbortError") throw embedErr;
+          evidence = rankByKeywordOverlap(trimmed, sources);
+        }
+
+        if (evidence.length === 0) {
+          setError(STORE_ERROR.askManuscriptNoMatch);
+          return;
+        }
+
+        const askMessages: PromptDebugMessage[] = [
+          { role: "system", content: ASK_MANUSCRIPT_SYSTEM },
+          { role: "user", content: askManuscriptUserPrompt(trimmed, evidence) }
+        ];
+        recordPrompt("ask-manuscript", reviewModel, askMessages);
+        const raw = await provider.chat({
+          messages: askMessages,
+          temperature: 0.2,
+          maxTokens: 700,
+          signal: abort.signal
+        });
+        setAskManuscriptAnswer({ question: trimmed, answer: raw.trim(), evidence });
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return;
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, models.length, ollamaError, recordPrompt, reviewModel]
+  );
+
   const startProofread = useCallback(
     async (opts?: { restart?: boolean }) => {
       const current = bookRef.current;
@@ -1141,6 +1230,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     chapterFeedback,
     modelAsides,
     lastPrompt,
+    askManuscriptAnswer,
     refresh,
     openBook,
     closeBook,
@@ -1153,6 +1243,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showSettings,
     showBrainstorm,
     showSynopsis,
+    showAsk,
     dismissModelAside,
     setModel,
     setWritingPrimer,
@@ -1174,6 +1265,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     analyzeChapter,
     startProofread,
     generateIllustrationPrompt,
+    askManuscript,
     addFact,
     reviseFact: revise,
     approve,

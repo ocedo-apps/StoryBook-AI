@@ -1,9 +1,45 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.74
+Status: living document, v0.75
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.74 → v0.75:** Åttonde punkten från `roadmap-ideas.md`
+byggd: **Lokalt semantiskt index + Ask Manuscript v1** — första
+funktionen med tydligt synligt värde sedan Mentions. Ny sida "Ask
+Manuscript" i sidonavigeringen (bredvid Settings/Brainstorm/Synopsis):
+författaren ställer en fråga om sin egen berättelse, och svaret bygger
+uteslutande på det som faktiskt är skrivet.
+
+Retrieval (`src/core/askManuscript.ts`, ren logik, inga AI-anrop):
+varje kapitels enda scen (roadmap-punkt 5) blir en sökbar källa.
+Primärväg är embedding-baserad kosinuslikhet mellan frågan och varje
+kapitel, via `embed()` från model-provider-abstraktionen (punkt 4).
+Om embeddings misslyckas — t.ex. för att den laddade modellen inte har
+embeddingstöd — faller appen automatiskt och tyst tillbaka på en
+deterministisk nyckelordsöverlappning, så funktionen aldrig kräver att
+författaren ställer in en separat embeddingsmodell för att fungera.
+
+De bästa träffarna (standard: 4) skickas som citat till modellen med
+en systemprompt som uttryckligen förbjuder påhitt utanför citaten och
+kräver att den säger ifrån när svaret inte finns i manuset. Käll-listan
+under svaret byggs alltid deterministiskt av vår egen sökkod — aldrig
+av vad modellen själv råkar nämna — så den är alltid korrekt. Varje
+källa visar kapitelnamn, ett citat, och en klickbar länk (återanvänder
+samma "hoppa till kapitel"-mönster som Mentions v1) som hoppar rakt dit
+i manusredigeraren.
+
+`Chapter.scenes[]` (punkt 5) och `chapterScenes()` återanvänds
+oförändrade som källgranularitet — ingen ombyggnad krävdes. Ny
+AI Context Inspector-operation "Ask Manuscript". 10 nya tester i
+`ask-manuscript.test.ts` (kosinuslikhet, gräns-fall, topK, uteslutning
+av nollträffar, nyckelordsfallback, promptformat). Verifierat i
+webbläsaren med mockad Ollama i två körningar: (1) embeddings fungerar
+— rätt kapitel rankas överst, svar och källor renderas, klick hoppar
+till rätt kapitel; (2) embeddings misslyckas (500) — nyckelordsfallback
+tar över tyst, författaren märker ingen skillnad förutom att svaret
+fortfarande kommer fram.
 
 **Ändringslogg v0.73 → v0.74:** Sjätte och sjunde punkten från
 `roadmap-ideas.md` byggda tillsammans, eftersom de i praktiken är

@@ -248,8 +248,21 @@ export const en = {
       extract: "Extract facts",
       analyze: "Analyze",
       illustrate: "Illustration prompt",
-      proofread: "Proofread"
+      proofread: "Proofread",
+      "ask-manuscript": "Ask Manuscript"
     }
+  },
+  askManuscript: {
+    nav: "Ask Manuscript",
+    title: "Ask your manuscript",
+    lede: "Ask a question about your story. The answer only uses what is actually written — with the chapters it drew from, so you can check it yourself.",
+    placeholder: "Where did Henrik first meet Elin?",
+    action: "Ask",
+    asking: "Asking…",
+    answerHeading: "Answer",
+    sourcesHeading: "Sources",
+    jumpToChapter: "Open “{chapter}”",
+    empty: "Ask a question about your manuscript and the answer will appear here, with its sources."
   },
   publish: {
     title: "Publish",
@@ -715,6 +728,8 @@ export const en = {
     analyzeEmpty: "Write or draft some prose before analyzing the chapter.",
     extractorNone: "Extractor found no stated facts in this chapter.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
+    askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
+    askManuscriptNoMatch: "Nothing in the manuscript matches that question.",
     imageChoose: "Choose an image file.",
     imageRead: "Could not read that image.",
     imageAdd: "Could not add that image."

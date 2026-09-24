@@ -250,8 +250,21 @@ export const nb: Messages = {
       extract: "Hent fakta",
       analyze: "Analyser",
       illustrate: "Illustrasjonsprompt",
-      proofread: "Korrekturlesing"
+      proofread: "Korrekturlesing",
+      "ask-manuscript": "Spør manuset"
     }
+  },
+  askManuscript: {
+    nav: "Spør manuset",
+    title: "Spør manuset ditt",
+    lede: "Still et spørsmål om historien din. Svaret bruker bare det som faktisk er skrevet — med kapitlene det er hentet fra, så du selv kan sjekke det.",
+    placeholder: "Hvor møttes Henrik og Elin første gang?",
+    action: "Spør",
+    asking: "Spør…",
+    answerHeading: "Svar",
+    sourcesHeading: "Kilder",
+    jumpToChapter: "Åpne «{chapter}»",
+    empty: "Still et spørsmål om manuset ditt, så vises svaret her, sammen med kildene."
   },
   publish: {
     title: "Publiser",
@@ -717,6 +730,8 @@ export const nb: Messages = {
     analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
+    askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
+    askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",
     imageChoose: "Velg en bildefil.",
     imageRead: "Kunne ikke lese det bildet.",
     imageAdd: "Kunne ikke legge til det bildet."

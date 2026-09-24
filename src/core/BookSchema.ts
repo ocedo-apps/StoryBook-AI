@@ -220,7 +220,7 @@ export function createBook(title: string): Book {
   };
 }
 
-export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter";
+export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask";
 
 /**
  * A blank manuscript opens on Settings. Brainstorm once notes exist.

@@ -5,6 +5,7 @@ export type PromptOperation =
   | "elaborate"
   | "instruct"
   | "ask"
+  | "ask-manuscript"
   | "word-swap"
   | "sentence-split"
   | "paragraph-break"

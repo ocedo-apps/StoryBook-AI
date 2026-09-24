@@ -133,7 +133,7 @@ en enda stor omskrivning. Extract facts-flödet stämplar nu `scene_id`
 — deras prompter blir meningsfullt scen-medvetna först när riktig
 scen-uppdelning finns att rikta dem mot, inte innan.
 
-### 8. Lokalt semantiskt index + Ask Manuscript
+### 8. Lokalt semantiskt index + Ask Manuscript ✅ byggd (v0.75)
 Byggs medvetet efter Scene, inte parallellt — inte för att det är
 tekniskt omöjligt före, utan för att Scene avgör vilken narrativ enhet
 retrieval-systemet ska förankras i (annars byggs indexidentiteter,

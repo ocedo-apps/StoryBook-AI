@@ -55,6 +55,7 @@ import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
 import { selectedText } from "@core/textSpan";
 import { useIllustrationStyles } from "./useIllustrationStyles";
 import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
+import { AskManuscriptPanel } from "./AskManuscript";
 import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
@@ -281,6 +282,7 @@ export function Editor() {
   const onBrainstorm = surface === "brainstorm";
   const onSynopsis = surface === "synopsis";
   const onSettings = surface === "settings";
+  const onAskManuscript = surface === "ask";
   const [boardOpen, setBoardOpen] = useState(false);
   const onBoard = boardOpen;
   const [askOpen, setAskOpen] = useState(false);
@@ -317,9 +319,11 @@ export function Editor() {
   );
   const dragChapterIdRef = useRef<string | null>(null);
   const names = entityLabels(book.facts, book.entity_kinds);
-  const pageText = onSettings ? "" : onBrainstorm ? book.brainstorm : onSynopsis ? book.synopsis : chapter.prose;
+  const pageText =
+    onSettings || onAskManuscript ? "" : onBrainstorm ? book.brainstorm : onSynopsis ? book.synopsis : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
-  const activeReaderAge = onBrainstorm || onSynopsis || onSettings ? book.reader_age : resolveReader(book, chapter);
+  const activeReaderAge =
+    onBrainstorm || onSynopsis || onSettings || onAskManuscript ? book.reader_age : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
   const findCanvas =
     findHighlight && findHighlight.needle.trim()
@@ -668,6 +672,17 @@ export function Editor() {
             }}
           >
             {m.editor.synopsis}
+          </button>
+          <button
+            type="button"
+            className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showAsk();
+            }}
+          >
+            {m.askManuscript.nav}
           </button>
           <button
             type="button"
@@ -1026,6 +1041,13 @@ export function Editor() {
               </div>
             ) : null}
           </BrainstormBoard>
+        ) : onAskManuscript ? (
+          <AskManuscriptPanel
+            answer={store.askManuscriptAnswer}
+            busy={busy === "ask-manuscript"}
+            onAsk={(question) => void store.askManuscript(question)}
+            onJumpToChapter={store.setChapterId}
+          />
         ) : onSynopsis ? (
           <main className="manuscript">
             <h1 className="chapter-title">{m.editor.synopsis}</h1>

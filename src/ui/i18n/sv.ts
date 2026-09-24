@@ -250,8 +250,21 @@ export const sv: Messages = {
       extract: "Extrahera fakta",
       analyze: "Analysera",
       illustrate: "Illustrationsprompt",
-      proofread: "Korrekturläsning"
+      proofread: "Korrekturläsning",
+      "ask-manuscript": "Fråga manuset"
     }
+  },
+  askManuscript: {
+    nav: "Fråga manuset",
+    title: "Fråga ditt manus",
+    lede: "Ställ en fråga om din berättelse. Svaret använder bara det som faktiskt är skrivet — med de kapitel det hämtats från, så att du själv kan kontrollera det.",
+    placeholder: "Var träffades Henrik och Elin första gången?",
+    action: "Fråga",
+    asking: "Frågar…",
+    answerHeading: "Svar",
+    sourcesHeading: "Källor",
+    jumpToChapter: "Öppna ”{chapter}”",
+    empty: "Ställ en fråga om ditt manus så visas svaret här, tillsammans med källorna."
   },
   publish: {
     title: "Publicera",
@@ -717,6 +730,8 @@ export const sv: Messages = {
     analyzeEmpty: "Skriv eller ta fram lite prosa innan du analyserar kapitlet.",
     extractorNone: "Extraktorn hittade inga uttalade fakta i det här kapitlet.",
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
+    askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",
+    askManuscriptNoMatch: "Inget i manuset matchar den frågan.",
     imageChoose: "Välj en bildfil.",
     imageRead: "Kunde inte läsa den bilden.",
     imageAdd: "Kunde inte lägga till den bilden."
