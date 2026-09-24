@@ -298,6 +298,19 @@ export const sv: Messages = {
     emptyPlotlines: "Inga trådar än. Lägg till en nedanför för att starta matrisen.",
     emptyChapters: "Skriv ett kapitel först — matrisen behöver något att visa."
   },
+  scenes: {
+    toggleCount: {
+      one: "{count} scen",
+      other: "{count} scener"
+    },
+    titlePlaceholder: "Namnlös scen",
+    titleLabel: "Titel för scen {index}",
+    briefPlaceholder: "Skrivanteckning bara för den här scenen (frivilligt)",
+    briefLabel: "Anteckning för scen {index}",
+    mergeWithNext: "Slå ihop med nästa ↓",
+    splitHere: "Dela i två…",
+    splitHint: "Välj var den nya scenen ska börja:"
+  },
   publish: {
     title: "Publicera",
     body: "En läsbar kopia av berättelsen. Lämnar brainstorm utanför. RTF och ODT öppnas i Scrivener. HTML öppnas i valfri webbläsare. ePub öppnas i en e-boksläsare. PDF är redo att skriva ut.",

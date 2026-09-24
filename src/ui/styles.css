@@ -3935,3 +3935,138 @@ button.illustration-genre-item:focus-visible {
     min-height: 0;
   }
 }
+
+.scenes-panel {
+  margin: 0.6rem 0.55rem 0.9rem;
+}
+
+.scenes-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.35rem;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.scenes-panel-toggle .chevron {
+  display: inline-block;
+  width: 0.8em;
+  font-size: 0.9em;
+}
+
+.scenes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scene-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--paper);
+  padding: 0.55rem 0.65rem;
+}
+
+.scene-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scene-index {
+  flex: none;
+  width: 1.4em;
+  height: 1.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+
+.scene-card-head input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  padding: 0.1rem 0.1rem;
+}
+
+.scene-card-head input[type="text"]:hover,
+.scene-card-head input[type="text"]:focus {
+  border-bottom-color: var(--border);
+  outline: none;
+}
+
+.scene-card-head input[type="text"]::placeholder {
+  color: var(--text-faint);
+}
+
+.scene-brief {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  resize: vertical;
+  background: transparent;
+  border: 1px dashed var(--border-soft);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  padding: 0.3rem 0.4rem;
+}
+
+.scene-brief::placeholder {
+  color: var(--text-faint);
+}
+
+.scene-preview {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-prose);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.scene-split {
+  margin-top: 0.35rem;
+}
+
+.scene-split-hint {
+  margin: 0.3rem 0 0.15rem;
+  font-size: 0.78rem;
+}
+
+.scene-split-paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scene-split-paragraphs button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.28rem 0.4rem;
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-family: var(--font-prose);
+}
+
+.scene-split-paragraphs button:hover {
+  background: var(--raised);
+  color: var(--text);
+}

@@ -18,7 +18,8 @@ inte en ensidig lista.
 | 2 | Story Bible: History-vy | ✅ byggd (v0.70) |
 | 3 | Story Bible: Mentions v1 | ✅ byggd (v0.71) |
 | 4 | Model-provider-abstraktion | ✅ byggd (v0.72) |
-| 5 | Scene-migrering, "tråkig" v1 | ✅ byggd (v0.73) |
+| 5 | Scene-migrering, "tråkig" v1 | ✅ byggd (v0.73) — datamodell fanns, scenindelning saknades |
+| 5b | Minimal scen-delning/sammanslagning + arkitekturbeslutet låst | ✅ byggd (v0.81) |
 | 6 | Fakta får scenproveniens | ✅ byggd (v0.74) |
 | 6b | Sammanslagningsförslag för snarlika fakta | ✅ byggd (v0.77) |
 | 7 | AI-pipelinen blir scen-medveten | 🟡 delvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår |
@@ -61,28 +62,49 @@ att ligga som ett separat sista steg.
 
 ---
 
-## Det enda stora arkitekturbeslutet
+## Det enda stora arkitekturbeslutet — löst (v0.81)
 
-Innan någon Scene-kod skrivs måste den här frågan besvaras, med samma
-noggrannhet som specen redan lagt på gränsen mellan kanon,
-skrivinstruktion och RPG-runtime (§4.1, §7.1, §9):
+ChatGPT granskade roadmapen (2026-09-24) och pekade på en verklig lucka:
+`chapter.scenes` fanns i schemat sen v0.73 men skrevs aldrig till någonstans
+— `chapterScenes()` härledde alltid exakt en scen från `chapter.prose`.
+Statustabellens "✅ byggd" på punkt 5 var alltså optimistisk; brödtexten
+under punkt 5/7 var redan ärlig om det, men raden i tabellen gav fel
+intryck vid en snabb blick. Innan mer scen-byggande (setup/payoff,
+tidsmedveten bibel, riktig spatial kontinuitet) behövde frågan faktiskt
+besvaras:
 
 > Vad är en Scene i StoryBook AI? Vad äger `BookScene` själv? Vad är
-> `NarrativeFact`? Vad är bara skrivinstruktion (som kapitlets brief,
-> POV, Voice redan är)? Och exakt vilken del av en Scene får korsa
-> integrationsgränsen till Sandbox?
+> `NarrativeFact`? Vad är bara skrivinstruktion? Och exakt vilken del av
+> en Scene får korsa integrationsgränsen till Sandbox?
 
-Ett konkret inspel till den diskussionen, redan verifierat mot koden:
-Story Bible har redan en egen entitetskategori för platser
-(`LOCATIONS`-fliken, samma `entity_ref`-system som karaktärer). En
-scens `location_ref` (och `entity_refs[]`) bör peka på befintliga Story
-Bible-entiteter, inte bli ett nytt fritextfält som duplicerar det
-systemet. `story_time` bör troligen luta sig mot samma `core.*`-
-namnrymdstänk som redan styr vad som får korsa gränsen till Sandbox,
-snarare än en helt egen scen-specifik tidsrepresentation.
+**Beslutet, byggt i v0.81 (`bookScene.ts`):**
 
-Det här beslutet är ett eget designspår, parallellt med kodningsordningen
-nedan — inte punkt 1 i kön.
+- En Scene äger **bara en delningspunkt + metadata** — aldrig egen prosa.
+  `chapter.scenes[]` lagrar `{ id, startParagraph, title?, brief? }`, där
+  `startParagraph` är ett styckeindex i `chapter.prose`. Prosan för varje
+  scen härleds alltid genom att dela `chapter.prose` vid de lagrade
+  styckena — exakt samma "alltid färsk, aldrig en stale snapshot"-princip
+  som `chapterScenes()` redan hade för fallet utan delningar. Ingen risk
+  för att scen-text och kapitel-text glider isär, för det finns bara en
+  sanning (`chapter.prose`) att glida ifrån.
+- `title` och `brief` är skrivinstruktion, samma status som `chapter.brief`
+  — inte kanon. `brief` är den enda av de två som stannar i boken;
+  `title` är det enda scen-fält som någonsin är tänkt att korsa gränsen
+  till Sandbox (`SceneProjection`, ej byggd än).
+- `location_ref`, `entity_refs[]` och ett scen-eget `story_time` är
+  **medvetet uteslutna** ur den här skivan — de väntar på en verklig
+  konsument (spatial kontinuitet, en scen-nivå Timeline) istället för att
+  byggas i förskott. Story Bibles befintliga `LOCATIONS`-flik och
+  `entity_ref`-system är fortfarande den tänkta ankarpunkten den dagen
+  `location_ref` byggs, inte ett nytt fritextfält.
+- `NarrativeFact` förblir den enda kanon-lagret. En scen bär aldrig fakta
+  direkt, bara `scene_id`-bakreferenser från fakta (redan byggt, punkt 6).
+
+Redigeringsytan förblir oförändrad — `ProseCanvas` och kapitlets enda
+textfält rör ingen av den här koden. En ny "Scener"-panel (kollapsad som
+standard, öppen automatiskt när fler än en scen finns) sitter mellan
+kapitlets kort-fält och prosan: namnge en scen, skriv dess brief, dela
+den vid valfritt stycke, eller slå ihop den med nästa. Se punkt 5b.
 
 ---
 
@@ -148,6 +170,22 @@ saves"-migrering, och `parseBook()` kör redan en backfill-funktion
 Scenens fältyta växer sedan stegvis (title, brief, summary, pov,
 viewpoint, tense, location_ref, story_time, entity_refs, plotline_ids)
 — inte allt på en gång.
+
+### 5b. Minimal scen-delning/sammanslagning + arkitekturbeslutet låst ✅ byggd (v0.81)
+Uppstod ur ChatGPTs granskning av den här roadmapen: "scenmigrering byggd"
+och "riktig scen-uppdelning saknas" är inte samma sak, och tabellraden
+sa bara det första. Löste designfrågan (se "Det enda stora
+arkitekturbeslutet" ovan) och byggde den minsta möjliga skrivbara
+scen-ytan ovanpå den: `chapter.scenes[]` lagrar delningspunkter
+(styckeindex i `chapter.prose`) plus valfri titel/brief per scen —
+aldrig egen prosa, så kapitlets prosa förblir den enda sanningen. En ny
+"Scener"-panel i kapitel-editorn (dold som standard tills en delning
+finns) låter författaren namnge en scen, skriva en kort anteckning för
+just den scenen, dela vid valfritt stycke eller slå ihop med nästa — allt
+utan att röra `ProseCanvas` eller manusets enda textfält.
+`chapterScenes()` (använd redan av Ask Manuscript, faktakontrollen i
+Korrekturläsning m.fl.) märker inte av skillnaden: fallet utan delningar
+fungerar exakt som innan.
 
 ### 6. Fakta får scenproveniens ✅ byggd (v0.74)
 `NarrativeFact.scene_id` (optional, additivt, icke-brytande — precis

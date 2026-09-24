@@ -298,6 +298,19 @@ export const nb: Messages = {
     emptyPlotlines: "Ingen tråder ennå. Legg til en under for å starte matrisen.",
     emptyChapters: "Skriv et kapittel først — matrisen trenger noe å vise."
   },
+  scenes: {
+    toggleCount: {
+      one: "{count} scene",
+      other: "{count} scener"
+    },
+    titlePlaceholder: "Navnløs scene",
+    titleLabel: "Tittel for scene {index}",
+    briefPlaceholder: "Skrivenotat bare for denne scenen (valgfritt)",
+    briefLabel: "Notat for scene {index}",
+    mergeWithNext: "Slå sammen med neste ↓",
+    splitHere: "Del i to…",
+    splitHint: "Velg hvor den nye scenen skal starte:"
+  },
   publish: {
     title: "Publiser",
     body: "En lesbar kopi av historien. Lar brainstorm ligge. RTF og ODT åpnes i Scrivener. HTML åpnes i en hvilken som helst nettleser. ePub åpnes i en e-bokleser. PDF er klar til utskrift.",

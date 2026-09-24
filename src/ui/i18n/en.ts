@@ -296,6 +296,19 @@ export const en = {
     emptyPlotlines: "No threads yet. Add one below to start the matrix.",
     emptyChapters: "Write a chapter first — the matrix needs something to show."
   },
+  scenes: {
+    toggleCount: {
+      one: "{count} scene",
+      other: "{count} scenes"
+    },
+    titlePlaceholder: "Untitled scene",
+    titleLabel: "Scene {index} title",
+    briefPlaceholder: "Writing note for this scene only (optional)",
+    briefLabel: "Scene {index} brief",
+    mergeWithNext: "Merge with next ↓",
+    splitHere: "Split into two…",
+    splitHint: "Pick where the new scene starts:"
+  },
   publish: {
     title: "Publish",
     body: "A readable copy of the story. Leaves brainstorm out. RTF and ODT open in Scrivener. HTML opens in any browser. ePub opens in an e-reader. PDF is ready to print.",

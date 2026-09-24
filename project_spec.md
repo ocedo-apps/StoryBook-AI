@@ -1,9 +1,48 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.80
+Status: living document, v0.81
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.80 → v0.81:** ChatGPT granskade `roadmap-ideas.md` och
+pekade på en verklig lucka: statustabellens "Scene-migrering ✅ byggd"
+(punkt 5) gav intrycket att scenindelning fanns, men `chapter.scenes`
+skrevs faktiskt aldrig till någonstans — `chapterScenes()` härledde
+alltid exakt en scen från hela kapitlets `prose`. Löste det öppna
+designspåret ("Det enda stora arkitekturbeslutet" i roadmapen) och
+byggde den minsta skrivbara scen-ytan ovanpå beslutet.
+
+**Beslutet:** en Scene äger bara en delningspunkt plus metadata, aldrig
+egen prosa. `bookScene.ts` fick om `chapter.scenes[]` till
+`{ id, startParagraph, title?, brief? }` — `startParagraph` är ett
+styckeindex i `chapter.prose` (via `splitFlowParagraphs`, samma
+styckedelning `ProseCanvas` redan visar). Varje scens prosa härleds
+genom att dela `chapter.prose` vid de lagrade styckena, aldrig lagrad
+separat — samma "alltid färsk, aldrig en stale snapshot"-princip
+`chapterScenes()` redan hade. `location_ref`, `entity_refs[]` och ett
+scen-eget `story_time` byggdes medvetet INTE nu — de väntar på en
+verklig konsument. `NarrativeFact` förblir det enda kanon-lagret.
+
+**UI:** ny kollapsad "Scener"-panel (`ScenesPanel.tsx`) mellan
+kapitlets kort-fält och prosan — öppen automatiskt så fort fler än en
+scen finns. Varje scenkort visar ett förhandsvisat textutdrag, ett
+titel-fält, ett brief-fält, en "Dela i två…"-lista av kapitlets stycken
+att dela vid, och (utom på sista scenen) "Slå ihop med nästa". Rör
+aldrig `ProseCanvas` eller kapitlets enda textfält — bara ett nytt
+härlett index ovanpå samma `prose`-sträng.
+
+`chapterScenes()`s befintliga konsumenter (Ask Manuscript, Korrekturläsningens
+faktasteg, extraktionens `scene_id`-stämpling) märker inte av
+förändringen: utan delningar beter sig allt exakt som innan, bara med
+ett nytt `startParagraph: 0`-fält i den härledda scenen.
+
+17 nya/uppdaterade tester (`book-scene.test.ts` skrevs om helt för den
+nya formen: split/merge/rename/clamp-fall). Verifierat i webbläsaren:
+delade ett kapitel i två scener, namngav den första, skrev en brief,
+laddade om sidan och bekräftade att titel/brief/delning överlevde,
+slog ihop scenerna igen och bekräftade att titeln följde med, och att
+själva kapitel-prosan aldrig rördes genom hela flödet.
 
 **Ändringslogg v0.79 → v0.80:** Två utökningar av Korrekturläsningen,
 efter en fråga om Novelcrafter-jämförelsen ledde in på om

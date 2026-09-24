@@ -71,6 +71,7 @@ import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
+import { ScenesPanel } from "./ScenesPanel";
 import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
@@ -1250,6 +1251,10 @@ export function Editor() {
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
               />
             </div>
+            <ScenesPanel
+              chapter={chapter}
+              onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
+            />
             <ProseCanvas
               value={chapter.prose}
               onChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { prose: next }))}

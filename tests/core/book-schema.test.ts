@@ -187,14 +187,14 @@ describe("chapters", () => {
     const chapter = book.chapters[0]!;
     const withScenes = updateChapter(book, chapter.id, {
       scenes: [
-        { id: "s1", sequence_index: 0, prose: "The dock at dawn." },
-        { id: "s2", sequence_index: 1, prose: "The dock at dusk." }
+        { id: "s1", startParagraph: 0, title: "Dawn" },
+        { id: "s2", startParagraph: 1 }
       ]
     });
     const parsed = parseBook(withScenes);
     expect(parsed.chapters[0]?.scenes).toEqual([
-      { id: "s1", sequence_index: 0, prose: "The dock at dawn." },
-      { id: "s2", sequence_index: 1, prose: "The dock at dusk." }
+      { id: "s1", startParagraph: 0, title: "Dawn" },
+      { id: "s2", startParagraph: 1 }
     ]);
   });
 

@@ -8,7 +8,7 @@ import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
-import { SceneSchema } from "./bookScene";
+import { SceneMetaSchema } from "./bookScene";
 
 export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "restore"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
@@ -59,11 +59,13 @@ export const ChapterSchema = z.object({
    */
   startImage: EntityPictureSchema.optional(),
   /**
-   * The chapter's internal scene beats. Missing/empty until scene-splitting
-   * exists — chapterScenes() (bookScene.ts) derives a single scene from
-   * `prose` in that case, always fresh, never a stale snapshot.
+   * Where this chapter's scenes split, plus per-scene title/brief. Missing/
+   * empty until the author splits the chapter — chapterScenes() (bookScene.ts)
+   * derives a single scene from `prose` in that case. Never stores prose
+   * itself; a split is a paragraph index, so `prose` stays the one source
+   * of truth for the text (see bookScene.ts for the full design decision).
    */
-  scenes: z.array(SceneSchema).optional(),
+  scenes: z.array(SceneMetaSchema).optional(),
   /**
    * Free-text "when this happens in-world" label — a writing note, not a
    * date. Chapter-level in v1 since a chapter is still exactly one scene
