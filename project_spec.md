@@ -1,9 +1,57 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.79
+Status: living document, v0.80
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.79 → v0.80:** Två utökningar av Korrekturläsningen,
+efter en fråga om Novelcrafter-jämförelsen ledde in på om
+"kontrollera fakta mot hela boken" redan fanns där (nej) och om
+Korrekturläsningens befintliga motor (helboks-genomgång, paus/
+återuppta, förloppsindikator, "kolla bara det som ändrats") var rätt
+grund att bygga det på (ja).
+
+**Femte steget: Faktakontroll.** Nytt steg "facts" i
+`PROOFREAD_STAGES`, sist i kedjan (grammatik → upprepade scener →
+stil → ålder → fakta). Bygger INGEN ny AI-prompt — återanvänder hela
+den befintliga Extract facts-pipelinen (`EXTRACTOR_SYSTEM`,
+`extractorUserPrompt`, `parseExtractorPayload`, `applyExtractorDrafts`
+från `ConsistencyGate`) per levande kapitel, i lässordning. Nya
+förslag och sammanslagningsförslag hamnar i exakt samma Story
+Bible-granskningskö som en manuell "Extract facts"-klick redan
+skapar — ingen ny granskningsyta byggd. Korrekturläsningens resultat
+visar bara en pekare per kapitel ("N nya fakta föreslagna — se Story
+Bible → Review"), klickbar för att hoppa till kapitlet.
+
+Ny `ProofreadIO.saveFacts()`-kanal (vid sidan av den befintliga
+jobb-`save()`) så att fakta som extraherats tidigt i passet är
+synliga för `ConsistencyGate` när senare kapitel körs — annars hade
+sammanslagningsförslag och konflikter inte kunnat upptäckas mellan
+kapitel inom samma körning. Två befintliga stegvakter (`runScenes`,
+`runStyle`) hade en förbisedd hårdkodad lista över senare steg som
+inte kände igen "facts" — fixat så återupptagning mitt i faktasteget
+inte av misstag kör om tidigare steg.
+
+**Stil-steget kollar nu även känsla, inte bara register.** Författaren
+påpekade att stil-jämförelsen mellan kapitel borde omfatta känsla/
+stämning, inte bara diktion/meningsbyggnad mot den deklarerade
+Voice-texten. Ingen ny arkitektur behövdes — steget skickar redan alla
+kapitel till modellen i ett enda anrop, så den kan redan bedöma
+stämningsskiften mellan grannkapitel. Bara `STYLE_SYSTEM`-prompten
+utökad med en andra flaggbar dimension (stämning som rycker till utan
+att berättelsen själv motiverar det), plus motsvarande gränssnittstext
+("Style and mood across chapters").
+
+12 nya/uppdaterade tester (`proofread.test.ts`): faktaextraktion per
+kapitel, sammanslagningsförslag för en nästan-dubblett mot en låst
+fakta (samma `isPossibleEnrichment()`-logik som punkt 6b), tyst
+utebliven flagga när inget nytt tillförs, tolerans för ett
+oparserbart AI-svar, och att återupptagning hoppar över redan klara
+kapitel. Verifierat i webbläsaren: körde hela Korrekturläsningen med
+mockad Ollama, bekräftade Faktakontroll-sektionen, klick som hoppade
+till rätt kapitel, och att det föreslagna faktumet landade korrekt
+i Story Bible-granskningskön.
 
 **Ändringslogg v0.78 → v0.79:** Elfte punkten från `roadmap-ideas.md`
 byggd: **Plotlines / scen-matris**. Uttryckligen INTE en nodgraf som

@@ -132,7 +132,7 @@ export function ProofreadCard({
                     {flagLabel(flag, book, m)}
                     {flag.stale ? ` · ${m.proofread.stale}` : ""}
                   </button>
-                  <p className="quiet">{clip(flag.quote, 140)}</p>
+                  {flag.quote ? <p className="quiet">{clip(flag.quote, 140)}</p> : null}
                   {flag.quoteB ? <p className="quiet">{clip(flag.quoteB, 140)}</p> : null}
                   <p className="quiet">{flag.observation}</p>
                   {flag.suggestion ? (
@@ -177,7 +177,7 @@ function stageMark(job: ProofreadJob, stage: ProofreadStage): string {
 
 function stageDone(job: ProofreadJob, stage: ProofreadStage): boolean {
   if (job.status === "done") return true;
-  const order = { grammar: 0, scenes: 1, style: 2, age: 3, done: 4 };
+  const order = { grammar: 0, scenes: 1, style: 2, age: 3, facts: 4, done: 5 };
   return order[job.stage] > order[stage];
 }
 
@@ -194,6 +194,9 @@ function stageLine(
     return format(m.proofread.scenesProgress, { done: job.scenePairsDone, total: job.scenePairsTotal });
   }
   if (stage === "style") return m.proofread.styleProgress;
+  if (stage === "facts") {
+    return format(m.proofread.factsProgress, { done: job.factsDone.length, total: Math.max(1, chapterCount) });
+  }
   return m.proofread.ageProgress;
 }
 
@@ -202,6 +205,8 @@ function nowDetail(detail: string, m: ReturnType<typeof useLocale>["messages"]):
   if (grammar) return format(m.proofread.nowGrammar, { n: grammar[1] ?? "" });
   const scenes = /^scenes:(\d+):(\d+)$/.exec(detail);
   if (scenes) return format(m.proofread.nowScenes, { a: scenes[1] ?? "", b: scenes[2] ?? "" });
+  const facts = /^facts:(\d+)$/.exec(detail);
+  if (facts) return format(m.proofread.nowFacts, { n: facts[1] ?? "" });
   if (detail === "style") return m.proofread.nowStyle;
   if (detail === "age") return m.proofread.nowAge;
   return detail;

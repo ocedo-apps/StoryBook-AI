@@ -1,6 +1,10 @@
 import type { Book } from "./BookSchema";
+import type { FactDraft } from "./NarrativeFact";
 import { splitFlowParagraphs } from "./proseFlow";
 import { entityLabels } from "./bibleGroups";
+import { chapterScenes } from "./bookScene";
+import { applyExtractorDrafts } from "./ConsistencyGate";
+import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "./extractFacts";
 import {
   AGE_SYSTEM,
   GRAMMAR_SYSTEM,
@@ -8,6 +12,7 @@ import {
   STYLE_SYSTEM,
   ageUserPrompt,
   craftDriftNotes,
+  factsObservation,
   grammarUserPrompt,
   makeFlag,
   manuscriptAgeStats,
@@ -27,6 +32,8 @@ export type ProofreadIO = {
   complete: (system: string, user: string, signal: AbortSignal) => Promise<string>;
   getBook: () => Book;
   save: (job: ProofreadJob) => Promise<void>;
+  /** Persists newly extracted/merged facts as the facts stage adds them. */
+  saveFacts: (facts: Book["facts"]) => Promise<void>;
 };
 
 export async function runProofread(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
@@ -35,6 +42,7 @@ export async function runProofread(job: ProofreadJob, io: ProofreadIO, signal: A
   current = await runScenes(current, io, signal);
   current = await runStyle(current, io, signal);
   current = await runAge(current, io, signal);
+  current = await runFacts(current, io, signal);
   current = touchProofread(current, { status: "done", stage: "done", detail: "" });
   await io.save(current);
   return current;
@@ -70,7 +78,7 @@ async function runGrammar(job: ProofreadJob, io: ProofreadIO, signal: AbortSigna
 
 async function runScenes(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
-  if (current.stage !== "scenes" && ["style", "age", "done"].includes(current.stage)) return current;
+  if (current.stage !== "scenes" && ["style", "age", "facts", "done"].includes(current.stage)) return current;
   current = touchProofread(current, { stage: "scenes", status: "running" });
   const book = io.getBook();
   if (current.scenePairsTotal === 0 && current.sceneQueue.length === 0) {
@@ -133,7 +141,7 @@ async function runScenes(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal
 
 async function runStyle(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
-  if (current.stage !== "style" && ["age", "done"].includes(current.stage)) return current;
+  if (current.stage !== "style" && ["age", "facts", "done"].includes(current.stage)) return current;
   if (current.styleDone) return touchProofread(current, { stage: "age" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "style", status: "running", detail: "style" });
@@ -176,12 +184,46 @@ async function runAge(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): 
         return makeFlag("age", chapterId, rest);
       })
     ],
-    ageDone: true
+    ageDone: true,
+    stage: "facts"
   };
   if (parsed.report) next.ageReport = parsed.report;
   current = touchProofread(current, next);
   await io.save(current);
   return current;
+}
+
+async function runFacts(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
+  let current = job;
+  if (current.stage !== "facts") return current;
+  current = touchProofread(current, { stage: "facts", status: "running" });
+  const chapters = proseChapters(io.getBook());
+  for (const chapter of chapters) {
+    throwIfAborted(signal);
+    if (current.factsDone.includes(chapter.id)) continue;
+    current = touchProofread(current, { detail: `facts:${chapter.sequence_index + 1}` });
+    await io.save(current);
+    const raw = await io.complete(EXTRACTOR_SYSTEM, extractorUserPrompt(chapter.prose, chapter.title), signal);
+    let drafts: FactDraft[] = [];
+    try {
+      drafts = parseExtractorPayload(raw);
+    } catch {
+      drafts = [];
+    }
+    const book = io.getBook();
+    const sceneId = chapterScenes(chapter)[0]?.id;
+    const before = book.facts.length;
+    const nextFacts = applyExtractorDrafts(book.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
+    const added = nextFacts.length - before;
+    if (added > 0) await io.saveFacts(nextFacts);
+    const flags =
+      added > 0
+        ? [...current.flags, makeFlag("facts", chapter.id, { quote: "", observation: factsObservation(added) })]
+        : current.flags;
+    current = touchProofread(current, { flags, factsDone: [...current.factsDone, chapter.id] });
+    await io.save(current);
+  }
+  return touchProofread(current, { stage: "done" });
 }
 
 function throwIfAborted(signal: AbortSignal): void {

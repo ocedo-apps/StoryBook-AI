@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addChapter, createBook, parseBook, updateChapter } from "@core/BookSchema";
+import { addChapter, createBook, parseBook, updateChapter, type Book } from "@core/BookSchema";
 import {
   craftDriftNotes,
   flagStale,
@@ -13,6 +13,7 @@ import {
 } from "@core/proofread";
 import { collectSceneScan } from "@core/proofreadScenes";
 import { runProofread } from "@core/proofreadRun";
+import type { NarrativeFact } from "@core/NarrativeFact";
 
 function twoChapters() {
   let book = createBook("Night Keys");
@@ -157,7 +158,7 @@ describe("craftDriftNotes", () => {
 });
 
 describe("runProofread", () => {
-  it("walks the four stages, saves as it goes, and never sends brainstorm", async () => {
+  it("walks the five stages, saves as it goes, and never sends brainstorm", async () => {
     const { book } = twoChapters();
     const secret = { ...book, brainstorm: "The stowaway is the captain's sister." };
     let latest = secret;
@@ -186,6 +187,9 @@ describe("runProofread", () => {
           save: async (next) => {
             saved.push(next.stage);
             latest = { ...latest, proofread: next };
+          },
+          saveFacts: async (facts) => {
+            latest = { ...latest, facts };
           }
         },
         new AbortController().signal
@@ -194,6 +198,7 @@ describe("runProofread", () => {
 
     expect(saved.includes("scenes")).toBe(true);
     expect(saved.includes("style")).toBe(true);
+    expect(saved.includes("facts")).toBe(true);
     expect(saved.at(-1)).toBe("done");
     expect(prompts.some((prompt) => prompt.includes("stowaway"))).toBe(false);
     expect(latest.proofread?.flags.some((flag) => flag.stage === "scenes")).toBe(true);
@@ -210,10 +215,123 @@ describe("runProofread", () => {
         {
           complete: async () => '{"items":[]}',
           getBook: () => book,
-          save: async () => undefined
+          save: async () => undefined,
+          saveFacts: async () => undefined
         },
         abort.signal
       )
     ).rejects.toMatchObject({ name: "AbortError" });
+  });
+});
+
+function lockedJeffCaptain(chapterId: string): NarrativeFact {
+  return {
+    id: "locked-jeff",
+    entity_ref: "jeff",
+    entity_label: "Jeff",
+    predicate: "core.identity",
+    value: "A captain",
+    sequence_index: 0,
+    chapter_id: chapterId,
+    status: "locked",
+    source: "author",
+    created_at: "2026-09-14T00:00:00.000Z"
+  };
+}
+
+function runFactsOnly(book: Book, complete: (system: string, user: string) => Promise<string>) {
+  let latest = book;
+  const job = { ...startProofreadJob(book), stage: "facts" as const, styleDone: true, ageDone: true };
+  return runProofread(
+    job,
+    {
+      complete: async (system, user) => complete(system, user),
+      getBook: () => latest,
+      save: async (next) => {
+        latest = { ...latest, proofread: next };
+      },
+      saveFacts: async (facts) => {
+        latest = { ...latest, facts };
+      }
+    },
+    new AbortController().signal
+  ).then(() => latest);
+}
+
+describe("runProofread — facts stage", () => {
+  it("extracts new facts per chapter and files them for Story Bible review", async () => {
+    const { book, first, second } = twoChapters();
+    const latest = await runFactsOnly(book, async () => '{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.trait","value":"Careful with locks"}]}');
+
+    expect(latest.proofread?.status).toBe("done");
+    expect(latest.proofread?.factsDone).toEqual(expect.arrayContaining([first, second]));
+    const factFlags = latest.proofread?.flags.filter((flag) => flag.stage === "facts") ?? [];
+    // Both chapters proposed the same claim, so only the first files a flag — the second
+    // is an exact duplicate of a still-pending proposal, added nothing, and stays silent.
+    expect(factFlags).toHaveLength(1);
+    expect(factFlags[0]?.observation).toContain("new fact");
+    expect(latest.facts.filter((fact) => fact.entity_ref === "emma")).toHaveLength(1);
+  });
+
+  it("proposes a merge instead of a hard conflict for a near-duplicate of a locked fact", async () => {
+    let { book, first } = twoChapters();
+    book = { ...book, facts: [lockedJeffCaptain(first)] };
+    const latest = await runFactsOnly(book, async (_system, user) =>
+      user.includes("The lock")
+        ? '{"facts":[{"entity_label":"Jeff","entity_ref":"jeff","predicate":"core.identity","value":"A captain on a space ship"}]}'
+        : '{"facts":[]}'
+    );
+
+    const suggestion = latest.facts.find((fact) => fact.is_merge_suggestion);
+    expect(suggestion?.value).toBe("A captain on a space ship");
+    expect(suggestion?.conflict_with).toBe("locked-jeff");
+    const factFlags = latest.proofread?.flags.filter((flag) => flag.stage === "facts") ?? [];
+    expect(factFlags.some((flag) => flag.chapterId === first)).toBe(true);
+  });
+
+  it("files no flag for a chapter where extraction adds nothing new", async () => {
+    const { book } = twoChapters();
+    const latest = await runFactsOnly(book, async () => '{"facts":[]}');
+    expect(latest.proofread?.flags.filter((flag) => flag.stage === "facts")).toHaveLength(0);
+    expect(latest.facts).toHaveLength(0);
+  });
+
+  it("survives an unparsable extractor response instead of aborting the pass", async () => {
+    const { book } = twoChapters();
+    const latest = await runFactsOnly(book, async () => "not json at all");
+    expect(latest.proofread?.status).toBe("done");
+    expect(latest.facts).toHaveLength(0);
+  });
+
+  it("skips chapters already recorded in factsDone when resumed", async () => {
+    const { book, first, second } = twoChapters();
+    let calls = 0;
+    const job = {
+      ...startProofreadJob(book),
+      stage: "facts" as const,
+      styleDone: true,
+      ageDone: true,
+      factsDone: [first]
+    };
+    let latest = book;
+    await runProofread(
+      job,
+      {
+        complete: async () => {
+          calls += 1;
+          return '{"facts":[]}';
+        },
+        getBook: () => latest,
+        save: async (next) => {
+          latest = { ...latest, proofread: next };
+        },
+        saveFacts: async (facts) => {
+          latest = { ...latest, facts };
+        }
+      },
+      new AbortController().signal
+    );
+    expect(calls).toBe(1);
+    expect(latest.proofread?.factsDone).toEqual(expect.arrayContaining([first, second]));
   });
 });

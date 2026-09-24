@@ -1141,6 +1141,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
               const latest = bookRef.current;
               if (!latest) return;
               await flushSave(touch(latest, { proofread: next }));
+            },
+            saveFacts: async (facts) => {
+              const latest = bookRef.current;
+              if (!latest) return;
+              await flushSave(touch(latest, { facts }));
             }
           },
           abort.signal

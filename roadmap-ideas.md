@@ -33,6 +33,8 @@ inte en ensidig lista.
 | 16 | Tidsmedveten Story Bible | ⬜ ej påbörjad |
 | 17 | AI-skrivtics-markering | ⬜ ej påbörjad |
 | 18 | Character Interviews | ⬜ ej påbörjad |
+| 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
+| 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -277,6 +279,24 @@ för att upptäcka röst, bakgrund och luckor i vad som är etablerat.
 Återanvänder samma AI-infrastruktur (`OllamaModelProvider`,
 `visibleLockedFacts` filtrerat per `entity_ref`) och samma
 "bara låsta fakta som kontext"-princip som Draft redan har.
+
+### 19. Korrekturläsning: Faktakontroll-steg ✅ byggd (v0.80)
+Uppstod ur en fråga om Novelcrafter-jämförelsen: fanns det redan ett
+sätt att snabbt kontrollera fakta mot hela boken? Nej — Extract facts
+var bara per kapitel, Ask Manuscript var fråga-för-fråga. Men
+Korrekturläsningens motor (helboks-genomgång, paus/återuppta,
+förloppsindikator, kör bara om vad som ändrats) var exakt rätt grund.
+Nytt femte steg "facts" sist i kedjan — återanvänder hela den
+befintliga Extract facts-pipelinen kapitel för kapitel, förslag och
+sammanslagningsförslag hamnar i samma Story Bible-granskningskö som
+en manuell extraktion redan skapar.
+
+### 20. Korrekturläsning: stil-steget kollar även känsla ✅ byggd (v0.80)
+Författaren påpekade att stil-jämförelsen mellan kapitel borde
+omfatta känsla/stämning, inte bara diktion mot den deklarerade
+Voice-texten. Ingen ny arkitektur — bara `STYLE_SYSTEM`-prompten
+utökad, eftersom steget redan ser alla kapitel i ett enda anrop och
+därför redan kan bedöma stämningsskiften mellan grannkapitel.
 
 ---
 

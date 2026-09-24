@@ -68,6 +68,7 @@ export function startProofreadJob(book: Book): ProofreadJob {
     sceneQueueIndex: 0,
     styleDone: false,
     ageDone: false,
+    factsDone: [],
     detail: "",
     flags: [],
     craftNotes: [],
@@ -93,6 +94,7 @@ export function proofreadPercent(job: ProofreadJob, chapterCount: number): numbe
     return 50 + Math.round(llm * 22);
   }
   if (job.stage === "style") return job.styleDone ? 85 : 74;
+  if (job.stage === "facts") return 92 + Math.round((job.factsDone.length / chapters) * 8);
   return 92;
 }
 
@@ -264,12 +266,15 @@ export function parseSceneVerdict(raw: string): { same: boolean; observation: st
   return { same: true, observation };
 }
 
-export const STYLE_SYSTEM = `You review whether chapters of a novel stay in the same register. You do not write prose.
+export const STYLE_SYSTEM = `You review whether chapters of a novel stay in the same register and mood. You do not write prose.
 Return JSON only: {"items":[{"chapter":1,"quote":"...","observation":"..."}]}
 
-Flag a genuine slip: the narrator’s diction, sentence shape, or irony jumps in a way the Voice field does not ask for.
+Flag a genuine slip, of either kind:
+- Register: the narrator’s diction, sentence shape, or irony jumps in a way the Voice field does not ask for.
+- Mood: the emotional atmosphere lurches against its neighboring chapters — a chapter reads whimsical right after one that read grim, with nothing in the story (a twist, a death, a reveal) to earn the turn.
 Do not flag a chapter that was given a different camera on purpose.
 Do not flag a one-off short sentence in a chase.
+Do not flag a deliberate tonal turn the story itself sets up.
 Empty is allowed: {"items":[]}.
 At most 8 items. quote must be verbatim.`;
 
@@ -384,6 +389,17 @@ export function parseAgeResult(raw: string, book: Book): { report: string; items
     }
   }
   return { report, items };
+}
+
+/**
+ * Reuses the existing Extract facts pipeline (EXTRACTOR_SYSTEM,
+ * extractorUserPrompt, parseExtractorPayload, ConsistencyGate) across the
+ * whole live manuscript — proposals and merge suggestions land in the same
+ * Story Bible review queue an author-triggered extraction already uses.
+ * No dedicated AI prompt for this stage: this note is just a pointer there.
+ */
+export function factsObservation(added: number): string {
+  return `${added} new ${added === 1 ? "fact" : "facts"} proposed — see Story Bible → Review.`;
 }
 
 export function makeFlag(
