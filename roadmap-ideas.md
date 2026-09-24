@@ -10,6 +10,30 @@ inte prioriteras nu eller inte alls — inte att vara ett bindande löfte om
 vad som byggs. Ordningen nedan är den vi kommit fram till tillsammans,
 inte en ensidig lista.
 
+## Läge just nu (uppdateras allteftersom)
+
+| # | Punkt | Läge |
+|---|-------|------|
+| 1 | AI Context Inspector | ✅ byggd (v0.69) |
+| 2 | Story Bible: History-vy | ✅ byggd (v0.70) |
+| 3 | Story Bible: Mentions v1 | ✅ byggd (v0.71) |
+| 4 | Model-provider-abstraktion | ✅ byggd (v0.72) |
+| 5 | Scene-migrering, "tråkig" v1 | ✅ byggd (v0.73) |
+| 6 | Fakta får scenproveniens | ✅ byggd (v0.74) |
+| 6b | Sammanslagningsförslag för snarlika fakta | ✅ byggd (v0.77) |
+| 7 | AI-pipelinen blir scen-medveten | 🟡 delvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår |
+| 8 | Lokalt semantiskt index + Ask Manuscript | ✅ byggd (v0.75) |
+| 9 | Story time + Timeline | ✅ byggd (v0.76) |
+| 10 | Continuity 2.0 | 🟡 delvis — kunskapsläckor klara (v0.78), spatial kontinuitet + objekttillstånd återstår |
+| 11 | Plotlines / scen-matris | ✅ byggd (v0.79) |
+| 12 | Setup/payoff/ledtrådsspårning | ⬜ ej påbörjad |
+| 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
+| 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
+
+Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
+Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
+kodningspunkt, fortfarande inte moget.
+
 ---
 
 ## Den korrigering som ändrade allt
