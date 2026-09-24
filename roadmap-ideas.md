@@ -243,13 +243,17 @@ kapitel-varianterna, med samma "sikt live medan modellen skriver"-känsla
 — bara riktad mot scenens eget stycke-intervall i stället för hela
 kapitlet.
 
-`extractFactsFromProse` (Extract facts-knappen, Korrekturläsningens
-faktasteg) rör inte det här ännu — de arbetar fortfarande över hela
-kapitlets prosa i ett svep och stämplar `scene_id` från den första
-scenen. En känd, medveten lucka: nu när ett kapitel kan ha flera
-riktiga scener blir den stämplingen ibland fel (en fakta som faktiskt
-etablerades i scen 3 stämplas som scen 1). Sparad som en öppen
-uppföljning, inte löst i den här omgången.
+**Uppdatering (v0.83):** luckan ovan — att fakta-extraktion stämplade
+allt med den första scenens id — är täppt. Extract facts-knappen och
+Korrekturläsningens faktasteg kör nu extraktionen en gång per scen
+(inte en gång per kapitel) och stämplar varje förslag med just den
+scenens id. `applyExtractorDrafts()` (redan byggd för att ta en
+`scene_id`) anropas nu i en loop över `chapterScenes(chapter)` istället
+för en gång med bara den första scenens id. Ett kapitel utan
+delningar (den överväldigande majoriteten idag) beter sig exakt som
+innan — loopen kör bara en gång. Korrekturläsningens sammanfattande
+flagga förblir en per kapitel (inte en per scen) för att inte bli
+pratig i ett kraftigt uppdelat kapitel.
 
 ### 8. Lokalt semantiskt index + Ask Manuscript ✅ byggd (v0.75)
 Byggs medvetet efter Scene, inte parallellt — inte för att det är

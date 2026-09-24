@@ -1,9 +1,36 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.82
+Status: living document, v0.83
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.82 → v0.83:** Täppte luckan som v0.82 lämnade öppen:
+fakta-extraktion (både den manuella "Extract facts"-knappen och
+Korrekturläsningens faktasteg) läste tidigare hela kapitlets prosa i
+ett enda anrop och stämplade varje föreslaget fakta med den FÖRSTA
+scenens id — fel så fort ett kapitel faktiskt har flera scener (en
+fakta etablerad i scen 3 blev felaktigt märkt som scen 1).
+
+Båda ställena kör nu extraktionen en gång per scen istället för en
+gång per kapitel — en loop över `chapterScenes(chapter)`, samma mönster
+som Draft/Recast/Analyze redan fick i v0.82. `applyExtractorDrafts()`
+tog redan en `scene_id`-parameter (byggd i v0.74) så själva
+skrivbacken behövde ingen ändring, bara anropsstället. Ett kapitel utan
+delningar — fortfarande den överväldigande majoriteten — beter sig
+exakt som innan; loopen kör bara ett varv.
+
+Korrekturläsningens faktasteg behöll medvetet EN sammanfattande flagga
+per kapitel (inte en per scen), så ett kraftigt uppdelat kapitel inte
+svämmar över med flaggor — bara hur många fakta som hittades ändras,
+räknat över kapitlets alla scener.
+
+2 nya tester (`runFacts` i `proofread.test.ts` för multi-scen-fallet).
+561/561 gröna totalt. Verifierat i webbläsaren: delade ett kapitel i
+två scener med olika namngivna personer i var sin scen, körde Extract
+facts, bekräftade två separata AI-anrop (ett per scen, med rätt
+scen-riktad prompt) och att båda personernas fakta hamnade rätt i
+Story Bible-granskningskön.
 
 **Ändringslogg v0.81 → v0.82:** Sista delen av roadmap-punkt 7:
 Draft, Recast och Analyze blir scen-medvetna. Extract facts stämplade

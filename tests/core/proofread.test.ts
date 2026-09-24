@@ -273,6 +273,36 @@ describe("runProofread — facts stage", () => {
     expect(latest.facts.filter((fact) => fact.entity_ref === "emma")).toHaveLength(1);
   });
 
+  it("extracts facts per scene and stamps each with its own scene, not just the chapter's first", async () => {
+    let book = createBook("Night Keys");
+    const chapterId = book.chapters[0]!.id;
+    book = updateChapter(book, chapterId, {
+      prose: "Emma locked the quay door.\n\nJeff whistled an old tune.",
+      scenes: [
+        { id: "scene-a", startParagraph: 0 },
+        { id: "scene-b", startParagraph: 1 }
+      ]
+    });
+
+    const latest = await runFactsOnly(book, async (_system, user) =>
+      user.includes("scene 1")
+        ? '{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.trait","value":"Careful with locks"}]}'
+        : user.includes("scene 2")
+          ? '{"facts":[{"entity_label":"Jeff","entity_ref":"jeff","predicate":"core.trait","value":"Whistles when nervous"}]}'
+          : '{"facts":[]}'
+    );
+
+    const emma = latest.facts.find((fact) => fact.entity_ref === "emma");
+    const jeff = latest.facts.find((fact) => fact.entity_ref === "jeff");
+    expect(emma?.scene_id).toBe("scene-a");
+    expect(jeff?.scene_id).toBe("scene-b");
+
+    // Both scenes contributed, but the chapter still gets one summary flag, not one per scene.
+    const factFlags = latest.proofread?.flags.filter((flag) => flag.stage === "facts" && flag.chapterId === chapterId) ?? [];
+    expect(factFlags).toHaveLength(1);
+    expect(factFlags[0]?.observation).toContain("2 new facts");
+  });
+
   it("proposes a merge instead of a hard conflict for a near-duplicate of a locked fact", async () => {
     let { book, first } = twoChapters();
     book = { ...book, facts: [lockedJeffCaptain(first)] };

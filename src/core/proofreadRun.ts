@@ -203,19 +203,28 @@ async function runFacts(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal)
     if (current.factsDone.includes(chapter.id)) continue;
     current = touchProofread(current, { detail: `facts:${chapter.sequence_index + 1}` });
     await io.save(current);
-    const raw = await io.complete(EXTRACTOR_SYSTEM, extractorUserPrompt(chapter.prose, chapter.title), signal);
-    let drafts: FactDraft[] = [];
-    try {
-      drafts = parseExtractorPayload(raw);
-    } catch {
-      drafts = [];
+
+    const scenes = chapterScenes(chapter);
+    let added = 0;
+    for (const scene of scenes) {
+      if (!scene.prose.trim()) continue;
+      throwIfAborted(signal);
+      const title = scenes.length > 1 ? `${chapter.title} — scene ${scene.sequence_index + 1}` : chapter.title;
+      const raw = await io.complete(EXTRACTOR_SYSTEM, extractorUserPrompt(scene.prose, title), signal);
+      let drafts: FactDraft[] = [];
+      try {
+        drafts = parseExtractorPayload(raw);
+      } catch {
+        drafts = [];
+      }
+      const book = io.getBook();
+      const before = book.facts.length;
+      const nextFacts = applyExtractorDrafts(book.facts, drafts, chapter.sequence_index, chapter.id, scene.id);
+      const sceneAdded = nextFacts.length - before;
+      if (sceneAdded > 0) await io.saveFacts(nextFacts);
+      added += sceneAdded;
     }
-    const book = io.getBook();
-    const sceneId = chapterScenes(chapter)[0]?.id;
-    const before = book.facts.length;
-    const nextFacts = applyExtractorDrafts(book.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
-    const added = nextFacts.length - before;
-    if (added > 0) await io.saveFacts(nextFacts);
+
     const flags =
       added > 0
         ? [...current.flags, makeFlag("facts", chapter.id, { quote: "", observation: factsObservation(added) })]

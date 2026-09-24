@@ -1122,22 +1122,29 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setBusy("extract");
     setError(null);
     try {
-      const extractMessages: PromptDebugMessage[] = [
-        { role: "system", content: EXTRACTOR_SYSTEM },
-        { role: "user", content: extractorUserPrompt(chapter.prose, chapter.title) }
-      ];
-      recordPrompt("extract", reviewModel, extractMessages);
-      const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
-        messages: extractMessages,
-        temperature: 0.1,
-        maxTokens: 1200
-      });
-      const drafts = parseExtractorPayload(raw);
-      const latest = bookRef.current ?? current;
-      const sceneId = chapterScenes(chapter)[0]?.id;
-      const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
-      await flushSave(touch(latest, { facts: nextFacts }));
-      if (drafts.length === 0) setError(STORE_ERROR.extractorNone);
+      const scenes = chapterScenes(chapter);
+      const provider = new OllamaModelProvider({ model: reviewModel });
+      let totalDrafts = 0;
+      for (const scene of scenes) {
+        if (!scene.prose.trim()) continue;
+        const title = scenes.length > 1 ? `${chapter.title} — scene ${scene.sequence_index + 1}` : chapter.title;
+        const extractMessages: PromptDebugMessage[] = [
+          { role: "system", content: EXTRACTOR_SYSTEM },
+          { role: "user", content: extractorUserPrompt(scene.prose, title) }
+        ];
+        recordPrompt("extract", reviewModel, extractMessages);
+        const raw = await provider.chat({
+          messages: extractMessages,
+          temperature: 0.1,
+          maxTokens: 1200
+        });
+        const drafts = parseExtractorPayload(raw);
+        totalDrafts += drafts.length;
+        const latest = bookRef.current ?? current;
+        const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, scene.id);
+        await flushSave(touch(latest, { facts: nextFacts }));
+      }
+      if (totalDrafts === 0) setError(STORE_ERROR.extractorNone);
     } catch (err) {
       setError(ollamaHint(err));
     } finally {
