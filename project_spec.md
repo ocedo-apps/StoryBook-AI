@@ -1,7 +1,26 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.67
-Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut)
+Status: living document, v0.68
+Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
+`roadmap-ideas.md` (idéer och prioritering för Scene, Context
+Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.67 → v0.68:** Nytt dokument `roadmap-ideas.md` —
+sammanfattar och rangordnar idéerna från ett flerpassdiskussion med
+ChatGPT om vad som är ett bra författarverktyg, jämfört mot appens
+faktiska läge (Scene som förstklassig entitet, AI Context Inspector,
+Story Bible History/Mentions, lokal provider-abstraktion inklusive
+embeddings, Ask Manuscript med belägg, Timeline, Continuity 2.0,
+Plotlines, Setup/payoff, pluggbara utvecklingsmetoder,
+hel-manus-analys). Innehåller den centrala korrigeringen att Sandbox-
+sidan redan har ett Storyboard/scen-grafskoncept (RPG-sidan) som
+ChatGPTs analys inte kände till, vilket ändrar slutsatsen från
+"författarfunktioner först, RPG-bryggan senare" till "bygg de
+författarfunktioner som samtidigt gör RPG-konverteringen mer
+naturlig" — Scene-modellen är en sådan funktion snarare än en
+konkurrerande prioritet. Ingen kod ändrad; rent planeringsdokument.
+Nästa steg: bygga AI Context Inspector (v1, read-only) som första
+konkreta implementation från listan.
 
 **Ändringslogg v0.66 → v0.67:** Kapitelbilden låg tidigare som fast
 chrome ovanför den skrollbara textrutan, vilket krympte ytan för
