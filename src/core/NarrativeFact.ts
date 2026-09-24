@@ -22,6 +22,12 @@ export const NarrativeFactSchema = z.object({
   value: z.string().min(1),
   sequence_index: z.number().int().nonnegative(),
   chapter_id: z.string().min(1).optional(),
+  /**
+   * Which scene within chapter_id established this fact. Optional,
+   * additive, non-breaking — same pattern as chapter_id. Missing on
+   * older saves and on facts predating scene-awareness.
+   */
+  scene_id: z.string().min(1).optional(),
   status: FactStatusSchema,
   source: FactSourceSchema,
   conflict_with: z.string().min(1).optional(),

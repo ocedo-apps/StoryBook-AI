@@ -156,3 +156,49 @@ describe("reviseFact", () => {
     expect(live?.value).toContain("night keys");
   });
 });
+
+describe("scene provenance", () => {
+  it("stamps scene_id on a locked author fact, same as chapter_id", () => {
+    const added = applyAuthorDraft([], emmaIdentity, 0, "ch1", "ch1:scene-1");
+    expect(added[0]?.chapter_id).toBe("ch1");
+    expect(added[0]?.scene_id).toBe("ch1:scene-1");
+  });
+
+  it("stamps scene_id on proposed and flagged extractor facts", () => {
+    const facts = [lockedEmma()];
+    const next = applyExtractorDrafts(
+      facts,
+      [{ ...emmaIdentity, value: "A visiting scholar" }, { ...emmaIdentity, predicate: "core.trait", value: "Steady hands" }],
+      0,
+      "ch1",
+      "ch1:scene-1"
+    );
+    const flagged = next.find((fact) => fact.status === "flagged");
+    const proposed = next.find((fact) => fact.status === "ai_proposed");
+    expect(flagged?.scene_id).toBe("ch1:scene-1");
+    expect(proposed?.scene_id).toBe("ch1:scene-1");
+  });
+
+  it("carries scene_id over when an approved flagged fact supersedes its rival", () => {
+    const flagged = applyExtractorDrafts([lockedEmma()], [{ ...emmaIdentity, value: "A visiting scholar" }], 0, "ch1", "ch1:scene-2");
+    const flag = flagged.find((fact) => fact.status === "flagged");
+    const approved = approveFact(flagged, flag!.id);
+    expect(approved.find((fact) => fact.id === flag!.id)?.scene_id).toBe("ch1:scene-2");
+  });
+
+  it("carries the current scene_id when the author revises a locked fact", () => {
+    const next = reviseFact(
+      [{ ...lockedEmma(), chapter_id: "ch1", scene_id: "ch1:scene-1" }],
+      "locked-1",
+      "Bartender at the Aurora Room. Keeps the night keys."
+    );
+    const live = next.find((fact) => !fact.superseded_by);
+    expect(live?.scene_id).toBe("ch1:scene-1");
+  });
+
+  it("leaves scene_id unset when no scene was passed, same as chapter_id", () => {
+    const added = applyAuthorDraft([], emmaIdentity, 0);
+    expect(added[0]?.chapter_id).toBeUndefined();
+    expect(added[0]?.scene_id).toBeUndefined();
+  });
+});

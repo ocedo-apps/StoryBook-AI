@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.73
+Status: living document, v0.74
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.73 → v0.74:** Sjätte och sjunde punkten från
+`roadmap-ideas.md` byggda tillsammans, eftersom de i praktiken är
+samma tråd: **fakta får scenproveniens**, och **extraktions-pipelinen
+blir scen-medveten**.
+
+`NarrativeFact.scene_id` är ett nytt `.optional()`-fält, exakt samma
+additiva "missing on older saves"-mönster som `chapter_id` redan har.
+Trådat genom hela `ConsistencyGate.ts` där `chapter_id` redan går:
+`factFromDraft()`, `applyAuthorDraft()`, `applyExtractorDrafts()` tar
+nu en valfri `scene_id`; `approveFact()` för en godkänd flaggad
+konflikt och `reviseFact()` för en omskriven låst fakta bär båda vidare
+den ursprungliga `scene_id`:n till den nya raden, precis som de redan
+gör för `chapter_id`.
+
+I `BookStore.tsx` skickar både **Extract facts**-knappen och den
+manuella "lägg till fakta"-vägen från Story Bible nu med
+`chapterScenes(chapter)[0]?.id` som `scene_id` — den enda scen ett
+kapitel har i den här "tråkiga" fasen (punkt 5). Med det kan appen
+utan något AI-anrop redan svara "i vilken scen etablerades det här?".
+
+**Medvetet avgränsat:** Draft, Recast och Analyze rör inte vid
+`scene_id` i det här steget, eftersom de inte skapar fakta — och
+eftersom ett kapitel bara har en (hela kapitlet) scen finns det ännu
+inget att rikta en prompt mot som skulle skilja sig från dagens
+kapitel-omfång. Att låta de prompterna själva bli scen-medvetna får
+vänta tills riktig scen-uppdelning finns att rikta dem mot — annars
+byggs kod för ett läge som inte existerar än.
+
+10 nya tester (5 i `consistency-gate.test.ts` under "scene
+provenance", 1 i `narrative-fact.test.ts` för schema-rundturen).
+Ingen ny UI-yta — `scene_id` visas inte någonstans än, så ingen
+webbläsarverifiering: täckt av testsviten (484/484 gröna, ren
+typecheck).
 
 **Ändringslogg v0.72 → v0.73:** Femte punkten från `roadmap-ideas.md`
 byggd: **Scene-migrering, "tråkig" v1** — helt osynlig för författaren,

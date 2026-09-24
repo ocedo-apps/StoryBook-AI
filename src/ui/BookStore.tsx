@@ -18,6 +18,7 @@ import {
   updateBrainstormNote
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
+import { chapterScenes } from "@core/bookScene";
 import { ANALYZE_SYSTEM, analyzeUserPrompt, parseChapterFeedback, type ChapterFeedback } from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
@@ -899,7 +900,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       });
       const drafts = parseExtractorPayload(raw);
       const latest = bookRef.current ?? current;
-      const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id);
+      const sceneId = chapterScenes(chapter)[0]?.id;
+      const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
       await flushSave(touch(latest, { facts: nextFacts }));
       if (drafts.length === 0) setError(STORE_ERROR.extractorNone);
     } catch (err) {
@@ -1088,7 +1090,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         value: input.value.trim()
       };
       if (!draft.entity_label || !draft.value) return;
-      const facts = applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id);
+      const sceneId = chapter ? chapterScenes(chapter)[0]?.id : undefined;
+      const facts = applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId);
       await flushSave(touch(current, { facts }));
     },
     [flushSave]

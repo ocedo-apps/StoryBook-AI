@@ -119,16 +119,19 @@ Scenens fältyta växer sedan stegvis (title, brief, summary, pov,
 viewpoint, tense, location_ref, story_time, entity_refs, plotline_ids)
 — inte allt på en gång.
 
-### 6. Fakta får scenproveniens
+### 6. Fakta får scenproveniens ✅ byggd (v0.74)
 `NarrativeFact.scene_id` (optional, additivt, icke-brytande — precis
 som `chapter_id` redan är). Ger utan LLM-anrop: när etablerades detta,
 var etablerades det, vad var sant före/efter den här scenen, vad visste
 läsaren vid den här punkten. Grunden för Continuity 2.0 (punkt 9).
 
-### 7. AI-pipelinen blir scen-medveten, gradvis
+### 7. AI-pipelinen blir scen-medveten, gradvis — extraktion klar (v0.74), Draft/Recast/Analyze återstår
 Draft, Recast, Analyze, `extractFactsFromProse` lär sig förstå en
 enskild scen istället för ett helt kapitel — införs stegvis, inte som
-en enda stor omskrivning.
+en enda stor omskrivning. Extract facts-flödet stämplar nu `scene_id`
+(v0.74). Draft/Recast/Analyze rör inte fakta och har inget att stämpla
+— deras prompter blir meningsfullt scen-medvetna först när riktig
+scen-uppdelning finns att rikta dem mot, inte innan.
 
 ### 8. Lokalt semantiskt index + Ask Manuscript
 Byggs medvetet efter Scene, inte parallellt — inte för att det är
