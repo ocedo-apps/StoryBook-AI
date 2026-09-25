@@ -358,7 +358,7 @@ export const nb: Messages = {
       },
       {
         heading: "Kontinuitetsvarsler",
-        body: "Når et kapittel kan se et faktum som først ble etablert senere i manuskriptet, blir det flagget — ikke nødvendigvis feil, kanskje er det et tilbakeblikk, bare verdt en rask sjekk."
+        body: "Når et kapittel kan se et faktum som først ble etablert senere i manuskriptet, blir det flagget — ikke nødvendigvis feil, kanskje er det et tilbakeblikk, bare verdt en rask sjekk. Korrekturlesing går lenger: den sjekker en persons eller en gjenstands registrerte sted gjennom hele historien, i historiens egen tidsrekkefølge, og flagger en forflytning som ser umulig eller uforklart ut gitt hvor mye tid som har gått."
       },
       {
         heading: "Tidslinje",
@@ -484,17 +484,20 @@ export const nb: Messages = {
     scenes: "Gjentatte scener",
     style: "Stil og følelse mellom kapitler",
     age: "Aldersrapport",
+    continuity: "Kontinuitet",
     facts: "Faktakontroll",
     grammarProgress: "Grammatikk — {done} av {total} kapitler ferdige",
     scenesProgress: "Leter etter gjentatte scener — {done} av {total} avsnittspar sammenlignet",
     styleProgress: "Stil- og følelseskonsekvens mellom kapitler",
     ageProgress: "Setter sammen aldersrapporten",
+    continuityProgress: "Sjekker at ingen er på to steder samtidig",
     factsProgress: "Kontrollerer fakta mot Story Bible — {done} av {total} kapitler ferdige",
     now: "Akkurat nå: {detail}",
     nowGrammar: "leser kapittel {n}…",
     nowScenes: "sammenligner kapittel {a} med kapittel {b}…",
     nowStyle: "lytter etter et skifte i register eller følelse…",
     nowAge: "veier prosaen mot Leser…",
+    nowContinuity: "sjekker hvem og hva som er hvor, og når…",
     nowFacts: "kontrollerer kapittel {n} mot Story Bible…",
     stillWorking: "Jobber fortsatt — et enkelt kapittel kan ta noen minutter på tregere maskinvare. Ingenting har stanset.",
     percent: "{n}%",

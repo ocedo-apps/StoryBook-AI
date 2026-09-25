@@ -1,9 +1,49 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.93
+Status: living document, v0.94
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.93 → v0.94:** Continuity 2.0 färdigställd (roadmap
+#10) — den återstående halvan (spatial kontinuitet + objekttillstånd)
+som kunskapsläckor (v0.78) lämnade öppen. Vägvalet mellan en
+författar-underhållen platskarta och ett AI-baserat omdöme diskuterades
+uttryckligen; AI-vägen vald, som en ny Korrekturläsnings-etapp — samma
+"anteckningar, inget skrivs om"-princip som resten av Korrekturläsning.
+
+- **Ny etapp "Continuity"** mellan Åldersrapport och Faktakontroll.
+  Deterministisk förberedelse (`manuscriptPlaceChains` i
+  `proofread.ts`, återanvänder `bookFactChains`/`chainsWithHistory`
+  från Tidsmedvetna Story Bible och `timelineEntries` från Timeline —
+  ingen ny datamodell): för varje entitet (person ELLER föremål) vars
+  `core.place`-fakta ändrats, en tidslinje i berättelsens egen
+  tidsordning (inte lässordning, så en tillbakablick inte ser ut som
+  en omöjlig förflyttning). Bara detta skickas till modellen, som
+  flaggar en förflyttning som ser omöjlig eller oförklarad ut givet
+  hur mycket berättartid som gått — inte varje platsbyte (det är
+  normalt att en berättelse rör sig).
+- Samma mekanism täcker roadmap-textens två separata exempel
+  ("omöjlig förflyttning" och "gun.location") eftersom båda bara är
+  `core.place`-fakta på olika sorters entiteter — ingen anledning att
+  bygga två system.
+- Flaggade träffar visas som "Chapter A och B" med citat från båda
+  platsvärdena, samma mönster som upprepade-scener-etappen redan
+  använder.
+- Explicit avgränsning: bara plats. Annat objekttillstånd (t.ex.
+  "förstörd") fångas inte — ingen befintlig fakta-predikat modellerar
+  det tydligt idag, och att gissa på core.trait/core.event hade varit
+  spekulativt. Kvar för en framtida session om det visar sig behövas.
+- Guiden uppdaterad: "Continuity warnings"-avsnittet nämner nu även
+  den nya kontrollen, i alla tre språk.
+
+Nya tester för `manuscriptPlaceChains` (story-tids-sortering, hoppar
+över entiteter med bara en plats) och `parseContinuityResult`
+(korrekt kapitel-mappning, avvisar okänd entitet/kapitelnummer).
+Integrationstestet för hela Korrekturläsnings-pipelinen uppdaterat
+till sex etapper. 571/571 gröna. Verifierat i webbläsaren: hela
+pipelinen kör igenom utan fel och landar på "done" med den nya etappen
+med, samt att guide-texten renderas rätt.
 
 **Ändringslogg v0.92 → v0.93:** Roadmap-punkt 22, tidigare uppskjuten:
 "?"-genvägar från rubriker till guiden, plus att guiden själv fick

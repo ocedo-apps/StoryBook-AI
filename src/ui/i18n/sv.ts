@@ -358,7 +358,7 @@ export const sv: Messages = {
       },
       {
         heading: "Kontinuitetsvarningar",
-        body: "När ett kapitel kan se ett fakta som bara etablerades senare i manuset flaggas det — inte nödvändigtvis fel, kanske är det en tillbakablick, bara värt en snabb koll."
+        body: "När ett kapitel kan se ett fakta som bara etablerades senare i manuset flaggas det — inte nödvändigtvis fel, kanske är det en tillbakablick, bara värt en snabb koll. Korrekturläsningen går längre: den kontrollerar en persons eller ett föremåls registrerade plats genom hela berättelsen, i berättelsens egen tidsordning, och flaggar en förflyttning som ser omöjlig eller oförklarad ut med tanke på hur mycket tid som gått."
       },
       {
         heading: "Timeline",
@@ -484,17 +484,20 @@ export const sv: Messages = {
     scenes: "Upprepade scener",
     style: "Stil och känsla mellan kapitel",
     age: "Åldersrapport",
+    continuity: "Kontinuitet",
     facts: "Faktakontroll",
     grammarProgress: "Grammatik — {done} av {total} kapitel klara",
     scenesProgress: "Letar upprepade scener — {done} av {total} styckepar jämförda",
     styleProgress: "Stil- och känslokonsekvens mellan kapitel",
     ageProgress: "Sammanställer åldersrapport",
+    continuityProgress: "Kontrollerar att ingen är på två platser samtidigt",
     factsProgress: "Kontrollerar fakta mot Story Bible — {done} av {total} kapitel klara",
     now: "Just nu: {detail}",
     nowGrammar: "läser kapitel {n}…",
     nowScenes: "jämför kapitel {a} med kapitel {b}…",
     nowStyle: "lyssnar efter ett skifte i register eller känsla…",
     nowAge: "väger prosan mot Läsare…",
+    nowContinuity: "kontrollerar vem och vad som är var, och när…",
     nowFacts: "kontrollerar kapitel {n} mot Story Bible…",
     stillWorking: "Jobbar fortfarande — ett enda kapitel kan ta några minuter på långsammare hårdvara. Inget har fastnat.",
     percent: "{n}%",

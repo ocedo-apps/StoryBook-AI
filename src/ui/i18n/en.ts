@@ -356,7 +356,7 @@ export const en = {
       },
       {
         heading: "Continuity warnings",
-        body: "When a chapter can see a fact that was only established later in the manuscript, it is flagged — not necessarily wrong, maybe it is a flashback, just worth a glance."
+        body: "When a chapter can see a fact that was only established later in the manuscript, it is flagged — not necessarily wrong, maybe it is a flashback, just worth a glance. Proofread goes further: it checks a person or object's recorded place across the whole story, in story-time order, and flags a jump that looks impossible or unexplained given how much time passed."
       },
       {
         heading: "Timeline",
@@ -482,17 +482,20 @@ export const en = {
     scenes: "Repeated scenes",
     style: "Style and mood across chapters",
     age: "Age report",
+    continuity: "Continuity",
     facts: "Fact check",
     grammarProgress: "Grammar — {done} of {total} chapters done",
     scenesProgress: "Looking for repeated scenes — {done} of {total} paragraph pairs compared",
     styleProgress: "Style and mood consistency between chapters",
     ageProgress: "Compiling the age report",
+    continuityProgress: "Checking that no one is in two places at once",
     factsProgress: "Checking facts against the Story Bible — {done} of {total} chapters done",
     now: "Now: {detail}",
     nowGrammar: "reading chapter {n}…",
     nowScenes: "comparing chapter {a} with chapter {b}…",
     nowStyle: "listening for a shift in register or mood…",
     nowAge: "weighing the prose against Reader…",
+    nowContinuity: "checking who and what is where, and when…",
     nowFacts: "checking chapter {n} against the Story Bible…",
     stillWorking: "Still working — a single chapter can take a few minutes on slower hardware. Nothing is stuck.",
     percent: "{n}%",

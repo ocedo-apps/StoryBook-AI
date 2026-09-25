@@ -4,7 +4,9 @@ import {
   craftDriftNotes,
   flagStale,
   grammarUserPrompt,
+  manuscriptPlaceChains,
   parseAgeResult,
+  parseContinuityResult,
   parseGrammarItems,
   parseSceneVerdict,
   proofreadPercent,
@@ -158,6 +160,115 @@ describe("prompts and parsers", () => {
   });
 });
 
+describe("manuscriptPlaceChains", () => {
+  it("orders an entity's place history by story time, not by reading order", () => {
+    const { book, first, second } = twoChapters();
+    const withTimeline: Book = {
+      ...book,
+      chapters: book.chapters.map((chapter) => {
+        if (chapter.id === first) return { ...chapter, story_time: "Day 2", story_time_order: 1 };
+        if (chapter.id === second) return { ...chapter, story_time: "Day 1", story_time_order: 0 };
+        return chapter;
+      }),
+      facts: [
+        {
+          id: "a",
+          entity_ref: "emma",
+          entity_label: "Emma",
+          predicate: "core.place",
+          value: "the quay",
+          sequence_index: 0,
+          chapter_id: first,
+          status: "locked",
+          source: "author",
+          superseded_by: "b",
+          created_at: "2026-09-14T00:00:00.000Z"
+        },
+        {
+          id: "b",
+          entity_ref: "emma",
+          entity_label: "Emma",
+          predicate: "core.place",
+          value: "the harbour",
+          sequence_index: 1,
+          chapter_id: second,
+          status: "locked",
+          source: "author",
+          created_at: "2026-09-14T00:00:00.000Z"
+        }
+      ] as NarrativeFact[]
+    };
+    const chains = manuscriptPlaceChains(withTimeline);
+    expect(chains).toHaveLength(1);
+    expect(chains[0]?.entityLabel).toBe("Emma");
+    // Story time: second (Day 1) comes before first (Day 2), the reverse of reading order.
+    expect(chains[0]?.entries.map((entry) => entry.value)).toEqual(["the harbour", "the quay"]);
+  });
+
+  it("skips an entity with only one recorded place", () => {
+    const { book, first } = twoChapters();
+    const withFacts: Book = {
+      ...book,
+      facts: [
+        {
+          id: "a",
+          entity_ref: "emma",
+          entity_label: "Emma",
+          predicate: "core.place",
+          value: "the quay",
+          sequence_index: 0,
+          chapter_id: first,
+          status: "locked",
+          source: "author",
+          created_at: "2026-09-14T00:00:00.000Z"
+        }
+      ] as NarrativeFact[]
+    };
+    expect(manuscriptPlaceChains(withFacts)).toEqual([]);
+  });
+});
+
+describe("parseContinuityResult", () => {
+  it("maps a flagged entity + chapter pair back to chapter ids", () => {
+    const chains = [
+      {
+        entityRef: "emma",
+        entityLabel: "Emma",
+        entries: [
+          { chapterId: "ch-2", chapterNumber: 2, storyTime: "Day 1", value: "the harbour" },
+          { chapterId: "ch-1", chapterNumber: 1, storyTime: "Day 2", value: "the quay" }
+        ]
+      }
+    ];
+    const items = parseContinuityResult(
+      '{"items":[{"entity":"Emma","chapterA":2,"chapterB":1,"observation":"Emma is at the harbour, then the quay, on the same day with no travel shown."}]}',
+      chains
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      chapterId: "ch-2",
+      chapterIdB: "ch-1",
+      quote: "the harbour",
+      quoteB: "the quay"
+    });
+  });
+
+  it("drops an item whose entity or chapter number does not match a known chain", () => {
+    const chains = [
+      {
+        entityRef: "emma",
+        entityLabel: "Emma",
+        entries: [
+          { chapterId: "ch-1", chapterNumber: 1, storyTime: "", value: "the quay" },
+          { chapterId: "ch-2", chapterNumber: 2, storyTime: "", value: "the harbour" }
+        ]
+      }
+    ];
+    expect(parseContinuityResult('{"items":[{"entity":"Nobody","chapterA":1,"chapterB":2,"observation":"x"}]}', chains)).toEqual([]);
+    expect(parseContinuityResult('{"items":[{"entity":"Emma","chapterA":1,"chapterB":9,"observation":"x"}]}', chains)).toEqual([]);
+  });
+});
+
 describe("craftDriftNotes", () => {
   it("names a chapter whose camera was set apart from the manuscript", () => {
     const { book, second } = twoChapters();
@@ -168,7 +279,7 @@ describe("craftDriftNotes", () => {
 });
 
 describe("runProofread", () => {
-  it("walks the five stages, saves as it goes, and never sends brainstorm", async () => {
+  it("walks the six stages, saves as it goes, and never sends brainstorm", async () => {
     const { book } = twoChapters();
     const secret = { ...book, brainstorm: "The stowaway is the captain's sister." };
     let latest = secret;
@@ -208,6 +319,7 @@ describe("runProofread", () => {
 
     expect(saved.includes("scenes")).toBe(true);
     expect(saved.includes("style")).toBe(true);
+    expect(saved.includes("continuity")).toBe(true);
     expect(saved.includes("facts")).toBe(true);
     expect(saved.at(-1)).toBe("done");
     expect(prompts.some((prompt) => prompt.includes("stowaway"))).toBe(false);

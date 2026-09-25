@@ -8,6 +8,8 @@ import { tallyRareWords } from "./rareWords";
 import { formatReaderForReview, kidlitReader, readerTuning, resolveReader } from "./reader";
 import { splitFlowParagraphs } from "./proseFlow";
 import { entityLabels } from "./bibleGroups";
+import { bookFactChains, chainsWithHistory } from "./bibleHistory";
+import { timelineEntries } from "./timeline";
 import {
   ProofreadFlagSchema,
   ProofreadJobSchema,
@@ -68,6 +70,7 @@ export function startProofreadJob(book: Book): ProofreadJob {
     sceneQueueIndex: 0,
     styleDone: false,
     ageDone: false,
+    continuityDone: false,
     factsDone: [],
     detail: "",
     flags: [],
@@ -394,6 +397,105 @@ export function parseAgeResult(raw: string, book: Book): { report: string; items
     }
   }
   return { report, items };
+}
+
+/** One entity's recorded place across the manuscript, oldest to newest by story time. */
+export type ContinuityChain = {
+  entityRef: string;
+  entityLabel: string;
+  entries: {
+    chapterId: string;
+    /** 1-based reading-order chapter number, the same numbering the rest of Proofread shows the author. */
+    chapterNumber: number;
+    /** The author's own free-text story-time label for that chapter, e.g. "Day 3". Empty when unset. */
+    storyTime: string;
+    value: string;
+  }[];
+};
+
+/**
+ * Every entity whose `core.place` fact changed at least once, ordered by
+ * story time (not reading order) so a flashback does not look like a jump.
+ * Reuses bookFactChains/chainsWithHistory (bibleHistory.ts, built for the
+ * Time-aware Story Bible) and timelineEntries (timeline.ts) rather than
+ * re-deriving either — this is the deterministic half of Continuity 2.0's
+ * spatial check; only the plausibility judgment itself needs the model.
+ */
+export function manuscriptPlaceChains(book: Book): ContinuityChain[] {
+  const storyTimeRank = new Map(timelineEntries(book).map((entry) => [entry.chapterId, entry]));
+  const placeChains = chainsWithHistory(bookFactChains(book.facts)).filter((chain) => chain.predicate === "core.place");
+  const result: ContinuityChain[] = [];
+  for (const chain of placeChains) {
+    const head = chain.entries[0];
+    if (!head) continue;
+    const entries = chain.entries
+      .map((fact) => {
+        const position = fact.chapter_id ? storyTimeRank.get(fact.chapter_id) : undefined;
+        if (!position) return null;
+        return {
+          chapterId: position.chapterId,
+          chapterNumber: position.sequenceIndex + 1,
+          storyTime: position.storyTime,
+          value: fact.value,
+          storyTimeRank: position.storyTimeRank
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+      .sort((a, b) => a.storyTimeRank - b.storyTimeRank)
+      .map(({ storyTimeRank: _rank, ...entry }) => entry);
+    if (entries.length > 1) result.push({ entityRef: head.entity_ref, entityLabel: head.entity_label, entries });
+  }
+  return result;
+}
+
+export const CONTINUITY_SYSTEM = `You check a manuscript's Story Bible for one specific error: an entity (a person or an object) recorded at a place that contradicts where it was recorded earlier, given no established travel or explanation.
+Return JSON only: {"items":[{"entity":"...","chapterA":1,"chapterB":2,"observation":"..."}]}
+
+You are given each entity's place history in the manuscript's own story-time order (not reading order), with each chapter's number and any author-given time label. A place changing between entries is normal — that is how a story moves. Only flag a change that looks impossible or unexplained given how much story time passed — for example the same day with no travel shown, or two entries at the same story time with different places for the same entity.
+Do not flag a change just because it exists. Do not flag missing detail about HOW an entity traveled — only flag a change that reads as a contradiction, not an ordinary unwritten journey.
+Empty items are allowed. At most 6 items.`;
+
+export function continuityUserPrompt(book: Book, chains: ContinuityChain[]): string {
+  const blocks = chains.map((chain) => {
+    const lines = chain.entries.map(
+      (entry) => `  - Chapter ${entry.chapterNumber}${entry.storyTime ? ` (story time: ${entry.storyTime})` : ""}: ${entry.value}`
+    );
+    return `${chain.entityLabel}:\n${lines.join("\n")}`;
+  });
+  return [
+    `Manuscript: ${book.title}`,
+    blocks.length > 0 ? blocks.join("\n\n") : "No entity has more than one recorded place.",
+    "JSON only."
+  ].join("\n\n");
+}
+
+export function parseContinuityResult(raw: string, chains: ContinuityChain[]): Omit<ProofreadFlag, "id" | "stage">[] {
+  let payload: unknown;
+  try {
+    payload = recoverJsonObject(raw);
+  } catch {
+    return [];
+  }
+  const rows = (payload as { items?: unknown })?.items;
+  if (!Array.isArray(rows)) return [];
+  const items: Omit<ProofreadFlag, "id" | "stage">[] = [];
+  for (const row of rows) {
+    if (items.length >= 6) break;
+    if (!row || typeof row !== "object") continue;
+    const rec = row as Record<string, unknown>;
+    const entity = typeof rec.entity === "string" ? rec.entity.trim() : "";
+    const observation = typeof rec.observation === "string" ? rec.observation.trim() : "";
+    const aNumber = typeof rec.chapterA === "number" ? rec.chapterA : Number(rec.chapterA);
+    const bNumber = typeof rec.chapterB === "number" ? rec.chapterB : Number(rec.chapterB);
+    if (!entity || !observation) continue;
+    const chain = chains.find((candidate) => candidate.entityLabel === entity);
+    if (!chain) continue;
+    const a = chain.entries.find((entry) => entry.chapterNumber === aNumber);
+    const b = chain.entries.find((entry) => entry.chapterNumber === bNumber);
+    if (!a || !b) continue;
+    items.push({ chapterId: a.chapterId, chapterIdB: b.chapterId, quote: a.value, quoteB: b.value, observation });
+  }
+  return items;
 }
 
 /**

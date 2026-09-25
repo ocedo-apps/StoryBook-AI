@@ -25,7 +25,7 @@ inte en ensidig lista.
 | 7 | AI-pipelinen blir scen-medveten | ✅ byggd (v0.82) |
 | 8 | Lokalt semantiskt index + Ask Manuscript | ✅ byggd (v0.75) |
 | 9 | Story time + Timeline | ✅ byggd (v0.76) |
-| 10 | Continuity 2.0 | 🟡 delvis — kunskapsläckor klara (v0.78), spatial kontinuitet + objekttillstånd återstår |
+| 10 | Continuity 2.0 | ✅ byggd (kunskapsläckor v0.78, spatial kontinuitet v0.94) |
 | 11 | Plotlines / scen-matris | ✅ byggd (v0.79) |
 | 12 | Setup/payoff/ledtrådsspårning | ⬜ ej påbörjad |
 | 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
@@ -286,7 +286,7 @@ Bygger på scenens `story_time`-fält (punkt 5) och löser det öppna
 specfrågan om att `sequence_index` är bokordning, inte story-clock
 (§11).
 
-### 10. Continuity 2.0 — kunskapsläckor klara (v0.78), spatial/objekttillstånd återstår
+### 10. Continuity 2.0 ✅ byggd (kunskapsläckor v0.78, spatial kontinuitet v0.94)
 Spatial kontinuitet (omöjlig förflyttning), objekttillstånd
 (`gun.location`), kunskapstillstånd ("possible knowledge leak: Henrik
 vet inte det här än"). Detta är LLM-steg 3-territoriet som
@@ -296,9 +296,22 @@ kan lösas deterministiskt, utan modellanrop.
 
 Kunskapsläckor byggda (v0.78): `knowledgeLeaksForChapter()` varnar
 när ett kapitel har fakta synliga som etablerades senare i
-lässordningen. Spatial kontinuitet och objekttillstånd väntar —
-de kräver antingen en platskarta författaren måste underhålla, eller
-ett AI-anrop, inget av det byggt än.
+lässordningen.
+
+Spatial kontinuitet byggd (v0.94), efter ett uttryckligt vägval:
+författar-underhållen platskarta (helt deterministisk, men kräver
+underhåll och täcker bara plats) mot AI-baserat omdöme som en ny
+Korrekturläsnings-etapp (återanvänder befintlig maskin, håller
+"anteckningar bara"-principen). Valde AI-vägen. Bygger på
+`manuscriptPlaceChains()` (deterministisk förberedelse — varje
+entitets `core.place`-historik i berättelsens egen tidsordning, inte
+lässordning, återanvänder `bookFactChains`/`timelineEntries`) + en ny
+"Continuity"-etapp som ber modellen flagga bara en förflyttning som
+ser omöjlig eller oförklarad ut, inte varje platsbyte. Samma mekanism
+täcker roadmap-textens `gun.location`-exempel också — ett föremåls
+plats är samma predikat som en persons. Medvetet avgränsat till plats;
+annat objekttillstånd (t.ex. "förstörd") har ingen tydlig
+fakta-predikat idag och lämnas därför öppet.
 
 ### 11. Plotlines / scen-matris ✅ byggd (v0.79)
 Trådar kopplade direkt till scener (`scene.plotline_ids[]`), visuellt
