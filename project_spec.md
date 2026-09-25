@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.9
+Status: living document, v0.99.10
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.9 → v0.99.10:** Fixade en skrollbugg författaren
+upptäckte: långt innehåll i mittenytan (t.ex. hela Guiden) fick HELA
+sidan att skrolla istället för bara mittenkolumnen, så att
+vänstermenyn och Story Bible-panelen rullade bort ur synhåll.
+
+- Root cause: varken `.manuscript` (mittenytans delade basklass —
+  Kapitel, Synopsis, Brainstorm, Guide, Inställningar, Fråga manuset,
+  Tidslinje, Trådar, Utvecklingsmetod använder alla den) eller
+  `.rail`/`.rail-right` hade `overflow-y: auto`. Bara `min-height: 0`
+  fanns satt — en nödvändig men inte tillräcklig förutsättning; utan
+  ett faktiskt `overflow`-värde rinner för högt innehåll bara ut ur
+  sin grid-cell och förlänger hela sidans skrollbara yta istället för
+  att skrolla för sig. Upptäcktes egentligen redan vid gårdagens
+  layout-omarbetning (ett mätvärde flaggade det: `body.scrollHeight`
+  var 3782px mot 850px synligt — avfärdades då som troligen ofarligt
+  eftersom stillbilder såg korrekta ut, men en stillbild av en
+  oskrollad överfylld sida ser identisk ut oavsett om skrollningen
+  fungerar rätt eller inte. Läxan: mät faktiskt skrollbeteende, inte
+  bara en enda skärmdump, när en `overflow`-relaterad ändring görs.
+- Fix: `overflow-y: auto` tillagt direkt på de två delade basklasserna
+  (`.manuscript`, `.rail`) istället för i varje enskild sid-klass —
+  några sidor (`.settings-page`, `.plotline-matrix-page`,
+  `.method-panel`) hade redan egna ad-hoc-lösningar av samma problem,
+  men Guide hade ingen, vilket är precis hur buggen visade sig. Tog
+  också bort `.rail-right`s `overflow: hidden` (som klippte innehåll
+  istället för att skrolla det — troligen menat som en
+  dubbel-skrollbar-fix, men fel medel).
+- Verifierat med faktisk skrollning (inte bara en stillbild denna
+  gång): `document.body.scrollHeight` matchar nu exakt
+  `window.innerHeight`, och `window.scrollY` förblir 0 efter att ha
+  skrollat mittenkolumnen 900px för hand — sidan skrollar inte alls
+  längre, bara den kolumn som faktiskt är för lång.
+- 597/597 gröna.
 
 **Ändringslogg v0.99.8 → v0.99.9:** Två snabba uppföljningar på
 gårdagens topprad, båda på författarens begäran.

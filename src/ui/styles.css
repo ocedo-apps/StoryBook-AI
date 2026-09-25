@@ -855,6 +855,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow-y: auto;
   background: var(--panel);
   padding: 1rem 0.9rem 1.2rem;
 }
@@ -865,7 +866,6 @@ button:disabled {
 
 .rail-right {
   border-left: 1px solid var(--border-soft);
-  overflow: hidden;
 }
 
 .synopsis-item {
@@ -1308,6 +1308,7 @@ button:disabled {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
   background:
     radial-gradient(1200px 400px at 50% -10%, var(--wash), transparent 50%),
     var(--bg);
