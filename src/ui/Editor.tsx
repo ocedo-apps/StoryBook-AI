@@ -235,7 +235,9 @@ function StatsTrigger({
   onOpen,
   onToggleHighlight,
   ticsHighlighting,
-  onToggleTics
+  onToggleTics,
+  factsHighlighting,
+  onToggleFacts
 }: {
   words: number;
   highlighting: boolean;
@@ -243,6 +245,8 @@ function StatsTrigger({
   onToggleHighlight: () => void;
   ticsHighlighting: boolean;
   onToggleTics: () => void;
+  factsHighlighting?: boolean;
+  onToggleFacts?: () => void;
 }) {
   const { messages: m } = useLocale();
   return (
@@ -269,6 +273,17 @@ function StatsTrigger({
       >
         <span className="stats-trigger-label">{ticsHighlighting ? m.stats.ticsOn : m.stats.ticsOff}</span>
       </button>
+      {onToggleFacts ? (
+        <button
+          type="button"
+          className={factsHighlighting ? "stats-trigger is-on" : "stats-trigger"}
+          onClick={onToggleFacts}
+          aria-pressed={factsHighlighting === true}
+          title={factsHighlighting ? m.stats.factsOnTitle : m.stats.factsOffTitle}
+        >
+          <span className="stats-trigger-label">{factsHighlighting ? m.stats.factsOn : m.stats.factsOff}</span>
+        </button>
+      ) : null}
     </span>
   );
 }
@@ -377,6 +392,7 @@ export function Editor() {
   const [lastJsonBackupAt, setLastJsonBackupAt] = useState(() => readLastJsonBackup(book.id));
   const [highlightRare, setHighlightRare] = useState(false);
   const [highlightTics, setHighlightTics] = useState(false);
+  const [highlightFacts, setHighlightFacts] = useState(false);
   const [dragChapterId, setDragChapterId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | "end" | null>(null);
   const [continuesNotice, setContinuesNotice] = useState<string | null>(null);
@@ -1290,6 +1306,7 @@ export function Editor() {
               disabled={busy !== null}
               highlightRare={highlightRare}
               highlightTics={highlightTics}
+              highlightFacts={highlightFacts}
               names={names}
               nameLinks={nameLinks}
               onJumpToEntity={(ref) => setOpenEntitySignal({ ref })}
@@ -1312,11 +1329,19 @@ export function Editor() {
                 onToggleHighlight={() => {
                   setHighlightRare((on) => !on);
                   setHighlightTics(false);
+                  setHighlightFacts(false);
                 }}
                 ticsHighlighting={highlightTics}
                 onToggleTics={() => {
                   setHighlightTics((on) => !on);
                   setHighlightRare(false);
+                  setHighlightFacts(false);
+                }}
+                factsHighlighting={highlightFacts}
+                onToggleFacts={() => {
+                  setHighlightFacts((on) => !on);
+                  setHighlightRare(false);
+                  setHighlightTics(false);
                 }}
               />
               <div className="actions">
@@ -1375,6 +1400,7 @@ export function Editor() {
               disabled={busy !== null}
               highlightRare={highlightRare}
               highlightTics={highlightTics}
+              highlightFacts={highlightFacts}
               names={names}
               nameLinks={nameLinks}
               onJumpToEntity={(ref) => setOpenEntitySignal({ ref })}
@@ -1412,11 +1438,19 @@ export function Editor() {
                 onToggleHighlight={() => {
                   setHighlightRare((on) => !on);
                   setHighlightTics(false);
+                  setHighlightFacts(false);
                 }}
                 ticsHighlighting={highlightTics}
                 onToggleTics={() => {
                   setHighlightTics((on) => !on);
                   setHighlightRare(false);
+                  setHighlightFacts(false);
+                }}
+                factsHighlighting={highlightFacts}
+                onToggleFacts={() => {
+                  setHighlightFacts((on) => !on);
+                  setHighlightRare(false);
+                  setHighlightTics(false);
                 }}
               />
               <div className="actions">

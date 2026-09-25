@@ -39,7 +39,7 @@ inte en ensidig lista.
 | 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
 | 22 | "?"-genvägar från rubriker till guiden | ✅ byggd (v0.93) |
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
-| 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ✅ byggd (v0.99.25) — permanent understrykning för fakta-omnämnanden kvar, se nedan |
+| 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ✅ byggd (v0.99.26) |
 | 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ⬜ ej påbörjad — avvaktar, se nedan |
 | 26 | Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten | ⬜ ej påbörjad — avvaktar, se nedan |
 
@@ -666,7 +666,7 @@ fel) hänger ihop med fråga 3 — vettig som en säkerhetsventil OM
 Draft görs positionsmedvetet, men inget att bygga isolerat innan det
 beslutet är taget.
 
-**Status (v0.99.25): frågorna besvarade, tre av fyra delar byggda.**
+**Status (v0.99.26): frågorna besvarade, alla fyra delar byggda.**
 Författaren svarade ja på alla tre — positionsberoende växel,
 permanent understrykning, och Draft blir positionsmedveten.
 
@@ -682,12 +682,13 @@ permanent understrykning, och Draft blir positionsmedveten.
   `position_override` (`"include" | "exclude"`) per fakta. Ny knapp i
   Story Bible-kortet (Auto / Alltid med / Aldrig med, klick cyklar)
   som alltid vinner över den automatiska gissningen.
-- ⬜ **Permanent synlig understrykning** för fakta-omnämnanden i
-  prosan (fråga 2) — inte byggd än. Klickbara namn (punkt 15) har
-  redan träffdetektering och hover-tooltip men ingen synlig markering;
-  skulle återanvända samma `<mark>`-mönster som Ovanliga ord/Klichéer
-  (`RareMarkup` i `ProseCanvas.tsx`) i ett nytt `is-facts`-läge. Nästa
-  steg när det blir aktuellt.
+- ✅ **Permanent synlig understrykning** (v0.99.26) för fakta-
+  omnämnanden i prosan (fråga 2), togglebar precis som Ovanliga
+  ord/Klichéer — tredje knapp i samma rad (`STORY BIBLE NAMES`), av
+  som standard, återanvänder samma `<mark>`-overlay-teknik
+  (`RareMarkup`-mönstret) i ett nytt `is-facts`-läge. Bara i Synopsis
+  och kapiteltexten — Brainstorm har ingen `ProseCanvas`/namnlänkar
+  att markera i, så ingen tredje knapp dök upp där.
 
 ### 25. Textformatering (fet/kursiv/understruken) i kapiteltexten
 Författarens förslag: markera text, högerklicka, tre kvadratiska

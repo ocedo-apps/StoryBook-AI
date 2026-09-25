@@ -1,9 +1,35 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.25
+Status: living document, v0.99.26
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.25 → v0.99.26:** Permanent, togglebar
+understrykning av Story Bible-namn i prosan — sista biten av roadmap
+#24, klart nu.
+
+- Ny "STORY BIBLE NAMES"-knapp bredvid "RARE"/"CLICHÉS" i
+  synopsis- och kapitel-fotern, av som standard. Återanvänder exakt
+  samma overlay-teknik som de två andra (en osynlig `.prose-rare`-
+  kopia av texten med `<mark>`-spann bakom den riktiga, genomskinliga
+  redigeringsytan) — ingen ny renderingsmekanik, bara ett nytt
+  `is-facts`-läge i samma system.
+- Träffdetekteringen fanns redan (`findNameHitsInText` i
+  `bibleMentions.ts`, byggd för Ctrl/Cmd-klick i roadmap #15) — den
+  hade bara aldrig fått en synlig markering, bara osynlig hovring.
+  Ny `FactMarkup`-komponent i `ProseCanvas.tsx` kopierar
+  `RareMarkup`s `<mark>`-splitsningsmönster.
+- Ny CSS-variabel `--fact-mark` (blåton, skiljer sig från rost/
+  gult/lila som de andra tre lägena redan använder), satt i både
+  ljust och mörkt tema.
+- Bara i Synopsis och kapiteltexten — Brainstorm har ingen
+  `ProseCanvas`/namnlänkar kopplade, så ingen tredje knapp dök upp
+  där (skulle ha varit en död knapp).
+- 615/615 gröna (ingen ny testfil — rent UI-lager ovanpå redan testad
+  logik). Verifierat i webbläsaren: skrev "Emma... Emma..." i ett
+  kapitel, slog på knappen, fick två understrukna träffar, slog av
+  igen och overlayen försvann helt.
 
 **Ändringslogg v0.99.24 → v0.99.25:** Positionsmedvetna Story
 Bible-fakta (roadmap #24) — författaren svarade ja på alla tre öppna

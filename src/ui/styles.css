@@ -75,6 +75,7 @@
   --find-mark: rgb(212 160 84 / 0.38);
   --find-mark-current: rgb(212 160 84 / 0.68);
   --tic-mark: rgb(179 146 196 / 0.34);
+  --fact-mark: rgb(94 152 189 / 0.34);
   --wash: rgb(208 106 72 / 0.07);
   --picture-scrim: rgb(20 17 14 / 0.72);
   --picture-scrim-strong: rgb(20 17 14 / 0.92);
@@ -112,6 +113,7 @@
   --find-mark: rgb(163 107 28 / 0.26);
   --find-mark-current: rgb(163 107 28 / 0.48);
   --tic-mark: rgb(110 78 134 / 0.24);
+  --fact-mark: rgb(52 105 145 / 0.24);
   --wash: rgb(194 79 48 / 0.1);
   --picture-scrim: rgb(42 34 24 / 0.55);
   --picture-scrim-strong: rgb(42 34 24 / 0.78);
@@ -2243,8 +2245,13 @@ button:disabled {
   background: var(--tic-mark);
 }
 
+.prose-wrap.is-facts .prose-rare mark {
+  background: var(--fact-mark);
+}
+
 .prose-wrap.is-rare .prose,
-.prose-wrap.is-tics .prose {
+.prose-wrap.is-tics .prose,
+.prose-wrap.is-facts .prose {
   position: relative;
   z-index: 1;
   color: transparent;

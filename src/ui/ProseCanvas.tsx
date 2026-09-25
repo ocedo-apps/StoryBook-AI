@@ -45,6 +45,7 @@ export function ProseCanvas({
   disabled,
   highlightRare = false,
   highlightTics = false,
+  highlightFacts = false,
   names = [],
   extraSyllables,
   findNeedle,
@@ -71,6 +72,7 @@ export function ProseCanvas({
   disabled?: boolean;
   highlightRare?: boolean;
   highlightTics?: boolean;
+  highlightFacts?: boolean;
   names?: string[];
   extraSyllables?: number;
   findNeedle?: string;
@@ -323,8 +325,8 @@ export function ProseCanvas({
   }
 
   const findOn = Boolean(findNeedle?.trim());
-  const overlayOn = findOn || highlightRare || highlightTics;
-  const overlayModeClass = highlightRare ? "is-rare" : highlightTics ? "is-tics" : "";
+  const overlayOn = findOn || highlightRare || highlightTics || highlightFacts;
+  const overlayModeClass = highlightRare ? "is-rare" : highlightTics ? "is-tics" : highlightFacts ? "is-facts" : "";
 
   return (
     <div
@@ -339,6 +341,8 @@ export function ProseCanvas({
             text={value}
             names={names}
             highlightTics={highlightTics}
+            highlightFacts={highlightFacts}
+            nameLinks={nameLinks ?? []}
             {...(extraSyllables !== undefined ? { extraSyllables } : {})}
             {...(findOn && findNeedle && findFlags
               ? {
@@ -555,6 +559,8 @@ function ProseMarkup({
   names,
   extraSyllables,
   highlightTics = false,
+  highlightFacts = false,
+  nameLinks = [],
   findNeedle,
   findFlags,
   findActiveStart
@@ -563,6 +569,8 @@ function ProseMarkup({
   names: string[];
   extraSyllables?: number;
   highlightTics?: boolean;
+  highlightFacts?: boolean;
+  nameLinks?: { entity_ref: string; entity_label: string }[];
   findNeedle?: string;
   findFlags?: FindFlags;
   findActiveStart?: number;
@@ -586,6 +594,8 @@ function ProseMarkup({
             <FindMarkup text={block} marks={findMarks[index] ?? []} />
           ) : highlightTics ? (
             <TicMarkup text={block} />
+          ) : highlightFacts ? (
+            <FactMarkup text={block} nameLinks={nameLinks} />
           ) : (
             <RareMarkup
               text={block}
@@ -597,6 +607,24 @@ function ProseMarkup({
       ))}
     </>
   );
+}
+
+function FactMarkup({ text, nameLinks }: { text: string; nameLinks: { entity_ref: string; entity_label: string }[] }) {
+  const hits = useMemo(() => (nameLinks.length > 0 ? findNameHitsInText(text, nameLinks) : []), [text, nameLinks]);
+  if (hits.length === 0) return <>{text}</>;
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  for (const hit of hits) {
+    if (hit.start > cursor) parts.push(text.slice(cursor, hit.start));
+    parts.push(
+      <mark key={hit.start} title={hit.entityLabel}>
+        {text.slice(hit.start, hit.end)}
+      </mark>
+    );
+    cursor = hit.end;
+  }
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
 }
 
 function FindMarkup({ text, marks }: { text: string; marks: { start: number; end: number; current: boolean }[] }) {
