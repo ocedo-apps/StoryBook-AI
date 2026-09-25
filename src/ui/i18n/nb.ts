@@ -314,6 +314,7 @@ export const nb: Messages = {
     openFromHome: "Ny her? Les hurtigstarten",
     closeAction: "Lukk",
     fromErrorLink: "Se hurtigstartguiden",
+    helpFor: "Guide: {topic}",
     quickstartHeading: "Hurtigstart",
     quickstartSteps: [
       {
@@ -345,7 +346,7 @@ export const nb: Messages = {
       },
       {
         heading: "Kapitler: Lag utkast, Omskriv, Analyser",
-        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje."
+        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen."
       },
       {
         heading: "Scener",
@@ -369,7 +370,7 @@ export const nb: Messages = {
       },
       {
         heading: "Korrekturlesing",
-        body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, og en faktasjekk mot hele boken. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
+        body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, og en faktasjekk mot hele boken. Når Leser er satt til et barne- eller ungdomsnivå, flagger den også banning, vold eller eksplisitt innhold som ikke passer den alderen. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
       },
       {
         heading: "Spør manuskriptet",

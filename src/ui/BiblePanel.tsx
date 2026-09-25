@@ -53,7 +53,7 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
   return `${chapter.sequence_index + 1} · ${chapter.title.trim() || untitled}`;
 }
 
-export function BiblePanel() {
+export function BiblePanel({ onOpenGuide }: { onOpenGuide?: () => void }) {
   const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
@@ -115,7 +115,20 @@ export function BiblePanel() {
   return (
     <aside className="rail rail-right">
       <div className="rail-head">
-        <h2>{m.bible.title}</h2>
+        <span className="rail-head-title">
+          <h2>{m.bible.title}</h2>
+          {onOpenGuide ? (
+            <button
+              type="button"
+              className="guide-help-button"
+              aria-label={format(m.guide.helpFor, { topic: m.bible.title })}
+              title={format(m.guide.helpFor, { topic: m.bible.title })}
+              onClick={onOpenGuide}
+            >
+              ?
+            </button>
+          ) : null}
+        </span>
         <div className="bible-head-tools">
           {asOfChapter ? null : pending.length > 0 ? (
             <button

@@ -314,6 +314,7 @@ export const sv: Messages = {
     openFromHome: "Ny här? Läs snabbstarten",
     closeAction: "Stäng",
     fromErrorLink: "Se snabbstartsguiden",
+    helpFor: "Guide: {topic}",
     quickstartHeading: "Snabbstart",
     quickstartSteps: [
       {
@@ -345,7 +346,7 @@ export const sv: Messages = {
       },
       {
         heading: "Kapitel: Skriv utkast, Omskriv, Analysera",
-        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad."
+        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern."
       },
       {
         heading: "Scener",
@@ -369,7 +370,7 @@ export const sv: Messages = {
       },
       {
         heading: "Korrekturläsning",
-        body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, och en faktakontroll mot hela boken. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
+        body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, och en faktakontroll mot hela boken. När Läsare är satt till en barn- eller ungdomsnivå flaggar den dessutom svordomar, våld eller explicit innehåll som inte passar den åldern. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
       },
       {
         heading: "Fråga manuset",

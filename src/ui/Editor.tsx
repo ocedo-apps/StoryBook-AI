@@ -122,6 +122,32 @@ function indexAnchor(stack: HTMLElement, chapterId: string): HTMLElement | null 
   return index instanceof HTMLElement ? index : row;
 }
 
+/** A small "?" next to a heading or nav item that jumps to that topic in the Guide. */
+function GuideHelpButton({
+  anchor,
+  ariaLabel,
+  onOpen
+}: {
+  anchor: GuideSectionId;
+  ariaLabel: string;
+  onOpen: (anchor: GuideSectionId) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="guide-help-button"
+      aria-label={ariaLabel}
+      title={ariaLabel}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen(anchor);
+      }}
+    >
+      ?
+    </button>
+  );
+}
+
 function ChapterStrandOverlay({
   chapters,
   selectedId,
@@ -701,61 +727,96 @@ export function Editor() {
           >
             {m.editor.settings}
           </button>
-          <button
-            type="button"
-            className={onBrainstorm && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showBrainstorm();
-            }}
-          >
-            {m.editor.brainstorm}
-          </button>
-          <button
-            type="button"
-            className={onSynopsis && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showSynopsis();
-            }}
-          >
-            {m.editor.synopsis}
-          </button>
-          <button
-            type="button"
-            className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showAsk();
-            }}
-          >
-            {m.askManuscript.nav}
-          </button>
-          <button
-            type="button"
-            className={onTimeline && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showTimeline();
-            }}
-          >
-            {m.timeline.nav}
-          </button>
-          <button
-            type="button"
-            className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showPlotlines();
-            }}
-          >
-            {m.plotlines.nav}
-          </button>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onBrainstorm && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showBrainstorm();
+              }}
+            >
+              {m.editor.brainstorm}
+            </button>
+            <GuideHelpButton
+              anchor="brainstorm-synopsis"
+              ariaLabel={format(m.guide.helpFor, { topic: m.editor.brainstorm })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onSynopsis && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showSynopsis();
+              }}
+            >
+              {m.editor.synopsis}
+            </button>
+            <GuideHelpButton
+              anchor="brainstorm-synopsis"
+              ariaLabel={format(m.guide.helpFor, { topic: m.editor.synopsis })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showAsk();
+              }}
+            >
+              {m.askManuscript.nav}
+            </button>
+            <GuideHelpButton
+              anchor="ask-manuscript"
+              ariaLabel={format(m.guide.helpFor, { topic: m.askManuscript.nav })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onTimeline && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showTimeline();
+              }}
+            >
+              {m.timeline.nav}
+            </button>
+            <GuideHelpButton
+              anchor="timeline"
+              ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showPlotlines();
+              }}
+            >
+              {m.plotlines.nav}
+            </button>
+            <GuideHelpButton
+              anchor="plotlines"
+              ariaLabel={format(m.guide.helpFor, { topic: m.plotlines.nav })}
+              onOpen={openGuide}
+            />
+          </div>
           <button
             type="button"
             className={onBoard ? "synopsis-item is-active" : "synopsis-item"}
@@ -767,7 +828,14 @@ export function Editor() {
             {m.editor.briefs}
           </button>
           <div className="rail-head">
-            <h2>{m.editor.chapters}</h2>
+            <span className="rail-head-title">
+              <h2>{m.editor.chapters}</h2>
+              <GuideHelpButton
+                anchor="chapters"
+                ariaLabel={format(m.guide.helpFor, { topic: m.editor.chapters })}
+                onOpen={openGuide}
+              />
+            </span>
             <button type="button" className="text-button" onClick={() => void store.patchBook(addChapter)}>
               {m.editor.add}
             </button>
@@ -949,24 +1017,38 @@ export function Editor() {
               );
             })}
           </ol>
-          <button
-            type="button"
-            className={
-              proofreadOpen || busy === "proofread" ? "synopsis-item proofread-item is-active" : "synopsis-item proofread-item"
-            }
-            onClick={openProofread}
-            disabled={busy !== null && busy !== "proofread"}
-          >
-            {m.editor.proofread}
-          </button>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={
+                proofreadOpen || busy === "proofread" ? "synopsis-item proofread-item is-active" : "synopsis-item proofread-item"
+              }
+              onClick={openProofread}
+              disabled={busy !== null && busy !== "proofread"}
+            >
+              {m.editor.proofread}
+            </button>
+            <GuideHelpButton
+              anchor="proofread"
+              ariaLabel={format(m.guide.helpFor, { topic: m.editor.proofread })}
+              onOpen={openGuide}
+            />
+          </div>
           </ChapterStrandOverlay>
-          <button
-            type="button"
-            className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
-            onClick={openPublish}
-          >
-            {m.editor.publish}
-          </button>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
+              onClick={openPublish}
+            >
+              {m.editor.publish}
+            </button>
+            <GuideHelpButton
+              anchor="publish"
+              ariaLabel={format(m.guide.helpFor, { topic: m.editor.publish })}
+              onOpen={openGuide}
+            />
+          </div>
           {discarded.length > 0 ? (
             <>
               <div className="rail-head">
@@ -1321,7 +1403,7 @@ export function Editor() {
           </main>
         )}
 
-        <BiblePanel />
+        <BiblePanel onOpenGuide={() => openGuide("story-bible")} />
       </div>
       {statsOpen ? (
         <ProseStatsCard

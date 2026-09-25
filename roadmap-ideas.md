@@ -37,7 +37,7 @@ inte en ensidig lista.
 | 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
 | 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
 | 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
-| 22 | "?"-genvägar från rubriker till guiden | ⬜ ej påbörjad |
+| 22 | "?"-genvägar från rubriker till guiden | ✅ byggd (v0.93) |
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
@@ -460,15 +460,21 @@ byggd nu, men arkitekturen ligger rätt för det — guide-innehållet är
 redan strukturerad text i språkfilerna, så det borde kunna återanvända
 Publish-flödets befintliga PDF-renderare istället för att bygga en ny.
 
-### 22. "?"-genvägar från rubriker till guiden — nästa steg
-Författaren föreslog små "?"-ikoner vid huvudrubriker (Story Bible,
-Scener, Korrekturläsning, Timeline, …) som hoppar rakt till rätt
-avsnitt i guiden, istället för spridda hjälptexter som måste hållas i
-synk på flera ställen. `GuidePanel.tsx` har redan stabila,
-språkoberoende ankare för det här (`GUIDE_SECTION_IDS`,
-`GUIDE_FAQ_IDS`) och `Editor.tsx`s `openGuide(anchor)` hoppar redan
-dit med skroll — det som återstår är att sätta en liten "?"-knapp vid
-varje relevant panels rubrik som anropar den.
+### 22. "?"-genvägar från rubriker till guiden ✅ byggd (v0.93)
+Författaren föreslog små "?"-ikoner vid huvudrubriker som hoppar rakt
+till rätt avsnitt i guiden, istället för spridda hjälptexter som måste
+hållas i synk på flera ställen. Byggd med de förberedda ankarna
+(`GUIDE_SECTION_IDS`) och `Editor.tsx`s befintliga `openGuide(anchor)`
+— samma mekanism felbannerns guide-länk redan använde.
+
+Nio knappar: Brainstorm, Synopsis, Fråga manuset, Timeline, Trådar,
+Kapitel, Korrekturläsning, Publicera (alla i vänsterspalten, via en ny
+delad `GuideHelpButton`) och Story Bible (högerspalten, via en ny
+`onOpenGuide`-prop på `BiblePanel` eftersom det ankar-styrande state:t
+bor i `Editor.tsx`, inte storen). Inställningar, Scener, Kontinuitet
+och "Author beats AI" fick ingen knapp — inget av dem har en enda
+tydlig rubrik att fästa den vid, och en gissad placering hade känts
+påklistrad snarare än hjälpsam.
 
 ### 23. Läsarålder som fasta nivåer + innehållsflaggning ✅ byggd (v0.91)
 Författaren ville kunna ange vilken ålder läsaren förväntas ha, men

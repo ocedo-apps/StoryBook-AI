@@ -1,9 +1,36 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.92
+Status: living document, v0.93
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.92 → v0.93:** Roadmap-punkt 22, tidigare uppskjuten:
+"?"-genvägar från rubriker till guiden, plus att guiden själv fick
+ikapp de två senaste funktionerna den inte nämnde.
+
+- **Guiden uppdaterad**: "Kapitel"-avsnittet nämner nu Reader-fältets
+  fasta åldersnivåer (Pekbok–Vuxen), och "Korrekturläsning"-avsnittet
+  nämner nu att den flaggar svordomar/våld/explicit innehåll när
+  läsaren är satt till en barn- eller ungdomsnivå. Guiden låg efter
+  sedan v0.91 — bara text, ingen ny funktion.
+- **"?"-knappar** vid åtta rubriker/navigeringsposter som redan hade
+  en motsvarande sektion i guiden: Brainstorm, Synopsis, Fråga
+  manuset, Timeline, Trådar, Kapitel, Korrekturläsning, Publicera —
+  plus Story Bible-rubriken i högerspalten. Varje knapp hoppar rakt
+  till rätt avsnitt i guiden med skroll, samma `openGuide(anchor)` och
+  samma stabila ankare (`GUIDE_SECTION_IDS`) som felbannerns
+  guide-länk redan använde. Inställningar, Scener, Kontinuitet och
+  "Author beats AI" fick medvetet ingen knapp — de saknar en enda
+  tydlig rubrik att fästa den vid.
+- Ny delad `GuideHelpButton`-komponent i `Editor.tsx`; `BiblePanel`
+  fick en ny valfri `onOpenGuide`-prop eftersom guide-hoppet (med
+  vilket ankare) styrs av lokalt state i `Editor.tsx`, inte av storen.
+
+Ingen ändring av befintlig funktionalitet. 567/567 gröna. Verifierat i
+webbläsaren: alla nio "?"-knappar renderas, och en klickad knapp
+(testat på Trådar och Story Bible) öppnar guiden skrollad till rätt
+avsnitt.
 
 **Ändringslogg v0.91 → v0.92:** Kapitelinställningarna (Voice, Reader,
 POV, Tense, Viewpoint, Fortsätter från, Skriv om-knappen) låg tidigare

@@ -312,6 +312,7 @@ export const en = {
     openFromHome: "New here? Read the quickstart",
     closeAction: "Close",
     fromErrorLink: "See the quickstart guide",
+    helpFor: "Guide: {topic}",
     quickstartHeading: "Quickstart",
     quickstartSteps: [
       {
@@ -343,7 +344,7 @@ export const en = {
       },
       {
         heading: "Chapters: Draft, Recast, Analyze",
-        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word."
+        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age."
       },
       {
         heading: "Scenes",
@@ -367,7 +368,7 @@ export const en = {
       },
       {
         heading: "Proofread",
-        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, and a fact check against the whole book. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
+        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, and a fact check against the whole book. When Reader is set to a children's or YA level, it also flags swearing, violence, or explicit content that does not fit that age. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
       },
       {
         heading: "Ask Manuscript",

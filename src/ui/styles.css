@@ -730,6 +730,46 @@ button:disabled {
   color: var(--text);
 }
 
+.synopsis-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-bottom: 0.15rem;
+}
+
+.synopsis-item-row .synopsis-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.rail-head-title {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.guide-help-button {
+  flex: 0 0 auto;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+  background: none;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.guide-help-button:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
 .rail-left .proofread-item {
   margin-top: 0.35rem;
   margin-bottom: 0.35rem;
