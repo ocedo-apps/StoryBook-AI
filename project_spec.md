@@ -1,9 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.20
+Status: living document, v0.99.21
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.20 → v0.99.21:** "Nytt manus" → "Starta nytt
+manus", "Öppna" → "Skapa" — dels rättar en miss från v0.99.19 (bad om
+etikettbytet redan då, jag byggde bara fontstorleken), dels
+författarens observation att "Öppna" kändes fel för en knapp som
+skapar ett nytt manus, inte öppnar ett befintligt.
+
+- Valde "Skapa" framför "Starta" för knappen — annars säger etikett
+  och knapp samma ord två gånger på rad ("Starta nytt manus" ...
+  "Starta"). "Skapa" beskriver den faktiska handlingen, "Starta"
+  passar bättre som rubriktonen ovanför.
+- Uppdaterade samtidigt Guidens steg 1, som citerar båda texterna
+  ordagrant ("tryck Öppna") — annars hade instruktionen pekat på
+  knappar som inte längre finns. Alla tre språk (sv/en/nb).
+- 597/597 gröna. Verifierat i webbläsaren på svenska: "STARTA NYTT
+  MANUS" / "Skapa".
 
 **Ändringslogg v0.99.19 → v0.99.20:** Rättade en riktig bugg —
 författaren hade rätt, rubrikerna var fortfarande 11px trots

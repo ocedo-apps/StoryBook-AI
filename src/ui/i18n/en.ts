@@ -30,9 +30,9 @@ export const en = {
     truth: "The Story Bible holds truth.",
     lede:
       "A local manuscript tool. Title the book, grow the story in Brainstorm, and lift a Synopsis when it is ready. The model drafts the chapters — you decide.",
-    newManuscript: "New manuscript",
+    newManuscript: "Start a new manuscript",
     titlePlaceholder: "Title",
-    open: "Open",
+    open: "Create",
     importBackup: "Import backup",
     shelf: "Manuscripts",
     shelfHeading: "Your manuscripts",
@@ -450,7 +450,7 @@ export const en = {
     quickstartSteps: [
       {
         heading: "1. Start your manuscript",
-        body: "Type a title into the \"New manuscript\" field on the home page and press Open — that's all it takes. You land straight in Brainstorm: a private scratch space with nothing to configure, where you jot down ideas at your own pace."
+        body: "Type a title into the \"Start a new manuscript\" field on the home page and press Create — that's all it takes. You land straight in Brainstorm: a private scratch space with nothing to configure, where you jot down ideas at your own pace."
       },
       {
         heading: "2. Write",

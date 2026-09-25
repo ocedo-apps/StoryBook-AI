@@ -32,9 +32,9 @@ export const nb: Messages = {
     truth: "Story Bible holder sanning.",
     lede:
       "Et lokalt manuskriptverktøy. Gi boken en tittel, vek fram fortellingen i Brainstorm, og løft en Synopsis når den er klar. Modellen tar fram utkast til kapitlene — du bestemmer.",
-    newManuscript: "Nytt manuskript",
+    newManuscript: "Start nytt manuskript",
     titlePlaceholder: "Tittel",
-    open: "Åpne",
+    open: "Opprett",
     importBackup: "Importer sikkerhetskopi",
     shelf: "Manuskripter",
     shelfHeading: "Dine manuskripter",
@@ -451,7 +451,7 @@ export const nb: Messages = {
     quickstartSteps: [
       {
         heading: "1. Start manuskriptet ditt",
-        body: "Skriv en tittel i feltet «Nytt manuskript» på forsiden og trykk Åpne — det er alt som trengs. Du havner rett i Idémyldring: et privat skisserom uten noe å stille inn, der du skriver ned idéer i ditt eget tempo."
+        body: "Skriv en tittel i feltet «Start nytt manuskript» på forsiden og trykk Opprett — det er alt som trengs. Du havner rett i Idémyldring: et privat skisserom uten noe å stille inn, der du skriver ned idéer i ditt eget tempo."
       },
       {
         heading: "2. Skriv",

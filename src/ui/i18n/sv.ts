@@ -32,9 +32,9 @@ export const sv: Messages = {
     truth: "Story Bible håller sanning.",
     lede:
       "Ett lokalt manusverktyg. Ge boken en titel, väx fram berättelsen i Brainstorm, och lyft en Synopsis när den är redo. Modellen tar fram utkast till kapitlen — du bestämmer.",
-    newManuscript: "Nytt manus",
+    newManuscript: "Starta nytt manus",
     titlePlaceholder: "Titel",
-    open: "Öppna",
+    open: "Skapa",
     importBackup: "Importera backup",
     shelf: "Manus",
     shelfHeading: "Dina manus",
@@ -451,7 +451,7 @@ export const sv: Messages = {
     quickstartSteps: [
       {
         heading: "1. Starta ditt manus",
-        body: "Skriv en titel i fältet \"Nytt manus\" på förstasidan och tryck Öppna — det är allt som krävs. Du hamnar direkt i Brainstorm: ett privat skissutrymme utan något att ställa in, där du skriver ner idéer i din egen takt."
+        body: "Skriv en titel i fältet \"Starta nytt manus\" på förstasidan och tryck Skapa — det är allt som krävs. Du hamnar direkt i Brainstorm: ett privat skissutrymme utan något att ställa in, där du skriver ner idéer i din egen takt."
       },
       {
         heading: "2. Skriv",
