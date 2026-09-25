@@ -62,10 +62,10 @@ export const en = {
     engineLabel: "Engine",
     engineOllama: "Ollama",
     engineOpenAiCompatible: "LM Studio / other local server",
-    engineLede: "No cloud keys, ever — only a server running on this computer or your local network.",
+    engineLede: "No cloud accounts or subscriptions, ever — only a server running on this computer or your local network.",
     baseUrlLabel: "Server address",
     baseUrlPlaceholder: "http://localhost:1234",
-    baseUrlLede: "The local address LM Studio (or another OpenAI-compatible server, such as llama.cpp) is listening on.",
+    baseUrlLede: "The local address LM Studio (or another local server, such as llama.cpp) is listening on — usually shown when you start its local server.",
     historyLimit: "Versions per chapter",
     historyLimitLede:
       "How many earlier versions each chapter keeps after Draft, Recast, Extend, Elaborate, and Rewrite. Oldest drop first. Typing is not kept.",
@@ -314,7 +314,7 @@ export const en = {
     quickstartSteps: [
       {
         heading: "1. Install a local model",
-        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — any general chat model works to start (a few gigabytes, once). Prefer LM Studio or another local server instead? That works too — see the next step."
+        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — it will show you a library to pick from. Any general chat model works to start (for example llama3 or mistral — a few gigabytes to download, once). Prefer LM Studio or another local server instead? That works too — see the next step."
       },
       {
         heading: "2. Point StoryBook AI at it",
@@ -567,8 +567,8 @@ export const en = {
     lockInto: "Lock into Story Bible",
     history: "History",
     historyCurrent: "current",
-    asOfLabel: "As of",
-    asOfNow: "Now",
+    asOfLabel: "View Story Bible as of",
+    asOfNow: "Current",
     asOfBanner: "Viewing the Story Bible as it stood at “{chapter}” — read-only.",
     asOfBack: "Back to current",
     asOfEntityLede: "As it stood at “{chapter}”.",
@@ -873,7 +873,7 @@ export const en = {
     }
   },
   errors: {
-    ollamaOrigins: "The local server did not accept the browser. Using Ollama? Start it with OLLAMA_ORIGINS=http://localhost:5175. Using LM Studio or another server? Check its CORS / allowed-origins setting.",
+    ollamaOrigins: "The local server did not accept the browser. Using Ollama? Start it with OLLAMA_ORIGINS=http://localhost:5175. Using LM Studio or another server? Look for a setting about which web addresses are allowed to connect (often called CORS or allowed origins).",
     noModel: "No local model found. Start Ollama or your local server, then reload.",
     notJson: "That file is not JSON.",
     backupUnreadable: "Could not read that backup.",

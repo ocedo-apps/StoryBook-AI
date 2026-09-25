@@ -64,10 +64,10 @@ export const sv: Messages = {
     engineLabel: "Motor",
     engineOllama: "Ollama",
     engineOpenAiCompatible: "LM Studio / annan lokal server",
-    engineLede: "Inga molnnycklar, aldrig — bara en server som körs på den här datorn eller ditt lokala nätverk.",
+    engineLede: "Inga molntjänster eller konton, aldrig — bara en server som körs på den här datorn eller ditt lokala nätverk.",
     baseUrlLabel: "Serveradress",
     baseUrlPlaceholder: "http://localhost:1234",
-    baseUrlLede: "Den lokala adress LM Studio (eller en annan OpenAI-kompatibel server, t.ex. llama.cpp) lyssnar på.",
+    baseUrlLede: "Den lokala adress LM Studio (eller en annan lokal server, t.ex. llama.cpp) lyssnar på — visas oftast när du startar dess lokala server.",
     historyLimit: "Versioner per kapitel",
     historyLimitLede:
       "Hur många tidigare versioner varje kapitel behåller efter utkast, omskrivning, förlängning, utvidgning och omskriv. Äldsta försvinner först. Det du skriver själv sparas inte.",
@@ -316,7 +316,7 @@ export const sv: Messages = {
     quickstartSteps: [
       {
         heading: "1. Installera en lokal modell",
-        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — vilken vanlig chattmodell som helst funkar för att börja (några gigabyte, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
+        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — den visar ett bibliotek att välja från. Vilken vanlig chattmodell som helst funkar för att börja (t.ex. llama3 eller mistral — några gigabyte att ladda ner, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
       },
       {
         heading: "2. Peka StoryBook AI mot den",
@@ -569,8 +569,8 @@ export const sv: Messages = {
     lockInto: "Lås till Story Bible",
     history: "Historik",
     historyCurrent: "nu",
-    asOfLabel: "Som den var",
-    asOfNow: "Nu",
+    asOfLabel: "Visa Story Bible som den var vid",
+    asOfNow: "Nuläget",
     asOfBanner: "Visar Story Bible som den såg ut vid ”{chapter}” — skrivskyddat.",
     asOfBack: "Tillbaka till nuläget",
     asOfEntityLede: "Som det stod vid ”{chapter}”.",
@@ -875,7 +875,7 @@ export const sv: Messages = {
     }
   },
   errors: {
-    ollamaOrigins: "Den lokala servern tog inte emot webbläsaren. Kör du Ollama? Starta den med OLLAMA_ORIGINS=http://localhost:5175. Kör du LM Studio eller en annan server? Kolla dess CORS-/allowed-origins-inställning.",
+    ollamaOrigins: "Den lokala servern tog inte emot webbläsaren. Kör du Ollama? Starta den med OLLAMA_ORIGINS=http://localhost:5175. Kör du LM Studio eller en annan server? Leta efter en inställning för vilka webbadresser som får ansluta (kallas ofta CORS eller allowed origins).",
     noModel: "Ingen lokal modell hittades. Starta Ollama eller din lokala server och ladda om.",
     notJson: "Den filen är inte JSON.",
     backupUnreadable: "Kunde inte läsa den säkerhetskopian.",

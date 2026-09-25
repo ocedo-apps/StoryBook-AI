@@ -1,9 +1,44 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.88
+Status: living document, v0.89
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.88 → v0.89:** Författaren satte en stående regel:
+all text som visas för användaren måste vara tydlig och enkel — hellre
+en mening för mycket än text man måste fundera över. Bad om en
+genomgång av det senast byggda (LM Studio-motorn, Tidsmedveten Story
+Bible, Guiden, Korrekturläsningens tålamods-text) i alla tre språk.
+
+Hittade konkreta exempel på precis den risken, mest i motor-inställningen
+— den mest tekniska hörnan av det som byggts nyligen:
+
+- **"OpenAI-kompatibel server"** i serveradress-hjälptexten — ett
+  begrepp en författare inte har anledning att känna till (kan
+  dessutom felaktigt låta som att det krävs ett OpenAI-konto). Bytt
+  till bara "en annan lokal server, t.ex. llama.cpp".
+- **"CORS"** i felmeddelandet för en avvisad anslutning — rent
+  webbutvecklarjargong. Omskrivet så vanligt språk kommer först
+  ("en inställning för vilka webbadresser som får ansluta"), med de
+  tekniska orden kvar inom parentes bara som sökhjälp om man behöver
+  fråga om det någon annanstans.
+- **"Molnnycklar"** i motor-inställningens hjälptext — syftar på
+  API-nycklar, inte uppenbart för någon som inte kodar. Bytt till
+  "molntjänster eller konton".
+- **"Som den var"** som etikett för Tidsmedvetna Story Bible-väljaren
+  — grammatiskt en ofullständig fras i sammanhanget. Bytt till en
+  komplett mening: "Visa Story Bible som den var vid: Nuläget".
+- Snabbstartens första steg ("hämta en modell") gav ingen konkret
+  bild av vad man letar efter. Lade till exempel-modellnamn (llama3,
+  mistral) och ett förtydligande att Ollama själv visar ett bibliotek
+  att välja från.
+
+Ingen kod ändrad, bara text — och bara i de tre redan existerande
+språkfilerna. Inga nya tester (rent copy). 565/565 gröna oförändrat.
+Verifierat i webbläsaren: skärmdumpar av både den uppdaterade
+motor-hjälptexten och felbannern bekräftade att den nya texten får
+plats och läses tydligt i sitt sammanhang.
 
 **Ändringslogg v0.87 → v0.88:** Följd av författarens rapport om att
 Korrekturläsningen såg ut att fastna på 0%. Genomgång av koden hittade
@@ -1911,6 +1946,12 @@ Dokumenterade här så de inte glöms bort eller omprövas av misstag:
   Introt i notes-rutan: *The review tries to find lines that neither
   reveal the character’s personality nor drive the scene forward.*
 - **Inga molnnycklar.** Lokal Ollama. Manus i IndexedDB, inte i git.
+- **All text till författaren måste vara tydlig och enkel (2026-09-25).**
+  Hellre en mening för mycket än text man måste fundera över — gäller
+  knappar, felmeddelanden, hjälptexter, guiden, allt. Inga
+  utvecklartermer (API, CORS, "OpenAI-kompatibel" osv.) i
+  författarvänd text utan att först förklaras i vanligt språk. En
+  stående regel för allt nytt som skrivs, inte en engångsstädning.
 
 ---
 
