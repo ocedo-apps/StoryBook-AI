@@ -3210,7 +3210,7 @@ button:disabled {
   pointer-events: auto;
 }
 
-.editor.is-maximized .chapter-head,
+.editor.is-maximized .chapter-settings,
 .editor.is-maximized .manuscript > .chapter-title,
 .editor.is-maximized .manuscript > .synopsis-lede {
   display: none;

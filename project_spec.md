@@ -1,9 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.26
+Status: living document, v0.99.27
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.26 → v0.99.27:** Rättade att kapitelnamnet
+försvann när man maximerar skrivytan.
+
+- Orsak: kapitelnamn-fältet (`<input className="chapter-title">`) låg
+  inuti samma `.chapter-head`-omslag som `ChapterSettingsSection`
+  (POV/tempo/brief-inställningarna) — när maximerat läge gömde hela
+  `.chapter-head` för att ge mer skrivyta, försvann fältet med, som
+  ett oavsiktligt sidoeffekt.
+- Fix: bytte den maximerade CSS-regeln från att gömma `.chapter-head`
+  till att bara gömma `.chapter-settings` (inställnings-widgeten
+  själv, som redan är sitt eget element) — kapitelnamnet är nu en
+  direkt syskon-nod till `.chapter-settings` i samma omslag och
+  påverkas inte.
+- 615/615 gröna. Verifierat i webbläsaren: satte ett kapitelnamn,
+  maximerade, namnet syns kvar överst.
 
 **Ändringslogg v0.99.25 → v0.99.26:** Permanent, togglebar
 understrykning av Story Bible-namn i prosan — sista biten av roadmap
