@@ -21,6 +21,12 @@ export const nb: Messages = {
     lightTitle: "Bruk en lys side",
     darkTitle: "Bruk en mørk side"
   },
+  appBar: {
+    nav: "Manuskripter",
+    newManuscript: "Nytt manuskript…",
+    viewAll: "Vis alle manuskripter",
+    goHome: "Gå til alle manuskripter"
+  },
   home: {
     headline: "Skriv prosaen.",
     truth: "Story Bible holder sanning.",
@@ -39,7 +45,6 @@ export const nb: Messages = {
     facts: { one: "{count} låst faktum", other: "{count} låste fakta" }
   },
   editor: {
-    allManuscripts: "Alle manuskripter",
     manuscriptTitle: "Manuskripttittel",
     writing: "Skriving",
     primer: "Startprompt",

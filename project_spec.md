@@ -1,10 +1,60 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.7
+Status: living document, v0.99.8
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
+**Ändringslogg v0.99.7 → v0.99.8:** Ny global topprad, delad mellan
+Hem-sidan och Editorn — författarens förslag, med hennes egen
+uppdelning i två rader: en app-nivå-rad (logga, Manuskript-meny,
+Guide, Språk, Tema) och en bok-nivå-rad (titel, ordräkning/mål,
+Säkerhetskopiera, Sök) så det blir tydligt vad som gäller hela appen
+och vad som bara gäller boken som är öppen.
+
+- Ny `AppTopBar.tsx`, monterad i `Shell()` (`App.tsx`) ovanför
+  `<Editor/>`/`<Home/>` så den alltid syns, oavsett vy.
+- **Manuskript-menyn**: "Nytt manuskript…" högst upp, en tunn linje,
+  sen upp till 10 senast ändrade manuskript (återanvänder
+  `Repository.list()`s befintliga sortering — den sorterade redan
+  fallande på `updated_at`, inget nytt sorteringsbehov), och —
+  bara om fler än 10 manuskript finns — "Visa alla manuskript" längst
+  ner. Verifierat med 11 skapade manuskript: exakt de 10 senaste
+  visas, det äldsta utelämnas, "Visa alla" dyker upp. Egen
+  klick-utanför-stänger-menyn-logik (samma mönster som redan fanns
+  för högerklicksmenyn i `ProseCanvas.tsx`).
+- **Guide, Språk, Tema** flyttade från att finnas dubbelt (Guide i
+  vänstermenyn i Editorn + eget Hem-header; Språk/Tema i både
+  Editorns och Hems egna headers) till att bara finnas en gång, i den
+  nya globala raden. Guide-knappen är kontext-medveten: har man en
+  bok öppen växlar den Editorns "guide"-yta (samma mekanism som
+  förut, bara flyttad startpunkt); har man ingen bok öppen öppnar den
+  samma overlay-modal Hem redan hade — det tillståndet lyftes upp
+  till `Shell()` och skickas ner till `Home` som props istället för
+  att vara Hems egen lokala `useState`.
+- Loggan i den globala raden är nu klickbar → går till "alla
+  manuskript" (samma som gamla "Alla manus"-knappen, som togs bort ur
+  Editorns egen header eftersom Manuskript-menyn gör den överflödig).
+  Nödvändigt tillägg: annars fanns det ingen väg tillbaka till Hem
+  när man har 10 eller färre manuskript (då syns inte "Visa alla").
+- Hems egen stora logga (byggd för två ändringsloggar sedan) togs
+  bort helt — att ha loggan både stor på Hem och liten i den globala
+  raden hade blivit dubbelt. `.eyebrow`-ersättaren `.home-chrome`
+  (Språk/Tema) städades bort som dödkod av samma anledning.
+- Layout-fälla som fångades under verifieringen: `.editor` satte
+  `height: 100%` rakt av, vilket funkade så länge Editorn var
+  `#root`s enda barn. Med `AppTopBar` som ny syskon-rad hade det gett
+  Editorn 100% av `#root`s höjd OVANPÅ topprademns egen höjd — sidan
+  hade blivit för hög. Löst genom att göra `Shell()`s wrapper till en
+  flex-kolumn (`.app-shell`) och byta `.editor` till `flex: 1;
+  min-height: 0` istället, samma mönster Editorn redan använder
+  internt för sin egen header+innehåll-uppdelning.
+- Döda i18n-nycklar (`editor.allManuscripts`) och CSS (`.home-chrome`)
+  städade bort i samma veva.
+- 597/597 gröna. Verifierat grundligt i webbläsaren: menyn i båda
+  teman, växling mellan böcker utan omväg via Hem, Guide från både
+  Hem och Editor (inklusive växling bort från en annan yta), och
+  >10-manuskript-fallet.
 **Ändringslogg v0.99.6 → v0.99.7:** Linjerade "Använd den här
 metoden"-knapparna i metodväljarens kort. `.method-card` var
 `display: grid; align-content: start`, så olika lång

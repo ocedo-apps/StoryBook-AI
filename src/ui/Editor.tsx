@@ -75,8 +75,6 @@ import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
 import { CharacterInterviewCard } from "./CharacterInterviewCard";
 import { SettingsPanel } from "./SettingsPanel";
-import { ThemeToggle } from "./ThemeToggle";
-import { LocaleSelect } from "./LocaleSelect";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
@@ -637,9 +635,6 @@ export function Editor() {
   return (
     <div className={maximized ? "editor is-maximized" : "editor"}>
       <header className="editor-top">
-        <button type="button" className="text-button" onClick={store.closeBook}>
-          {m.editor.allManuscripts}
-        </button>
         <input
           className="title-input"
           value={book.title}
@@ -652,8 +647,6 @@ export function Editor() {
             : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
         </button>
         <div className="model-fields">
-          <LocaleSelect />
-          <ThemeToggle />
           <button
             type="button"
             className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
@@ -726,17 +719,6 @@ export function Editor() {
 
       <div className="editor-body">
         <aside className="rail rail-left">
-          <button
-            type="button"
-            className={onGuide && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              openGuide();
-            }}
-          >
-            {m.guide.nav}
-          </button>
           <button
             type="button"
             className={onSettings && !onBoard ? "synopsis-item is-active" : "synopsis-item"}

@@ -1,6 +1,7 @@
-import React, { Component, Fragment, type ErrorInfo, type ReactNode } from "react";
+import React, { Component, Fragment, useState, type ErrorInfo, type ReactNode } from "react";
 import { BookStoreProvider } from "./BookStore";
 import { useBookStore } from "./useBookStore";
+import { AppTopBar } from "./AppTopBar";
 import { Editor } from "./Editor";
 import { Home } from "./Home";
 import { LocaleProvider, getMessages } from "./i18n";
@@ -35,7 +36,21 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { message: string
 
 function Shell() {
   const { book } = useBookStore();
-  return book ? <Editor /> : <Home />;
+  const [homeGuideOpen, setHomeGuideOpen] = useState(false);
+  return (
+    <div className="app-shell">
+      <AppTopBar onOpenHomeGuide={() => setHomeGuideOpen(true)} />
+      {book ? (
+        <Editor />
+      ) : (
+        <Home
+          guideOpen={homeGuideOpen}
+          onOpenGuide={() => setHomeGuideOpen(true)}
+          onCloseGuide={() => setHomeGuideOpen(false)}
+        />
+      )}
+    </div>
+  );
 }
 
 export default function App() {

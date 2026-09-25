@@ -1,15 +1,20 @@
 import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
-import { ThemeToggle } from "./ThemeToggle";
-import { LocaleSelect } from "./LocaleSelect";
 import { GuidePanel } from "./GuidePanel";
 import { count, format, translateError, useLocale } from "./i18n";
 
-export function Home() {
+export function Home({
+  guideOpen,
+  onOpenGuide,
+  onCloseGuide
+}: {
+  guideOpen: boolean;
+  onOpenGuide: () => void;
+  onCloseGuide: () => void;
+}) {
   const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
   const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
-  const [guideOpen, setGuideOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function submitNew(event?: React.SyntheticEvent) {
@@ -20,19 +25,13 @@ export function Home() {
   return (
     <div className="home">
       <header className="home-brand">
-        <img className="home-logo home-logo-light" src="/logo.png" alt="StoryBook AI" />
-        <img className="home-logo home-logo-dark" src="/logo-dark.png" alt="StoryBook AI" />
-        <div className="home-chrome">
-          <LocaleSelect />
-          <ThemeToggle />
-        </div>
         <h1>
           {m.home.headline}
           <br />
           {m.home.truth}
         </h1>
         <p className="lede">{m.home.lede}</p>
-        <button type="button" className="text-button" onClick={() => setGuideOpen(true)}>
+        <button type="button" className="text-button" onClick={onOpenGuide}>
           {m.guide.openFromHome}
         </button>
       </header>
@@ -115,12 +114,12 @@ export function Home() {
           className="edit-overlay"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setGuideOpen(false);
+            if (event.target === event.currentTarget) onCloseGuide();
           }}
         >
           <div className="edit-card guide-overlay-card">
             <div className="edit-actions guide-overlay-close">
-              <button type="button" className="text-button" onClick={() => setGuideOpen(false)}>
+              <button type="button" className="text-button" onClick={onCloseGuide}>
                 {m.guide.closeAction}
               </button>
             </div>

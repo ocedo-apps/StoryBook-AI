@@ -19,6 +19,12 @@ export const en = {
     lightTitle: "Use a light page",
     darkTitle: "Use a dark page"
   },
+  appBar: {
+    nav: "Manuscripts",
+    newManuscript: "New manuscript…",
+    viewAll: "View all manuscripts",
+    goHome: "Go to all manuscripts"
+  },
   home: {
     headline: "Write the prose.",
     truth: "The Story Bible holds truth.",
@@ -37,7 +43,6 @@ export const en = {
     facts: { one: "{count} locked fact", other: "{count} locked facts" }
   },
   editor: {
-    allManuscripts: "All manuscripts",
     manuscriptTitle: "Manuscript title",
     writing: "Writing",
     primer: "Primer",
