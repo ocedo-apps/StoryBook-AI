@@ -41,6 +41,7 @@ inte en ensidig lista.
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
 | 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ⬜ ej påbörjad — tre öppna frågor, se nedan |
 | 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ⬜ ej påbörjad — avvaktar, se nedan |
+| 26 | Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten | ⬜ ej påbörjad — avvaktar, se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -700,6 +701,24 @@ behöva ett eget påhittat tecken.
 det kvar på listan. Fullt görbart när det blir aktuellt, men en
 egen liten funktion (markup-konvention + tolkning på tre ställen) —
 inte tre knappar.
+
+### 26. Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten
+Snabbstartskorten ("Kom igång med en lokal AI") visas just nu alltid
+på förstasidan (v0.99.15). Frågan är om de ska försvinna automatiskt
+när uppsättningen är klar.
+
+**Föreslagen lösning:** koppla synligheten till samma koll appen
+redan gör på andra ställen — `models.length > 0` (om StoryBook AI
+just nu faktiskt hittar en ansluten modell). Det har en bieffekt som
+är en fördel, inte ett problem: korten dyker upp igen som påminnelse
+om anslutningen skulle falla bort en dag (t.ex. glömt starta Ollama),
+istället för att vara en engångs-onboarding kopplad till om man har
+manus sen tidigare.
+
+**Status: avvaktar.** Författaren vill kunna se sidan som en ny
+användare skulle se den ett tag till, innan korten börjar gömma sig.
+Enkelt att bygga när det blir aktuellt — en villkorsrendering runt
+`<QuickstartCards />` i `Home.tsx`.
 
 ---
 
