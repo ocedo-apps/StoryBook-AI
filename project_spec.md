@@ -1,9 +1,24 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.8
+Status: living document, v0.99.9
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.8 → v0.99.9:** Två snabba uppföljningar på
+gårdagens topprad, båda på författarens begäran.
+
+- Manustitel-fältet var för smalt (`max-width: 24rem`) och klippte
+  längre titlar — brett ut till `40rem`.
+- Flyttade Inställningar från vänstermenyn till bok-radens knapprad
+  (bredvid Säkerhetskopiera/Sök) — samma `store.showSettings()`-anrop
+  som förut, bara ett nytt anropsställe. Vänstermenyn har nu bara
+  kvar de faktiska skrivverktygen (Brainstorm → Synopsis →
+  Utvecklingsmetod → Dispositioner → Kapitel → Fråga manuset →
+  Tidslinje → Trådar → Korrekturläsning) plus Publicera längst ner —
+  precis den uppdelning författaren bad om.
+- 597/597 gröna. Verifierat i webbläsaren: full titel syns nu, och
+  Inställningar öppnas och markeras aktiv korrekt från sin nya plats.
 
 **Ändringslogg v0.99.7 → v0.99.8:** Ny global topprad, delad mellan
 Hem-sidan och Editorn — författarens förslag, med hennes egen

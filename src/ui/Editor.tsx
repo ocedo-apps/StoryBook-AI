@@ -649,6 +649,17 @@ export function Editor() {
         <div className="model-fields">
           <button
             type="button"
+            className={onSettings && !onBoard ? "text-button theme-toggle is-on" : "text-button theme-toggle"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showSettings();
+            }}
+          >
+            {m.editor.settings}
+          </button>
+          <button
+            type="button"
             className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
             title={jsonBackupDue ? m.editor.backupDueTitle : m.editor.backupTitle}
             onClick={() => {
@@ -719,17 +730,6 @@ export function Editor() {
 
       <div className="editor-body">
         <aside className="rail rail-left">
-          <button
-            type="button"
-            className={onSettings && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showSettings();
-            }}
-          >
-            {m.editor.settings}
-          </button>
           <div className="synopsis-item-row">
             <button
               type="button"
