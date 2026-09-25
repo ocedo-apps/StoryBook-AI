@@ -20,7 +20,8 @@ export function Home() {
   return (
     <div className="home">
       <header className="home-brand">
-        <p className="eyebrow">StoryBook AI</p>
+        <img className="home-logo home-logo-light" src="/logo.png" alt="StoryBook AI" />
+        <img className="home-logo home-logo-dark" src="/logo-dark.png" alt="StoryBook AI" />
         <div className="home-chrome">
           <LocaleSelect />
           <ThemeToggle />

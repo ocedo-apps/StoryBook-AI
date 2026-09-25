@@ -1,9 +1,34 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.2
+Status: living document, v0.99.3
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.2 → v0.99.3:** Riktig logga överst på
+"alla manuskript"-sidan (`Home.tsx`), istället för textetiketten
+"StoryBook AI". Författarens egen skiss-till-solid-logga, levererad
+som PNG med transparent bakgrund.
+
+- Upptäckte under verifieringen att appens **standardläge är mörkt**
+  (`[data-theme="light"]` är overridet, inget attribut = mörkt) — och
+  loggans svarta text försvann nästan helt mot den nästan svarta
+  bakgrunden. Löste det genom att generera en andra variant
+  (`logo-dark.png`, RGB-inverterad med bevarad alfakanal via Pillow —
+  svart text blir vit, den grå skiss-/rasterstrukturen blir ljusgrå)
+  och visa rätt variant med samma `[data-theme="light"]`-mönster
+  resten av appen redan använder för temaväxling — ingen ny
+  temainfrastruktur behövdes.
+- Ren stopgap-lösning: om författaren har en egen avsedd mörk variant
+  (t.ex. med guldaccenten istället för vitt) byts `public/logo-dark.png`
+  ut direkt, ingen kodändring krävs.
+- Tog bort den nu oanvända `.eyebrow`-CSS-regeln (loggan ersätter den
+  textetiketten helt, och den användes ingen annanstans i kodbasen).
+- Bilder sparade i `public/logo.png` / `public/logo-dark.png`, samma
+  konvention som `public/illustration-examples/` redan använder
+  (absolut sökväg i `<img src>`, inget Vite-asset-import).
+- 597/597 gröna (inga kärnlogik-tester påverkade — rent UI/asset).
+  Verifierat i webbläsaren i båda teman.
 
 **Ändringslogg v0.99.1 → v0.99.2:** Två småförbättringar av
 Karaktärsintervjun, båda direkt efterfrågade av författaren efter

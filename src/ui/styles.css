@@ -465,13 +465,26 @@ button:disabled {
   padding: 0 0.65rem 0.45rem;
 }
 
-.eyebrow {
+.home-logo {
+  height: 2.6rem;
+  width: auto;
   margin: 0 0 0.75rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  color: var(--ink);
-  font-weight: 600;
+}
+
+.home-logo-light {
+  display: none;
+}
+
+.home-logo-dark {
+  display: block;
+}
+
+[data-theme="light"] .home-logo-light {
+  display: block;
+}
+
+[data-theme="light"] .home-logo-dark {
+  display: none;
 }
 
 .home h1 {
