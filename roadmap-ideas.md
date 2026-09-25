@@ -40,6 +40,7 @@ inte en ensidig lista.
 | 22 | "?"-genvägar från rubriker till guiden | ✅ byggd (v0.93) |
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
 | 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ⬜ ej påbörjad — tre öppna frågor, se nedan |
+| 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ⬜ ej påbörjad — avvaktar, se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -663,6 +664,42 @@ per-fakta-överstyrning när den automatiska positionslogiken gissar
 fel) hänger ihop med fråga 3 — vettig som en säkerhetsventil OM
 Draft görs positionsmedvetet, men inget att bygga isolerat innan det
 beslutet är taget.
+
+### 25. Textformatering (fet/kursiv/understruken) i kapiteltexten
+Författarens förslag: markera text, högerklicka, tre kvadratiska
+knappar (Fet/Kursiv/Understruken) som formaterar valet direkt.
+
+**Inte lika enkelt som det låter — grävde i koden innan svar.**
+Kapiteltexten lagras som ren text, ingen HTML. `proseFromElement()`
+(`proseDom.ts`) bygger om strängen från `textContent` vid varje
+tangenttryck, och `htmlFromProse()` (`proseFlow.ts`) skriver bara
+`<p>`-taggar (plus en särskild markering för parentetiska AI-tillägg)
+tillbaka till redigeraren — ingen av dem känner till eller bevarar
+`<strong>`/`<em>`/`<u>`. Tre knappar som bara kör webbläsarens
+inbyggda `execCommand("bold")` skulle alltså *se ut* att fungera ett
+ögonblick men tappa formateringen igen vid nästa ändring, eftersom
+hela texten byggs om från en sträng utan formateringsminne.
+
+**Vad som faktiskt krävs**: en egen markup-konvention i själva
+textsträngen (t.ex. `**fett**` som i Markdown), som sen måste tolkas
+på tre ställen samtidigt för att vara meningsfull:
+1. I redigeraren — `htmlFromProse()`/`markupProseBlock()` måste
+   känna igen konventionen och rendera den visuellt.
+2. I **alla** exportformat — Markdown-export får den gratis, men
+   RTF/ODT/HTML/ePub/PDF måste var för sig lära sig samma syntax,
+   annars kommer bokstavliga asterisker med i den publicerade boken.
+3. Gentemot AI:n — modellen ser samma textsträng som skickas till
+   Draft/Recast/Analysera. Antingen får den se markup-tecknen rakt av
+   (risk: imiterar syntaxen inkonsekvent i egna förslag) eller så
+   måste de filtreras bort innan prompten byggs och läggas tillbaka
+   efteråt (mer att hålla reda på).
+Understruket text har dessutom ingen standard i Markdown och skulle
+behöva ett eget påhittat tecken.
+
+**Status: avvaktar.** Författaren vill inte bygga det nu men ville ha
+det kvar på listan. Fullt görbart när det blir aktuellt, men en
+egen liten funktion (markup-konvention + tolkning på tre ställen) —
+inte tre knappar.
 
 ---
 
