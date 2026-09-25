@@ -70,7 +70,7 @@ export const nb: Messages = {
     baseUrlLede: "Den lokale adressen LM Studio (eller en annen lokal server, som llama.cpp) lytter på — vises som regel når du starter dens lokale server.",
     historyLimit: "Versjoner per kapittel",
     historyLimitLede:
-      "Hvor mange tidligere versjoner hvert kapittel beholder etter utkast, omskriving, forlengelse, utvidelse og omskriv. Eldste forsvinner først. Det du skriver selv lagres ikke.",
+      "Hvor mange tidligere versjoner av et kapittel som lagres, fra Lag utkast, Omskriv, Forleng, Utdyp og Skriv om. Så snart grensen nås, forsvinner den eldste versjonen først. Det du skriver selv for hånd lagres ikke som en egen versjon — bare disse handlingene gjør det.",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

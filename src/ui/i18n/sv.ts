@@ -70,7 +70,7 @@ export const sv: Messages = {
     baseUrlLede: "Den lokala adress LM Studio (eller en annan lokal server, t.ex. llama.cpp) lyssnar på — visas oftast när du startar dess lokala server.",
     historyLimit: "Versioner per kapitel",
     historyLimitLede:
-      "Hur många tidigare versioner varje kapitel behåller efter utkast, omskrivning, förlängning, utvidgning och omskriv. Äldsta försvinner först. Det du skriver själv sparas inte.",
+      "Hur många tidigare versioner av ett kapitel som sparas, från Skriv utkast, Omskriv, Förläng, Utveckla och Skriv om. Så fort gränsen nås försvinner den äldsta versionen först. Det du skriver själv för hand sparas inte som en egen version — bara de här åtgärderna gör det.",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

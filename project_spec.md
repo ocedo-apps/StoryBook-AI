@@ -1,9 +1,20 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.89
+Status: living document, v0.90
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.89 → v0.90:** Författaren pekade på ett konkret
+exempel från en skärmdump: "Oldest drop first. Typing is not kept."
+under versionshistorik-inställningen — kort, kommaseparerad
+telegramtext, inte en mening en UI-designer skulle skriva. Skrev om
+hjälptexten i alla tre språk till hela, naturliga meningar som
+förklarar både att äldsta versionen försvinner när gränsen nås och
+att egen handskriven text inte räknas som en version (bara Skriv
+utkast, Omskriv, Förläng, Utveckla och Skriv om gör det).
+
+Ingen kod ändrad, bara text. 565/565 gröna oförändrat.
 
 **Ändringslogg v0.88 → v0.89:** Författaren satte en stående regel:
 all text som visas för användaren måste vara tydlig och enkel — hellre

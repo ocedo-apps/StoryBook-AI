@@ -68,7 +68,7 @@ export const en = {
     baseUrlLede: "The local address LM Studio (or another local server, such as llama.cpp) is listening on — usually shown when you start its local server.",
     historyLimit: "Versions per chapter",
     historyLimitLede:
-      "How many earlier versions each chapter keeps after Draft, Recast, Extend, Elaborate, and Rewrite. Oldest drop first. Typing is not kept.",
+      "How many earlier versions of a chapter are kept, going back through Draft, Recast, Extend, Elaborate, and Rewrite. Once you go over the limit, the oldest version is dropped first. Typing on your own doesn't create a version — only those actions do.",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
