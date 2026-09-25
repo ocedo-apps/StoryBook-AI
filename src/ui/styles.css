@@ -44,10 +44,10 @@
   src: url("/fonts/ibm-plex-mono-500.woff2") format("woff2");
 }
 
-/* Crossfades Home <-> Editor (see withViewTransition in BookStore.tsx). Browsers without support just skip straight to the new page. */
+/* Crossfades Home <-> Editor and the editor's rail surfaces (see withViewTransition in BookStore.tsx, which sets --vt-duration per call). Browsers without support just skip straight to the new page. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 320ms;
+  animation-duration: var(--vt-duration, 320ms);
   animation-timing-function: ease;
 }
 

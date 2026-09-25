@@ -106,9 +106,15 @@ function readEngine(): LlmEngine {
   return localStorage.getItem(ENGINE_KEY) === "openai-compatible" ? "openai-compatible" : "ollama";
 }
 
-/** Crossfades Home and Editor when the book/no-book boundary flips, via the browser's View Transitions API. Falls back to a plain state update where unsupported (e.g. Firefox). */
-function withViewTransition(update: () => void): void {
+/**
+ * Crossfades between pages via the browser's View Transitions API — Home vs.
+ * Editor at the default duration, and the editor's own rail surfaces
+ * (Brainstorm, Synopsis, ...) faster since those are clicked far more often.
+ * Falls back to a plain state update where unsupported (e.g. Firefox).
+ */
+function withViewTransition(update: () => void, durationMs = 320): void {
   if (typeof document.startViewTransition === "function") {
+    document.documentElement.style.setProperty("--vt-duration", `${durationMs}ms`);
     document.startViewTransition(() => flushSync(update));
   } else {
     update();
@@ -471,8 +477,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setChapterId = useCallback((id: string) => {
-    setChapterIdState(id);
-    setSurface("chapter");
+    withViewTransition(() => {
+      setChapterIdState(id);
+      setSurface("chapter");
+    }, 160);
   }, []);
 
   const selectChapter = useCallback((id: string) => {
@@ -480,35 +488,35 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const showSettings = useCallback(() => {
-    setSurface("settings");
+    withViewTransition(() => setSurface("settings"), 160);
   }, []);
 
   const showBrainstorm = useCallback(() => {
-    setSurface("brainstorm");
+    withViewTransition(() => setSurface("brainstorm"), 160);
   }, []);
 
   const showSynopsis = useCallback(() => {
-    setSurface("synopsis");
+    withViewTransition(() => setSurface("synopsis"), 160);
   }, []);
 
   const showAsk = useCallback(() => {
-    setSurface("ask");
+    withViewTransition(() => setSurface("ask"), 160);
   }, []);
 
   const showTimeline = useCallback(() => {
-    setSurface("timeline");
+    withViewTransition(() => setSurface("timeline"), 160);
   }, []);
 
   const showPlotlines = useCallback(() => {
-    setSurface("plotlines");
+    withViewTransition(() => setSurface("plotlines"), 160);
   }, []);
 
   const showMethod = useCallback(() => {
-    setSurface("method");
+    withViewTransition(() => setSurface("method"), 160);
   }, []);
 
   const showGuide = useCallback(() => {
-    setSurface("guide");
+    withViewTransition(() => setSurface("guide"), 160);
   }, []);
 
   const dismissModelAside = useCallback(() => setModelAsides([]), []);

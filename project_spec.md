@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.22
+Status: living document, v0.99.23
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.22 → v0.99.23:** Samma korsnedtoning, nu även
+mellan editorns egna flikar (Brainstorm, Synopsis, Tidslinje,
+Plotlines, Utvecklingsmetod, Fråga manuset, Inställningar, Guide och
+att klicka ett kapitel) — författaren undrade om rail-växlingar också
+tonade, det gjorde de inte förrän nu.
+
+- `withViewTransition()` tar nu en valfri `durationMs` (standard
+  320ms, som tidigare). Rail-växlingarna kör 160ms — de klickas mycket
+  oftare än att öppna ett manus, så en kortare, snabbare ton känns
+  bättre än att återanvända bok-övergångens längd.
+- Duration sätts via en CSS-variabel (`--vt-duration`) på `:root`
+  precis innan varje övergång startar, så samma globala
+  `::view-transition-old/new(root)`-regel kan servera båda
+  hastigheterna utan dubblerad CSS.
+- Täcker alla nio `EditorSurface`-värden (kryssade av mot typen i
+  `BookSchema.ts` för att inte missa någon).
+- 597/597 gröna. Verifierat i webbläsaren: instrumenterade
+  `startViewTransition` och läste av `--vt-duration` vid varje
+  anrop — rail gav `160ms`, bok-övergångar gav `320ms`.
 
 **Ändringslogg v0.99.21 → v0.99.22:** Korsnedtoning mellan förstasidan
 och manussidan, på författarens begäran.
