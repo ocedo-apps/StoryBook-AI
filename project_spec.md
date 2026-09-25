@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.13
+Status: living document, v0.99.14
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.13 → v0.99.14:** Rättade förvirrande text i
+Guidens steg 1 ("Starta ditt manus"), efter författarens feedback.
+
+- Gamla texten ("En titel räcker. Öppna det, så hamnar du här — i
+  Brainstorm så fort du har idéer, men först: ett privat
+  skissutrymme...") nämnde aldrig VAR man skriver titeln, och
+  ordningen "Brainstorm så fort du har idéer, men först..." lästes
+  som självmotsägande.
+- Kontrollerade samtidigt om en ovan användare redan har ett tydligt
+  formulärfält att utgå från: det finns redan — förstasidan visar
+  alltid ett fält märkt "Nytt manus" med platshållartexten "Titel"
+  och en Öppna-knapp, plus "Inga manus ännu. En titel räcker för att
+  börja." när hyllan är tom. Ingen ny UI behövdes, bara text i Guiden
+  som pekar på det som redan finns.
+- Ny text: "Skriv en titel i fältet ”Nytt manus” på förstasidan och
+  tryck Öppna — det är allt som krävs. Du hamnar direkt i Brainstorm:
+  ett privat skissutrymme utan något att ställa in, där du skriver
+  ner idéer i din egen takt." Uppdaterad i alla tre språk (sv/en/nb).
+- 597/597 gröna. Verifierat i webbläsaren.
 
 **Ändringslogg v0.99.12 → v0.99.13:** Rullade tillbaka tvåkolumns-
 korten från v0.99.12 — författaren tyckte inte det blev bra: "Man

@@ -447,7 +447,7 @@ export const en = {
     quickstartSteps: [
       {
         heading: "1. Start your manuscript",
-        body: "A title is all it takes. Open it, and you land here — in Brainstorm once you have ideas, but first: a private scratch space with nothing to configure yet."
+        body: "Type a title into the \"New manuscript\" field on the home page and press Open — that's all it takes. You land straight in Brainstorm: a private scratch space with nothing to configure, where you jot down ideas at your own pace."
       },
       {
         heading: "2. Write",

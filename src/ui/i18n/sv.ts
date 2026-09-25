@@ -448,7 +448,7 @@ export const sv: Messages = {
     quickstartSteps: [
       {
         heading: "1. Starta ditt manus",
-        body: "En titel räcker. Öppna det, så hamnar du här — i Brainstorm så fort du har idéer, men först: ett privat skissutrymme utan något att ställa in än."
+        body: "Skriv en titel i fältet \"Nytt manus\" på förstasidan och tryck Öppna — det är allt som krävs. Du hamnar direkt i Brainstorm: ett privat skissutrymme utan något att ställa in, där du skriver ner idéer i din egen takt."
       },
       {
         heading: "2. Skriv",

@@ -448,7 +448,7 @@ export const nb: Messages = {
     quickstartSteps: [
       {
         heading: "1. Start manuskriptet ditt",
-        body: "En tittel er alt som trengs. Åpne det, og du havner her — i Idémyldring så snart du har idéer, men først: et privat skisserom uten noe å stille inn ennå."
+        body: "Skriv en tittel i feltet «Nytt manuskript» på forsiden og trykk Åpne — det er alt som trengs. Du havner rett i Idémyldring: et privat skisserom uten noe å stille inn, der du skriver ned idéer i ditt eget tempo."
       },
       {
         heading: "2. Skriv",
