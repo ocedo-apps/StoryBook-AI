@@ -13,6 +13,7 @@ import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHis
 import { applyReaderAge, parseReaderAge, readerCategory } from "@core/reader";
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
 import type { Book } from "@core/BookSchema";
+import type { LlmEngine } from "@llm/provider";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
 import { PromptInspectorCard } from "./PromptInspector";
@@ -23,6 +24,8 @@ export function SettingsPanel({
   models,
   model,
   reviewModel,
+  engine,
+  baseUrl,
   writingPrimer,
   historyLimit,
   illustrationStyles,
@@ -30,6 +33,8 @@ export function SettingsPanel({
   onPatch,
   onModel,
   onReviewModel,
+  onEngine,
+  onBaseUrl,
   onPrimer,
   onResetPrimer,
   onHistoryLimit,
@@ -39,6 +44,8 @@ export function SettingsPanel({
   models: string[];
   model: string;
   reviewModel: string;
+  engine: LlmEngine;
+  baseUrl: string;
   writingPrimer: string;
   historyLimit: number;
   illustrationStyles: IllustrationStyle[];
@@ -46,6 +53,8 @@ export function SettingsPanel({
   onPatch: (mutate: (book: Book) => Book) => void;
   onModel: (name: string) => void;
   onReviewModel: (name: string) => void;
+  onEngine: (engine: LlmEngine) => void;
+  onBaseUrl: (url: string) => void;
   onPrimer: (text: string) => void;
   onResetPrimer: () => void;
   onHistoryLimit: (n: number) => void;
@@ -197,6 +206,32 @@ export function SettingsPanel({
 
       <section className="settings-block">
         <h2 className="settings-heading">{m.editor.modelsHeading}</h2>
+        <div className="settings-engine">
+          <label className="craft-field">
+            <span>{m.editor.engineLabel}</span>
+            <select
+              value={engine}
+              onChange={(event) => onEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
+              aria-label={m.editor.engineLabel}
+            >
+              <option value="ollama">{m.editor.engineOllama}</option>
+              <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
+            </select>
+          </label>
+          {engine === "openai-compatible" ? (
+            <label className="voice-field">
+              <span>{m.editor.baseUrlLabel}</span>
+              <input
+                value={baseUrl}
+                onChange={(event) => onBaseUrl(event.target.value)}
+                placeholder={m.editor.baseUrlPlaceholder}
+                title={m.editor.baseUrlLede}
+                aria-label={m.editor.baseUrlLabel}
+              />
+            </label>
+          ) : null}
+        </div>
+        <p className="quiet">{engine === "openai-compatible" ? m.editor.baseUrlLede : m.editor.engineLede}</p>
         <div className="settings-models">
           <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={onModel} />
           <ModelSelect

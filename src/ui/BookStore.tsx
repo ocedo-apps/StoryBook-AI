@@ -75,7 +75,14 @@ import {
   pickListedOllamaModel,
   pickListedReviewModel
 } from "@llm/ollama";
-import { OllamaModelProvider } from "@llm/provider";
+import {
+  DEFAULT_OPENAI_COMPATIBLE_BASE_URL,
+  LocalProviderConfigError,
+  OllamaModelProvider,
+  OpenAICompatibleLocalProvider,
+  type LlmEngine,
+  type LocalModelProvider
+} from "@llm/provider";
 import { BookNotFoundError, BookRepository } from "@persistence/Repository";
 import {
   ManuscriptBackupError,
@@ -89,13 +96,32 @@ import { format, getMessages, STORE_ERROR } from "./i18n";
 const MODEL_KEY = "storybook-ai.model";
 const REVIEW_MODEL_KEY = "storybook-ai.review-model";
 const LAST_BOOK_KEY = "storybook-ai.last-book";
+const ENGINE_KEY = "storybook-ai.engine";
+const BASE_URL_KEY = "storybook-ai.base-url";
+
+function readEngine(): LlmEngine {
+  return localStorage.getItem(ENGINE_KEY) === "openai-compatible" ? "openai-compatible" : "ollama";
+}
 
 function ollamaHint(error: unknown): string {
+  if (error instanceof LocalProviderConfigError && error.message === STORE_ERROR.serverUrlMissing) {
+    return STORE_ERROR.serverUrlMissing;
+  }
   const message = error instanceof Error ? error.message : String(error);
   if (/failed to fetch|networkerror|load failed/i.test(message)) {
     return STORE_ERROR.ollamaOrigins;
   }
   return message;
+}
+
+/** Lists models from whichever engine is configured — Ollama's own API, or the OpenAI-compatible one LM Studio and llama.cpp-server share. */
+function listEngineModels(engine: LlmEngine, baseUrl: string): Promise<string[]> {
+  if (engine === "openai-compatible") {
+    const trimmed = baseUrl.trim();
+    if (!trimmed) return Promise.reject(new LocalProviderConfigError(STORE_ERROR.serverUrlMissing));
+    return new OpenAICompatibleLocalProvider({ model: "", baseUrl: trimmed }).listModels();
+  }
+  return listOllamaModels();
 }
 
 function activeVoice(book: Book, surface: EditorSurface, chapterId: string | null): string {
@@ -124,6 +150,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [reviewModel, setReviewModelState] = useState(
     () => localStorage.getItem(REVIEW_MODEL_KEY) ?? DEFAULT_REVIEW_MODEL
   );
+  const [engine, setEngineState] = useState<LlmEngine>(readEngine);
+  const [baseUrl, setBaseUrlState] = useState(() => localStorage.getItem(BASE_URL_KEY) ?? "");
   const [historyLimit, setHistoryLimitState] = useState(() => readProseHistoryLimit());
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Busy>(null);
@@ -140,14 +168,29 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const saveTimer = useRef<number | null>(null);
   const writingPrimerRef = useRef(writingPrimer);
   const historyLimitRef = useRef(historyLimit);
+  const engineRef = useRef(engine);
+  const baseUrlRef = useRef(baseUrl);
 
   bookRef.current = book;
   chapterRef.current = chapterId;
   surfaceRef.current = surface;
   writingPrimerRef.current = writingPrimer;
   historyLimitRef.current = historyLimit;
+  engineRef.current = engine;
+  baseUrlRef.current = baseUrl;
 
   const writingSystem = (job: string) => withWritingPrimer(job, writingPrimerRef.current);
+
+  function makeProvider(modelName: string, name?: string): LocalModelProvider {
+    if (engineRef.current === "openai-compatible") {
+      return new OpenAICompatibleLocalProvider({
+        model: modelName,
+        baseUrl: baseUrlRef.current.trim() || DEFAULT_OPENAI_COMPATIBLE_BASE_URL,
+        ...(name ? { name } : {})
+      });
+    }
+    return new OllamaModelProvider({ model: modelName, ...(name ? { name } : {}) });
+  }
 
   const persist = useCallback(
     async (next: Book) => {
@@ -179,7 +222,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    void listOllamaModels()
+    void listEngineModels(engine, baseUrl)
       .then((names) => {
         if (cancelled) return;
         setModels(names);
@@ -200,12 +243,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       })
       .catch((err) => {
         if (cancelled) return;
+        setModels([]);
         setOllamaError(ollamaHint(err));
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [engine, baseUrl]);
 
   const flushSave = useCallback(async (next: Book) => {
     if (saveTimer.current !== null) {
@@ -382,6 +426,20 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(REVIEW_MODEL_KEY, name);
   }, []);
 
+  const setEngine = useCallback((next: LlmEngine) => {
+    setEngineState(next);
+    localStorage.setItem(ENGINE_KEY, next);
+    if (next === "openai-compatible" && !localStorage.getItem(BASE_URL_KEY)) {
+      setBaseUrlState(DEFAULT_OPENAI_COMPATIBLE_BASE_URL);
+      localStorage.setItem(BASE_URL_KEY, DEFAULT_OPENAI_COMPATIBLE_BASE_URL);
+    }
+  }, []);
+
+  const setBaseUrl = useCallback((url: string) => {
+    setBaseUrlState(url);
+    localStorage.setItem(BASE_URL_KEY, url);
+  }, []);
+
   const setHistoryLimit = useCallback((n: number) => {
     const next = Number.isFinite(n) ? n : readProseHistoryLimit();
     writeProseHistoryLimit(next);
@@ -459,7 +517,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     setModelAsides([]);
 
-    const provider = new OllamaModelProvider({ model });
+    const provider = makeProvider(model);
     const before = chapter.prose;
     let assembled = chapter.prose;
     const prefix = assembled.trim() ? `${assembled.replace(/\s+$/, "")}\n\n` : "";
@@ -528,7 +586,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     let raw = "";
 
     try {
-      const provider = new OllamaModelProvider({ model });
+      const provider = makeProvider(model);
       const recastMessages: PromptDebugMessage[] = [
         { role: "system", content: writingSystem(RECAST_SYSTEM) },
         { role: "user", content: recastUserPrompt(current, chapter) }
@@ -591,7 +649,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setModelAsides([]);
 
-      const provider = new OllamaModelProvider({ model });
+      const provider = makeProvider(model);
       const before = chapter.prose;
       const prefix = scene.prose.trim() ? `${scene.prose.replace(/\s+$/, "")}\n\n` : "";
       let raw = "";
@@ -673,7 +731,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       };
 
       try {
-        const provider = new OllamaModelProvider({ model });
+        const provider = makeProvider(model);
         const recastMessages: PromptDebugMessage[] = [
           { role: "system", content: writingSystem(RECAST_SYSTEM) },
           { role: "user", content: recastSceneUserPrompt(current, chapter, sceneId) }
@@ -740,7 +798,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: analyzeSceneUserPrompt(current, chapter, sceneId) }
         ];
         recordPrompt("analyze", reviewModel, analyzeMessages);
-        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+        const raw = await makeProvider(reviewModel).chat({
           messages: analyzeMessages,
           temperature: 0.25,
           maxTokens: 1800,
@@ -857,7 +915,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             });
 
       try {
-        const provider = new OllamaModelProvider({ model });
+        const provider = makeProvider(model);
         const rewriteMessages: PromptDebugMessage[] = [
           { role: "system", content: writingSystem(args.target === "brainstorm" ? BRAINSTORM_PASSAGE_SYSTEM : PASSAGE_SYSTEM) },
           { role: "user", content: userContent }
@@ -932,7 +990,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await patchBook((book) => addBrainstormNote(book, { id: noteId, text: "", x: pos.x, y: pos.y }));
-        const provider = new OllamaModelProvider({ model });
+        const provider = makeProvider(model);
         const askMessages: PromptDebugMessage[] = [
           { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
           { role: "user", content: brainstormAskUserPrompt(current, question) }
@@ -1026,7 +1084,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           }
         ];
         recordPrompt("word-swap", reviewModel, alternativesMessages);
-        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+        const raw = await makeProvider(reviewModel).chat({
           messages: alternativesMessages,
           temperature: 0.3,
           maxTokens: 140,
@@ -1055,7 +1113,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: splitUserPrompt(sentence, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
         ];
         recordPrompt("sentence-split", reviewModel, splitMessages);
-        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+        const raw = await makeProvider(reviewModel).chat({
           messages: splitMessages,
           temperature: 0.55,
           maxTokens: 280,
@@ -1086,7 +1144,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: breakUserPrompt(paragraph, bookRef.current ? activeVoice(bookRef.current, surfaceRef.current, chapterRef.current) : "", bookRef.current ? activeReader(bookRef.current, surfaceRef.current, chapterRef.current) : undefined) }
         ];
         recordPrompt("paragraph-break", reviewModel, breakMessages);
-        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+        const raw = await makeProvider(reviewModel).chat({
           messages: breakMessages,
           temperature: 0.4,
           maxTokens: 700,
@@ -1123,7 +1181,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       const scenes = chapterScenes(chapter);
-      const provider = new OllamaModelProvider({ model: reviewModel });
+      const provider = makeProvider(reviewModel);
       let totalDrafts = 0;
       for (const scene of scenes) {
         if (!scene.prose.trim()) continue;
@@ -1177,7 +1235,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         { role: "user", content: analyzeUserPrompt(current, chapter) }
       ];
       recordPrompt("analyze", reviewModel, analyzeMessages);
-      const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+      const raw = await makeProvider(reviewModel).chat({
         messages: analyzeMessages,
         temperature: 0.25,
         maxTokens: 1800,
@@ -1217,7 +1275,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const entities = relevantEntitiesForPassage(passage, current);
         const illustrateMessages = illustrationPromptMessages(passage, entities, current.illustration_style);
         recordPrompt("illustrate", reviewModel, illustrateMessages);
-        const raw = await new OllamaModelProvider({ model: reviewModel }).chat({
+        const raw = await makeProvider(reviewModel).chat({
           messages: illustrateMessages,
           temperature: 0.4,
           maxTokens: 500,
@@ -1269,7 +1327,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       });
 
       try {
-        const provider = new OllamaModelProvider({ model: reviewModel });
+        const provider = makeProvider(reviewModel);
         let evidence: ManuscriptEvidence[];
         try {
           const [sourceEmbeddings, queryEmbeddings] = await Promise.all([
@@ -1348,7 +1406,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
                 { role: "user", content: user }
               ];
               recordPrompt("proofread", reviewModel, proofreadMessages);
-              return new OllamaModelProvider({ model: reviewModel }).chat({
+              return makeProvider(reviewModel).chat({
                 messages: proofreadMessages,
                 temperature: 0.2,
                 maxTokens: 1600,
@@ -1455,6 +1513,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     model,
     writingPrimer,
     reviewModel,
+    engine,
+    baseUrl,
     historyLimit,
     ollamaError,
     busy,
@@ -1483,6 +1543,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setWritingPrimer,
     resetWritingPrimer,
     setReviewModel,
+    setEngine,
+    setBaseUrl,
     setHistoryLimit,
     draftChapter,
     recastChapter,

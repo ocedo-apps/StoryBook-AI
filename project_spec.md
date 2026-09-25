@@ -1,9 +1,48 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.83
+Status: living document, v0.84
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.83 → v0.84:** LM Studio (och andra OpenAI-kompatibla
+lokala servrar, t.ex. llama.cpp-server) går nu faktiskt att välja.
+`OpenAICompatibleLocalProvider` har funnits färdigbyggd och testad
+sen v0.72 (punkt 4), men `BookStore.tsx` skapade alltid en
+`OllamaModelProvider` rakt av på alla 16 ställen som pratar med
+modellen — abstraktionen fanns, men ingen väg dit i gränssnittet.
+Författare som bett om stöd för andra motorer fick alltså nej trots
+att koden redan klarade det.
+
+**Vad som byggdes:** en "Motor"-väljare längst upp i
+Inställningar → Modeller: Ollama (som förut) eller "LM Studio / annan
+lokal server". Väljer man det senare dyker ett serveradress-fält upp
+(förifyllt med LM Studios eget standardvärde `http://localhost:1234`,
+fritt att ändra för llama.cpp-server eller annan port). Alla 16
+anropsställena går nu genom en enda `makeProvider()`-funktion som
+läser motorval + serveradress ur en ref (samma mönster som
+`writingPrimerRef`/`historyLimitRef` redan använder för att slippa
+tråckla state genom varje `useCallback`s beroendelista). Provider-
+klasserna i `src/llm/provider.ts` är helt oförändrade — bara
+anropsstället fick en väg att faktiskt nå den redan byggda adaptern.
+
+Modellistan (Skriv- och Review-väljarna) hämtas nu från vald motors
+egen endpoint (`/api/tags` för Ollama, `/v1/models` för det
+OpenAI-kompatibla spåret) och laddas om automatiskt så fort motor
+eller serveradress ändras — ingen kvarhängande lista från förra
+motorn om anslutningen till den nya misslyckas. Felmeddelandena för
+"ingen modell hittades" och CORS-problem skrevs om från Ollama-
+specifika till generella, eftersom de nu gäller båda motorerna.
+Motor och serveradress sparas i `localStorage` precis som modellvalen
+redan gjorde — en maskininställning, inte manusinnehåll, så den följer
+inte med i bokfilen.
+
+Inga nya provider-tester behövdes (`OpenAICompatibleLocalProvider` var
+redan täckt av 16 tester sen v0.72). Verifierat i webbläsaren: bytte
+motor, serveradressen förifylldes, `/v1/models` anropades och
+modellistorna bytte till de nya namnen, körde Draft och bekräftade att
+anropet gick till `/v1/chat/completions` — inte `/api/chat` — och att
+valet överlevde en omladdning av sidan.
 
 **Ändringslogg v0.82 → v0.83:** Täppte luckan som v0.82 lämnade öppen:
 fakta-extraktion (både den manuella "Extract facts"-knappen och

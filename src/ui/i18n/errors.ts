@@ -10,7 +10,8 @@ export const STORE_ERROR = {
   extractorNone: "store:extractor-none",
   proofreadEmpty: "store:proofread-empty",
   askManuscriptEmpty: "store:ask-manuscript-empty",
-  askManuscriptNoMatch: "store:ask-manuscript-no-match"
+  askManuscriptNoMatch: "store:ask-manuscript-no-match",
+  serverUrlMissing: "store:server-url-missing"
 } as const;
 
 export type StoreErrorCode = (typeof STORE_ERROR)[keyof typeof STORE_ERROR];
@@ -27,7 +28,8 @@ const STORE_ERROR_KEYS: Record<StoreErrorCode, keyof import("./en").Messages["er
   [STORE_ERROR.extractorNone]: "extractorNone",
   [STORE_ERROR.proofreadEmpty]: "proofreadEmpty",
   [STORE_ERROR.askManuscriptEmpty]: "askManuscriptEmpty",
-  [STORE_ERROR.askManuscriptNoMatch]: "askManuscriptNoMatch"
+  [STORE_ERROR.askManuscriptNoMatch]: "askManuscriptNoMatch",
+  [STORE_ERROR.serverUrlMissing]: "serverUrlMissing"
 };
 
 export function isStoreError(value: string): value is StoreErrorCode {

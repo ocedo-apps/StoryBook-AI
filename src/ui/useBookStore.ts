@@ -6,6 +6,7 @@ import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { TextSpan } from "@core/textSpan";
 import type { PromptDebugEntry } from "./promptDebug";
+import type { LlmEngine } from "@llm/provider";
 
 export type Busy =
   | "draft"
@@ -30,6 +31,8 @@ export type BookStoreValue = {
   model: string;
   writingPrimer: string;
   reviewModel: string;
+  engine: LlmEngine;
+  baseUrl: string;
   historyLimit: number;
   ollamaError: string | null;
   busy: Busy;
@@ -58,6 +61,8 @@ export type BookStoreValue = {
   setWritingPrimer: (text: string) => void;
   resetWritingPrimer: () => void;
   setReviewModel: (name: string) => void;
+  setEngine: (engine: LlmEngine) => void;
+  setBaseUrl: (url: string) => void;
   setHistoryLimit: (n: number) => void;
   draftChapter: () => Promise<void>;
   recastChapter: () => Promise<void>;

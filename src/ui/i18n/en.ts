@@ -46,7 +46,7 @@ export const en = {
     primerRestore: "Use start prompt",
     primerAria: "Start prompt for {model}",
     review: "Review",
-    noModels: "No Ollama models",
+    noModels: "No local models found",
     backup: "Backup",
     backupDue: "! Backup",
     backupDueTitle: "This manuscript has changed since the last JSON backup",
@@ -59,6 +59,13 @@ export const en = {
     proseLanguagePlaceholder: "Swedish",
     proseLanguageTitle: "The language the sentences are written in. Empty infers from the manuscript. A writing instruction, not canon.",
     modelsHeading: "Models",
+    engineLabel: "Engine",
+    engineOllama: "Ollama",
+    engineOpenAiCompatible: "LM Studio / other local server",
+    engineLede: "No cloud keys, ever — only a server running on this computer or your local network.",
+    baseUrlLabel: "Server address",
+    baseUrlPlaceholder: "http://localhost:1234",
+    baseUrlLede: "The local address LM Studio (or another OpenAI-compatible server, such as llama.cpp) is listening on.",
     historyLimit: "Versions per chapter",
     historyLimitLede:
       "How many earlier versions each chapter keeps after Draft, Recast, Extend, Elaborate, and Rewrite. Oldest drop first. Typing is not kept.",
@@ -771,8 +778,8 @@ export const en = {
     }
   },
   errors: {
-    ollamaOrigins: "Ollama did not accept the browser. Start it with OLLAMA_ORIGINS=http://localhost:5175",
-    noModel: "No local model. Start Ollama, then reload.",
+    ollamaOrigins: "The local server did not accept the browser. Using Ollama? Start it with OLLAMA_ORIGINS=http://localhost:5175. Using LM Studio or another server? Check its CORS / allowed-origins setting.",
+    noModel: "No local model found. Start Ollama or your local server, then reload.",
     notJson: "That file is not JSON.",
     backupUnreadable: "Could not read that backup.",
     shelfUnreadable: "Could not read the shelf.",
@@ -783,6 +790,7 @@ export const en = {
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",
+    serverUrlMissing: "Enter your local server's address in Settings.",
     imageChoose: "Choose an image file.",
     imageRead: "Could not read that image.",
     imageAdd: "Could not add that image."

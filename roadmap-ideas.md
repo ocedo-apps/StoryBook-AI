@@ -17,7 +17,7 @@ inte en ensidig lista.
 | 1 | AI Context Inspector | ✅ byggd (v0.69) |
 | 2 | Story Bible: History-vy | ✅ byggd (v0.70) |
 | 3 | Story Bible: Mentions v1 | ✅ byggd (v0.71) |
-| 4 | Model-provider-abstraktion | ✅ byggd (v0.72) |
+| 4 | Model-provider-abstraktion | ✅ byggd (v0.72, Settings-UI v0.84) |
 | 5 | Scene-migrering, "tråkig" v1 | ✅ byggd (v0.73) — datamodell fanns, scenindelning saknades |
 | 5b | Minimal scen-delning/sammanslagning + arkitekturbeslutet låst | ✅ byggd (v0.81) |
 | 6 | Fakta får scenproveniens | ✅ byggd (v0.74) |
@@ -138,7 +138,7 @@ Andersson`) över manus, ingen embedding. Semantisk träff ("hennes
 äldre bror" utan att namnet nämns) är ett senare, separat steg —
 se punkt 7.
 
-### 4. Model-provider-abstraktion ✅ byggd (v0.72)
+### 4. Model-provider-abstraktion ✅ byggd (v0.72, Settings-UI v0.84)
 `LocalModelProvider`-gränssnitt (`chat()`, `streamChat()`, `embed()`,
 `supportsEmbeddings()`, `listModels()`, `healthCheck()`) med
 `OllamaProvider` som första adapter, `OpenAICompatibleLocalProvider`
@@ -150,6 +150,20 @@ molnleverantörer (OpenAI/Anthropic), det vore motsatsen till produktens
 identitet (§9: "Inga molnnycklar").
 
 Oberoende av Scene-arbetet, kan göras när som helst i kön.
+
+**Uppdatering (v0.84):** `OpenAICompatibleLocalProvider` fanns byggd
+och testad sen v0.72, men gick inte att faktiskt välja — appen skapade
+alltid en `OllamaModelProvider` rakt av, på 16 ställen i `BookStore.tsx`.
+Författare som frågade efter LM Studio-stöd kunde alltså inte få det
+trots att koden redan klarade det. Åtgärdat: en "Motor"-väljare i
+Inställningar (Ollama / LM Studio / annan lokal server), med ett
+serveradress-fält som dyker upp för det senare alternativet. Alla 16
+ställena går nu genom en enda `makeProvider()`-funktion som läser det
+sparade valet — själva provider-klasserna är oförändrade, det var bara
+tunnelseendet i `BookStore.tsx` som satt hindret i vägen. Modellistan
+(Skriv/Review-väljarna) hämtas nu från vald motors endpoint
+(`/api/tags` respektive `/v1/models`) och uppdateras automatiskt när
+motor eller serveradress ändras.
 
 ### 5. Scene-migrering — "tråkig" v1 ✅ byggd (v0.73)
 Ingen big bang. Första versionen bygger inte samtidigt Timeline, plot-

@@ -48,7 +48,7 @@ export const nb: Messages = {
     primerRestore: "Bruk startprompten",
     primerAria: "Startprompt for {model}",
     review: "Gjennomgang",
-    noModels: "Ingen Ollama-modeller",
+    noModels: "Ingen lokale modeller funnet",
     backup: "Sikkerhetskopi",
     backupDue: "! Sikkerhetskopi",
     backupDueTitle: "Manuskriptet har endret seg siden siste JSON-sikkerhetskopi",
@@ -61,6 +61,13 @@ export const nb: Messages = {
     proseLanguagePlaceholder: "Norsk",
     proseLanguageTitle: "Språket setningene skrives på. Tomt gjetter fra manuskriptet. En skriveinstruksjon, ikke kanon.",
     modelsHeading: "Modeller",
+    engineLabel: "Motor",
+    engineOllama: "Ollama",
+    engineOpenAiCompatible: "LM Studio / annen lokal server",
+    engineLede: "Ingen skynøkler, aldri — bare en server som kjører på denne maskinen eller ditt lokale nettverk.",
+    baseUrlLabel: "Serveradresse",
+    baseUrlPlaceholder: "http://localhost:1234",
+    baseUrlLede: "Den lokale adressen LM Studio (eller en annen OpenAI-kompatibel server, som llama.cpp) lytter på.",
     historyLimit: "Versjoner per kapittel",
     historyLimitLede:
       "Hvor mange tidligere versjoner hvert kapittel beholder etter utkast, omskriving, forlengelse, utvidelse og omskriv. Eldste forsvinner først. Det du skriver selv lagres ikke.",
@@ -773,8 +780,8 @@ export const nb: Messages = {
     }
   },
   errors: {
-    ollamaOrigins: "Ollama tok ikke imot nettleseren. Start den med OLLAMA_ORIGINS=http://localhost:5175",
-    noModel: "Ingen lokal modell. Start Ollama og last inn på nytt.",
+    ollamaOrigins: "Den lokale serveren tok ikke imot nettleseren. Kjører du Ollama? Start den med OLLAMA_ORIGINS=http://localhost:5175. Kjører du LM Studio eller en annen server? Sjekk dens CORS-/allowed-origins-innstilling.",
+    noModel: "Ingen lokal modell funnet. Start Ollama eller din lokale server, og last inn på nytt.",
     notJson: "Den filen er ikke JSON.",
     backupUnreadable: "Kunne ikke lese den sikkerhetskopien.",
     shelfUnreadable: "Kunne ikke lese hyllen.",
@@ -785,6 +792,7 @@ export const nb: Messages = {
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",
+    serverUrlMissing: "Skriv inn den lokale serverens adresse i Innstillinger.",
     imageChoose: "Velg en bildefil.",
     imageRead: "Kunne ikke lese det bildet.",
     imageAdd: "Kunne ikke legge til det bildet."

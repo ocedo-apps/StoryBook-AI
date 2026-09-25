@@ -1127,6 +1127,12 @@ button:disabled {
   gap: 0.85rem;
 }
 
+.settings-engine {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
 .settings-model {
   display: block;
   margin: 0;

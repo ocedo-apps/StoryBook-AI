@@ -980,6 +980,8 @@ export function Editor() {
             models={models}
             model={model}
             reviewModel={reviewModel}
+            engine={store.engine}
+            baseUrl={store.baseUrl}
             writingPrimer={writingPrimer}
             historyLimit={store.historyLimit}
             illustrationStyles={illustrationStyles.styles}
@@ -987,6 +989,8 @@ export function Editor() {
             onPatch={(mutate) => void store.patchBook(mutate)}
             onModel={store.setModel}
             onReviewModel={store.setReviewModel}
+            onEngine={store.setEngine}
+            onBaseUrl={store.setBaseUrl}
             onPrimer={store.setWritingPrimer}
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}

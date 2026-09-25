@@ -48,7 +48,7 @@ export const sv: Messages = {
     primerRestore: "Använd startprompten",
     primerAria: "Startprompt för {model}",
     review: "Granskning",
-    noModels: "Inga Ollama-modeller",
+    noModels: "Inga lokala modeller hittades",
     backup: "Säkerhetskopia",
     backupDue: "! Säkerhetskopia",
     backupDueTitle: "Manuset har ändrats sedan senaste JSON-säkerhetskopian",
@@ -61,6 +61,13 @@ export const sv: Messages = {
     proseLanguagePlaceholder: "Svenska",
     proseLanguageTitle: "Språket meningarna skrivs på. Tomt gissar från manuset. En skrivinstruktion, inte kanon.",
     modelsHeading: "Modeller",
+    engineLabel: "Motor",
+    engineOllama: "Ollama",
+    engineOpenAiCompatible: "LM Studio / annan lokal server",
+    engineLede: "Inga molnnycklar, aldrig — bara en server som körs på den här datorn eller ditt lokala nätverk.",
+    baseUrlLabel: "Serveradress",
+    baseUrlPlaceholder: "http://localhost:1234",
+    baseUrlLede: "Den lokala adress LM Studio (eller en annan OpenAI-kompatibel server, t.ex. llama.cpp) lyssnar på.",
     historyLimit: "Versioner per kapitel",
     historyLimitLede:
       "Hur många tidigare versioner varje kapitel behåller efter utkast, omskrivning, förlängning, utvidgning och omskriv. Äldsta försvinner först. Det du skriver själv sparas inte.",
@@ -773,8 +780,8 @@ export const sv: Messages = {
     }
   },
   errors: {
-    ollamaOrigins: "Ollama tog inte emot webbläsaren. Starta den med OLLAMA_ORIGINS=http://localhost:5175",
-    noModel: "Ingen lokal modell. Starta Ollama och ladda om.",
+    ollamaOrigins: "Den lokala servern tog inte emot webbläsaren. Kör du Ollama? Starta den med OLLAMA_ORIGINS=http://localhost:5175. Kör du LM Studio eller en annan server? Kolla dess CORS-/allowed-origins-inställning.",
+    noModel: "Ingen lokal modell hittades. Starta Ollama eller din lokala server och ladda om.",
     notJson: "Den filen är inte JSON.",
     backupUnreadable: "Kunde inte läsa den säkerhetskopian.",
     shelfUnreadable: "Kunde inte läsa hyllan.",
@@ -785,6 +792,7 @@ export const sv: Messages = {
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",
     askManuscriptNoMatch: "Inget i manuset matchar den frågan.",
+    serverUrlMissing: "Ange din lokala servers adress i Inställningar.",
     imageChoose: "Välj en bildfil.",
     imageRead: "Kunde inte läsa den bilden.",
     imageAdd: "Kunde inte lägga till den bilden."

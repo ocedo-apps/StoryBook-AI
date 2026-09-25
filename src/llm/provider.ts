@@ -13,6 +13,12 @@ export interface EmbeddingRequest {
   signal?: AbortSignal;
 }
 
+/** Which local backend the app talks to. Chosen in Settings, never a cloud provider (see assertLocalOnlyBaseUrl). */
+export type LlmEngine = "ollama" | "openai-compatible";
+
+/** LM Studio's own default port — a starting placeholder, not a fallback the app silently uses. */
+export const DEFAULT_OPENAI_COMPATIBLE_BASE_URL = "http://localhost:1234";
+
 /**
  * The provider-agnostic contract every local model backend implements.
  * "Local" is an explicit rule, not a convention (project_spec.md §9): an
