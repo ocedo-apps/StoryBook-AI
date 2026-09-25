@@ -106,18 +106,19 @@ export const sv: Messages = {
     chapterVoice: "Kapitlets författarröst",
     voiceCue: "Författarröst",
     reader: "Läsare",
-    readerPlaceholder: "Ålder",
-    readerTitle: "Vem prosan ställs mot. Tomt lämnar dagens vuxna bas.",
+    readerTitle: "Vem texten skrivs för. Välj den åldersgrupp som stämmer bäst — Vuxen skriver utan åldersgränser i åtanke.",
+    readerTierHint:
+      "Kapitel som skrivs för den här läsaren får kortare meningar och enklare ord, anpassat efter åldersgruppen. Korrekturläsningen flaggar dessutom svordomar, våld eller explicit innehåll som inte passar den åldern.",
     readerCategories: {
-      board: "Pekbok",
-      early: "Lättläst",
-      chapter: "Kapitelbok",
-      middle: "Mellanålder",
-      ya: "Ungdom",
+      board: "Pekbok (upp till 3 år)",
+      early: "Lättläst (4–7 år)",
+      chapter: "Kapitelbok (8–9 år)",
+      middle: "Mellanålder (10–12 år)",
+      ya: "Ungdom (13–17 år)",
       adult: "Vuxen"
     },
     chapterReader: "Kapitlets läsare",
-    chapterReaderInherit: "{age} (manus)",
+    chapterReaderInheritOption: "Samma som manuset — {category}",
     readerCue: "Läsare",
     newStrand: "ny tråd",
     startChapter: "Börja kapitel {n}",
@@ -506,7 +507,8 @@ export const sv: Messages = {
     chapters: "Kapitel {a} och {b}",
     paused: "Pausad. Det som hunnit klart är sparat.",
     error: "Passet stannade. Det som hunnit klart är sparat.",
-    craft: "Kamera på korten"
+    craft: "Kamera på korten",
+    contentFlag: "Innehållsvarning"
   },
   craft: {
     pov: "Perspektiv",

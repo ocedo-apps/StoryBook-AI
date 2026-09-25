@@ -337,10 +337,11 @@ export function parseStyleItems(
 }
 
 export const AGE_SYSTEM = `You write a short last-pass note on whether the prose fits the intended reader. You do not write prose.
-Return JSON only: {"report":"...","items":[{"chapter":1,"quote":"...","observation":"..."}]}
+Return JSON only: {"report":"...","items":[{"chapter":1,"quote":"...","observation":"...","category":"craft"}]}
 
 report is 2–5 sentences. It may use the numbers you were given. It is not a rewrite and not a request to bowdlerize.
-items are optional quotes that would lose that reader, or — when Reader is under 18 — an adult taking the decisive move, or a moral stated instead of earned.
+items are optional quotes that would lose that reader, or — when Reader is under 18 — an adult taking the decisive move, or a moral stated instead of earned. Tag these "category":"craft".
+When Reader is under 18, also read for profanity, graphic violence, and sexual or explicit content that does not fit that age, even where it otherwise serves the story. Tag these "category":"content". Age-appropriate danger, fear, or loss is not itself a flag — only flag what a parent or librarian would call out as wrong for that specific age.
 Empty items are allowed. At most 6 items.`;
 
 export function ageUserPrompt(book: Book, stats: AgeStats): string {
@@ -355,6 +356,9 @@ export function ageUserPrompt(book: Book, stats: AgeStats): string {
     reader,
     `Numbers (whole manuscript, live chapters only): ${stats.chapters} chapters, ${stats.words} words, typical sentence ${stats.meanSentence.toFixed(1)} words, ${stats.longCount} long sentences, ${share}% uncommon words.`,
     kid ? "Use child_agency and lecture when they apply." : "Skip child_agency and lecture.",
+    kid
+      ? "This is a children's/YA manuscript. Read closely for profanity, graphic violence, and sexual or explicit content unsuited to this reader, and tag any as content."
+      : "",
     "Do not mention brainstorm. JSON only."
   ]
     .filter(Boolean)
@@ -385,7 +389,8 @@ export function parseAgeResult(raw: string, book: Book): { report: string; items
       const quote = typeof item.quote === "string" ? item.quote.trim() : "";
       const observation = typeof item.observation === "string" ? item.observation.trim() : "";
       if (quote.length < 8 || !observation) continue;
-      items.push({ chapterId: chapter.id, quote, observation });
+      const category = item.category === "content" ? ({ category: "content" } as const) : {};
+      items.push({ chapterId: chapter.id, quote, observation, ...category });
     }
   }
   return { report, items };

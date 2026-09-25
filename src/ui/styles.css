@@ -517,7 +517,7 @@ button:disabled {
 .add-fact textarea,
 .add-fact select,
 .voice-field textarea,
-.reader-field input,
+.reader-field select,
 .craft-field select,
 .craft-field input,
 .craft-field textarea,
@@ -1006,7 +1006,7 @@ button:disabled {
   display: block;
 }
 
-.reader-field input {
+.reader-field select {
   width: 100%;
   font-size: 0.88rem;
   padding: 0.45rem 0.7rem;
@@ -1017,10 +1017,23 @@ button:disabled {
   color: var(--text-faint);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
+  line-height: 1.4;
 }
 
-.chapter-head-top > .reader-head-field {
-  flex: 0 0 7.6rem;
+.chapter-head-top > .craft-field.reader-head-field {
+  flex: 1 1 100%;
+}
+
+.proofread-content-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
 .voice-field textarea {
@@ -1540,6 +1553,7 @@ button:disabled {
 
 .chapter-head-top {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.7rem;
   margin: 0.4rem 0 0.55rem;
   align-items: stretch;

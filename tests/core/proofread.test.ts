@@ -145,6 +145,16 @@ describe("prompts and parsers", () => {
     );
     expect(parsed.report).toContain("twelve");
     expect(parsed.items[0]?.chapterId).toBe(first);
+    expect(parsed.items[0]?.category).toBeUndefined();
+  });
+
+  it("tags a content-safety item so it can be shown apart from craft notes", () => {
+    const { book } = twoChapters();
+    const parsed = parseAgeResult(
+      `{"report":"","items":[{"chapter":1,"quote":"counted the night keys by the lamp","observation":"Strong profanity does not fit an 8-year-old reader.","category":"content"}]}`,
+      book
+    );
+    expect(parsed.items[0]?.category).toBe("content");
   });
 });
 

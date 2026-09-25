@@ -1,9 +1,55 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.90
+Status: living document, v0.91
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.90 → v0.91:** Läsarålder som färdiga nivåer +
+innehållsflaggning i Korrekturläsningen, efter författarens önskemål
+om att ålder ska väljas ur fasta grupper (som PEGI/åldersklassning för
+dataspel) istället för ett fritt nummer, och att korrekturläsningen
+ska flagga svordomar, våld och explicit innehåll när boken är för barn.
+
+- **Läsarväljaren är nu en lista, inte ett sifferfält** — både på
+  manusnivå (Settings) och per kapitel. De sex nivåerna (Pekbok,
+  Lättläst, Kapitelbok, Mellanålder, Ungdom, Vuxen) fanns redan som
+  begrepp i koden (`READER_CATEGORIES`), de styrde bara aldrig själva
+  input-fältet. Ny `READER_TIER_AGE`-tabell ger varje nivå en
+  representativ ålder som matas in i den befintliga läsbarhetsmotorn
+  (`readerTuning`) helt oförändrad — ingen ny logik för hur texten
+  anpassas, bara hur ålder väljs. Ett test säkrar att varje nivås ålder
+  alltid mappar tillbaka till exakt den nivån, så de två inte kan glida
+  isär.
+- Kapitelnivåns väljare har nu "Samma som manuset" som eget alternativ
+  högst upp (visar vilken nivå det faktiskt blir, t.ex. "Samma som
+  manuset — Mellanålder (10–12 år)") istället för ett tomt fält vars
+  betydelse man var tvungen att gissa sig till.
+- Ny förklaringstext under väljaren, synlig så fort nivån inte är
+  Vuxen: att kortare meningar och enklare ord används, och att
+  Korrekturläsningen också flaggar svordomar, våld och explicit
+  innehåll som inte passar åldern. Svar på författarens fråga om en
+  sådan förklaring borde finnas.
+- **Korrekturläsningens ålderssteg flaggar nu innehåll, inte bara
+  läsbarhet.** Samma AI-anrop som redan körs (inget nytt API-steg):
+  när läsaren är under 18 uppmanas modellen att aktivt läsa efter
+  svordomar, grafiskt våld och sexuellt/explicit innehåll som inte
+  passar åldern — även om det annars tjänar historien. Ålderslämplig
+  fara, rädsla eller sorg räknas inte som en flagga, bara sånt en
+  förälder eller bibliotekarie skulle reagera på för just den åldern.
+  Sådana träffar märks `"category":"content"` och visas med en egen
+  röd "Innehållsvarning"-etikett i resultatlistan, skilt från vanliga
+  hantverksnoteringar.
+- Bekräftat att textens svårighetsgrad redan styrs av en egen
+  läsbarhetsmotor (`readerTuning` — meningslängd, andel ovanliga ord,
+  stavelser), kopplad sedan tidigare till statistikpanelen, redigeraren
+  och korrekturläsningen. Inget nytt behövde byggas där, bara att rätt
+  ålder nu matas in via de fasta nivåerna.
+
+Nytt test för `READER_TIER_AGE`-invarianten och för att
+`parseAgeResult` läser `category` rätt. 567/567 gröna. Verifierat i
+webbläsaren: båda väljarna (manus och kapitel), förklaringstexten och
+att layouten får plats utan att klippas vid 1300px bredd.
 
 **Ändringslogg v0.89 → v0.90:** Författaren pekade på ett konkret
 exempel från en skärmdump: "Oldest drop first. Typing is not kept."

@@ -104,18 +104,19 @@ export const en = {
     chapterVoice: "Chapter voice",
     voiceCue: "Voice",
     reader: "Reader",
-    readerPlaceholder: "Age",
-    readerTitle: "Who the prose is for. Empty keeps today’s adult baseline.",
+    readerTitle: "Who this is written for. Pick the closest age group — Adult writes with no age limits in mind.",
+    readerTierHint:
+      "Chapters written for this reader use shorter sentences and simpler words, matched to the age group. Proofread will also flag swearing, violence, or explicit content that does not fit that age.",
     readerCategories: {
-      board: "Board book",
-      early: "Early reader",
-      chapter: "Chapter book",
-      middle: "Middle grade",
-      ya: "YA",
+      board: "Board book (up to age 3)",
+      early: "Early reader (ages 4–7)",
+      chapter: "Chapter book (ages 8–9)",
+      middle: "Middle grade (ages 10–12)",
+      ya: "YA (ages 13–17)",
       adult: "Adult"
     },
     chapterReader: "Chapter reader",
-    chapterReaderInherit: "{age} (manuscript)",
+    chapterReaderInheritOption: "Same as manuscript — {category}",
     readerCue: "Reader",
     newStrand: "new strand",
     startChapter: "Start Chapter {n}",
@@ -504,7 +505,8 @@ export const en = {
     chapters: "Chapters {a} and {b}",
     paused: "Paused. What finished is saved.",
     error: "The pass stopped. What finished is saved.",
-    craft: "Camera on the cards"
+    craft: "Camera on the cards",
+    contentFlag: "Content check"
   },
   craft: {
     pov: "POV",

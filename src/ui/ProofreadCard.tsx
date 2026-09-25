@@ -152,6 +152,9 @@ export function ProofreadCard({
                     {flagLabel(flag, book, m)}
                     {flag.stale ? ` · ${m.proofread.stale}` : ""}
                   </button>
+                  {flag.category === "content" ? (
+                    <span className="proofread-content-badge">{m.proofread.contentFlag}</span>
+                  ) : null}
                   {flag.quote ? <p className="quiet">{clip(flag.quote, 140)}</p> : null}
                   {flag.quoteB ? <p className="quiet">{clip(flag.quoteB, 140)}</p> : null}
                   <p className="quiet">{flag.observation}</p>

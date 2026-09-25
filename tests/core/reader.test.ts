@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   ADULT_LONG_SENTENCE,
+  READER_CATEGORIES,
+  READER_TIER_AGE,
   applyReaderAge,
   formatReaderForPrompt,
   formatReaderForReview,
@@ -47,6 +49,14 @@ describe("readerCategory", () => {
     expect(readerCategory(12)).toBe("middle");
     expect(readerCategory(16)).toBe("ya");
     expect(readerCategory(18)).toBe("adult");
+  });
+});
+
+describe("READER_TIER_AGE", () => {
+  it("gives every tier-select option an age that lands back on that same category", () => {
+    for (const category of READER_CATEGORIES) {
+      expect(readerCategory(READER_TIER_AGE[category])).toBe(category);
+    }
   });
 });
 

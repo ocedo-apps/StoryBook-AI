@@ -23,7 +23,9 @@ export const ProofreadFlagSchema = z.object({
   quoteB: z.string().optional(),
   observation: z.string(),
   suggestion: z.string().optional(),
-  stale: z.boolean().optional()
+  stale: z.boolean().optional(),
+  /** Set only for an "age"-stage flag about profanity, violence, or explicit content — not a craft note. */
+  category: z.literal("content").optional()
 });
 export type ProofreadFlag = z.infer<typeof ProofreadFlagSchema>;
 

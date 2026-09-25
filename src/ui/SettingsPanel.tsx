@@ -10,7 +10,7 @@ import {
 } from "@core/craft";
 import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
 import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
-import { applyReaderAge, parseReaderAge, readerCategory } from "@core/reader";
+import { READER_CATEGORIES, READER_TIER_AGE, applyReaderAge, readerCategory, type ReaderCategory } from "@core/reader";
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
@@ -178,29 +178,23 @@ export function SettingsPanel({
         </div>
         <label className="reader-field">
           <span>{m.editor.reader}</span>
-          <input
-            type="number"
-            min={1}
-            max={99}
-            inputMode="numeric"
-            value={book.reader_age ?? ""}
-            placeholder={m.editor.readerPlaceholder}
+          <select
+            value={book.reader_age === undefined ? "adult" : readerCategory(book.reader_age)}
             title={m.editor.readerTitle}
             aria-label={m.editor.reader}
             onChange={(event) => {
-              const raw = event.target.value;
-              if (raw === "") {
-                onPatch((current) => applyReaderAge(current, undefined));
-                return;
-              }
-              const age = parseReaderAge(raw);
-              if (age === undefined) return;
+              const category = event.target.value as ReaderCategory;
+              const age = category === "adult" ? undefined : READER_TIER_AGE[category];
               onPatch((current) => applyReaderAge(current, age));
             }}
-          />
-          {book.reader_age !== undefined && readerCategory(book.reader_age) !== "adult" ? (
-            <p className="reader-hint">{m.editor.readerCategories[readerCategory(book.reader_age)]}</p>
-          ) : null}
+          >
+            {READER_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {m.editor.readerCategories[category]}
+              </option>
+            ))}
+          </select>
+          {readerCategory(book.reader_age) !== "adult" ? <p className="reader-hint">{m.editor.readerTierHint}</p> : null}
         </label>
       </section>
 

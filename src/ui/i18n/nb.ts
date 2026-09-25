@@ -106,18 +106,19 @@ export const nb: Messages = {
     chapterVoice: "Kapitlets forfatterstemme",
     voiceCue: "Forfatterstemme",
     reader: "Leser",
-    readerPlaceholder: "Alder",
-    readerTitle: "Hvem prosaen stilles mot. Tomt lar dagens voksne bas stå.",
+    readerTitle: "Hvem teksten skrives for. Velg aldersgruppen som passer best — Voksen skriver uten aldersgrenser i tankene.",
+    readerTierHint:
+      "Kapitler som skrives for denne leseren får kortere setninger og enklere ord, tilpasset aldersgruppen. Korrekturlesing flagger også banning, vold eller eksplisitt innhold som ikke passer den alderen.",
     readerCategories: {
-      board: "Pekebok",
-      early: "Lettlest",
-      chapter: "Kapittelbok",
-      middle: "Mellomalder",
-      ya: "Ungdom",
+      board: "Pekebok (opp til 3 år)",
+      early: "Lettlest (4–7 år)",
+      chapter: "Kapittelbok (8–9 år)",
+      middle: "Mellomalder (10–12 år)",
+      ya: "Ungdom (13–17 år)",
       adult: "Voksen"
     },
     chapterReader: "Kapitlets leser",
-    chapterReaderInherit: "{age} (manuskript)",
+    chapterReaderInheritOption: "Samme som manuskriptet — {category}",
     readerCue: "Leser",
     newStrand: "ny tråd",
     startChapter: "Start kapittel {n}",
@@ -506,7 +507,8 @@ export const nb: Messages = {
     chapters: "Kapittel {a} og {b}",
     paused: "Pauset. Det som rakk å bli ferdig er lagret.",
     error: "Passet stoppet. Det som rakk å bli ferdig er lagret.",
-    craft: "Kamera på kortene"
+    craft: "Kamera på kortene",
+    contentFlag: "Innholdsvarsel"
   },
   craft: {
     pov: "Perspektiv",

@@ -9,6 +9,20 @@ export const ADULT_LONG_SENTENCE = 30;
 export const READER_CATEGORIES = ["board", "early", "chapter", "middle", "ya", "adult"] as const;
 export type ReaderCategory = (typeof READER_CATEGORIES)[number];
 
+/**
+ * A representative age for each fixed tier, used by tier-select UI instead
+ * of a free-form age number. Each value must land back on its own category
+ * through readerCategory() — covered by a test so the two can't drift apart.
+ */
+export const READER_TIER_AGE: Record<ReaderCategory, number> = {
+  board: 3,
+  early: 6,
+  chapter: 8,
+  middle: 12,
+  ya: 16,
+  adult: ADULT_READER_AGE
+};
+
 export type ReaderTuning = {
   age: number | undefined;
   category: ReaderCategory;

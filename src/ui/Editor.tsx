@@ -54,7 +54,14 @@ import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
 import { knowledgeLeaksForChapter } from "@core/continuity";
 import { addPlotline, plotlineMatrixRows, removePlotline, renamePlotline, toggleChapterPlotline } from "@core/plotlines";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
-import { parseReaderAge, readerTuning, resolveReader } from "@core/reader";
+import {
+  READER_CATEGORIES,
+  READER_TIER_AGE,
+  readerCategory,
+  readerTuning,
+  resolveReader,
+  type ReaderCategory
+} from "@core/reader";
 import { selectedText } from "@core/textSpan";
 import { useIllustrationStyles } from "./useIllustrationStyles";
 import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
@@ -1228,45 +1235,30 @@ export function Editor() {
                 </div>
                 <div className="craft-field reader-head-field">
                   <span>{m.editor.reader}</span>
-                  {chapter.reader_age !== undefined ? (
-                    <button
-                      type="button"
-                      className="text-button chapter-voice-reset"
-                      onClick={() =>
-                        void store.patchBook((current) =>
-                          updateChapter(current, chapter.id, { reader_age: undefined })
-                        )
-                      }
-                    >
-                      {m.editor.manuscript}
-                    </button>
-                  ) : null}
-                  <input
-                    type="number"
-                    min={1}
-                    max={99}
-                    inputMode="numeric"
-                    value={chapter.reader_age ?? ""}
+                  <select
+                    value={chapter.reader_age === undefined ? "inherit" : readerCategory(chapter.reader_age)}
                     title={m.editor.readerTitle}
                     aria-label={m.editor.chapterReader}
-                    placeholder={
-                      book.reader_age !== undefined
-                        ? format(m.editor.chapterReaderInherit, { age: book.reader_age })
-                        : m.editor.readerPlaceholder
-                    }
                     onChange={(event) => {
-                      const raw = event.target.value;
-                      if (raw === "") {
-                        void store.patchBook((current) =>
-                          updateChapter(current, chapter.id, { reader_age: undefined })
-                        );
-                        return;
-                      }
-                      const age = parseReaderAge(raw);
-                      if (age === undefined) return;
+                      const choice = event.target.value;
+                      const age = choice === "inherit" ? undefined : READER_TIER_AGE[choice as ReaderCategory];
                       void store.patchBook((current) => updateChapter(current, chapter.id, { reader_age: age }));
                     }}
-                  />
+                  >
+                    <option value="inherit">
+                      {format(m.editor.chapterReaderInheritOption, {
+                        category: m.editor.readerCategories[readerCategory(book.reader_age)]
+                      })}
+                    </option>
+                    {READER_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {m.editor.readerCategories[category]}
+                      </option>
+                    ))}
+                  </select>
+                  {readerCategory(resolveReader(book, chapter)) !== "adult" ? (
+                    <p className="reader-hint">{m.editor.readerTierHint}</p>
+                  ) : null}
                 </div>
               </div>
               <ChapterCraftFields

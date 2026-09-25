@@ -38,6 +38,7 @@ inte en ensidig lista.
 | 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
 | 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
 | 22 | "?"-genvägar från rubriker till guiden | ⬜ ej påbörjad |
+| 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -468,6 +469,33 @@ språkoberoende ankare för det här (`GUIDE_SECTION_IDS`,
 `GUIDE_FAQ_IDS`) och `Editor.tsx`s `openGuide(anchor)` hoppar redan
 dit med skroll — det som återstår är att sätta en liten "?"-knapp vid
 varje relevant panels rubrik som anropar den.
+
+### 23. Läsarålder som fasta nivåer + innehållsflaggning ✅ byggd (v0.91)
+Författaren ville kunna ange vilken ålder läsaren förväntas ha, men
+med fasta nivåer istället för ett fritt nummer — samma princip som
+åldersklassning för dataspel (PEGI m.fl.). Om boken är för barn ska
+Korrekturläsningen dessutom flagga svordomar, våld och explicit
+innehåll.
+
+- Läsarväljaren (manus- och kapitelnivå) är nu en lista med sex
+  nivåer — Pekbok, Lättläst, Kapitelbok, Mellanålder, Ungdom, Vuxen —
+  istället för ett sifferfält. Nivåerna fanns redan i motorn
+  (`READER_CATEGORIES` i `reader.ts`), de styrde bara aldrig valet
+  själva.
+- Korrekturläsningens ålderssteg flaggar nu innehåll som inte passar
+  åldern (svordomar, grafiskt våld, sexuellt/explicit material) när
+  läsaren är under 18, tydligt märkt med en egen "Innehållsvarning"
+  skild från vanliga hantverksnoteringar. Ålderslämplig fara eller
+  sorg räknas inte som en flagga.
+- Förklaringstext vid väljaren beskriver vad nivån gör: kortare
+  meningar/enklare ord samt att Korrekturläsningen skärper sig för
+  innehåll.
+- Textens svårighetsgrad styrdes redan av en egen läsbarhetsmotor
+  (`readerTuning` — meningslängd, ovanliga ord, stavelser), kopplad
+  sedan tidigare till statistikpanelen, redigeraren och
+  korrekturläsningen. Motsvarar i praktiken en egen Lexile-liknande
+  skala, fast inte den licensierade Lexile-skalan själv. Inget nytt
+  behövde byggas där.
 
 ---
 
