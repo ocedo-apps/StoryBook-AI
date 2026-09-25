@@ -369,8 +369,9 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* Bumps the "New manuscript" / "Getting started with a local AI" / "Your manuscripts" eyebrow labels up to 18px on the home page, without resizing .field-label or .settings-heading everywhere else they're used (Story Bible fields, Settings, the rest of the Guide). */
-.home-heading-lg {
+/* Bumps the "New manuscript" / "Getting started with a local AI" / "Your manuscripts" eyebrow labels up to 18px on the home page, without resizing .field-label or .settings-heading everywhere else they're used (Story Bible fields, Settings, the rest of the Guide). Chained with the base class for specificity, since .field-label and .settings-heading are both defined later in this file and would otherwise win the cascade. */
+.field-label.home-heading-lg,
+.settings-heading.home-heading-lg {
   font-size: 1.125rem;
 }
 

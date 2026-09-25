@@ -1,9 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.19
+Status: living document, v0.99.20
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.19 → v0.99.20:** Rättade en riktig bugg —
+författaren hade rätt, rubrikerna var fortfarande 11px trots
+v0.99.19s ändring.
+
+- Orsak: `.home-heading-lg` (min nya modifier-klass) låg TIDIGARE i
+  `styles.css` än `.field-label` och `.settings-heading`. Alla tre är
+  enkla klass-selektorer med samma specificitet, så CSS avgör genom
+  källordning vid oavgjort — och eftersom basklasserna kom senare i
+  filen vann deras `0.68rem` över min `1.125rem`, oavsett att elementet
+  hade båda klasserna i `className`.
+- Fix: kedjade selektorn (`.field-label.home-heading-lg`,
+  `.settings-heading.home-heading-lg`) istället för att förlita mig på
+  källordning — det ger högre specificitet som alltid vinner, oavsett
+  var i filen reglerna står.
+- Den här gången mätte jag `getComputedStyle(...).fontSize` direkt i
+  webbläsaren istället för att bara titta på en skärmdump — alla tre
+  ("Nytt manus", "Kom igång med en lokal AI", "Dina manus") gav exakt
+  `18px`. Skärmdumpen jag skickade förra gången var för otydlig för
+  att jag skulle se felet med blotta ögat.
+- 597/597 gröna.
 
 **Ändringslogg v0.99.18 → v0.99.19:** Tre saker på förstasidan, på
 författarens begäran: större etiketter, en "Dina manus"-rubrik, och
