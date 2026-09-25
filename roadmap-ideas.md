@@ -31,7 +31,7 @@ inte en ensidig lista.
 | 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
 | 15 | Klickbara namn i manuset → Story Bible | ⬜ ej påbörjad |
-| 16 | Tidsmedveten Story Bible | ⬜ ej påbörjad |
+| 16 | Tidsmedveten Story Bible | ✅ byggd (v0.87) |
 | 17 | AI-skrivtics-markering | ⬜ ej påbörjad |
 | 18 | Character Interviews | ⬜ ej påbörjad |
 | 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
@@ -344,13 +344,41 @@ matchningslogik som redan finns i `bibleMentions.ts` går att återanvända
 — jobbet är en klickbar overlay ovanpå prosan, liknande hur
 "rare words"-markeringen redan fungerar i `ProseCanvas`.
 
-### 16. Tidsmedveten Story Bible ("fakta som de var då")
+### 16. Tidsmedveten Story Bible ("fakta som de var då") ✅ byggd (v0.87)
 Den starkaste av de fyra. Visa en entitets tillstånd vid en viss punkt
 i berättelsen istället för bara den senaste låsta versionen — när man
 skriver kapitel 5 ser man vad som var sant *vid* kapitel 5, inte det
-slutgiltiga svaret. Alla byggstenar finns redan (History-kedjan från
-punkt 2, scenprovenens från punkt 6, story-tid-ordningen från punkt 9)
-— det som saknas är att koppla ihop dem i ett UI.
+slutgiltiga svaret. Alla byggstenar fanns redan (History-kedjan från
+punkt 2, scenprovenens från punkt 6) — det som saknades var att koppla
+ihop dem i ett UI.
+
+Ny "Som den var"-väljare högst upp i Story Bible-panelen: "Nu" (som
+förut) eller ett valfritt kapitel. Väljer man ett kapitel byts hela
+rosterlistan — namn, flikar, träfflista — till ett skrivskyddat
+ögonblick av boken vid den läspositionen, med en tydlig banner och en
+"Tillbaka till nuläget"-knapp. Klick på en person/plats öppnar ett
+enkelt, eget kort (inte det vanliga redigeringskortet) som visar bara
+vad som var sant då — inga redigerings-, bild- eller
+omdöpningsverktyg, det vore fel i ett skrivskyddat läge.
+
+Teknisk kärna: `factsAsOfSequence()` (`bibleHistory.ts`) återanvänder
+exakt samma kedje-logik som redan byggde History-vyn (punkt 2) — går
+igenom varje fakta-kedja (en per entitet+predikat) och plockar den
+SENASTE posten vars `sequence_index` inte överskrider den valda
+läspositionen. En kedja utan något etablerat än utesluts helt, precis
+som en läsare (eller författaren, mitt i ett utkast) faktiskt skulle
+veta vid den punkten — inte bokens slutgiltiga, färdiga sanning. Ny
+`groupFacts()` i `bibleGroups.ts` (`groupBibleEntities()` omskriven
+till ett tunt skal ovanpå den) tar emot en redan vald fakta-lista
+istället för att själv filtrera på "nuvarande låst" — så samma
+klassificerings-/grupperingslogik återanvänds för både det vanliga
+och det tidsmedvetna läget, utan att det vanliga läget rör sig en
+millimeter.
+
+Byggd medvetet på läsordning (`sequence_index`), inte story-tid-
+ordningen (punkt 9) — "vad visste jag vid kapitel 5" är i grunden en
+läsordningsfråga, inte en berättelseklocka-fråga. Story-tid-baserad
+visning sparas som en möjlig framtida variant, inte byggd nu.
 
 ### 17. AI-skrivtics-markering
 En lista med vanliga AI-klichéer ("a testament to", "tapestry of",

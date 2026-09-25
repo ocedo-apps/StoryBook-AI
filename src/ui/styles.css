@@ -2800,6 +2800,45 @@ button:disabled {
   border: 0;
 }
 
+.bible-asof {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.bible-asof select {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.45rem;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.bible-asof-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.bible-asof-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.bible-asof-fact:last-child {
+  border-bottom: none;
+}
+
 .bible-search {
   display: block;
   margin: 0 0 0.65rem;

@@ -1,9 +1,44 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.86
+Status: living document, v0.87
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.86 → v0.87:** Roadmap-punkt 16, Tidsmedveten Story
+Bible — visa en entitets tillstånd som det var vid en viss läsposition
+i manuset, inte bara den senaste låsta versionen. Novelcrafter-
+jämförelsens starkaste idé (§ konkurrensjämförelsen ovan), vald att
+byggas nu, före Setup/payoff (punkt 12), eftersom alla byggstenar
+redan fanns — det som saknades var att koppla ihop dem i ett UI.
+
+Ny "Som den var"-väljare högst upp i Story Bible: "Nu" eller ett
+valfritt kapitel. Väljer man ett kapitel byts hela rosterlistan till
+ett skrivskyddat ögonblick av boken vid den läspositionen — tydlig
+banner, "Tillbaka till nuläget"-knapp, redigeringsknappar (Ny, Review,
+Export) dolda eftersom de inte är meningsfulla mot ett historiskt
+ögonblick. Klick på en person/plats öppnar ett nytt, minimalt kort
+(inte det vanliga redigeringskortet) med bara det som var sant då.
+
+Teknisk kärna: `factsAsOfSequence()` (`bibleHistory.ts`) återanvänder
+samma fakta-kedjelogik som redan byggde History-vyn (`chainsWithHistory`/
+`factHistoryForEntity`, punkt 2) — en kedja per entitet+predikat, plockar
+den senaste posten vars `sequence_index` inte överskrider vald position.
+En kedja utan något etablerat än utesluts helt. `groupBibleEntities()`
+skrevs om till ett tunt skal ovanpå en ny `groupFacts()` som tar emot
+en redan vald fakta-lista — samma klassificerings-/grupperingslogik
+återanvänd för både det vanliga och det tidsmedvetna läget, det vanliga
+läget rör sig inte en millimeter (samma tester, oförändrat resultat).
+
+Byggd på läsordning (`sequence_index`), inte story-tid-ordningen
+(punkt 9) — "vad visste jag vid kapitel 5" är en läsordningsfråga.
+Story-tid-baserad visning sparas som en möjlig framtida variant.
+
+9 nya tester (`bibleHistory.test.ts`: `bookFactChains`, `factsAsOfSequence`).
+565/565 gröna totalt. Verifierat i webbläsaren: skapade en person i
+kapitel 1 ("journalist"), lät den ersättas i kapitel 3 ("redaktör"),
+bekräftade att "Som den var: Kapitel 1" visar det gamla värdet, "Kapitel
+3" och "Nu" visar det nya, och att växlingen mellan lägena fungerar rent.
 
 **Ändringslogg v0.85 → v0.86:** Andra delen av förberedelsen för
 externa testare: en integrerad guide med snabbstart. Författaren

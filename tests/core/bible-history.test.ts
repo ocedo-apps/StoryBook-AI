@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chainsWithHistory, factHistoryForEntity } from "@core/bibleHistory";
+import { bookFactChains, chainsWithHistory, factHistoryForEntity, factsAsOfSequence } from "@core/bibleHistory";
 import type { NarrativeFact } from "@core/NarrativeFact";
 
 function fact(overrides: Partial<NarrativeFact> & Pick<NarrativeFact, "id" | "value">): NarrativeFact {
@@ -89,5 +89,47 @@ describe("chainsWithHistory", () => {
     const chains = chainsWithHistory(factHistoryForEntity(facts, "henrik"));
     expect(chains).toHaveLength(1);
     expect(chains[0]?.entries.map((f) => f.id)).toEqual(["a", "b"]);
+  });
+});
+
+describe("bookFactChains", () => {
+  it("builds chains across every entity in one pass, not just one", () => {
+    const facts: NarrativeFact[] = [
+      fact({ id: "a", value: "brown hair", entity_ref: "henrik", sequence_index: 0, superseded_by: "b" }),
+      fact({ id: "b", value: "dyed black hair", entity_ref: "henrik", sequence_index: 1 }),
+      fact({ id: "c", value: "cunning", entity_ref: "lena", predicate: "core.trait", sequence_index: 0 })
+    ];
+    const chains = bookFactChains(facts);
+    expect(chains).toHaveLength(2);
+    expect(chains.map((c) => c.entries.at(-1)?.entity_ref).sort()).toEqual(["henrik", "lena"]);
+  });
+});
+
+describe("factsAsOfSequence", () => {
+  it("picks the value that was true at a given manuscript position, not the final one", () => {
+    const facts: NarrativeFact[] = [
+      fact({ id: "a", value: "journalist", predicate: "core.identity", sequence_index: 0, superseded_by: "b" }),
+      fact({ id: "b", value: "unemployed", predicate: "core.identity", sequence_index: 3, superseded_by: "c" }),
+      fact({ id: "c", value: "editor", predicate: "core.identity", sequence_index: 8 })
+    ];
+    expect(factsAsOfSequence(facts, 1).map((f) => f.value)).toEqual(["journalist"]);
+    expect(factsAsOfSequence(facts, 3).map((f) => f.value)).toEqual(["unemployed"]);
+    expect(factsAsOfSequence(facts, 8).map((f) => f.value)).toEqual(["editor"]);
+  });
+
+  it("omits a fact that had not been established yet at that point", () => {
+    const facts: NarrativeFact[] = [fact({ id: "a", value: "a locked room", predicate: "core.place", sequence_index: 5 })];
+    expect(factsAsOfSequence(facts, 4)).toEqual([]);
+    expect(factsAsOfSequence(facts, 5)).toHaveLength(1);
+  });
+
+  it("keeps independent chains for different entities and predicates separate", () => {
+    const facts: NarrativeFact[] = [
+      fact({ id: "a", value: "brave", entity_ref: "henrik", predicate: "core.trait", sequence_index: 0 }),
+      fact({ id: "b", value: "loyal", entity_ref: "henrik", predicate: "core.relationship", sequence_index: 2 }),
+      fact({ id: "c", value: "cunning", entity_ref: "lena", predicate: "core.trait", sequence_index: 1 })
+    ];
+    const asOf = factsAsOfSequence(facts, 1);
+    expect(asOf.map((f) => f.id).sort()).toEqual(["a", "c"]);
   });
 });

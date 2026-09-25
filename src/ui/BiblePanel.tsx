@@ -5,12 +5,13 @@ import {
   classifyEntity,
   entityMatchesQuery,
   groupBibleEntities,
+  groupFacts,
   setEntityKind,
   type BibleEntityGroup,
   type BibleKind
 } from "@core/bibleGroups";
 import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
-import { chainsWithHistory, factHistoryForEntity, type FactHistoryChain } from "@core/bibleHistory";
+import { chainsWithHistory, factHistoryForEntity, factsAsOfSequence, type FactHistoryChain } from "@core/bibleHistory";
 import { mentionsForEntity, type MentionHit } from "@core/bibleMentions";
 import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
 import { slugify } from "@core/ids";
@@ -31,7 +32,7 @@ import {
   type EntityMedia,
   type EntityPicture
 } from "@core/entityMedia";
-import { touch, type Chapter } from "@core/BookSchema";
+import { sortedChapters, touch, type Chapter } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
 import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
 import { count, format, useLocale } from "./i18n";
@@ -43,6 +44,7 @@ import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@co
 type Overlay =
   | { type: "review" }
   | { type: "entity"; ref: string }
+  | { type: "asOfEntity"; ref: string }
   | { type: "new"; kind: BibleKind };
 
 function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitled: string): string {
@@ -57,9 +59,19 @@ export function BiblePanel() {
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
   const [overlay, setOverlay] = useState<Overlay | null>(null);
+  const [asOfChapterId, setAsOfChapterId] = useState<string | null>(null);
   const pendingSeen = useRef(0);
 
   const sections = useMemo(() => (book ? groupBibleEntities(book.facts, book.entity_kinds) : []), [book]);
+  const liveChapters = useMemo(() => (book ? sortedChapters(book) : []), [book]);
+  const asOfChapter = asOfChapterId ? liveChapters.find((item) => item.id === asOfChapterId) : undefined;
+  const displaySections = useMemo(
+    () =>
+      book && asOfChapter
+        ? groupFacts(factsAsOfSequence(book.facts, asOfChapter.sequence_index), book.entity_kinds)
+        : sections,
+    [book, asOfChapter, sections]
+  );
   const pending = book ? activeFacts(book.facts).filter((fact) => fact.status !== "locked") : [];
   const flagged = pending.some((fact) => fact.status === "flagged" && !fact.is_merge_suggestion);
   const canExportCards = sections.some(
@@ -79,7 +91,7 @@ export function BiblePanel() {
 
   const searching = query.trim().length > 0;
   const visibleSections = useMemo(() => {
-    const filtered = sections
+    const filtered = displaySections
       .map((section) => ({
         ...section,
         entities: section.entities.filter((entity) =>
@@ -89,10 +101,14 @@ export function BiblePanel() {
       .filter((section) => section.entities.length > 0);
     if (searching) return filtered;
     return filtered.filter((section) => section.kind === kind);
-  }, [book?.profiles, kind, query, searching, sections]);
+  }, [book?.profiles, kind, query, searching, displaySections]);
   const openSection =
     overlay?.type === "entity" ? sections.find((section) => section.entities.some((entity) => entity.entity_ref === overlay.ref)) : undefined;
   const openEntity = openSection?.entities.find((entity) => overlay?.type === "entity" && entity.entity_ref === overlay.ref);
+  const openAsOfEntity =
+    overlay?.type === "asOfEntity"
+      ? displaySections.flatMap((section) => section.entities).find((entity) => entity.entity_ref === overlay.ref)
+      : undefined;
 
   if (!book) return null;
 
@@ -101,7 +117,7 @@ export function BiblePanel() {
       <div className="rail-head">
         <h2>{m.bible.title}</h2>
         <div className="bible-head-tools">
-          {pending.length > 0 ? (
+          {asOfChapter ? null : pending.length > 0 ? (
             <button
               type="button"
               className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
@@ -116,21 +132,47 @@ export function BiblePanel() {
               })}
             </span>
           )}
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => {
-              const payload = exportSandboxCards(book);
-              if (sandboxCardCount(payload) === 0) return;
-              downloadJson(sandboxExportFilename(book), payload);
-            }}
-            disabled={!canExportCards}
-            title={m.bible.exportCardsTitle}
-          >
-            {m.bible.exportCards}
-          </button>
+          {asOfChapter ? null : (
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                const payload = exportSandboxCards(book);
+                if (sandboxCardCount(payload) === 0) return;
+                downloadJson(sandboxExportFilename(book), payload);
+              }}
+              disabled={!canExportCards}
+              title={m.bible.exportCardsTitle}
+            >
+              {m.bible.exportCards}
+            </button>
+          )}
         </div>
       </div>
+
+      <label className="bible-asof">
+        <span>{m.bible.asOfLabel}</span>
+        <select
+          value={asOfChapterId ?? ""}
+          onChange={(event) => setAsOfChapterId(event.target.value === "" ? null : event.target.value)}
+          aria-label={m.bible.asOfLabel}
+        >
+          <option value="">{m.bible.asOfNow}</option>
+          {liveChapters.map((item) => (
+            <option key={item.id} value={item.id}>
+              {chapterLabel(item.id, liveChapters, m.editor.untitled)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {asOfChapter ? (
+        <p className="banner bible-asof-banner" role="status">
+          {format(m.bible.asOfBanner, { chapter: chapterLabel(asOfChapter.id, liveChapters, m.editor.untitled) })}
+          <button type="button" className="text-button" onClick={() => setAsOfChapterId(null)}>
+            {m.bible.asOfBack}
+          </button>
+        </p>
+      ) : null}
 
       <label className="bible-search">
         <span className="visually-hidden">{m.bible.search}</span>
@@ -144,7 +186,7 @@ export function BiblePanel() {
 
       <div className="bible-tabs" role="tablist" aria-label={m.bible.shelves}>
         {BIBLE_KINDS.map((item) => {
-          const count = sections.find((section) => section.kind === item)?.entities.length ?? 0;
+          const count = displaySections.find((section) => section.kind === item)?.entities.length ?? 0;
           return (
             <button
               key={item}
@@ -177,7 +219,7 @@ export function BiblePanel() {
                 entities={section.entities}
                 thumbs={book.media}
                 hiddenEntities={book.hidden_entities}
-                onOpen={(ref) => setOverlay({ type: "entity", ref })}
+                onOpen={(ref) => setOverlay(asOfChapter ? { type: "asOfEntity", ref } : { type: "entity", ref })}
               />
             </div>
           ))
@@ -186,14 +228,16 @@ export function BiblePanel() {
             entities={visibleSections[0]?.entities ?? []}
             thumbs={book.media}
             hiddenEntities={book.hidden_entities}
-            onOpen={(ref) => setOverlay({ type: "entity", ref })}
+            onOpen={(ref) => setOverlay(asOfChapter ? { type: "asOfEntity", ref } : { type: "entity", ref })}
           />
         )}
       </section>
 
-      <button type="button" className="bible-new" onClick={() => setOverlay({ type: "new", kind })}>
-        {m.bible.newLabel[kind]}
-      </button>
+      {asOfChapter ? null : (
+        <button type="button" className="bible-new" onClick={() => setOverlay({ type: "new", kind })}>
+          {m.bible.newLabel[kind]}
+        </button>
+      )}
 
       {overlay?.type === "review" ? (
         <ReviewOverlay
@@ -266,6 +310,14 @@ export function BiblePanel() {
           onReplaceTexts={(from, to) => {
             void patchBook((current) => replaceNameInManuscript(current, from, to));
           }}
+          onClose={() => setOverlay(null)}
+        />
+      ) : null}
+
+      {overlay?.type === "asOfEntity" && openAsOfEntity && asOfChapter ? (
+        <AsOfEntityOverlay
+          entity={openAsOfEntity}
+          chapterLabel={chapterLabel(asOfChapter.id, liveChapters, m.editor.untitled)}
           onClose={() => setOverlay(null)}
         />
       ) : null}
@@ -417,6 +469,31 @@ function OverlayCard({
         {children}
       </div>
     </div>
+  );
+}
+
+function AsOfEntityOverlay({
+  entity,
+  chapterLabel: label,
+  onClose
+}: {
+  entity: BibleEntityGroup;
+  chapterLabel: string;
+  onClose: () => void;
+}) {
+  const { messages: m } = useLocale();
+  return (
+    <OverlayCard titleId={`asof-entity-${entity.entity_ref}`} title={entity.entity_label} onClose={onClose}>
+      <p className="quiet">{format(m.bible.asOfEntityLede, { chapter: label })}</p>
+      <ul className="bible-card-facts">
+        {entity.facts.map((row) => (
+          <li key={row.id} className="bible-asof-fact">
+            <span className="bible-history-predicate">{m.bible.predicates[row.predicate]}</span>
+            <span className="bible-history-value">{row.value}</span>
+          </li>
+        ))}
+      </ul>
+    </OverlayCard>
   );
 }
 

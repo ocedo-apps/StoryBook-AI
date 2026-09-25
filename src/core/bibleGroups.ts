@@ -104,9 +104,20 @@ function emptyBuckets(): Record<BibleKind, BibleEntityGroup[]> {
 }
 
 export function groupBibleEntities(facts: NarrativeFact[], kinds: EntityKind[] = []): BibleKindSection[] {
-  const live = lockedFacts(facts);
+  return groupFacts(lockedFacts(facts), kinds);
+}
+
+/**
+ * Same classify/bucket/sort as `groupBibleEntities`, but the caller has
+ * already decided which fact per entity+predicate counts — current truth
+ * (the usual case, via `groupBibleEntities`) or a past state (via
+ * `factsAsOfSequence`, roadmap-ideas.md #16). Never filters by status or
+ * supersession itself; a superseded fact the caller deliberately picked
+ * for an "as of" view still renders.
+ */
+export function groupFacts(rows: NarrativeFact[], kinds: EntityKind[] = []): BibleKindSection[] {
   const byEntity = new Map<string, NarrativeFact[]>();
-  for (const fact of live) {
+  for (const fact of rows) {
     const list = byEntity.get(fact.entity_ref) ?? [];
     list.push(fact);
     byEntity.set(fact.entity_ref, list);
@@ -114,10 +125,10 @@ export function groupBibleEntities(facts: NarrativeFact[], kinds: EntityKind[] =
 
   const buckets = emptyBuckets();
 
-  for (const [entity_ref, rows] of byEntity) {
-    const head = rows[0];
+  for (const [entity_ref, entityFacts] of byEntity) {
+    const head = entityFacts[0];
     if (!head) continue;
-    const sorted = [...rows].sort((a, b) => predicateOrder(a.predicate) - predicateOrder(b.predicate));
+    const sorted = [...entityFacts].sort((a, b) => predicateOrder(a.predicate) - predicateOrder(b.predicate));
     buckets[classifyEntity(sorted, kindOverrideFor(kinds, entity_ref))].push({
       entity_ref,
       entity_label: head.entity_label,
