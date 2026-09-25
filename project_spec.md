@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99
+Status: living document, v0.99.1
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99 → v0.99.1:** Fixade en CSS-specificitetsbugg i
+Karaktärsintervjun där texten rann utanför fönstrets kant, och byggde
+om samtalet till ett SMS-liknande utseende med avatarer, på
+författarens direkta begäran.
+
+- Root cause: `.interview-card` (som sätter `display: flex` för att
+  transkriptet ska kunna krympa och rulla internt) och `.edit-card`
+  (som sätter `display: grid`) hade samma specificitet men `.edit-card`
+  stod senare i filen, så grid-layouten vann. Utan flex-behållaren
+  ignorerade transkriptets `flex: 1 1 auto`/`overflow-y: auto` sin
+  container helt, så hela kortet växte förbi sin `max-height` med
+  standardvärdet `overflow: visible` — texten rann synligt utanför
+  kortets kant, precis som författaren beskrev och visade i en
+  skärmdump. Samma mönster som specificitetsbugen som fixades tidigare
+  för kapitel-inställningarna: löst med sammansatt selektor
+  (`.edit-card.interview-card`) istället för `.interview-card` ensamt,
+  plus `overflow: hidden` på kortet och `min-height: 0` på
+  transkriptet (den klassiska flexbox-fällan där ett flex-barn annars
+  vägrar krympa under sitt eget innehåll även med `overflow-y: auto`
+  satt).
+- Repliker visas nu som pratbubblor i par med en rund avatar — en
+  generisk personikon för författaren, karaktärens första Story
+  Bible-bild (om en finns, `picturesFor()` — samma funktion Story
+  Bible-panelen redan använder) annars en bokstavsplacerad cirkel med
+  karaktärens initial. Författarens repliker hamnar till höger,
+  karaktärens till vänster — SMS-mönstret författaren efterfrågade.
+- Verifierat i webbläsaren med ett mockat lokalt AI-svar (fyra
+  utbyten i rad, i ett medvetet lågt fönster för att stresstesta
+  buggen): kortet håller sig nu inom synligt fönster oavsett hur lång
+  konversationen blir, med korrekt rullning istället för överflöde.
+  597/597 gröna, typkontrollen ren.
 
 **Ändringslogg v0.98 → v0.99:** Utvecklingsmetoder som pluggbart
 lager (roadmap #13) — ett valbart "Development Method" (Snowflake,

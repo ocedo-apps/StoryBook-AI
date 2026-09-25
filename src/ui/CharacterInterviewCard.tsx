@@ -2,14 +2,35 @@ import { useEffect, useRef, useState } from "react";
 import type { InterviewMessage } from "@core/characterInterview";
 import { format, useLocale } from "./i18n";
 
+function CharacterAvatar({ thumb, label }: { thumb: string | undefined; label: string }) {
+  return (
+    <span className="interview-avatar" aria-hidden="true">
+      {thumb ? <img src={thumb} alt="" /> : label.trim().charAt(0).toUpperCase() || "?"}
+    </span>
+  );
+}
+
+function AuthorAvatar() {
+  return (
+    <span className="interview-avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="60%" height="60%" fill="currentColor">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" />
+      </svg>
+    </span>
+  );
+}
+
 export function CharacterInterviewCard({
   entity,
+  characterThumb,
   history,
   busy,
   onAsk,
   onClose
 }: {
   entity: { ref: string; label: string };
+  characterThumb?: string;
   history: InterviewMessage[];
   busy: boolean;
   onAsk: (question: string) => void;
@@ -52,13 +73,24 @@ export function CharacterInterviewCard({
 
         <div className="interview-transcript" ref={transcriptRef}>
           {history.length === 0 ? <p className="quiet interview-empty">{format(m.interview.empty, { name: entity.label })}</p> : null}
-          {history.map((turn, index) => (
-            <p key={index} className={turn.role === "user" ? "interview-turn is-author" : "interview-turn is-character"}>
-              <span className="interview-turn-label">{turn.role === "user" ? m.interview.you : entity.label}</span>
-              {turn.content}
-            </p>
-          ))}
-          {busy ? <p className="quiet interview-pending">{format(m.interview.thinking, { name: entity.label })}</p> : null}
+          {history.map((turn, index) => {
+            const isAuthor = turn.role === "user";
+            return (
+              <div key={index} className={isAuthor ? "interview-row is-author" : "interview-row is-character"}>
+                {isAuthor ? <AuthorAvatar /> : <CharacterAvatar thumb={characterThumb} label={entity.label} />}
+                <p className="interview-turn">
+                  <span className="interview-turn-label">{isAuthor ? m.interview.you : entity.label}</span>
+                  {turn.content}
+                </p>
+              </div>
+            );
+          })}
+          {busy ? (
+            <div className="interview-row is-character">
+              <CharacterAvatar thumb={characterThumb} label={entity.label} />
+              <p className="quiet interview-pending">{format(m.interview.thinking, { name: entity.label })}</p>
+            </div>
+          ) : null}
         </div>
 
         <form

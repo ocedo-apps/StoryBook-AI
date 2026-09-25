@@ -2110,11 +2110,12 @@ button:disabled {
   overflow: auto;
 }
 
-.interview-card {
+.edit-card.interview-card {
   width: min(34rem, 100%);
   max-height: min(90vh, 44rem);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .interview-transcript {
@@ -2125,7 +2126,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  min-height: 6rem;
+  min-height: 0;
 }
 
 .interview-empty {
@@ -2133,12 +2134,50 @@ button:disabled {
   text-align: center;
 }
 
+.interview-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.interview-row.is-author {
+  justify-content: flex-end;
+}
+
+.interview-row.is-character {
+  justify-content: flex-start;
+}
+
+.interview-avatar {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--raised);
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.interview-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .interview-turn {
   margin: 0;
   padding: 0.5rem 0.7rem;
   border-radius: 8px;
-  max-width: 85%;
+  max-width: 100%;
+  min-width: 0;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .interview-turn-label {
@@ -2151,17 +2190,14 @@ button:disabled {
 }
 
 .interview-turn.is-author {
-  align-self: flex-end;
   background: var(--raised);
 }
 
 .interview-turn.is-character {
-  align-self: flex-start;
   background: var(--tic-mark);
 }
 
 .interview-pending {
-  align-self: flex-start;
   font-style: italic;
 }
 
@@ -2169,6 +2205,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 0 0 auto;
 }
 
 .interview-form textarea {

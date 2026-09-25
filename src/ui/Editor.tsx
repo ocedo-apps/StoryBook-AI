@@ -64,6 +64,7 @@ import {
   type ReaderCategory
 } from "@core/reader";
 import { selectedText } from "@core/textSpan";
+import { picturesFor } from "@core/entityMedia";
 import { useIllustrationStyles } from "./useIllustrationStyles";
 import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
 import { AskManuscriptPanel } from "./AskManuscript";
@@ -388,6 +389,7 @@ export function Editor() {
   const names = entityLabels(book.facts, book.entity_kinds);
   const nameLinks = entityRefsAndLabels(book.facts, book.entity_kinds);
   const [openEntitySignal, setOpenEntitySignal] = useState<{ ref: string } | null>(null);
+  const interviewThumb = store.interviewEntity ? picturesFor(book.media, store.interviewEntity.ref)[0]?.thumbDataUrl : undefined;
   const pageText =
     onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? ""
@@ -1536,6 +1538,7 @@ export function Editor() {
       {store.interviewEntity ? (
         <CharacterInterviewCard
           entity={store.interviewEntity}
+          {...(interviewThumb !== undefined ? { characterThumb: interviewThumb } : {})}
           history={store.interviewHistory}
           busy={busy === "interview"}
           onAsk={(question) => void store.askCharacter(question)}
