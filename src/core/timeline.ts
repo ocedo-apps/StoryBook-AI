@@ -45,6 +45,16 @@ export function timelineEntries(book: Book): TimelineEntry[] {
 }
 
 /**
+ * chapterId -> storyTimeRank, for callers that need to compare two
+ * chapters' story-time positions (e.g. "was this fact established before
+ * or after the chapter I'm now writing, in story time") without pulling in
+ * the rest of `timelineEntries()`'s output.
+ */
+export function storyTimeRankByChapterId(book: Book): Map<string, number> {
+  return new Map(timelineEntries(book).map((entry) => [entry.chapterId, entry.storyTimeRank]));
+}
+
+/**
  * Swaps a chapter with its story-time neighbor and reassigns every live
  * chapter's `story_time_order` to a fresh, consistent 0..N-1 ranking —
  * the only place that field is ever written.

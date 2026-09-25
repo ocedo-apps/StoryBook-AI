@@ -62,18 +62,31 @@ export function bookFactChains(facts: NarrativeFact[]): FactHistoryChain[] {
 }
 
 /**
- * Each entity's locked facts as they stood at a given manuscript position —
- * the latest entry in each chain established at or before `sequenceIndex`.
- * A chain with nothing yet established by that point is left out entirely,
- * matching what a reader (or the author, mid-draft) would actually know by
- * then rather than the book's final, current truth.
+ * Each entity's locked facts as they stood by a given point in STORY time
+ * (roadmap-ideas.md #24, not reading order — a flashback chapter shouldn't
+ * "know" something that's only established later on the story's own
+ * clock) — the latest entry in each chain established at or before
+ * `asOfRank`. A chain with nothing yet established by that point is left
+ * out entirely, matching what a reader (or the author, mid-draft) would
+ * actually know by then rather than the book's final, current truth.
+ *
+ * `chapterStoryTimeRank` is chapter id -> story-time rank, from
+ * `storyTimeRankByChapterId()` in `timeline.ts`. A fact with no
+ * `chapter_id`, or one from a chapter missing from that map (deleted or
+ * discarded), has no story-time position to judge — there's nothing to
+ * compare against, so it's always included rather than silently dropped.
  */
-export function factsAsOfSequence(facts: NarrativeFact[], sequenceIndex: number): NarrativeFact[] {
+export function factsAsOfSequence(
+  facts: NarrativeFact[],
+  chapterStoryTimeRank: Map<string, number>,
+  asOfRank: number
+): NarrativeFact[] {
   const result: NarrativeFact[] = [];
   for (const chain of bookFactChains(facts)) {
     let picked: NarrativeFact | undefined;
     for (const entry of chain.entries) {
-      if (entry.sequence_index <= sequenceIndex) picked = entry;
+      const rank = entry.chapter_id ? chapterStoryTimeRank.get(entry.chapter_id) : undefined;
+      if (rank === undefined || rank <= asOfRank) picked = entry;
     }
     if (picked) result.push(picked);
   }

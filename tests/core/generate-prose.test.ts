@@ -265,6 +265,95 @@ describe("draftUserPrompt", () => {
   });
 });
 
+describe("position-aware Story Bible in Draft (roadmap-ideas.md #24)", () => {
+  function bookWithTwoChapters() {
+    let book = createBook("The Salt Road");
+    book = addChapter(book);
+    const [first, second] = book.chapters;
+    return { book, firstId: first!.id, secondId: second!.id };
+  }
+
+  function fact(overrides: Partial<import("@core/NarrativeFact").NarrativeFact> & { id: string; chapter_id: string }) {
+    return {
+      entity_ref: "emma",
+      entity_label: "Emma",
+      predicate: "core.identity" as const,
+      value: "Bartender at the Aurora Room",
+      sequence_index: 0,
+      status: "locked" as const,
+      source: "author" as const,
+      created_at: "2026-09-14T00:00:00.000Z",
+      ...overrides
+    };
+  }
+
+  it("omits a fact established in a chapter that's later in story time", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withFact = { ...book, facts: [fact({ id: "1", chapter_id: secondId, value: "The captain confesses" })] };
+    const firstChapter = withFact.chapters.find((c) => c.id === firstId)!;
+    expect(draftUserPrompt(withFact, firstChapter)).not.toContain("The captain confesses");
+  });
+
+  it("includes a fact established in the same or an earlier chapter, in story time", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withFact = { ...book, facts: [fact({ id: "1", chapter_id: firstId, value: "The captain confesses" })] };
+    const secondChapter = withFact.chapters.find((c) => c.id === secondId)!;
+    expect(draftUserPrompt(withFact, secondChapter)).toContain("The captain confesses");
+  });
+
+  it("goes by story time, not reading order, once a chapter is moved on the Timeline", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    // secondId now happens FIRST in story time (a flashback structure).
+    const reordered = {
+      ...book,
+      chapters: book.chapters.map((c) =>
+        c.id === firstId ? { ...c, story_time_order: 1 } : c.id === secondId ? { ...c, story_time_order: 0 } : c
+      ),
+      facts: [fact({ id: "1", chapter_id: firstId, value: "The captain confesses" })]
+    };
+    const secondChapter = reordered.chapters.find((c) => c.id === secondId)!;
+    // secondId reads later but happens FIRST in story time — it shouldn't know a fact established in firstId.
+    expect(draftUserPrompt(reordered, secondChapter)).not.toContain("The captain confesses");
+  });
+
+  it("position_override include forces a later fact in anyway", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withFact = {
+      ...book,
+      facts: [fact({ id: "1", chapter_id: secondId, value: "The captain confesses", position_override: "include" })]
+    };
+    const firstChapter = withFact.chapters.find((c) => c.id === firstId)!;
+    expect(draftUserPrompt(withFact, firstChapter)).toContain("The captain confesses");
+  });
+
+  it("position_override exclude keeps an earlier fact out anyway", () => {
+    const { book, firstId } = bookWithTwoChapters();
+    const withFact = {
+      ...book,
+      facts: [fact({ id: "1", chapter_id: firstId, value: "The captain confesses", position_override: "exclude" })]
+    };
+    const firstChapter = withFact.chapters.find((c) => c.id === firstId)!;
+    expect(draftUserPrompt(withFact, firstChapter)).not.toContain("The captain confesses");
+  });
+
+  it("draftSceneUserPrompt is position-aware too", () => {
+    const { book, chapterId } = splitBook();
+    let withSecond = addChapter(book);
+    const secondId = withSecond.chapters[1]!.id;
+    withSecond = { ...withSecond, facts: [fact({ id: "1", chapter_id: secondId, value: "The captain confesses" })] };
+    const firstChapter = withSecond.chapters.find((c) => c.id === chapterId)!;
+    expect(draftSceneUserPrompt(withSecond, firstChapter, "s1")).not.toContain("The captain confesses");
+  });
+
+  it("recastUserPrompt is NOT position-filtered — it works with prose that already exists", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    let withProse = { ...book, facts: [fact({ id: "1", chapter_id: secondId, value: "The captain confesses" })] };
+    withProse = { ...withProse, chapters: withProse.chapters.map((c) => (c.id === firstId ? { ...c, prose: "Dawn." } : c)) };
+    const firstChapter = withProse.chapters.find((c) => c.id === firstId)!;
+    expect(recastUserPrompt(withProse, firstChapter)).toContain("The captain confesses");
+  });
+});
+
 describe("resolveVoice", () => {
   it("prefers the chapter field and treats missing as manuscript", () => {
     expect(resolveVoice({ voice: "Dry" }, {})).toBe("Dry");

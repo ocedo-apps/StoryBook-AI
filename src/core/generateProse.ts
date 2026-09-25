@@ -6,7 +6,9 @@ import { sortedChapters } from "./BookSchema";
 import { chapterScenes } from "./bookScene";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
 import { formatReaderForPrompt, resolveReader } from "./reader";
-import { visibleLockedFacts } from "./visibility";
+import { storyTimeRankByChapterId } from "./timeline";
+import { visibleLockedFacts, visibleLockedFactsAtPosition } from "./visibility";
+import type { NarrativeFact } from "./NarrativeFact";
 
 function sceneTail(prose: string): string {
   return prose.trim().split(/\n+/).slice(-3).join("\n");
@@ -36,16 +38,41 @@ export function formatLanguageForPrompt(language: string): string {
   return `Prose language: ${name}. Write in this language. Do not switch because a fact, a name, or the interface is in another.`;
 }
 
-export function formatBibleForPrompt(
-  book: Book,
-  empty = "No established facts yet. You may introduce named people and places if the brief asks for them. Do not invent a secret history."
-): string {
-  const rows = visibleLockedFacts(book.facts, book.hidden_entities);
+const DEFAULT_EMPTY_BIBLE =
+  "No established facts yet. You may introduce named people and places if the brief asks for them. Do not invent a secret history.";
+
+function renderBibleRows(rows: NarrativeFact[], book: Book, empty: string): string {
   const body =
     rows.length === 0
       ? empty
       : rows.map((fact) => `- ${fact.entity_label} · ${PREDICATE_LABELS[fact.predicate]}: ${fact.value}`).join("\n");
   return withCharacterProfiles(body, book.facts, book.profiles, book.hidden_entities);
+}
+
+export function formatBibleForPrompt(book: Book, empty = DEFAULT_EMPTY_BIBLE): string {
+  return renderBibleRows(visibleLockedFacts(book.facts, book.hidden_entities), book, empty);
+}
+
+/**
+ * `formatBibleForPrompt`, narrowed to facts established by this chapter's
+ * position in STORY time (roadmap-ideas.md #24) — what Draft alone uses,
+ * since generating new prose for a chapter shouldn't draw on facts that,
+ * on the story's own clock, haven't happened yet from that chapter's point
+ * of view. Recast, Proofread, Analyze, and Brainstorm still see the whole
+ * Story Bible via `formatBibleForPrompt` above: they work with prose (or
+ * notes) that already exist, not with what a chapter is "allowed" to know
+ * yet. Falls back to the full Story Bible if this chapter has no resolvable
+ * story-time position (shouldn't happen for a live chapter, but never
+ * silently drop facts over it).
+ */
+export function formatBibleForPromptAtPosition(book: Book, chapter: Chapter, empty = DEFAULT_EMPTY_BIBLE): string {
+  const ranks = storyTimeRankByChapterId(book);
+  const atRank = ranks.get(chapter.id);
+  const rows =
+    atRank === undefined
+      ? visibleLockedFacts(book.facts, book.hidden_entities)
+      : visibleLockedFactsAtPosition(book.facts, book.hidden_entities, ranks, atRank);
+  return renderBibleRows(rows, book, empty);
 }
 
 export const DRAFT_SYSTEM = `You are a novelist drafting one chapter of literary prose.
@@ -73,7 +100,7 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
     book.synopsis.trim()
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
-    `Story Bible:\n${formatBibleForPrompt(book)}`,
+    `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "No brief. Continue the story naturally.",
     predecessorBlock,
@@ -116,7 +143,7 @@ export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: stri
     book.synopsis.trim()
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
-    `Story Bible:\n${formatBibleForPrompt(book)}`,
+    `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
     `You are drafting scene ${index + 1} of ${scenes.length} in this chapter.`,

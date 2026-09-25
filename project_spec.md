@@ -1,9 +1,42 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.24
+Status: living document, v0.99.25
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.24 → v0.99.25:** Positionsmedvetna Story
+Bible-fakta (roadmap #24) — författaren svarade ja på alla tre öppna
+frågor, tre av fyra delar byggda.
+
+- **Grundfixet**: ny `storyTimeRankByChapterId()` i `timeline.ts`.
+  `knowledgeLeaksForChapter` (Continuity) och `factsAsOfSequence`
+  ("Visa Story Bible som den var vid") går nu efter `story_time_order`
+  istället för lässordning — en flashback-struktur (kapitel som läses
+  senare men händer tidigare i berättelsen) hanteras nu rätt i båda.
+  `factsAsOfSequence` bytte signatur (tar en rank-karta + målposition
+  istället för en rå sequence_index) eftersom en fakta bara har en
+  frusen lässordningsstämpel, inte en story-tidsposition — den måste
+  slås upp via `chapter_id`.
+- **Skriv utkast blir positionsmedveten**: ny
+  `formatBibleForPromptAtPosition()` i `generateProse.ts`, används av
+  Draft (kapitel och scen) — bara fakta som story-tidsmässigt redan
+  hänt vid det kapitlet skickas till modellen. Recast, Proofread,
+  Analysera och Brainstorm rör jag inte — de jobbar med text som redan
+  finns, inte med vad ett kapitel "får" veta än.
+- **Säkerhetsventilen**: nytt fält `position_override` per fakta
+  (`"include"`/`"exclude"`, `NarrativeFact.ts`). Ny knapp i Story
+  Bible-kortet bredvid "Dölj"/"Redigera" — Auto → Alltid med → Aldrig
+  med → Auto, ett klick i taget. Vinner alltid över den automatiska
+  story-tidsgissningen, för när den gissar fel.
+- Kvar: permanent synlig understrykning i prosan för fakta-
+  omnämnanden (fråga 2) — dokumenterat i roadmap-ideas.md som nästa
+  steg, inte byggt än.
+- 615/615 gröna (15 nya tester: story-tids-flashback-scenarier för
+  Continuity och "as of"-vyn, positionsfiltrering i Draft, override-
+  cykeln). Verifierat i webbläsaren: låste en fakta, klickade
+  override-knappen genom alla tre lägen, och bekräftade att "Visa
+  Story Bible som den var vid"-vyn fortfarande fungerar end-to-end.
 
 **Ändringslogg v0.99.23 → v0.99.24:** Två separata orsaker till samma
 klagomål — författaren märkte att vissa manus (t.ex. "the trio") alltid

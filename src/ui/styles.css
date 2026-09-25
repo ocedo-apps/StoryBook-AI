@@ -3393,6 +3393,11 @@ button:disabled {
   color: var(--text-faint);
 }
 
+.bible-position.is-set {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .bible-name-thumb {
   width: 1.75rem;
   height: 1.75rem;

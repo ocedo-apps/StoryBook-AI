@@ -34,7 +34,8 @@ import {
 } from "@core/entityMedia";
 import { sortedChapters, touch, type Chapter } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
-import { entityIsHidden, setFactHidden, toggleHiddenEntity } from "@core/visibility";
+import { storyTimeRankByChapterId } from "@core/timeline";
+import { entityIsHidden, nextPositionOverride, setFactHidden, setFactPositionOverride, toggleHiddenEntity } from "@core/visibility";
 import { count, format, useLocale } from "./i18n";
 import { picturesFromFile, EntityImageError } from "./entityImage";
 import { downloadJson } from "./downloadJson";
@@ -78,13 +79,13 @@ export function BiblePanel({
   const sections = useMemo(() => (book ? groupBibleEntities(book.facts, book.entity_kinds) : []), [book]);
   const liveChapters = useMemo(() => (book ? sortedChapters(book) : []), [book]);
   const asOfChapter = asOfChapterId ? liveChapters.find((item) => item.id === asOfChapterId) : undefined;
-  const displaySections = useMemo(
-    () =>
-      book && asOfChapter
-        ? groupFacts(factsAsOfSequence(book.facts, asOfChapter.sequence_index), book.entity_kinds)
-        : sections,
-    [book, asOfChapter, sections]
-  );
+  const storyTimeRanks = useMemo(() => (book ? storyTimeRankByChapterId(book) : new Map<string, number>()), [book]);
+  const displaySections = useMemo(() => {
+    const asOfRank = asOfChapter ? storyTimeRanks.get(asOfChapter.id) : undefined;
+    return book && asOfChapter && asOfRank !== undefined
+      ? groupFacts(factsAsOfSequence(book.facts, storyTimeRanks, asOfRank), book.entity_kinds)
+      : sections;
+  }, [book, asOfChapter, storyTimeRanks, sections]);
   const pending = book ? activeFacts(book.facts).filter((fact) => fact.status !== "locked") : [];
   const flagged = pending.some((fact) => fact.status === "flagged" && !fact.is_merge_suggestion);
   const canExportCards = sections.some(
@@ -298,6 +299,11 @@ export function BiblePanel({
           }
           onToggleFactHidden={(id, hidden) =>
             void patchBook((current) => touch(current, { facts: setFactHidden(current.facts, id, hidden) }))
+          }
+          onCycleFactPositionOverride={(id, current) =>
+            void patchBook((book) =>
+              touch(book, { facts: setFactPositionOverride(book.facts, id, nextPositionOverride(current)) })
+            )
           }
           onKind={(kind) =>
             void patchBook((current) =>
@@ -575,6 +581,7 @@ function EntityOverlay({
   onSave,
   onToggleHidden,
   onToggleFactHidden,
+  onCycleFactPositionOverride,
   onKind,
   onProfile,
   onAddPicture,
@@ -597,6 +604,7 @@ function EntityOverlay({
   onSave: (factId: string, value: string) => void;
   onToggleHidden: () => void;
   onToggleFactHidden: (factId: string, hidden: boolean) => void;
+  onCycleFactPositionOverride: (factId: string, current: "include" | "exclude" | undefined) => void;
   onKind: (kind: BibleKind) => void;
   onProfile: (next: CharacterProfileInput) => void;
   onAddPicture: (file: File) => Promise<void>;
@@ -729,6 +737,7 @@ function EntityOverlay({
             fact={row}
             onSave={(next) => onSave(row.id, next)}
             onToggleHidden={() => onToggleFactHidden(row.id, row.hidden_from_ai !== true)}
+            onCyclePositionOverride={() => onCycleFactPositionOverride(row.id, row.position_override)}
           />
         ))}
       </ul>
@@ -1088,16 +1097,33 @@ function PendingFact({
 function LockedFact({
   fact,
   onSave,
-  onToggleHidden
+  onToggleHidden,
+  onCyclePositionOverride
 }: {
-  fact: { id: string; predicate: CorePredicate; value: string; hidden_from_ai?: boolean | undefined };
+  fact: {
+    id: string;
+    predicate: CorePredicate;
+    value: string;
+    hidden_from_ai?: boolean | undefined;
+    position_override?: "include" | "exclude" | undefined;
+  };
   onSave: (value: string) => void;
   onToggleHidden: () => void;
+  onCyclePositionOverride: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(fact.value);
   const hidden = fact.hidden_from_ai === true;
   const { messages: m } = useLocale();
+  const override = fact.position_override;
+  const overrideLabel =
+    override === "include" ? m.bible.positionOverrideInclude : override === "exclude" ? m.bible.positionOverrideExclude : m.bible.positionOverrideAuto;
+  const overrideAriaLabel =
+    override === "include"
+      ? m.bible.positionOverrideToExclude
+      : override === "exclude"
+        ? m.bible.positionOverrideToAuto
+        : m.bible.positionOverrideToInclude;
 
   function save() {
     if (!draft.trim()) return;
@@ -1111,6 +1137,15 @@ function LockedFact({
         <span className="pred">{m.bible.predicates[fact.predicate]}</span>
         {fact.value}
         <div className="fact-actions">
+          <button
+            type="button"
+            className={override ? "text-button bible-position is-set" : "text-button bible-position"}
+            aria-label={overrideAriaLabel}
+            title={overrideAriaLabel}
+            onClick={onCyclePositionOverride}
+          >
+            {overrideLabel}
+          </button>
           <button
             type="button"
             className={hidden ? "text-button bible-vis is-hidden" : "text-button bible-vis"}

@@ -38,6 +38,15 @@ export const NarrativeFactSchema = z.object({
    */
   hidden_from_ai: z.boolean().optional(),
   /**
+   * Manual override for Draft's automatic story-time position filter
+   * (roadmap-ideas.md #24): "include" always shows this fact to Draft
+   * regardless of chapter position, "exclude" always hides it. Missing
+   * (the common case) leaves the automatic story-time guess in charge —
+   * this is the safety valve for when that guess is wrong, not a
+   * replacement for it.
+   */
+  position_override: z.enum(["include", "exclude"]).optional(),
+  /**
    * True when this flagged row is a near-duplicate of `conflict_with`
    * (e.g. "captain" vs "captain on a space ship") rather than a genuine
    * contradiction — the review UI offers "Merge" instead of "pick a side".

@@ -94,4 +94,16 @@ describe("knowledgeLeaksForChapter", () => {
     const book = bookWithChapters(["One"]);
     expect(knowledgeLeaksForChapter(book, "missing")).toEqual([]);
   });
+
+  it("goes by story time, not reading order, when a chapter was moved on the Timeline", () => {
+    // ch2 reads second but happens FIRST in story time (a flashback structure).
+    const book = bookWithChapters(["One", "Two"]);
+    book.chapters[0] = { ...book.chapters[0]!, story_time_order: 1 }; // "One" happens second in story time
+    book.chapters[1] = { ...book.chapters[1]!, story_time_order: 0 }; // "Two" happens first in story time
+    book.facts = [fact({ id: "f1", chapter_id: "ch1" })]; // established while writing "One"
+    // "One" happens later in story time than "Two" — writing "Two" knowing this fact would be a real leak.
+    expect(knowledgeLeaksForChapter(book, "ch2")).toHaveLength(1);
+    // Reopening "One" itself is never a leak against its own facts.
+    expect(knowledgeLeaksForChapter(book, "ch1")).toHaveLength(0);
+  });
 });

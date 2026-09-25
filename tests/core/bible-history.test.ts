@@ -106,30 +106,55 @@ describe("bookFactChains", () => {
 });
 
 describe("factsAsOfSequence", () => {
-  it("picks the value that was true at a given manuscript position, not the final one", () => {
+  // chapterId -> story-time rank, as storyTimeRankByChapterId() in timeline.ts would build it.
+  const ranks = new Map([
+    ["ch1", 0],
+    ["ch2", 1],
+    ["ch3", 2]
+  ]);
+
+  it("picks the value that was true at a given story-time position, not the final one", () => {
     const facts: NarrativeFact[] = [
-      fact({ id: "a", value: "journalist", predicate: "core.identity", sequence_index: 0, superseded_by: "b" }),
-      fact({ id: "b", value: "unemployed", predicate: "core.identity", sequence_index: 3, superseded_by: "c" }),
-      fact({ id: "c", value: "editor", predicate: "core.identity", sequence_index: 8 })
+      fact({ id: "a", value: "journalist", predicate: "core.identity", chapter_id: "ch1", superseded_by: "b" }),
+      fact({ id: "b", value: "unemployed", predicate: "core.identity", chapter_id: "ch2", superseded_by: "c" }),
+      fact({ id: "c", value: "editor", predicate: "core.identity", chapter_id: "ch3" })
     ];
-    expect(factsAsOfSequence(facts, 1).map((f) => f.value)).toEqual(["journalist"]);
-    expect(factsAsOfSequence(facts, 3).map((f) => f.value)).toEqual(["unemployed"]);
-    expect(factsAsOfSequence(facts, 8).map((f) => f.value)).toEqual(["editor"]);
+    expect(factsAsOfSequence(facts, ranks, 0).map((f) => f.value)).toEqual(["journalist"]);
+    expect(factsAsOfSequence(facts, ranks, 1).map((f) => f.value)).toEqual(["unemployed"]);
+    expect(factsAsOfSequence(facts, ranks, 2).map((f) => f.value)).toEqual(["editor"]);
   });
 
-  it("omits a fact that had not been established yet at that point", () => {
-    const facts: NarrativeFact[] = [fact({ id: "a", value: "a locked room", predicate: "core.place", sequence_index: 5 })];
-    expect(factsAsOfSequence(facts, 4)).toEqual([]);
-    expect(factsAsOfSequence(facts, 5)).toHaveLength(1);
+  it("omits a fact that had not been established yet at that story-time point", () => {
+    const facts: NarrativeFact[] = [fact({ id: "a", value: "a locked room", predicate: "core.place", chapter_id: "ch3" })];
+    expect(factsAsOfSequence(facts, ranks, 1)).toEqual([]);
+    expect(factsAsOfSequence(facts, ranks, 2)).toHaveLength(1);
   });
 
   it("keeps independent chains for different entities and predicates separate", () => {
     const facts: NarrativeFact[] = [
-      fact({ id: "a", value: "brave", entity_ref: "henrik", predicate: "core.trait", sequence_index: 0 }),
-      fact({ id: "b", value: "loyal", entity_ref: "henrik", predicate: "core.relationship", sequence_index: 2 }),
-      fact({ id: "c", value: "cunning", entity_ref: "lena", predicate: "core.trait", sequence_index: 1 })
+      fact({ id: "a", value: "brave", entity_ref: "henrik", predicate: "core.trait", chapter_id: "ch1" }),
+      fact({ id: "b", value: "loyal", entity_ref: "henrik", predicate: "core.relationship", chapter_id: "ch3" }),
+      fact({ id: "c", value: "cunning", entity_ref: "lena", predicate: "core.trait", chapter_id: "ch2" })
     ];
-    const asOf = factsAsOfSequence(facts, 1);
+    const asOf = factsAsOfSequence(facts, ranks, 1);
     expect(asOf.map((f) => f.id).sort()).toEqual(["a", "c"]);
+  });
+
+  it("goes by story time, not reading order, when a chapter was moved on the Timeline", () => {
+    // ch2 reads second but happens FIRST in story time (a flashback structure) — sequence_index still says 1,
+    // but its story-time rank (0) is what factsAsOfSequence must respect.
+    const flashbackRanks = new Map([
+      ["ch1", 1],
+      ["ch2", 0]
+    ]);
+    const facts: NarrativeFact[] = [fact({ id: "a", value: "the scar", predicate: "core.trait", chapter_id: "ch1", sequence_index: 0 })];
+    // Established in ch1 (story-time rank 1) — not yet known as of ch2 (story-time rank 0), even though ch1 reads first.
+    expect(factsAsOfSequence(facts, flashbackRanks, 0)).toEqual([]);
+    expect(factsAsOfSequence(facts, flashbackRanks, 1)).toHaveLength(1);
+  });
+
+  it("always includes a fact with no chapter_id — nothing to place on the story-time clock", () => {
+    const facts: NarrativeFact[] = [fact({ id: "a", value: "general worldbuilding", predicate: "core.place" })];
+    expect(factsAsOfSequence(facts, ranks, 0)).toHaveLength(1);
   });
 });
