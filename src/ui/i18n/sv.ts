@@ -429,22 +429,29 @@ export const sv: Messages = {
     closeAction: "Stäng",
     fromErrorLink: "Se snabbstartsguiden",
     helpFor: "Guide: {topic}",
-    quickstartHeading: "Snabbstart",
+    quickstartHeading: "Kom igång med en lokal AI",
+    quickstartCards: [
+      {
+        heading: "Installera en lokal AI-server",
+        body: "Har du inte redan en installerad rekommenderar vi Ollama — gratis, från ollama.com. Föredrar du något annat? LM Studio eller en annan lokal server fungerar också."
+      },
+      {
+        heading: "Välj din AI-modell",
+        body: "AI-modellen är det som faktiskt skriver och resonerar med dig. Vi rekommenderar en modell tränad för skönlitterär prosa, till exempel fluffy/l3-8b-stheno-v3.2 (sök efter \"stheno\" i Ollama). Annars fungerar vilken allmän chattmodell som helst — till exempel llama3 eller mistral."
+      },
+      {
+        heading: "Koppla den till StoryBook AI",
+        body: "Kör du Ollama? Inget att ställa in — StoryBook AI hittar den automatiskt. Kör du LM Studio eller en annan server istället? Öppna Inställningar → Modeller, välj den under Motor, och klistra in serveradressen den visar dig."
+      }
+    ],
+    quickstartStepsHeading: "Så jobbar du med StoryBook AI",
     quickstartSteps: [
       {
-        heading: "1. Installera en lokal modell",
-        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — den visar ett bibliotek att välja från. Vi rekommenderar varmt en modell tränad för skönlitterär prosa, till exempel fluffy/l3-8b-stheno-v3.2 (sök efter \"stheno\" i Ollama). Annars fungerar vilken allmän chattmodell som helst för att börja (t.ex. llama3 eller mistral — några gigabyte att ladda ner, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
-      },
-      {
-        heading: "2. Peka StoryBook AI mot den",
-        body: "Inget att ställa in om du använde Ollama — StoryBook AI hittar den automatiskt på din dator. Kör du LM Studio eller en annan lokal server istället? Öppna Inställningar → Modeller, välj den under Motor, och klistra in serveradressen den visar dig."
-      },
-      {
-        heading: "3. Starta ditt manus",
+        heading: "1. Starta ditt manus",
         body: "En titel räcker. Öppna det, så hamnar du här — i Brainstorm så fort du har idéer, men först: ett privat skissutrymme utan något att ställa in än."
       },
       {
-        heading: "4. Skriv",
+        heading: "2. Skriv",
         body: "Dra de idéer som är klara till Synopsis — formen på hela berättelsen. Öppna sen ett kapitel och tryck Skriv utkast: modellen skriver utifrån ditt Synopsis, din Story Bible och kapitlets egen instruktion. Inget den skriver blir låst sanning förrän du säger till — skriv om det, byt kamera, eller be om en analys när som helst."
       }
     ],

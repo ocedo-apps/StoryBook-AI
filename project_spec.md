@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.10
+Status: living document, v0.99.11
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.10 → v0.99.11:** Snabbstarten i Guiden byggd om
+till ett kortlägge, efter författarens egen mockup och design-review
+i förra rundan.
+
+- "Kom igång med en lokal AI" blev tre kort (Installera en lokal
+  AI-server / Välj din AI-modell / Koppla den till StoryBook AI) —
+  tidigare var detta två hopklämda textstycken. Rättade samtidigt de
+  problem som identifierades i mockupen: LM Studio blandades ihop med
+  en chattmodell (det är en server, precis som Ollama, inte en
+  modell) i författarens utkast — separerat till rätt kort nu.
+- Nya ikoner: tre minimala linje-SVG:er (nedladdning, gnista, kedjelänk)
+  i cirkulära märken med samma indragna kant-stil som "?"-hjälpknapparna
+  redan använder, färgade med `--ink` (samma rostorange som appens
+  primärknappar). Inga platshållar-clipart-ikoner — bara enkla streck,
+  konsekvent med loggans handtecknade känsla.
+- "Så jobbar du med StoryBook AI" (de gamla stegen 3–4, "Starta ditt
+  manus" / "Skriv") flyttades till en egen rubrik under korten och
+  omnumrerades till 1–2, eftersom de nu är ett eget litet flöde
+  snarare än en fortsättning på kortens numrering.
+- Layout på författarens begäran: stegen under korten begränsas till
+  bredden av två kort (`grid-column: span 2` i samma
+  tre-kolumners-rutnät som korten ovanför), så den tredje kolumnens
+  yta lämnas tom till höger — reserverad för framtida bilder/
+  illustrationer om det känns värt att lägga till senare.
+- Datamodellen delades: `guide.quickstartSteps` (4 poster) blev
+  `guide.quickstartCards` (3, nya) + `guide.quickstartSteps` (2,
+  omnumrerade) i alla tre språkfiler, plus en ny
+  `guide.quickstartStepsHeading`-sträng.
+- 597/597 gröna. Verifierat i webbläsaren i båda teman, både i
+  Hem-sidans guide-overlay och Editorns fullsideguide.
 
 **Ändringslogg v0.99.9 → v0.99.10:** Fixade en skrollbugg författaren
 upptäckte: långt innehåll i mittenytan (t.ex. hela Guiden) fick HELA

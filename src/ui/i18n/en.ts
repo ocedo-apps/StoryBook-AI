@@ -428,22 +428,29 @@ export const en = {
     closeAction: "Close",
     fromErrorLink: "See the quickstart guide",
     helpFor: "Guide: {topic}",
-    quickstartHeading: "Quickstart",
+    quickstartHeading: "Getting started with a local AI",
+    quickstartCards: [
+      {
+        heading: "Install a local AI server",
+        body: "If you don't already have one, we recommend Ollama — free, from ollama.com. Prefer something else? LM Studio or another local server works too."
+      },
+      {
+        heading: "Choose your AI model",
+        body: "The AI model is what actually writes and reasons with you. We recommend one tuned for fiction, for example fluffy/l3-8b-stheno-v3.2 (search for \"stheno\" in Ollama). Otherwise, any general chat model works — for example llama3 or mistral."
+      },
+      {
+        heading: "Connect it to StoryBook AI",
+        body: "Using Ollama? Nothing to configure — StoryBook AI finds it automatically. Using LM Studio or another server instead? Open Settings → Models, choose it under Engine, and paste the server address it shows you."
+      }
+    ],
+    quickstartStepsHeading: "How you work with StoryBook AI",
     quickstartSteps: [
       {
-        heading: "1. Install a local model",
-        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — it will show you a library to pick from. We warmly recommend a model tuned for fiction, for example fluffy/l3-8b-stheno-v3.2 (search for \"stheno\" in Ollama). Otherwise, any general chat model works to start (for example llama3 or mistral — a few gigabytes to download, once). Prefer LM Studio or another local server instead? That works too — see the next step."
-      },
-      {
-        heading: "2. Point StoryBook AI at it",
-        body: "Nothing to configure if you used Ollama — StoryBook AI finds it automatically on your computer. Using LM Studio or another local server instead? Open Settings → Models, choose it under Engine, and paste the server address it shows you."
-      },
-      {
-        heading: "3. Start your manuscript",
+        heading: "1. Start your manuscript",
         body: "A title is all it takes. Open it, and you land here — in Brainstorm once you have ideas, but first: a private scratch space with nothing to configure yet."
       },
       {
-        heading: "4. Write",
+        heading: "2. Write",
         body: "Drag the ideas that are ready into Synopsis — the shape of the whole story. Then open a chapter and press Draft: the model writes from your Synopsis, your Story Bible, and that chapter's own brief. Nothing it writes is locked truth until you say so — rewrite it, recast the camera, or ask for an analysis pass any time."
       }
     ],

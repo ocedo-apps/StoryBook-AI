@@ -4560,6 +4560,51 @@ button.illustration-genre-item:focus-visible {
   padding-left: 0.2rem;
 }
 
+.guide-quickstart-block {
+  max-width: 60rem;
+}
+
+.guide-quickstart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.guide-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--raised);
+}
+
+.guide-card-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+
+.guide-card-icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.guide-steps-heading {
+  margin-top: 1.6rem;
+}
+
+.guide-quickstart-steps {
+  grid-column: span 2;
+}
+
 .guide-sections {
   display: grid;
   gap: 1rem;
