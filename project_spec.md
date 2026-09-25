@@ -1,9 +1,27 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.11
+Status: living document, v0.99.12
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.11 → v0.99.12:** Gjorde guide-korten 50% bredare,
+på författarens begäran.
+
+- Mätte innan jag gissade: bara vidga behållarens `max-width`-tak
+  (60rem → 90rem) gav knappt märkbar skillnad (+3%) eftersom taket
+  aldrig var den faktiska begränsningen — de fasta 23.25rem-breda
+  sidopanelerna på ömse sidor äter redan det mesta av utrymmet på
+  normala skärmar. Provade även att låta blocket blöda ut över
+  `.manuscript`s 8%-padding (+20%), fortfarande inte i närheten.
+- Den faktiska lösningen: bytte kortraden från tre kolumner till två
+  (`.guide-card-grid`, separat rutnät från stegraden nedanför som
+  fortfarande använder tre). Att gå från en tredjedels till en
+  halv bredd per kort är matematiskt exakt +50% — uppmätt till
+  +52,6% i praktiken (472px mot tidigare 309px vid 1920px
+  visningsbredd). Tredje kortet radbryts naturligt till en egen rad,
+  i samma bredd som de andra två — ingen specialbehandling behövdes.
+- 597/597 gröna. Verifierat i webbläsaren.
 
 **Ändringslogg v0.99.10 → v0.99.11:** Snabbstarten i Guiden byggd om
 till ett kortlägge, efter författarens egen mockup och design-review

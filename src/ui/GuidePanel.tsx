@@ -66,7 +66,7 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
 
       <section className="guide-block guide-quickstart-block">
         <h2 className="settings-heading">{m.guide.quickstartHeading}</h2>
-        <div className="guide-quickstart-grid">
+        <div className="guide-card-grid">
           {m.guide.quickstartCards.map((card, index) => (
             <article key={index} className="guide-card">
               <span className="guide-card-icon" aria-hidden="true">

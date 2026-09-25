@@ -4570,6 +4570,12 @@ button.illustration-genre-item:focus-visible {
   gap: 1rem;
 }
 
+.guide-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 .guide-card {
   border: 1px solid var(--border-soft);
   border-radius: 10px;
