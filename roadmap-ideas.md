@@ -39,6 +39,7 @@ inte en ensidig lista.
 | 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
 | 22 | "?"-genvägar från rubriker till guiden | ✅ byggd (v0.93) |
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
+| 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ⬜ ej påbörjad — tre öppna frågor, se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -561,6 +562,67 @@ innehåll.
   korrekturläsningen. Motsvarar i praktiken en egen Lexile-liknande
   skala, fast inte den licensierade Lexile-skalan själv. Inget nytt
   behövde byggas där.
+
+---
+
+## Positionsmedvetna Story Bible-fakta (2026-09-25)
+
+### 24. Positionsmedvetna Story Bible-fakta — story-tid, inte lässordning
+Författarens iakttagelse: manuset grenar via Continues from (kapitel 4
+fortsätter från kapitel 1, kapitel 7 fortsätter från kapitel 5) — det
+löper inte nödvändigtvis linjärt. En fakta låst "efter" kapitel 5
+borde kanske inte synas när man skriver kapitel 4, om kapitel 4
+story-tidsmässigt ligger före den händelsen.
+
+**Bekräftat verkligt hål, inte en gissning** — grävde i koden innan
+detta skrevs. Två redan byggda funktioner har exakt samma begränsning:
+
+- `knowledgeLeaksForChapter` (Continuity, kunskapsläckor, punkt 10)
+  jämför bara `sequence_index` (lässordning). Kodkommentaren erkänner
+  problemet rakt ut ("not necessarily wrong, maybe it is a
+  flashback") men löser det inte.
+- `factsAsOfSequence` (Tidsmedvetna Story Bible, punkt 16, "visa som
+  den var vid") har samma begränsning.
+
+**Rekommendation: använd `story_time_order` (Timeline, punkt 9), inte
+`continues_from`, som positionssignal.** `continues_from` säger vilken
+tråd/gren ett kapitel fortsätter — inte när i berättelsen det händer,
+och flera trådar kan pågå samtidigt vilket gör grenstrukturen svår att
+härleda en entydig position ur. `story_time_order` är författarens
+egen explicita tidslinje, redan byggd, och redan använd för
+Continuitys spatiala kontroll (punkt 10, v0.94) för precis den här
+sortens fråga. Att byta båda ovanstående funktionerna till story-tid
+istället för lässordning är en välavgränsad, billig fix — högst
+troligt nästa steg här.
+
+**Tre öppna frågor innan resten byggs** (författaren har inte svarat
+än):
+
+1. **Hide/Show "generalisera till alla fakta-typer"** — kodgranskning
+   visar att varje fakta, oavsett predikat och entitetstyp, redan har
+   sin egen visa/dölj-växel i `EntityOverlay`, ograverat av typ.
+   Antingen redan löst, eller menar författaren en **positionsberoende**
+   växel (dold för kapitel 4, synlig för kapitel 7) snarare än dagens
+   globala av/på.
+2. **Live-understrykning för annan fakta än karaktär** — täcks delvis
+   redan av punkt 15 (klickbara namn, alla entitetstyper redan, inte
+   bara karaktärer) men bara som osynlig hovring, medvetet, för att
+   inte belamra texten. Öppet om författaren vill ha en **permanent
+   synlig** understrykning istället/också (samma stil som Ovanliga
+   ord/Klichéer) — ett separat visuellt beslut.
+3. **Att ändra vad Skriv utkast själv ser** (inte bara flagga) är ett
+   större beslut än en Proofread-flagga: idag ser AI:n medvetet alltid
+   *hela* den senaste låsta Story Bible, oavsett kapitel. Att göra det
+   positionsmedvetet ändrar kärnbeteende i genereringen — om
+   story-tiden inte är perfekt underhållen kan AI:n plötsligt
+   "glömma" saker författaren förväntar sig att den vet. Värt att
+   bygga, men kräver ett uttryckligt ja, inte bara en bugfix.
+
+"Include when detected / Don't include when detected" (en
+per-fakta-överstyrning när den automatiska positionslogiken gissar
+fel) hänger ihop med fråga 3 — vettig som en säkerhetsventil OM
+Draft görs positionsmedvetet, men inget att bygga isolerat innan det
+beslutet är taget.
 
 ---
 
