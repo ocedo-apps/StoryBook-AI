@@ -33,7 +33,7 @@ inte en ensidig lista.
 | 15 | Klickbara namn i manuset → Story Bible | ⬜ ej påbörjad |
 | 16 | Tidsmedveten Story Bible | ✅ byggd (v0.87) |
 | 17 | AI-skrivtics-markering | ✅ byggd (v0.95) |
-| 18 | Character Interviews | ⬜ ej påbörjad |
+| 18 | Character Interviews | ✅ byggd (v0.96) |
 | 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
 | 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
 | 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
@@ -409,7 +409,15 @@ befintliga växeln för att hålla överlägget läsbart. Egen lila färg
 skild från "ovanliga ord"-orange. Ren markering utan interaktion ovanpå
 — högerklick-ordalternativ förblir en "ovanliga ord"-specifik grej.
 
-### 18. Character Interviews — chatta med en karaktär
+**Tillägg (v0.96):** tooltips på markeringarna, efter önskemål om en
+kort förklaring till varför något är markerat. Markeringslagret ligger
+medvetet bakom den riktiga texten (`pointer-events: none`, så
+skrivning fungerar normalt) — en vanlig HTML `title` hade aldrig
+visats där. Löst med ett eget hover-lager på den riktiga textytan,
+samma `offsetFromPoint`-teknik som högerklicket för "ordalternativ"
+redan använder.
+
+### 18. Character Interviews — chatta med en karaktär ✅ byggd (v0.96)
 En tredje chattform utöver Ask Manuscript (punkt 8, frågar om
 manuset) och Brainstorms generiska "Ask": chatta MED en specifik
 karaktär, i deras egen röst, byggt bara på deras låsta fakta —
@@ -417,6 +425,13 @@ för att upptäcka röst, bakgrund och luckor i vad som är etablerat.
 Återanvänder samma AI-infrastruktur (`OllamaModelProvider`,
 `visibleLockedFacts` filtrerat per `entity_ref`) och samma
 "bara låsta fakta som kontext"-princip som Draft redan har.
+
+Byggd som en riktig flerturs-chatt (till skillnad från Ask Manuscript
+och Brainstorms Ask, som är fråga-svar utan minne) — hela historiken
+skickas med varje ny fråga, så karaktären minns vad som redan sagts.
+Ny "Intervjua"-knapp på karaktärskort i Story Bible (bara för
+`kind === "characters"`). Flyktigt precis som Ask Manuscript-svaret —
+inget sparas till manuset, försvinner när kortet stängs.
 
 ### 19. Korrekturläsning: Faktakontroll-steg ✅ byggd (v0.80)
 Uppstod ur en fråga om Novelcrafter-jämförelsen: fanns det redan ett

@@ -258,7 +258,8 @@ export const en = {
       analyze: "Analyze",
       illustrate: "Illustration prompt",
       proofread: "Proofread",
-      "ask-manuscript": "Ask Manuscript"
+      "ask-manuscript": "Ask Manuscript",
+      interview: "Character interview"
     }
   },
   askManuscript: {
@@ -272,6 +273,17 @@ export const en = {
     sourcesHeading: "Sources",
     jumpToChapter: "Open “{chapter}”",
     empty: "Ask a question about your manuscript and the answer will appear here, with its sources."
+  },
+  interview: {
+    action: "Interview",
+    title: "Interview {name}",
+    lede: "A private conversation with {name}, built only from what is locked in your Story Bible so far. Nothing said here becomes canon on its own — a way to hear their voice and spot gaps in what is established.",
+    placeholder: "Ask {name} something…",
+    ask: "Ask",
+    asking: "Asking…",
+    you: "You",
+    thinking: "{name} is thinking…",
+    empty: "Nothing asked yet. Start the conversation with {name} below."
   },
   timeline: {
     nav: "Timeline",
@@ -352,7 +364,7 @@ export const en = {
       },
       {
         heading: "Story Bible",
-        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict."
+        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon."
       },
       {
         heading: "Continuity warnings",
@@ -561,6 +573,7 @@ export const en = {
     close: "Close",
     reviewBody: "Proposed Story Bible rows. Thicken them, then lock — or reject.",
     hideFromDraft: "Hide from Draft",
+    interview: "Interview",
     showToDraft: "Show to Draft",
     hiddenNote: "The model cannot see this card until you show it again.",
     thisIsA: "This is a",
@@ -713,6 +726,9 @@ export const en = {
     ticsOff: "Clichés off",
     ticsOnTitle: "Hide AI-sounding phrases",
     ticsOffTitle: "Mark AI-sounding phrases",
+    rareMarkTitle: "Uncommon word — may be harder for this reader",
+    ticPhraseTitle: "Reads like an AI-generated phrase",
+    ticDashTitle: "This passage leans heavily on em dashes",
     title: "How it reads",
     emptyTitle: "No prose yet",
     writeSome: "Write some prose to see how it reads.",

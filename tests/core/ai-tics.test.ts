@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import { findAiTicHits } from "@core/aiTics";
 
 describe("findAiTicHits", () => {
-  it("flags a known clichéd phrase, case-insensitively", () => {
+  it("flags a known clichéd phrase, case-insensitively, tagged as a phrase hit", () => {
     const hits = findAiTicHits("Her courage was A TESTAMENT TO everything she had survived.");
     expect(hits).toHaveLength(1);
     expect(hits[0]?.text.toLowerCase()).toBe("a testament to");
+    expect(hits[0]?.kind).toBe("phrase");
   });
 
   it("flags more than one phrase in the same passage", () => {
@@ -23,11 +24,11 @@ describe("findAiTicHits", () => {
     expect(findAiTicHits(text)).toEqual([]);
   });
 
-  it("flags every em dash once a passage leans on them heavily", () => {
+  it("flags every em dash once a passage leans on them heavily, tagged as a dash hit", () => {
     const text = Array.from({ length: 10 }, (_, i) => `Word${i} — word${i}b`).join(" ");
     const hits = findAiTicHits(text);
     expect(hits.length).toBe(10);
-    expect(hits.every((hit) => hit.text === "—")).toBe(true);
+    expect(hits.every((hit) => hit.text === "—" && hit.kind === "dash")).toBe(true);
   });
 
   it("does not produce overlapping hits", () => {

@@ -260,7 +260,8 @@ export const nb: Messages = {
       analyze: "Analyser",
       illustrate: "Illustrasjonsprompt",
       proofread: "Korrekturlesing",
-      "ask-manuscript": "Spør manuset"
+      "ask-manuscript": "Spør manuset",
+      interview: "Karakterintervju"
     }
   },
   askManuscript: {
@@ -274,6 +275,17 @@ export const nb: Messages = {
     sourcesHeading: "Kilder",
     jumpToChapter: "Åpne «{chapter}»",
     empty: "Still et spørsmål om manuset ditt, så vises svaret her, sammen med kildene."
+  },
+  interview: {
+    action: "Intervju",
+    title: "Intervju med {name}",
+    lede: "En privat samtale med {name}, bygget bare på det som til nå er låst i Story Bible. Ingenting som sies her blir kanon av seg selv — en måte å høre stemmen på og oppdage hull i det som er etablert.",
+    placeholder: "Spør {name} om noe…",
+    ask: "Spør",
+    asking: "Spør…",
+    you: "Du",
+    thinking: "{name} tenker…",
+    empty: "Ingenting spurt om ennå. Start samtalen med {name} nedenfor."
   },
   timeline: {
     nav: "Tidslinje",
@@ -354,7 +366,7 @@ export const nb: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi."
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon."
       },
       {
         heading: "Kontinuitetsvarsler",
@@ -563,6 +575,7 @@ export const nb: Messages = {
     close: "Lukk",
     reviewBody: "Foreslåtte rader i Story Bible. Gjør dem tydeligere, lås — eller avvis.",
     hideFromDraft: "Skjul for utkast",
+    interview: "Intervju",
     showToDraft: "Vis for utkast",
     hiddenNote: "Modellen ser ikke dette kortet før du viser det igjen.",
     thisIsA: "Dette er en",
@@ -715,6 +728,9 @@ export const nb: Messages = {
     ticsOff: "Klisjeer av",
     ticsOnTitle: "Skjul AI-klingende fraser",
     ticsOffTitle: "Merk AI-klingende fraser",
+    rareMarkTitle: "Uvanlig ord — kan være vanskeligere for denne leseren",
+    ticPhraseTitle: "Høres ut som en AI-generert frase",
+    ticDashTitle: "Dette avsnittet støtter seg tungt på tankestreker",
     title: "Slik leses det",
     emptyTitle: "Ingen prosa ennå",
     writeSome: "Skriv litt prosa for å se hvordan det leses.",

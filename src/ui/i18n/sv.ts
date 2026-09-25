@@ -260,7 +260,8 @@ export const sv: Messages = {
       analyze: "Analysera",
       illustrate: "Illustrationsprompt",
       proofread: "Korrekturläsning",
-      "ask-manuscript": "Fråga manuset"
+      "ask-manuscript": "Fråga manuset",
+      interview: "Karaktärsintervju"
     }
   },
   askManuscript: {
@@ -274,6 +275,17 @@ export const sv: Messages = {
     sourcesHeading: "Källor",
     jumpToChapter: "Öppna ”{chapter}”",
     empty: "Ställ en fråga om ditt manus så visas svaret här, tillsammans med källorna."
+  },
+  interview: {
+    action: "Intervju",
+    title: "Intervjua {name}",
+    lede: "Ett privat samtal med {name}, byggt bara på det som hittills är låst i din Story Bible. Inget som sägs här blir kanon av sig självt — ett sätt att höra rösten och upptäcka luckor i det som är etablerat.",
+    placeholder: "Fråga {name} något…",
+    ask: "Fråga",
+    asking: "Frågar…",
+    you: "Du",
+    thinking: "{name} tänker…",
+    empty: "Inget frågat än. Börja samtalet med {name} nedan."
   },
   timeline: {
     nav: "Tidslinje",
@@ -354,7 +366,7 @@ export const sv: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga."
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon."
       },
       {
         heading: "Kontinuitetsvarningar",
@@ -563,6 +575,7 @@ export const sv: Messages = {
     close: "Stäng",
     reviewBody: "Föreslagna rader i Story Bible. Förtydliga dem, lås — eller förkasta.",
     hideFromDraft: "Dölj för utkast",
+    interview: "Intervjua",
     showToDraft: "Visa för utkast",
     hiddenNote: "Modellen ser inte det här kortet förrän du visar det igen.",
     thisIsA: "Detta är en",
@@ -715,6 +728,9 @@ export const sv: Messages = {
     ticsOff: "Klichéer av",
     ticsOnTitle: "Dölj AI-klingande fraser",
     ticsOffTitle: "Markera AI-klingande fraser",
+    rareMarkTitle: "Ovanligt ord — kan vara svårare för den här läsaren",
+    ticPhraseTitle: "Låter som en AI-genererad fras",
+    ticDashTitle: "Det här avsnittet lutar sig tungt mot tankstreck",
     title: "Så läses det",
     emptyTitle: "Ingen prosa ännu",
     writeSome: "Skriv lite prosa för att se hur det läses.",

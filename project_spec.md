@@ -1,9 +1,48 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.95
+Status: living document, v0.96
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.95 → v0.96:** Character Interviews (roadmap #18) +
+tooltips på markeringarna från v0.95, efter direkt önskemål om båda.
+
+- **Character Interviews**: en tredje chattform vid sidan av Fråga
+  manuset (fakta ur manuset) och Brainstorms Ask (tänkepartner) —
+  chatta MED en specifik karaktär, i första person, byggt bara på
+  deras egna låsta fakta (`visibleLockedFacts` filtrerat på
+  `entity_ref`, samma princip som Draft redan använder). Modellen
+  ombeds erkänna luckor ("jag vet inte") istället för att hitta på ny
+  bakgrund som fakta — syftet är att upptäcka röst och hål i det
+  etablerade, inte skapa kanon.
+  - Ny "Intervjua"-knapp på en karaktärs kort i Story Bible (bara för
+    `kind === "characters"` — platser/föremål/grupper får ingen).
+  - Riktig flerturs-chatt: hela samtalshistoriken skickas med varje
+    fråga (systemet har redan stöd för `assistant`-roll i
+    meddelande-arrayen, bara `PromptDebugMessage`-typen behövde
+    vidgas), så modellen minns tidigare svar i samma samtal.
+  - Medvetet inte sparat till manuset — flyktigt precis som Fråga
+    manuset-svaret, borta när kortet stängs. En enkel utökning senare
+    om det visar sig behövas.
+- **Tooltips på markeringarna** (ovanliga ord + AI-klichéer, v0.95):
+  författaren bad om en kort förklaring till varför något är
+  markerat. Upptäckte under bygget att markeringslagret medvetet har
+  `pointer-events: none` (det ligger bakom den riktiga texten så att
+  skrivning/markering fungerar normalt) — vilket gör att en vanlig
+  HTML `title` aldrig hade visats. Löst med ett litet eget
+  hover-lager: `onMouseMove` på den riktiga textytan räknar ut vilket
+  ord/vilken fras muspekaren står över (samma `offsetFromPoint`-teknik
+  högerklicket för "ordalternativ" redan använder) och visar en liten
+  ruta med anledningen — skild text för ovanliga ord, klichéfraser och
+  överanvända tankstreck.
+
+Nya tester för `characterInterviewSystem` (bara egna fakta, erkänner
+luckor, respekterar dolda fakta) och utökade tester för
+`findAiTicHits` (nu taggade `kind: "phrase" | "dash"`). 580/580 gröna.
+Verifierat i webbläsaren: skapa karaktär → Intervjua → flerturs-samtal
+med rätt historik, samt att tooltipen dyker upp vid hovring och
+försvinner när musen flyttas bort.
 
 **Ändringslogg v0.94 → v0.95:** AI-skrivtics-markering (roadmap #17).
 Precis som roadmap-anteckningen förutspådde: billigt att bygga, ingen

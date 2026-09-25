@@ -6,6 +6,7 @@ export type PromptOperation =
   | "instruct"
   | "ask"
   | "ask-manuscript"
+  | "interview"
   | "word-swap"
   | "sentence-split"
   | "paragraph-break"
@@ -16,7 +17,7 @@ export type PromptOperation =
 
 export type PromptDebugTarget = "prose" | "synopsis" | "brainstorm";
 
-export type PromptDebugMessage = { role: "system" | "user"; content: string };
+export type PromptDebugMessage = { role: "system" | "user" | "assistant"; content: string };
 
 export type PromptDebugEntry = {
   operation: PromptOperation;

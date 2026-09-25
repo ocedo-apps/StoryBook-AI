@@ -28,6 +28,7 @@ import {
   type ManuscriptEvidence,
   type ManuscriptSource
 } from "@core/askManuscript";
+import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
 import {
   ANALYZE_SYSTEM,
   analyzeSceneUserPrompt,
@@ -160,6 +161,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [modelAsides, setModelAsides] = useState<string[]>([]);
   const [lastPrompt, setLastPrompt] = useState<PromptDebugEntry | null>(null);
   const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
+  const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string } | null>(null);
+  const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
@@ -1374,6 +1377,64 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, models.length, ollamaError, recordPrompt, reviewModel]
   );
 
+  const startInterview = useCallback((entityRef: string, entityLabel: string) => {
+    setInterviewEntity({ ref: entityRef, label: entityLabel });
+    setInterviewHistory([]);
+  }, []);
+
+  const closeInterview = useCallback(() => {
+    abortRef.current?.abort();
+    setInterviewEntity(null);
+    setInterviewHistory([]);
+  }, []);
+
+  const askCharacter = useCallback(
+    async (question: string) => {
+      const current = bookRef.current;
+      const target = interviewEntity;
+      const trimmed = question.trim();
+      if (!current || !target || busy || !trimmed) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("interview");
+      setError(null);
+
+      const priorTurns = interviewHistory;
+      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
+
+      try {
+        const provider = makeProvider(model);
+        const askMessages: PromptDebugMessage[] = [
+          { role: "system", content: characterInterviewSystem(current, target.ref, target.label) },
+          ...priorTurns,
+          { role: "user", content: trimmed }
+        ];
+        recordPrompt("interview", model, askMessages);
+        const raw = await provider.chat({
+          messages: askMessages,
+          temperature: 0.9,
+          maxTokens: 400,
+          signal: abort.signal
+        });
+        setInterviewHistory((prev) => [...prev, { role: "assistant", content: raw.trim() }]);
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return;
+        setError(ollamaHint(err));
+        setInterviewHistory((prev) => prev.slice(0, -1));
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, interviewEntity, interviewHistory, model, models.length, ollamaError, recordPrompt]
+  );
+
   const startProofread = useCallback(
     async (opts?: { restart?: boolean }) => {
       const current = bookRef.current;
@@ -1527,6 +1588,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     modelAsides,
     lastPrompt,
     askManuscriptAnswer,
+    interviewEntity,
+    interviewHistory,
     refresh,
     openBook,
     closeBook,
@@ -1570,6 +1633,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startProofread,
     generateIllustrationPrompt,
     askManuscript,
+    startInterview,
+    askCharacter,
+    closeInterview,
     addFact,
     reviseFact: revise,
     approve,

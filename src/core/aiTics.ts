@@ -37,7 +37,8 @@ const PHRASE_PATTERNS = AI_TIC_PHRASES.map(
 /** Occasional use is normal prose; only flag it once a chapter leans on it. */
 const EM_DASH_DENSITY_THRESHOLD = 1 / 150;
 
-export type TicHit = { start: number; end: number; text: string };
+export type TicKind = "phrase" | "dash";
+export type TicHit = { start: number; end: number; text: string; kind: TicKind };
 
 /** Every clichéd phrase, plus every em dash once they appear well beyond occasional use. */
 export function findAiTicHits(text: string): TicHit[] {
@@ -46,7 +47,7 @@ export function findAiTicHits(text: string): TicHit[] {
     pattern.lastIndex = 0;
     let match: RegExpExecArray | null;
     while ((match = pattern.exec(text))) {
-      hits.push({ start: match.index, end: match.index + match[0].length, text: match[0] });
+      hits.push({ start: match.index, end: match.index + match[0].length, text: match[0], kind: "phrase" });
       if (match[0].length === 0) pattern.lastIndex += 1;
     }
   }
@@ -58,7 +59,7 @@ export function findAiTicHits(text: string): TicHit[] {
       if (text[i] === "—") dashIndices.push(i);
     }
     if (dashIndices.length / words > EM_DASH_DENSITY_THRESHOLD) {
-      for (const index of dashIndices) hits.push({ start: index, end: index + 1, text: "—" });
+      for (const index of dashIndices) hits.push({ start: index, end: index + 1, text: "—", kind: "dash" });
     }
   }
 
@@ -70,4 +71,9 @@ export function findAiTicHits(text: string): TicHit[] {
     merged.push(hit);
   }
   return merged;
+}
+
+export function ticHitAt(text: string, offset: number): TicHit | null {
+  const clamped = Math.max(0, Math.min(offset, text.length));
+  return findAiTicHits(text).find((hit) => clamped >= hit.start && clamped <= hit.end) ?? null;
 }

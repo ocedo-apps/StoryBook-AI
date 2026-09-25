@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { Book, BookSummary, EditorSurface } from "@core/BookSchema";
 import type { AskManuscriptAnswer } from "@core/askManuscript";
+import type { InterviewMessage } from "@core/characterInterview";
 import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
@@ -20,6 +21,7 @@ export type Busy =
   | "analyze"
   | "proofread"
   | "illustrate"
+  | "interview"
   | null;
 
 export type BookStoreValue = {
@@ -41,6 +43,8 @@ export type BookStoreValue = {
   modelAsides: string[];
   lastPrompt: PromptDebugEntry | null;
   askManuscriptAnswer: AskManuscriptAnswer | null;
+  interviewEntity: { ref: string; label: string } | null;
+  interviewHistory: InterviewMessage[];
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
   closeBook: () => void;
@@ -95,6 +99,9 @@ export type BookStoreValue = {
   startProofread: (opts?: { restart?: boolean }) => Promise<void>;
   generateIllustrationPrompt: (passage: string) => Promise<string | null>;
   askManuscript: (question: string) => Promise<void>;
+  startInterview: (entityRef: string, entityLabel: string) => void;
+  askCharacter: (question: string) => Promise<void>;
+  closeInterview: () => void;
   addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;

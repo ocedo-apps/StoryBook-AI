@@ -2041,6 +2041,23 @@ button:disabled {
   caret-color: var(--text);
 }
 
+.prose-hover-tip {
+  position: fixed;
+  z-index: 40;
+  max-width: 16rem;
+  padding: 0.35rem 0.55rem;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translate(10px, -100%);
+}
+
 .selection-menu {
   position: fixed;
   z-index: 40;
@@ -2091,6 +2108,71 @@ button:disabled {
   width: min(40rem, 100%);
   max-height: min(90vh, 52rem);
   overflow: auto;
+}
+
+.interview-card {
+  width: min(34rem, 100%);
+  max-height: min(90vh, 44rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.interview-transcript {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  margin: 0.7rem 0;
+  padding: 0.2rem 0.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 6rem;
+}
+
+.interview-empty {
+  margin: auto 0;
+  text-align: center;
+}
+
+.interview-turn {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  max-width: 85%;
+  line-height: 1.4;
+}
+
+.interview-turn-label {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.2rem;
+}
+
+.interview-turn.is-author {
+  align-self: flex-end;
+  background: var(--raised);
+}
+
+.interview-turn.is-character {
+  align-self: flex-start;
+  background: var(--tic-mark);
+}
+
+.interview-pending {
+  align-self: flex-start;
+  font-style: italic;
+}
+
+.interview-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.interview-form textarea {
+  resize: vertical;
 }
 
 .proofread-stages {

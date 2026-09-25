@@ -53,7 +53,13 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
   return `${chapter.sequence_index + 1} · ${chapter.title.trim() || untitled}`;
 }
 
-export function BiblePanel({ onOpenGuide }: { onOpenGuide?: () => void }) {
+export function BiblePanel({
+  onOpenGuide,
+  onInterview
+}: {
+  onOpenGuide?: () => void;
+  onInterview?: (entityRef: string, entityLabel: string) => void;
+}) {
   const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
@@ -323,6 +329,9 @@ export function BiblePanel({ onOpenGuide }: { onOpenGuide?: () => void }) {
           onReplaceTexts={(from, to) => {
             void patchBook((current) => replaceNameInManuscript(current, from, to));
           }}
+          {...(onInterview
+            ? { onInterview: () => onInterview(openEntity.entity_ref, openEntity.entity_label) }
+            : {})}
           onClose={() => setOverlay(null)}
         />
       ) : null}
@@ -565,6 +574,7 @@ function EntityOverlay({
   onRemovePicture,
   onCommitName,
   onReplaceTexts,
+  onInterview,
   onClose
 }: {
   entity: BibleEntityGroup;
@@ -586,6 +596,7 @@ function EntityOverlay({
   onRemovePicture: (index: number) => void;
   onCommitName: (next: string) => { from: string; to: string; hits: number } | null;
   onReplaceTexts: (from: string, to: string) => void;
+  onInterview?: () => void;
   onClose: () => void;
 }) {
   const [predicate, setPredicate] = useState<CorePredicate>(entity.facts[0]?.predicate ?? "core.identity");
@@ -615,14 +626,21 @@ function EntityOverlay({
       }}
       className={kind === "characters" ? "is-character" : undefined}
       actions={
-        <button
-          type="button"
-          className={hidden ? "text-button bible-vis is-hidden" : "text-button bible-vis"}
-          aria-pressed={hidden}
-          onClick={onToggleHidden}
-        >
-          {hidden ? m.bible.showToDraft : m.bible.hideFromDraft}
-        </button>
+        <>
+          {kind === "characters" && onInterview ? (
+            <button type="button" className="text-button" onClick={onInterview}>
+              {m.bible.interview}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={hidden ? "text-button bible-vis is-hidden" : "text-button bible-vis"}
+            aria-pressed={hidden}
+            onClick={onToggleHidden}
+          >
+            {hidden ? m.bible.showToDraft : m.bible.hideFromDraft}
+          </button>
+        </>
       }
     >
       {hidden ? <p className="quiet bible-hidden-note">{m.bible.hiddenNote}</p> : null}

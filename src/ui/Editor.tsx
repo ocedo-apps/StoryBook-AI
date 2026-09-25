@@ -72,6 +72,7 @@ import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
+import { CharacterInterviewCard } from "./CharacterInterviewCard";
 import { SettingsPanel } from "./SettingsPanel";
 import { ThemeToggle } from "./ThemeToggle";
 import { LocaleSelect } from "./LocaleSelect";
@@ -1443,7 +1444,10 @@ export function Editor() {
           </main>
         )}
 
-        <BiblePanel onOpenGuide={() => openGuide("story-bible")} />
+        <BiblePanel
+          onOpenGuide={() => openGuide("story-bible")}
+          onInterview={(entityRef, entityLabel) => store.startInterview(entityRef, entityLabel)}
+        />
       </div>
       {statsOpen ? (
         <ProseStatsCard
@@ -1485,6 +1489,15 @@ export function Editor() {
             setProofreadOpen(false);
             store.setChapterId(id);
           }}
+        />
+      ) : null}
+      {store.interviewEntity ? (
+        <CharacterInterviewCard
+          entity={store.interviewEntity}
+          history={store.interviewHistory}
+          busy={busy === "interview"}
+          onAsk={(question) => void store.askCharacter(question)}
+          onClose={store.closeInterview}
         />
       ) : null}
       {notesOpen && notes ? (

@@ -106,6 +106,25 @@ export function ProseCanvas({
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [manual, setManual] = useState<{ span: TextSpan; draft: string } | null>(null);
   const [instruct, setInstruct] = useState<InstructState | null>(null);
+  const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
+
+  const highlightHits = useMemo(() => {
+    if (highlightRare) {
+      return findRareHits(value, names, extraSyllables !== undefined ? { extraSyllables } : undefined).map((hit) => ({
+        start: hit.start,
+        end: hit.end,
+        text: m.stats.rareMarkTitle
+      }));
+    }
+    if (highlightTics) {
+      return findAiTicHits(value).map((hit) => ({
+        start: hit.start,
+        end: hit.end,
+        text: hit.kind === "dash" ? m.stats.ticDashTitle : m.stats.ticPhraseTitle
+      }));
+    }
+    return [];
+  }, [highlightRare, highlightTics, value, names, extraSyllables, m]);
 
   useEffect(() => {
     if (!menu) return;
@@ -333,6 +352,19 @@ export function ProseCanvas({
         spellCheck
         onInput={emitProse}
         onContextMenu={onContextMenu}
+        onMouseMove={(event) => {
+          if (highlightHits.length === 0) {
+            if (hoverTip) setHoverTip(null);
+            return;
+          }
+          const area = areaRef.current;
+          if (!area) return;
+          const offset = offsetFromPoint(area, event.clientX, event.clientY);
+          const hit = highlightHits.find((item) => offset >= item.start && offset <= item.end);
+          if (hit) setHoverTip({ x: event.clientX, y: event.clientY, text: hit.text });
+          else if (hoverTip) setHoverTip(null);
+        }}
+        onMouseLeave={() => setHoverTip(null)}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.shiftKey) return;
           event.preventDefault();
@@ -344,6 +376,11 @@ export function ProseCanvas({
           document.execCommand("insertText", false, pasted);
         }}
       />
+      {hoverTip ? (
+        <div className="prose-hover-tip" style={{ left: hoverTip.x, top: hoverTip.y }} role="tooltip">
+          {hoverTip.text}
+        </div>
+      ) : null}
       </div>
       {menu?.kind === "rewrite" ? (
         <div
@@ -552,13 +589,19 @@ function FindMarkup({ text, marks }: { text: string; marks: { start: number; end
 }
 
 function TicMarkup({ text }: { text: string }) {
+  const { messages: m } = useLocale();
   const hits = useMemo(() => findAiTicHits(text), [text]);
   if (hits.length === 0) return <>{text}</>;
   const parts: React.ReactNode[] = [];
   let cursor = 0;
   for (const hit of hits) {
     if (hit.start > cursor) parts.push(text.slice(cursor, hit.start));
-    parts.push(<mark key={hit.start}>{text.slice(hit.start, hit.end)}</mark>);
+    const title = hit.kind === "dash" ? m.stats.ticDashTitle : m.stats.ticPhraseTitle;
+    parts.push(
+      <mark key={hit.start} title={title}>
+        {text.slice(hit.start, hit.end)}
+      </mark>
+    );
     cursor = hit.end;
   }
   if (cursor < text.length) parts.push(text.slice(cursor));
@@ -574,6 +617,7 @@ function RareMarkup({
   names: string[];
   extraSyllables?: number;
 }) {
+  const { messages: m } = useLocale();
   const hits = useMemo(
     () => findRareHits(text, names, extraSyllables !== undefined ? { extraSyllables } : undefined),
     [extraSyllables, names, text]
@@ -583,7 +627,11 @@ function RareMarkup({
   let cursor = 0;
   for (const hit of hits) {
     if (hit.start > cursor) parts.push(text.slice(cursor, hit.start));
-    parts.push(<mark key={hit.start}>{text.slice(hit.start, hit.end)}</mark>);
+    parts.push(
+      <mark key={hit.start} title={m.stats.rareMarkTitle}>
+        {text.slice(hit.start, hit.end)}
+      </mark>
+    );
     cursor = hit.end;
   }
   if (cursor < text.length) parts.push(text.slice(cursor));
