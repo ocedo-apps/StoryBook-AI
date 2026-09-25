@@ -16,7 +16,9 @@ export function Home({
   const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
   const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
+  const [search, setSearch] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const filteredSummaries = summaries.filter((item) => item.title.toLowerCase().includes(search.trim().toLowerCase()));
 
   function submitNew(event?: React.SyntheticEvent) {
     event?.preventDefault();
@@ -64,7 +66,7 @@ export function Home({
       ) : null}
 
       <form className="new-book" action="#" onSubmit={submitNew}>
-        <label className="field-label" htmlFor="new-title">
+        <label className="field-label home-heading-lg" htmlFor="new-title">
           {m.home.newManuscript}
         </label>
         <div className="new-book-row">
@@ -82,15 +84,31 @@ export function Home({
       </form>
 
       <section className="home-quickstart guide-quickstart-block">
-        <QuickstartCards />
+        <QuickstartCards headingClassName="settings-heading home-heading-lg" />
       </section>
 
       <section className="book-shelf" aria-label={m.home.shelf}>
+        <h2 className="settings-heading home-heading-lg">{m.home.shelfHeading}</h2>
+
         {summaries.length === 0 ? (
           <p className="empty-shelf">{m.home.emptyShelf}</p>
         ) : (
+          <>
+            <input
+              type="search"
+              className="book-shelf-search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={m.home.searchPlaceholder}
+              aria-label={m.home.searchPlaceholder}
+            />
+            {filteredSummaries.length === 0 ? <p className="empty-shelf">{m.home.noSearchResults}</p> : null}
+          </>
+        )}
+
+        {filteredSummaries.length > 0 ? (
           <ul>
-            {summaries.map((item) => (
+            {filteredSummaries.map((item) => (
               <li key={item.id}>
                 <button type="button" className="book-card" onClick={() => void openBook(item.id)}>
                   <strong>{item.title}</strong>
@@ -114,7 +132,7 @@ export function Home({
               </li>
             ))}
           </ul>
-        )}
+        ) : null}
       </section>
 
       {guideOpen ? (

@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.18
+Status: living document, v0.99.19
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.18 → v0.99.19:** Tre saker på förstasidan, på
+författarens begäran: större etiketter, en "Dina manus"-rubrik, och
+ett sökfält ovanför manuslistan.
+
+- "Nytt manus" och "Kom igång med en lokal AI" höjda till 18px
+  (1.125rem). Båda delar CSS-klass (`field-label`/`settings-heading`)
+  med en massa andra ställen i appen (Story Bible-fält, Inställningar,
+  resten av Guiden), så storleken höjs via en ny modifier-klass,
+  `.home-heading-lg`, istället för på basklassen — bara förstasidan
+  påverkas.
+- Ny rubrik "Dina manus" ovanför listan, samma `.home-heading-lg`-
+  storlek som systrarna, så de tre känns som en enhet.
+- Nytt sökfält (`.book-shelf-search`) filtrerar listan på titel medan
+  du skriver, döljs när biblioteket är tomt (inget att söka i än) och
+  visar "Inga manus matchar sökningen." om filtret ger noll träffar.
+  Listan var redan sorterad senast redigerad-först (`Repository.ts`),
+  så det behövde jag inte ändra.
+- 597/597 gröna. Verifierat i webbläsaren: skapade tre testmanus,
+  sökte fram exakt ett.
 
 **Ändringslogg v0.99.17 → v0.99.18:** Flyttade "Importera backup"
 till en knapp under "Läs snabbstarten", samma bredd på båda — på

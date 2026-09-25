@@ -369,6 +369,11 @@ button:disabled {
   white-space: nowrap;
 }
 
+/* Bumps the "New manuscript" / "Getting started with a local AI" / "Your manuscripts" eyebrow labels up to 18px on the home page, without resizing .field-label or .settings-heading everywhere else they're used (Story Bible fields, Settings, the rest of the Guide). */
+.home-heading-lg {
+  font-size: 1.125rem;
+}
+
 .home-guide-button:hover,
 .home-guide-button:focus-visible {
   background: var(--raised);
@@ -707,6 +712,7 @@ button:disabled {
 }
 
 .new-book input,
+.book-shelf-search,
 .add-fact input,
 .add-fact textarea,
 .add-fact select,
@@ -738,6 +744,10 @@ button:disabled {
 
 .book-shelf {
   margin-top: 3rem;
+}
+
+.book-shelf-search {
+  margin-bottom: 1rem;
 }
 
 .empty-shelf {
