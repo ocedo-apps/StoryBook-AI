@@ -58,7 +58,7 @@ export const sv: Messages = {
     settingsLede:
       "Hur det här manuset skrivs. Inte Story Bible. Kapitlen kan fortfarande överstyra kamera, röst och Läsare.",
     proseLanguage: "Prosans språk",
-    proseLanguagePlaceholder: "Svenska",
+    proseLanguagePlaceholder: "t.ex. engelska",
     proseLanguageTitle: "Språket meningarna skrivs på. Tomt gissar från manuset. En skrivinstruktion, inte kanon.",
     modelsHeading: "Modeller",
     engineLabel: "Motor",

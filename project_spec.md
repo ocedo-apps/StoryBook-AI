@@ -1,9 +1,31 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.84
+Status: living document, v0.85
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.84 → v0.85:** Författaren har fått externa testare
+och bad om en genomgång av gränssnittet med det i åtanke. Gick igenom
+alla placeholder-texter, hjälptexter och exempel i samtliga tre
+språkfiler (`en.ts`, `sv.ts`, `nb.ts`) efter innehåll som antar svensk
+kontext eller är otydligt för någon som inte känt appen från start.
+
+Hittade en konkret bugg: fältet "Prose language" i Inställningar
+visade "Swedish" som exempeltext i den ENGELSKA gränssnittsversionen
+(ett kvarglömt spår från när appen bara fanns på svenska) — och även
+i de andra språken visade fältet det egna gränssnittsspråkets namn som
+exempel, vilket är en felaktig utgångspunkt i sig (en författare som
+kör appen på svenska skriver inte nödvändigtvis sin bok på svenska).
+Bytt i alla tre språk till ett neutralt "t.ex. engelska"-mönster,
+frikopplat från gränssnittsspråket.
+
+Övriga formulärtexter höll redan god kvalitet — skrivna med appens
+etablerade, förklarande ton (se t.ex. `proseLanguageTitle`s hjälptext,
+som redan säger att tomt fält gissar automatiskt). Inget annat
+Sverige-specifikt hittades i en full genomsökning av placeholder-fält.
+
+561/561 gröna. Verifierat i webbläsaren.
 
 **Ändringslogg v0.83 → v0.84:** LM Studio (och andra OpenAI-kompatibla
 lokala servrar, t.ex. llama.cpp-server) går nu faktiskt att välja.

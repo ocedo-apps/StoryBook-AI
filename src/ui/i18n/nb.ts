@@ -58,7 +58,7 @@ export const nb: Messages = {
     settingsLede:
       "Hvordan dette manuskriptet skrives. Ikke Story Bible. Kapitlene kan fortsatt overstyre kamera, stemme og Leser.",
     proseLanguage: "Prosaens språk",
-    proseLanguagePlaceholder: "Norsk",
+    proseLanguagePlaceholder: "f.eks. engelsk",
     proseLanguageTitle: "Språket setningene skrives på. Tomt gjetter fra manuskriptet. En skriveinstruksjon, ikke kanon.",
     modelsHeading: "Modeller",
     engineLabel: "Motor",

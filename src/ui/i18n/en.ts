@@ -56,7 +56,7 @@ export const en = {
     settingsLede:
       "How this manuscript is written. Not Story Bible. Chapters can still override camera, Voice, and Reader.",
     proseLanguage: "Prose language",
-    proseLanguagePlaceholder: "Swedish",
+    proseLanguagePlaceholder: "e.g. English",
     proseLanguageTitle: "The language the sentences are written in. Empty infers from the manuscript. A writing instruction, not canon.",
     modelsHeading: "Models",
     engineLabel: "Engine",
