@@ -346,7 +346,7 @@ export const nb: Messages = {
       },
       {
         heading: "Kapitler: Lag utkast, Omskriv, Analyser",
-        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen."
+        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen. Under teksten veksler Sjeldne ord og Klisjeer mellom to valgfrie markeringer — uvanlige ord for den leseren, og formuleringer som høres AI-skrevne ut (\"et bevis på\", overbrukte tankestreker) — én om gangen, avslått som standard."
       },
       {
         heading: "Scener",
@@ -711,6 +711,10 @@ export const nb: Messages = {
     rareOff: "Sjeldne ord av",
     rareOnTitle: "Skjul uvanlige ord",
     rareOffTitle: "Merk uvanlige ord",
+    ticsOn: "Klisjeer på",
+    ticsOff: "Klisjeer av",
+    ticsOnTitle: "Skjul AI-klingende fraser",
+    ticsOffTitle: "Merk AI-klingende fraser",
     title: "Slik leses det",
     emptyTitle: "Ingen prosa ennå",
     writeSome: "Skriv litt prosa for å se hvordan det leses.",

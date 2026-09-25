@@ -1,9 +1,42 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.94
+Status: living document, v0.95
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.94 → v0.95:** AI-skrivtics-markering (roadmap #17).
+Precis som roadmap-anteckningen förutspådde: billigt att bygga, ingen
+AI inblandad — samma mekanism som "ovanliga ord"-markeringen redan
+använder (`rareWords.ts`/`RareMarkup`), bara en ny fråga (`aiTics.ts`)
+och en ny överlagringsfärg.
+
+- Ny `findAiTicHits()`: en kurerad lista klichéfraser ("a testament
+  to", "tapestry of", "delve into" m.fl.) plus en täthetskontroll för
+  tankstreck — flaggar bara tankstreck när de faktiskt är
+  överanvända (mer än ett per ~150 ord), inte ett enstaka naturligt
+  bruk.
+- Ny "Klichéer"-växel bredvid den befintliga "Ovanliga ord"-växeln
+  under texten, i Brainstorm, Synopsis och kapitelvyn. De två är
+  ömsesidigt uteslutande (en åt gången) snarare än staplade, för att
+  hålla överlägget läsbart och undvika att bygga en sammanslagen
+  markeringsmotor för v1.
+- Ny lila överlagringsfärg (`--tic-mark`) skild från "ovanliga
+  ord"-markeringens rost-orange, så de två aldrig kan förväxlas när
+  man växlar mellan dem.
+- Ren visning, ingen interaktion byggd ovanpå träffarna (till skillnad
+  från "ovanliga ord", där högerklick öppnar ordalternativ) —
+  medvetet avgränsat för att hålla detta som ren markering, precis som
+  roadmap-anteckningen bad om.
+- Guiden uppdaterad: Kapitel-avsnittet nämner nu båda växlarna, i alla
+  tre språk — passade på att dokumentera "Ovanliga ord" också, som
+  aldrig stod i guiden sedan tidigare.
+
+Nya tester för `findAiTicHits` (frasträff, tyst på vanlig prosa,
+tankstreck-täthet, inga överlappande träffar). 577/577 gröna.
+Verifierat i webbläsaren: rätt fraser flaggas, växeln byter läge
+korrekt, och att aktivera "Ovanliga ord" stänger av "Klichéer"
+automatiskt.
 
 **Ändringslogg v0.93 → v0.94:** Continuity 2.0 färdigställd (roadmap
 #10) — den återstående halvan (spatial kontinuitet + objekttillstånd)

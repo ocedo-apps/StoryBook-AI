@@ -232,12 +232,16 @@ function StatsTrigger({
   words,
   highlighting,
   onOpen,
-  onToggleHighlight
+  onToggleHighlight,
+  ticsHighlighting,
+  onToggleTics
 }: {
   words: number;
   highlighting: boolean;
   onOpen: () => void;
   onToggleHighlight: () => void;
+  ticsHighlighting: boolean;
+  onToggleTics: () => void;
 }) {
   const { messages: m } = useLocale();
   return (
@@ -254,6 +258,15 @@ function StatsTrigger({
         title={highlighting ? m.stats.rareOnTitle : m.stats.rareOffTitle}
       >
         <span className="stats-trigger-label">{highlighting ? m.stats.rareOn : m.stats.rareOff}</span>
+      </button>
+      <button
+        type="button"
+        className={ticsHighlighting ? "stats-trigger is-on" : "stats-trigger"}
+        onClick={onToggleTics}
+        aria-pressed={ticsHighlighting}
+        title={ticsHighlighting ? m.stats.ticsOnTitle : m.stats.ticsOffTitle}
+      >
+        <span className="stats-trigger-label">{ticsHighlighting ? m.stats.ticsOn : m.stats.ticsOff}</span>
       </button>
     </span>
   );
@@ -361,6 +374,7 @@ export function Editor() {
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
   const [lastJsonBackupAt, setLastJsonBackupAt] = useState(() => readLastJsonBackup(book.id));
   const [highlightRare, setHighlightRare] = useState(false);
+  const [highlightTics, setHighlightTics] = useState(false);
   const [dragChapterId, setDragChapterId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | "end" | null>(null);
   const [continuesNotice, setContinuesNotice] = useState<string | null>(null);
@@ -1132,7 +1146,15 @@ export function Editor() {
                   words={countWords(book.brainstorm)}
                   highlighting={highlightRare}
                   onOpen={() => setStatsOpen(true)}
-                  onToggleHighlight={() => setHighlightRare((on) => !on)}
+                  onToggleHighlight={() => {
+                    setHighlightRare((on) => !on);
+                    setHighlightTics(false);
+                  }}
+                  ticsHighlighting={highlightTics}
+                  onToggleTics={() => {
+                    setHighlightTics((on) => !on);
+                    setHighlightRare(false);
+                  }}
                 />
                 <MaximizeButton maximized={maximized} onToggle={() => setMaximized((on) => !on)} />
               </>
@@ -1245,6 +1267,7 @@ export function Editor() {
               placeholder={m.editor.synopsisPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}
+              highlightTics={highlightTics}
               names={names}
               {...(readerExtra !== undefined ? { extraSyllables: readerExtra } : {})}
               {...findCanvas}
@@ -1262,7 +1285,15 @@ export function Editor() {
                 words={countWords(book.synopsis)}
                 highlighting={highlightRare}
                 onOpen={() => setStatsOpen(true)}
-                onToggleHighlight={() => setHighlightRare((on) => !on)}
+                onToggleHighlight={() => {
+                  setHighlightRare((on) => !on);
+                  setHighlightTics(false);
+                }}
+                ticsHighlighting={highlightTics}
+                onToggleTics={() => {
+                  setHighlightTics((on) => !on);
+                  setHighlightRare(false);
+                }}
               />
               <div className="actions">
                 <MaximizeButton maximized={maximized} onToggle={() => setMaximized((on) => !on)} />
@@ -1319,6 +1350,7 @@ export function Editor() {
               placeholder={m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}
+              highlightTics={highlightTics}
               names={names}
               {...(readerExtra !== undefined ? { extraSyllables: readerExtra } : {})}
               {...findCanvas}
@@ -1351,7 +1383,15 @@ export function Editor() {
                 words={countWords(chapter.prose)}
                 highlighting={highlightRare}
                 onOpen={() => setStatsOpen(true)}
-                onToggleHighlight={() => setHighlightRare((on) => !on)}
+                onToggleHighlight={() => {
+                  setHighlightRare((on) => !on);
+                  setHighlightTics(false);
+                }}
+                ticsHighlighting={highlightTics}
+                onToggleTics={() => {
+                  setHighlightTics((on) => !on);
+                  setHighlightRare(false);
+                }}
               />
               <div className="actions">
                 <MaximizeButton maximized={maximized} onToggle={() => setMaximized((on) => !on)} />

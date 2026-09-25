@@ -3,6 +3,7 @@ import { applyReplace, isNonEmptySpan, selectedText, type TextSpan } from "@core
 import { htmlFromProse, splitFlowParagraphs } from "@core/proseFlow";
 import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
+import { findAiTicHits } from "@core/aiTics";
 import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
   isCaretAtEnd,
@@ -42,6 +43,7 @@ export function ProseCanvas({
   placeholder,
   disabled,
   highlightRare = false,
+  highlightTics = false,
   names = [],
   extraSyllables,
   findNeedle,
@@ -65,6 +67,7 @@ export function ProseCanvas({
   placeholder?: string;
   disabled?: boolean;
   highlightRare?: boolean;
+  highlightTics?: boolean;
   names?: string[];
   extraSyllables?: number;
   findNeedle?: string;
@@ -290,10 +293,14 @@ export function ProseCanvas({
   }
 
   const findOn = Boolean(findNeedle?.trim());
-  const overlayOn = findOn || highlightRare;
+  const overlayOn = findOn || highlightRare || highlightTics;
+  const overlayModeClass = highlightRare ? "is-rare" : highlightTics ? "is-tics" : "";
 
   return (
-    <div ref={scrollRef} className={overlayOn ? findOn ? "prose-wrap is-rare is-find" : "prose-wrap is-rare" : "prose-wrap"}>
+    <div
+      ref={scrollRef}
+      className={overlayOn ? ["prose-wrap", overlayModeClass, findOn ? "is-find" : ""].filter(Boolean).join(" ") : "prose-wrap"}
+    >
       {aside}
       <div className="prose-body">
       {overlayOn ? (
@@ -301,6 +308,7 @@ export function ProseCanvas({
           <ProseMarkup
             text={value}
             names={names}
+            highlightTics={highlightTics}
             {...(extraSyllables !== undefined ? { extraSyllables } : {})}
             {...(findOn && findNeedle && findFlags
               ? {
@@ -481,6 +489,7 @@ function ProseMarkup({
   text,
   names,
   extraSyllables,
+  highlightTics = false,
   findNeedle,
   findFlags,
   findActiveStart
@@ -488,6 +497,7 @@ function ProseMarkup({
   text: string;
   names: string[];
   extraSyllables?: number;
+  highlightTics?: boolean;
   findNeedle?: string;
   findFlags?: FindFlags;
   findActiveStart?: number;
@@ -509,6 +519,8 @@ function ProseMarkup({
         <p key={index}>
           {findNeedle && findFlags ? (
             <FindMarkup text={block} marks={findMarks[index] ?? []} />
+          ) : highlightTics ? (
+            <TicMarkup text={block} />
           ) : (
             <RareMarkup
               text={block}
@@ -534,6 +546,20 @@ function FindMarkup({ text, marks }: { text: string; marks: { start: number; end
       </mark>
     );
     cursor = mark.end;
+  }
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
+
+function TicMarkup({ text }: { text: string }) {
+  const hits = useMemo(() => findAiTicHits(text), [text]);
+  if (hits.length === 0) return <>{text}</>;
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  for (const hit of hits) {
+    if (hit.start > cursor) parts.push(text.slice(cursor, hit.start));
+    parts.push(<mark key={hit.start}>{text.slice(hit.start, hit.end)}</mark>);
+    cursor = hit.end;
   }
   if (cursor < text.length) parts.push(text.slice(cursor));
   return <>{parts}</>;

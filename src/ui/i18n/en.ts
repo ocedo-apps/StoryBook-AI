@@ -344,7 +344,7 @@ export const en = {
       },
       {
         heading: "Chapters: Draft, Recast, Analyze",
-        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age."
+        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age. Below the text, Rare and Clichés toggle two optional highlights — uncommon words for that reader, and phrasing that reads as AI-generated (\"a testament to\", overused em dashes) — one at a time, off by default."
       },
       {
         heading: "Scenes",
@@ -709,6 +709,10 @@ export const en = {
     rareOff: "Rare off",
     rareOnTitle: "Hide uncommon words",
     rareOffTitle: "Mark uncommon words",
+    ticsOn: "Clichés on",
+    ticsOff: "Clichés off",
+    ticsOnTitle: "Hide AI-sounding phrases",
+    ticsOffTitle: "Mark AI-sounding phrases",
     title: "How it reads",
     emptyTitle: "No prose yet",
     writeSome: "Write some prose to see how it reads.",

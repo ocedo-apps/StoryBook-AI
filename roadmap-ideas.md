@@ -32,7 +32,7 @@ inte en ensidig lista.
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
 | 15 | Klickbara namn i manuset → Story Bible | ⬜ ej påbörjad |
 | 16 | Tidsmedveten Story Bible | ✅ byggd (v0.87) |
-| 17 | AI-skrivtics-markering | ⬜ ej påbörjad |
+| 17 | AI-skrivtics-markering | ✅ byggd (v0.95) |
 | 18 | Character Interviews | ⬜ ej påbörjad |
 | 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
 | 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
@@ -394,12 +394,20 @@ ordningen (punkt 9) — "vad visste jag vid kapitel 5" är i grunden en
 läsordningsfråga, inte en berättelseklocka-fråga. Story-tid-baserad
 visning sparas som en möjlig framtida variant, inte byggd nu.
 
-### 17. AI-skrivtics-markering
+### 17. AI-skrivtics-markering ✅ byggd (v0.95)
 En lista med vanliga AI-klichéer ("a testament to", "tapestry of",
 överdrivet tankstreck-bruk) markerade i texten, samma mekanism som
 "rare words"-highlighting redan använder. Extra relevant eftersom
 appen själv genererar text via AI. Billigt att bygga, inget nytt
 AI-anrop.
+
+Byggd precis som skisserat: ny `findAiTicHits()` i `aiTics.ts` (kurerad
+frastlista + tankstreck-täthetskontroll, bara flaggad vid faktisk
+överanvändning), en ny "Klichéer"-växel bredvid "Ovanliga ord" i
+Brainstorm/Synopsis/kapitelvyn, ömsesidigt uteslutande med den
+befintliga växeln för att hålla överlägget läsbart. Egen lila färg
+skild från "ovanliga ord"-orange. Ren markering utan interaktion ovanpå
+— högerklick-ordalternativ förblir en "ovanliga ord"-specifik grej.
 
 ### 18. Character Interviews — chatta med en karaktär
 En tredje chattform utöver Ask Manuscript (punkt 8, frågar om

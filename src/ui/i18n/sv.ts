@@ -346,7 +346,7 @@ export const sv: Messages = {
       },
       {
         heading: "Kapitel: Skriv utkast, Omskriv, Analysera",
-        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern."
+        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern. Under texten växlar Ovanliga ord och Klichéer mellan två valfria markeringar — ovanliga ord för den läsaren, och formuleringar som låter AI-skrivna (\"ett bevis på\", överanvända tankstreck) — en i taget, avstängt som standard."
       },
       {
         heading: "Scener",
@@ -711,6 +711,10 @@ export const sv: Messages = {
     rareOff: "Ovanliga ord av",
     rareOnTitle: "Dölj ovanliga ord",
     rareOffTitle: "Markera ovanliga ord",
+    ticsOn: "Klichéer på",
+    ticsOff: "Klichéer av",
+    ticsOnTitle: "Dölj AI-klingande fraser",
+    ticsOffTitle: "Markera AI-klingande fraser",
     title: "Så läses det",
     emptyTitle: "Ingen prosa ännu",
     writeSome: "Skriv lite prosa för att se hur det läses.",
