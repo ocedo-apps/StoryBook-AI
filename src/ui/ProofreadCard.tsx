@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import type { Book } from "@core/BookSchema";
 import {
   PROOFREAD_STAGES,
@@ -49,6 +49,14 @@ export function ProofreadCard({
     return () => window.removeEventListener("keydown", onKey);
   }, [live, onClose]);
 
+  const [patient, setPatient] = useState(false);
+  useEffect(() => {
+    setPatient(false);
+    if (!live || !viewed.detail) return;
+    const id = window.setTimeout(() => setPatient(true), 20000);
+    return () => window.clearTimeout(id);
+  }, [live, viewed.detail]);
+
   const groups = PROOFREAD_STAGES.map((stage) => ({
     stage,
     rows: viewed.flags.filter((flag) => flag.stage === stage)
@@ -97,7 +105,19 @@ export function ProofreadCard({
               <span style={{ width: `${percent}%` }} />
             </div>
             <p className="quiet">{format(m.proofread.percent, { n: percent })}</p>
-            {viewed.detail ? <p className="quiet">{format(m.proofread.now, { detail: nowDetail(viewed.detail, m) })}</p> : null}
+            {viewed.detail ? (
+              <p className="quiet proofread-now">
+                {live ? (
+                  <span className="proofread-pulse" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                ) : null}
+                {format(m.proofread.now, { detail: nowDetail(viewed.detail, m) })}
+              </p>
+            ) : null}
+            {live && patient ? <p className="quiet proofread-patience">{m.proofread.stillWorking}</p> : null}
           </>
         ) : null}
 

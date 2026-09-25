@@ -493,6 +493,7 @@ export const nb: Messages = {
     nowStyle: "lytter etter et skifte i register eller følelse…",
     nowAge: "veier prosaen mot Leser…",
     nowFacts: "kontrollerer kapittel {n} mot Story Bible…",
+    stillWorking: "Jobber fortsatt — et enkelt kapittel kan ta noen minutter på tregere maskinvare. Ingenting har stanset.",
     percent: "{n}%",
     continue: "Fortsett",
     runAgain: "Kjør på nytt",

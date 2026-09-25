@@ -1,9 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.87
+Status: living document, v0.88
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.87 → v0.88:** Följd av författarens rapport om att
+Korrekturläsningen såg ut att fastna på 0%. Genomgång av koden hittade
+ingen bugg — men avslöjade en verklig svaghet i återkopplingen: under
+tiden ETT kapitel bearbetas (vilket på begränsad hårdvara, t.ex. ett
+8GB VRAM-kort, legitimt kan ta flera minuter) ändrades ingenting alls
+synligt förutom en statisk "Now: reading chapter 1…"-rad, med noll
+visuell signal om att appen fortfarande jobbar.
+
+Två tillägg till `ProofreadCard.tsx`, ingen ändring av själva
+körlogiken: en liten pulserande tre-punkts-animation bredvid
+"Now:"-raden (ren CSS, `prefers-reduced-motion`-medveten), synlig hela
+tiden under körning — och en ny rad, "Still working — a single chapter
+can take a few minutes on slower hardware. Nothing is stuck.", som
+dyker upp om samma steg-detalj stått oförändrad i 20 sekunder (en
+`setTimeout` som nollställs varje gång `detail` faktiskt ändras).
+Stänger loopen från supportfrågan permanent, istället för att bara
+svara en gång i chatten.
+
+Inga nya tester (rent presentations- och timing-lager, ingen ny
+kärnlogik). 565/565 gröna oförändrat. Verifierat i webbläsaren: mockad
+25 sekunders fördröjning på AI-anropet, bekräftade pulsanimationen
+syns direkt och att tålamods-raden dyker upp efter 20 sekunder, inte
+tidigare.
 
 **Ändringslogg v0.86 → v0.87:** Roadmap-punkt 16, Tidsmedveten Story
 Bible — visa en entitets tillstånd som det var vid en viss läsposition

@@ -493,6 +493,7 @@ export const sv: Messages = {
     nowStyle: "lyssnar efter ett skifte i register eller känsla…",
     nowAge: "väger prosan mot Läsare…",
     nowFacts: "kontrollerar kapitel {n} mot Story Bible…",
+    stillWorking: "Jobbar fortfarande — ett enda kapitel kan ta några minuter på långsammare hårdvara. Inget har fastnat.",
     percent: "{n}%",
     continue: "Fortsätt",
     runAgain: "Kör igen",

@@ -491,6 +491,7 @@ export const en = {
     nowStyle: "listening for a shift in register or mood…",
     nowAge: "weighing the prose against Reader…",
     nowFacts: "checking chapter {n} against the Story Bible…",
+    stillWorking: "Still working — a single chapter can take a few minutes on slower hardware. Nothing is stuck.",
     percent: "{n}%",
     continue: "Continue",
     runAgain: "Run again",
