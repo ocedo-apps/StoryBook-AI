@@ -118,6 +118,7 @@ export const sv: Messages = {
       adult: "Vuxen"
     },
     chapterReader: "Kapitlets läsare",
+    chapterSettingsToggle: "Kapitlets inställningar",
     chapterReaderInheritOption: "Samma som manuset — {category}",
     readerCue: "Läsare",
     newStrand: "ny tråd",

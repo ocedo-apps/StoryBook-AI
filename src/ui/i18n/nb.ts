@@ -118,6 +118,7 @@ export const nb: Messages = {
       adult: "Voksen"
     },
     chapterReader: "Kapitlets leser",
+    chapterSettingsToggle: "Kapitlets innstillinger",
     chapterReaderInheritOption: "Samme som manuskriptet — {category}",
     readerCue: "Leser",
     newStrand: "ny tråd",

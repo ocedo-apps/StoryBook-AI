@@ -1,9 +1,28 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.91
+Status: living document, v0.92
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.91 → v0.92:** Kapitelinställningarna (Voice, Reader,
+POV, Tense, Viewpoint, Fortsätter från, Skriv om-knappen) låg tidigare
+alltid synliga under kapitelrubriken, även om man sällan ändrar dem.
+Flyttade hela blocket ovanför rubriken och gjorde det till en
+ihopfällbar sektion ("▸ Chapter settings"), samma mönster som den
+befintliga scen-listans ihopfällning.
+
+Nytt: sektionen öppnas automatiskt om kapitlet faktiskt avviker från
+manuset (egen Voice, Reader, POV, Tense, Viewpoint eller
+Fortsätter-från satt) — annars är den stängd som standard, eftersom
+inget finns att se. Öppen/stängd räknas om varje gång man byter
+kapitel (inte en global inställning), så man aldrig missar en aktiv
+avvikelse på ett kapitel bara för att ett annat kapitel var stängt.
+
+Ingen ändring av vad fälten gör, bara var de ligger och att de går att
+gömma undan. 567/567 gröna. Verifierat i webbläsaren: stängt läge,
+öppet läge, och att ett kapitel med en satt avvikelse öppnas
+automatiskt efter omladdning.
 
 **Ändringslogg v0.90 → v0.91:** Läsarålder som färdiga nivåer +
 innehållsflaggning i Korrekturläsningen, efter författarens önskemål

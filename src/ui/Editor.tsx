@@ -46,6 +46,7 @@ import {
   setWritingGoal,
   sortedChapters,
   updateChapter,
+  type Book,
   type Chapter,
   type WritingGoal
 } from "@core/BookSchema";
@@ -1198,73 +1199,9 @@ export function Editor() {
         ) : (
           <main className="manuscript">
             <div className="chapter-head">
-              <input
-                className="chapter-title"
-                value={chapter.title}
-                onChange={(event) =>
-                  void store.patchBook((current) => updateChapter(current, chapter.id, { title: event.target.value }))
-                }
-                aria-label={m.editor.chapterTitle}
-              />
-              <div className="chapter-head-top">
-                <div className="craft-field">
-                  <span>{m.editor.voice}</span>
-                  {chapter.voice !== undefined ? (
-                    <button
-                      type="button"
-                      className="text-button chapter-voice-reset"
-                      onClick={() =>
-                        void store.patchBook((current) => updateChapter(current, chapter.id, { voice: undefined }))
-                      }
-                    >
-                      {m.editor.manuscript}
-                    </button>
-                  ) : null}
-                  <textarea
-                    value={chapter.voice ?? ""}
-                    onChange={(event) => {
-                      const next = event.target.value;
-                      void store.patchBook((current) =>
-                        updateChapter(current, chapter.id, { voice: next.trim() === "" ? undefined : next })
-                      );
-                    }}
-                    placeholder={book.voice.trim() ? m.editor.chapterVoiceInherit : m.editor.voicePlaceholder}
-                    rows={1}
-                    aria-label={m.editor.chapterVoice}
-                  />
-                </div>
-                <div className="craft-field reader-head-field">
-                  <span>{m.editor.reader}</span>
-                  <select
-                    value={chapter.reader_age === undefined ? "inherit" : readerCategory(chapter.reader_age)}
-                    title={m.editor.readerTitle}
-                    aria-label={m.editor.chapterReader}
-                    onChange={(event) => {
-                      const choice = event.target.value;
-                      const age = choice === "inherit" ? undefined : READER_TIER_AGE[choice as ReaderCategory];
-                      void store.patchBook((current) => updateChapter(current, chapter.id, { reader_age: age }));
-                    }}
-                  >
-                    <option value="inherit">
-                      {format(m.editor.chapterReaderInheritOption, {
-                        category: m.editor.readerCategories[readerCategory(book.reader_age)]
-                      })}
-                    </option>
-                    {READER_CATEGORIES.map((category) => (
-                      <option key={category} value={category}>
-                        {m.editor.readerCategories[category]}
-                      </option>
-                    ))}
-                  </select>
-                  {readerCategory(resolveReader(book, chapter)) !== "adult" ? (
-                    <p className="reader-hint">{m.editor.readerTierHint}</p>
-                  ) : null}
-                </div>
-              </div>
-              <ChapterCraftFields
-                bookPov={book.pov}
-                bookTense={book.tense}
-                bookViewpoint={book.viewpoint}
+              <ChapterSettingsSection
+                key={chapter.id}
+                book={book}
                 chapter={chapter}
                 chapters={chapters}
                 people={peopleLabels(book.facts, book.entity_kinds)}
@@ -1272,6 +1209,14 @@ export function Editor() {
                 recastDisabled={busy !== null || !chapter.prose.trim()}
                 onRecast={() => void store.recastChapter()}
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
+              />
+              <input
+                className="chapter-title"
+                value={chapter.title}
+                onChange={(event) =>
+                  void store.patchBook((current) => updateChapter(current, chapter.id, { title: event.target.value }))
+                }
+                aria-label={m.editor.chapterTitle}
               />
             </div>
             <ScenesPanel
@@ -1638,6 +1583,128 @@ function PovModeOptions() {
         ))}
       </optgroup>
     </>
+  );
+}
+
+type ChapterSettingsPatch = {
+  voice?: string | undefined;
+  reader_age?: number | undefined;
+  pov?: PovMode | undefined;
+  tense?: Tense | undefined;
+  viewpoint?: string | undefined;
+  continues_from?: string | undefined;
+};
+
+function chapterHasSettingsOverride(chapter: Chapter): boolean {
+  return (
+    chapter.voice !== undefined ||
+    chapter.reader_age !== undefined ||
+    chapter.pov !== undefined ||
+    chapter.tense !== undefined ||
+    chapter.viewpoint !== undefined ||
+    chapter.continues_from !== undefined
+  );
+}
+
+function ChapterSettingsSection({
+  book,
+  chapter,
+  chapters,
+  people,
+  recasting,
+  recastDisabled,
+  onRecast,
+  onPatch
+}: {
+  book: Book;
+  chapter: Chapter;
+  chapters: Chapter[];
+  people: string[];
+  recasting: boolean;
+  recastDisabled: boolean;
+  onRecast: () => void;
+  onPatch: (patch: ChapterSettingsPatch) => void;
+}) {
+  const { messages: m } = useLocale();
+  const [open, setOpen] = useState(chapterHasSettingsOverride(chapter));
+
+  return (
+    <div className="chapter-settings">
+      <button
+        type="button"
+        className="chapter-settings-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((on) => !on)}
+      >
+        <span className="chevron" aria-hidden="true">
+          {open ? "▾" : "▸"}
+        </span>
+        {m.editor.chapterSettingsToggle}
+      </button>
+      {open ? (
+        <div className="chapter-settings-body">
+          <div className="chapter-head-top">
+            <div className="craft-field">
+              <span>{m.editor.voice}</span>
+              {chapter.voice !== undefined ? (
+                <button type="button" className="text-button chapter-voice-reset" onClick={() => onPatch({ voice: undefined })}>
+                  {m.editor.manuscript}
+                </button>
+              ) : null}
+              <textarea
+                value={chapter.voice ?? ""}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  onPatch({ voice: next.trim() === "" ? undefined : next });
+                }}
+                placeholder={book.voice.trim() ? m.editor.chapterVoiceInherit : m.editor.voicePlaceholder}
+                rows={1}
+                aria-label={m.editor.chapterVoice}
+              />
+            </div>
+            <div className="craft-field reader-head-field">
+              <span>{m.editor.reader}</span>
+              <select
+                value={chapter.reader_age === undefined ? "inherit" : readerCategory(chapter.reader_age)}
+                title={m.editor.readerTitle}
+                aria-label={m.editor.chapterReader}
+                onChange={(event) => {
+                  const choice = event.target.value;
+                  const age = choice === "inherit" ? undefined : READER_TIER_AGE[choice as ReaderCategory];
+                  onPatch({ reader_age: age });
+                }}
+              >
+                <option value="inherit">
+                  {format(m.editor.chapterReaderInheritOption, {
+                    category: m.editor.readerCategories[readerCategory(book.reader_age)]
+                  })}
+                </option>
+                {READER_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {m.editor.readerCategories[category]}
+                  </option>
+                ))}
+              </select>
+              {readerCategory(resolveReader(book, chapter)) !== "adult" ? (
+                <p className="reader-hint">{m.editor.readerTierHint}</p>
+              ) : null}
+            </div>
+          </div>
+          <ChapterCraftFields
+            bookPov={book.pov}
+            bookTense={book.tense}
+            bookViewpoint={book.viewpoint}
+            chapter={chapter}
+            chapters={chapters}
+            people={people}
+            recasting={recasting}
+            recastDisabled={recastDisabled}
+            onRecast={onRecast}
+            onPatch={onPatch}
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }
 

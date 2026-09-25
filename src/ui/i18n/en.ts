@@ -116,6 +116,7 @@ export const en = {
       adult: "Adult"
     },
     chapterReader: "Chapter reader",
+    chapterSettingsToggle: "Chapter settings",
     chapterReaderInheritOption: "Same as manuscript — {category}",
     readerCue: "Reader",
     newStrand: "new strand",

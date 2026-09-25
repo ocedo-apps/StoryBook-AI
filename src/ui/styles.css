@@ -4048,6 +4048,29 @@ button.illustration-genre-item:focus-visible {
   }
 }
 
+.chapter-settings {
+  margin: 0 0 0.6rem;
+}
+
+.chapter-settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.35rem;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.chapter-settings-toggle .chevron {
+  display: inline-block;
+  width: 0.8em;
+  font-size: 0.9em;
+}
+
+.chapter-settings-body {
+  margin-top: 0.4rem;
+}
+
 .scenes-panel {
   margin: 0.6rem 0.55rem 0.9rem;
 }
