@@ -1,9 +1,24 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.5
+Status: living document, v0.99.6
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.5 → v0.99.6:** Rättade ordningen i vänstermenyn
+på författarens begäran. Fråga manuset, Tidslinje och Trådar låg
+tidigare klämda mellan Synopsis och Utvecklingsmetod/Dispositioner,
+vilket bröt själva skrivpipelinen mitt itu. Flyttade de tre till att
+stå tillsammans med de andra manus-omfattande referensverktygen,
+direkt före Korrekturläsning/Publicera (de behöver ändå skrivet
+material för att vara meningsfulla). Utvecklingsmetod satt redan rätt
+(precis före Dispositioner, eftersom dess resultat landar i just
+Synopsis/Trådar) och rördes inte. Ny ordning: Brainstorm → Synopsis →
+Utvecklingsmetod → Dispositioner → Kapitel → Fråga manuset →
+Tidslinje → Trådar → Korrekturläsning → Publicera — en obruten
+skrivpipeline följt av en grupp referensverktyg. Ren
+JSX-omflyttning, ingen ny logik. 597/597 gröna, verifierat i
+webbläsaren.
 
 **Ändringslogg v0.99.4 → v0.99.5:** Författaren skrev om stora delar av
 Guiden själv och bad mig faktagranska den mot koden innan den lades

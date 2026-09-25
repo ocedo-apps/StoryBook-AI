@@ -787,60 +787,6 @@ export function Editor() {
           <div className="synopsis-item-row">
             <button
               type="button"
-              className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showAsk();
-              }}
-            >
-              {m.askManuscript.nav}
-            </button>
-            <GuideHelpButton
-              anchor="ask-manuscript"
-              ariaLabel={format(m.guide.helpFor, { topic: m.askManuscript.nav })}
-              onOpen={openGuide}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onTimeline && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showTimeline();
-              }}
-            >
-              {m.timeline.nav}
-            </button>
-            <GuideHelpButton
-              anchor="timeline"
-              ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
-              onOpen={openGuide}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showPlotlines();
-              }}
-            >
-              {m.plotlines.nav}
-            </button>
-            <GuideHelpButton
-              anchor="plotlines"
-              ariaLabel={format(m.guide.helpFor, { topic: m.plotlines.nav })}
-              onOpen={openGuide}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
               className={onMethod && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
               onClick={() => {
                 dismissProofread();
@@ -1056,6 +1002,60 @@ export function Editor() {
               );
             })}
           </ol>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showAsk();
+              }}
+            >
+              {m.askManuscript.nav}
+            </button>
+            <GuideHelpButton
+              anchor="ask-manuscript"
+              ariaLabel={format(m.guide.helpFor, { topic: m.askManuscript.nav })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onTimeline && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showTimeline();
+              }}
+            >
+              {m.timeline.nav}
+            </button>
+            <GuideHelpButton
+              anchor="timeline"
+              ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
+              onOpen={openGuide}
+            />
+          </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showPlotlines();
+              }}
+            >
+              {m.plotlines.nav}
+            </button>
+            <GuideHelpButton
+              anchor="plotlines"
+              ariaLabel={format(m.guide.helpFor, { topic: m.plotlines.nav })}
+              onOpen={openGuide}
+            />
+          </div>
           <div className="synopsis-item-row">
             <button
               type="button"
