@@ -1,9 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.16
+Status: living document, v0.99.17
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.16 → v0.99.17:** Flyttade "Ny här? Läs
+snabbstarten" från en trång länk ovanför "Nytt manus"-fältet till en
+tydlig, ordentligt tilltagen knapp uppe till höger, i höjd med
+rubriken — på författarens begäran.
+
+- Ny rad, `.home-heading-row` (flex, `justify-content: space-between`),
+  runt `<h1>` och den nya knappen — rubriken tar kvarvarande bredd,
+  knappen håller sin egen.
+- Ny knappstil, `.home-guide-button`: bordad rektangel (inte den
+  rostorangea primärfärgen, som är reserverad för "Öppna") — tydligt
+  klickbar utan att konkurrera med huvudhandlingen.
+- 597/597 gröna. Verifierat i både ljust och mörkt tema vid 1600px.
 
 **Ändringslogg v0.99.15 → v0.99.16:** Fördubblade förstasidans bredd
 och la tillbaka loggan högst upp på sidan, på författarens begäran.

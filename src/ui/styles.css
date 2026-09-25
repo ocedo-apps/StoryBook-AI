@@ -336,6 +336,37 @@ button:disabled {
   display: block;
 }
 
+.home-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.home-heading-row h1 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.home-guide-button {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--ink);
+  background: transparent;
+  white-space: nowrap;
+}
+
+.home-guide-button:hover,
+.home-guide-button:focus-visible {
+  background: var(--raised);
+  border-color: var(--ink);
+}
+
 .theme-toggle {
   flex: 0 0 auto;
   letter-spacing: 0.1em;

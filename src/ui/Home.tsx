@@ -28,15 +28,17 @@ export function Home({
       <header className="home-brand">
         <img className="home-logo home-logo-light" src="/logo.png" alt="StoryBook AI" />
         <img className="home-logo home-logo-dark" src="/logo-dark.png" alt="StoryBook AI" />
-        <h1>
-          {m.home.headline}
-          <br />
-          {m.home.truth}
-        </h1>
+        <div className="home-heading-row">
+          <h1>
+            {m.home.headline}
+            <br />
+            {m.home.truth}
+          </h1>
+          <button type="button" className="home-guide-button" onClick={onOpenGuide}>
+            {m.guide.openFromHome}
+          </button>
+        </div>
         <p className="lede">{m.home.lede}</p>
-        <button type="button" className="text-button" onClick={onOpenGuide}>
-          {m.guide.openFromHome}
-        </button>
       </header>
 
       {error ? (
