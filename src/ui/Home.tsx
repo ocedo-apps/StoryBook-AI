@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { GuidePanel } from "./GuidePanel";
+import { QuickstartCards } from "./QuickstartCards";
 import { count, format, translateError, useLocale } from "./i18n";
 
 export function Home({
@@ -76,6 +77,10 @@ export function Home({
           {m.home.importBackup}
         </button>
       </p>
+
+      <section className="home-quickstart guide-quickstart-block">
+        <QuickstartCards />
+      </section>
 
       <section className="book-shelf" aria-label={m.home.shelf}>
         {summaries.length === 0 ? (

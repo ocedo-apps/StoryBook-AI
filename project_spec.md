@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.14
+Status: living document, v0.99.15
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.14 → v0.99.15:** Visar nu snabbstartskorten
+("Kom igång med en lokal AI") även på förstasidan, inte bara i
+Guiden — författarens idé för att en ovan användare ska få infon
+direkt, utan att behöva klicka in i Guiden.
+
+- Extraherade korten till en delad komponent, `QuickstartCards.tsx`
+  (samma ikoner, samma i18n-text), som både `GuidePanel.tsx` och
+  `Home.tsx` nu använder — ingen duplicerad kod eller text att hålla
+  i synk.
+- På förstasidan ligger korten direkt under fältet "Nytt manus", inte
+  ovanför — att skriva en titel kräver ingen AI alls, så den
+  handlingen ska synas först, med korten som stödinformation strax
+  under.
+- Tills vidare visas korten alltid på förstasidan (oavsett om det
+  redan finns manus), på författarens uttryckliga begäran — hon vill
+  se hur det ser ut i praktiken innan vi låser till "bara vid tomt
+  bibliotek". Görs villkorligt i ett senare steg om hon vill det.
+- 597/597 gröna. Verifierat i webbläsaren (1400px bredd, korten ~187px
+  breda inom förstasidans 40rem-tak — läsbart, inte trångt).
 
 **Ändringslogg v0.99.13 → v0.99.14:** Rättade förvirrande text i
 Guidens steg 1 ("Starta ditt manus"), efter författarens feedback.
