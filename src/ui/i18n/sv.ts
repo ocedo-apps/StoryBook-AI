@@ -262,7 +262,8 @@ export const sv: Messages = {
       proofread: "Korrekturläsning",
       "ask-manuscript": "Fråga manuset",
       interview: "Karaktärsintervju",
-      develop: "Utvecklingsmetod"
+      develop: "Utvecklingsmetod",
+      "extract-interview": "Extrahera fakta (intervju)"
     }
   },
   askManuscript: {
@@ -286,7 +287,9 @@ export const sv: Messages = {
     asking: "Frågar…",
     you: "Du",
     thinking: "{name} tänker…",
-    empty: "Inget frågat än. Börja samtalet med {name} nedan."
+    empty: "Inget frågat än. Börja samtalet med {name} nedan.",
+    extractAction: "Plocka ut fakta",
+    extracting: "Plockar ut…"
   },
   timeline: {
     nav: "Tidslinje",
@@ -460,7 +463,7 @@ export const sv: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Säger de något värt att spara, tryck Plocka ut fakta för att föreslå det till Story Bible — samma granskningskö som all annan extraktion, inget läggs till förrän du godkänner. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
       },
       {
         heading: "Kontinuitetsvarningar",
@@ -1013,6 +1016,7 @@ export const sv: Messages = {
     extractEmpty: "Skriv eller ta fram lite prosa innan du extraherar fakta.",
     analyzeEmpty: "Skriv eller ta fram lite prosa innan du analyserar kapitlet.",
     extractorNone: "Extraktorn hittade inga uttalade fakta i det här kapitlet.",
+    interviewExtractorNone: "Extraktorn hittade inga uttalade fakta i det här samtalet.",
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",
     askManuscriptNoMatch: "Inget i manuset matchar den frågan.",

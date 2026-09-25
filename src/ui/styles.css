@@ -2136,7 +2136,7 @@ button:disabled {
 
 .interview-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.45rem;
   width: 100%;
 }

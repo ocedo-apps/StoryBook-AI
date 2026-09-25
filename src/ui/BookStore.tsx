@@ -1441,6 +1441,47 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, interviewEntity, interviewHistory, model, models.length, ollamaError, recordPrompt]
   );
 
+  const extractInterview = useCallback(async () => {
+    const current = bookRef.current;
+    const target = interviewEntity;
+    if (!current || !target || busy || interviewHistory.length === 0) return;
+    if (models.length === 0) {
+      setError(ollamaError ?? STORE_ERROR.noModel);
+      return;
+    }
+    setBusy("extract-interview");
+    setError(null);
+    try {
+      const transcript = interviewHistory
+        .map((turn) => `${turn.role === "user" ? "Author" : target.label}: ${turn.content}`)
+        .join("\n\n");
+      const provider = makeProvider(reviewModel);
+      const extractMessages: PromptDebugMessage[] = [
+        { role: "system", content: EXTRACTOR_SYSTEM },
+        { role: "user", content: extractorUserPrompt(transcript, `Interview: ${target.label}`) }
+      ];
+      recordPrompt("extract-interview", reviewModel, extractMessages);
+      const raw = await provider.chat({
+        messages: extractMessages,
+        temperature: 0.1,
+        maxTokens: 1200
+      });
+      const drafts = parseExtractorPayload(raw);
+      if (drafts.length === 0) {
+        setError(STORE_ERROR.interviewExtractorNone);
+        return;
+      }
+      const chapter = current.chapters.find((item) => item.id === chapterRef.current) ?? sortedChapters(current)[0];
+      if (!chapter) return;
+      const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id);
+      await flushSave(touch(current, { facts: nextFacts }));
+    } catch (err) {
+      setError(ollamaHint(err));
+    } finally {
+      setBusy(null);
+    }
+  }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, reviewModel]);
+
   const setDevelopmentMethod = useCallback(
     async (id: string | null) => {
       setDevelopSuggestion(null);
@@ -1721,6 +1762,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     askManuscript,
     startInterview,
     askCharacter,
+    extractInterview,
     closeInterview,
     setDevelopmentMethod,
     developExpand,

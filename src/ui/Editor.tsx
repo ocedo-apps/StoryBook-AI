@@ -1541,7 +1541,9 @@ export function Editor() {
           {...(interviewThumb !== undefined ? { characterThumb: interviewThumb } : {})}
           history={store.interviewHistory}
           busy={busy === "interview"}
+          extracting={busy === "extract-interview"}
           onAsk={(question) => void store.askCharacter(question)}
+          onExtractFacts={() => void store.extractInterview()}
           onClose={store.closeInterview}
         />
       ) : null}

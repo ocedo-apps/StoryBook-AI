@@ -23,6 +23,7 @@ export type Busy =
   | "proofread"
   | "illustrate"
   | "interview"
+  | "extract-interview"
   | "develop"
   | null;
 
@@ -108,6 +109,7 @@ export type BookStoreValue = {
   dismissDevelopSuggestion: () => void;
   startInterview: (entityRef: string, entityLabel: string) => void;
   askCharacter: (question: string) => Promise<void>;
+  extractInterview: () => Promise<void>;
   closeInterview: () => void;
   addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;

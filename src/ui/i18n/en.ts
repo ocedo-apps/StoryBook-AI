@@ -260,7 +260,8 @@ export const en = {
       proofread: "Proofread",
       "ask-manuscript": "Ask Manuscript",
       interview: "Character interview",
-      develop: "Development method"
+      develop: "Development method",
+      "extract-interview": "Extract facts (interview)"
     }
   },
   askManuscript: {
@@ -284,7 +285,9 @@ export const en = {
     asking: "Asking…",
     you: "You",
     thinking: "{name} is thinking…",
-    empty: "Nothing asked yet. Start the conversation with {name} below."
+    empty: "Nothing asked yet. Start the conversation with {name} below.",
+    extractAction: "Extract facts",
+    extracting: "Extracting…"
   },
   timeline: {
     nav: "Timeline",
@@ -459,7 +462,7 @@ export const en = {
       },
       {
         heading: "Story Bible",
-        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
+        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon. If something they say is worth keeping, press Extract facts to propose it for the Story Bible, same review queue as any other extraction — nothing is added until you approve it. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
       },
       {
         heading: "Continuity warnings",
@@ -1012,6 +1015,7 @@ export const en = {
     extractEmpty: "Write or draft some prose before extracting facts.",
     analyzeEmpty: "Write or draft some prose before analyzing the chapter.",
     extractorNone: "Extractor found no stated facts in this chapter.",
+    interviewExtractorNone: "Extractor found no stated facts in this conversation.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",

@@ -1,9 +1,38 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.1
+Status: living document, v0.99.2
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.1 → v0.99.2:** Två småförbättringar av
+Karaktärsintervjun, båda direkt efterfrågade av författaren efter
+förra ändringen.
+
+- Avatarerna var bottenjusterade (`align-items: flex-end`) så att de
+  hamnade vid sista raden i en lång replik istället för högst upp vid
+  namnet — ologiskt när bubblan är flera stycken lång. Ändrat till
+  `flex-start` så avataren alltid ligger i kant med repliktexten.
+- Ny "Plocka ut fakta"-knapp i intervjuns huvud. Skickar hela
+  transkriptet genom exakt samma extraktor som redan används för
+  kapitelprosa (`EXTRACTOR_SYSTEM`/`extractorUserPrompt`/
+  `parseExtractorPayload` i `extractFacts.ts`, samma
+  `applyExtractorDrafts()` som kapitel-extraktionen) — inget nytt att
+  bygga där. Extraktorn är entitetsagnostisk och plockar upp fakta om
+  VEM SOM HELST som nämns i samtalet, inte bara den intervjuade
+  karaktären (verifierat: en intervju med Kraighten som nämnde vännen
+  Tonnison gav förslag på båda). Landar i exakt samma
+  granskningskö ("Review") som all annan extraherad fakta — inget
+  låses förrän författaren själv godkänner, i linje med "författaren
+  slår alltid AI"-principen. Provenens (vilket kapitel/sekvensindex
+  fakta registreras mot) återanvänder samma mönster som `addFact()`
+  redan gör för manuellt tillagda fakta: det just nu öppna kapitlet,
+  eftersom en intervju inte har någon egen manusposition.
+- 597/597 gröna (inga nya kärntester behövdes — funktionen är ren
+  återanvändning av redan testad extraktor- och gate-logik). Verifierat
+  i webbläsaren med ett mockat AI-svar: avataren ligger nu i kant med
+  namnet, och "Plocka ut fakta" ger tre korrekta förslag i
+  granskningskön efter ett samtal.
 
 **Ändringslogg v0.99 → v0.99.1:** Fixade en CSS-specificitetsbugg i
 Karaktärsintervjun där texten rann utanför fönstrets kant, och byggde

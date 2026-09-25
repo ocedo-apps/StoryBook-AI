@@ -26,14 +26,18 @@ export function CharacterInterviewCard({
   characterThumb,
   history,
   busy,
+  extracting,
   onAsk,
+  onExtractFacts,
   onClose
 }: {
   entity: { ref: string; label: string };
   characterThumb?: string;
   history: InterviewMessage[];
   busy: boolean;
+  extracting: boolean;
   onAsk: (question: string) => void;
+  onExtractFacts: () => void;
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
@@ -64,9 +68,19 @@ export function CharacterInterviewCard({
       <div className="edit-card interview-card" role="dialog" aria-modal="true" aria-labelledby="interview-title">
         <div className="stats-card-head">
           <p className="chapter-craft-label">{m.interview.action}</p>
-          <button type="button" className="text-button" onClick={onClose}>
-            {m.common.close}
-          </button>
+          <div className="bible-card-head-actions">
+            <button
+              type="button"
+              className="text-button"
+              disabled={history.length === 0 || busy || extracting}
+              onClick={onExtractFacts}
+            >
+              {extracting ? m.interview.extracting : m.interview.extractAction}
+            </button>
+            <button type="button" className="text-button" onClick={onClose}>
+              {m.common.close}
+            </button>
+          </div>
         </div>
         <h2 id="interview-title">{format(m.interview.title, { name: entity.label })}</h2>
         <p className="quiet">{format(m.interview.lede, { name: entity.label })}</p>

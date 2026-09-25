@@ -262,7 +262,8 @@ export const nb: Messages = {
       proofread: "Korrekturlesing",
       "ask-manuscript": "Spør manuset",
       interview: "Karakterintervju",
-      develop: "Utviklingsmetode"
+      develop: "Utviklingsmetode",
+      "extract-interview": "Hent ut fakta (intervju)"
     }
   },
   askManuscript: {
@@ -286,7 +287,9 @@ export const nb: Messages = {
     asking: "Spør…",
     you: "Du",
     thinking: "{name} tenker…",
-    empty: "Ingenting spurt om ennå. Start samtalen med {name} nedenfor."
+    empty: "Ingenting spurt om ennå. Start samtalen med {name} nedenfor.",
+    extractAction: "Hent ut fakta",
+    extracting: "Henter ut…"
   },
   timeline: {
     nav: "Tidslinje",
@@ -460,7 +463,7 @@ export const nb: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Sier de noe verdt å ta vare på, trykk Hent ut fakta for å foreslå det til Story Bible — samme gjennomgangskø som all annen ekstraksjon, ingenting legges til før du godkjenner. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
       },
       {
         heading: "Kontinuitetsvarsler",
@@ -1013,6 +1016,7 @@ export const nb: Messages = {
     extractEmpty: "Skriv eller ta fram litt prosa før du henter ut fakta.",
     analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
+    interviewExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne samtalen.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",
