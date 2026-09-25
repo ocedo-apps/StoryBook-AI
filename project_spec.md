@@ -1,9 +1,20 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.6
+Status: living document, v0.99.7
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.6 → v0.99.7:** Linjerade "Använd den här
+metoden"-knapparna i metodväljarens kort. `.method-card` var
+`display: grid; align-content: start`, så olika lång
+beskrivningstext gav olika kort-höjder innan knappen, trots att
+korten själva var lika höga (grid sträcker rader som standard).
+Ändrat till `display: flex; flex-direction: column` med
+`margin-top: auto` på knappen, så den alltid botten-justeras — exakt
+mönstret författaren pekade på (Snowflake-kortet, med sin längre
+text, hade redan knappen där den skulle vara). 597/597 gröna,
+verifierat i webbläsaren med alla fyra korten i rad.
 
 **Ändringslogg v0.99.5 → v0.99.6:** Rättade ordningen i vänstermenyn
 på författarens begäran. Fråga manuset, Tidslinje och Trådar låg

@@ -4514,10 +4514,14 @@ button.illustration-genre-item:focus-visible {
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   padding: 0.9rem 1rem;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  align-content: start;
   background: var(--raised);
+}
+
+.method-card button {
+  margin-top: auto;
 }
 
 .method-card h3 {
