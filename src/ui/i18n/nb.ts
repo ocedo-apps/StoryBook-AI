@@ -428,7 +428,7 @@ export const nb: Messages = {
     quickstartSteps: [
       {
         heading: "1. Installer en lokal modell",
-        body: "Enklest er Ollama. Last den ned fra ollama.com og installer den som et hvilket som helst annet program, åpne den så og hent en modell — den viser et bibliotek å velge fra. Enhver vanlig chattemodell fungerer for å starte (f.eks. llama3 eller mistral — noen gigabyte å laste ned, én gang). Foretrekker du LM Studio eller en annen lokal server i stedet? Det fungerer også — se neste steg."
+        body: "Enklest er Ollama. Last den ned fra ollama.com og installer den som et hvilket som helst annet program, åpne den og hent en modell — den viser et bibliotek å velge fra. Vi anbefaler varmt en modell trent for skjønnlitterær prosa, for eksempel fluffy/l3-8b-stheno-v3.2 (søk etter «stheno» i Ollama). Ellers fungerer enhver vanlig chat-modell for å komme i gang (for eksempel llama3 eller mistral — noen gigabyte å laste ned, én gang). Foretrekker du LM Studio eller en annen lokal server i stedet? Det fungerer også — se neste steg."
       },
       {
         heading: "2. Pek StoryBook AI mot den",
@@ -446,16 +446,20 @@ export const nb: Messages = {
     howHeading: "Slik er appen bygd opp",
     sections: [
       {
+        heading: "Et helt lukket digitalt pengeskap",
+        body: "StoryBook AI er bygget rundt én regel: manuset ditt er din eiendom, og det skal aldri forlate datamaskinen din. Det finnes ingen vei ut til internett i appen — ingen API-nøkler til ChatGPT, Claude eller andre skytjenester (det er ikke en manglende funksjon, men et bevisst valg), ingen oppdateringssjekker mot GitHub, og skriftene følger med i appen i stedet for å hentes utenfra. Teksten din lever bare lokalt i nettleseren, og AI-modellen kjører bare på din egen prosessor. Uansett hva du skriver — dagbok, forretningshemmeligheter eller det neste store fantasy-eposet — blir hver bokstav hos deg."
+      },
+      {
         heading: "Forfatteren vinner alltid over AI-en",
         body: "Modellen foreslår, du bestemmer. En detalj modellen finner på i prosaen forblir et forslag — vist med en lett stiplet understrek — til du låser den i Story Bible. Ingenting blir kanon av seg selv."
       },
       {
         heading: "Idémyldring & Synopsis",
-        body: "Idémyldring er der idéer lever før de blir historie — ett notat per idé, dragbart, ingen rekkefølge kreves. Dra de som holder mål til Synopsis: formen på hele boken, i noen setninger. Hvert kapittelutkast lener seg på Synopsis, aldri på idémyldring-notater du ikke har løftet over."
+        body: "Idémyldring er din private oppslagstavle — kladdepapir eller en tavle med post-it-lapper, ett notat per idé, dragbart, ingen rekkefølge kreves. Lag utkast lener seg aldri på et notat du ikke har løftet over til Synopsis. (Spør du modellen om notatene dine, eller ber den forlenge eller utdype et av dem, leser den selvsagt det du spør om — men ingenting derfra blir kanon eller lekker inn i kapittelskrivingen av seg selv.) Løft ideene som holder mål over til Synopsis: formen på hele boken, i noen setninger. Det er dette AI-modellen lener seg på når den senere hjelper deg å skrive kapitler."
       },
       {
         heading: "Kapitler: Lag utkast, Omskriv, Analyser",
-        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen. Under teksten veksler Sjeldne ord og Klisjeer mellom to valgfrie markeringer — uvanlige ord for den leseren, og formuleringer som høres AI-skrevne ut (\"et bevis på\", overbrukte tankestreker) — én om gangen, avslått som standard."
+        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer uten å skrive om en eneste linje — for eksempel å \"fortelle\" i stedet for å vise (i stedet for \"Lisa var rasende\" foreslår den kanskje \"Lisa smalt igjen døren så kaffekoppene skalv\"), fyll-dialog, eller et trekk som kolliderer med et låst karaktertrekk. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen. Under teksten veksler Sjeldne ord og Klisjeer mellom to valgfrie markeringer — uvanlige ord for den leseren, og formuleringer som høres AI-skrevne ut (\"et bevis på\", overbrukte tankestreker) — én om gangen, avslått som standard."
       },
       {
         heading: "Scener",
@@ -463,7 +467,7 @@ export const nb: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Sier de noe verdt å ta vare på, trykk Hent ut fakta for å foreslå det til Story Bible — samme gjennomgangskø som all annen ekstraksjon, ingenting legges til før du godkjenner. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi — motsier et nytt forslag et allerede låst faktum (for eksempel at noen plutselig har brune øyne når du har låst blå), blir det flagget ekstra tydelig i gjennomgangskøen. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Sier de noe verdt å ta vare på, trykk Hent ut fakta for å foreslå det til Story Bible — samme gjennomgangskø som all annen ekstraksjon, ingenting legges til før du godkjenner. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
       },
       {
         heading: "Kontinuitetsvarsler",

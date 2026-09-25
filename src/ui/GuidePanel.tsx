@@ -8,6 +8,7 @@ import { useLocale } from "./i18n";
  * by hand with `guide.sections` in the locale files (index-for-index).
  */
 export const GUIDE_SECTION_IDS = [
+  "privacy",
   "author",
   "brainstorm-synopsis",
   "chapters",

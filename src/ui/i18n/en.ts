@@ -427,7 +427,7 @@ export const en = {
     quickstartSteps: [
       {
         heading: "1. Install a local model",
-        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — it will show you a library to pick from. Any general chat model works to start (for example llama3 or mistral — a few gigabytes to download, once). Prefer LM Studio or another local server instead? That works too — see the next step."
+        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — it will show you a library to pick from. We warmly recommend a model tuned for fiction, for example fluffy/l3-8b-stheno-v3.2 (search for \"stheno\" in Ollama). Otherwise, any general chat model works to start (for example llama3 or mistral — a few gigabytes to download, once). Prefer LM Studio or another local server instead? That works too — see the next step."
       },
       {
         heading: "2. Point StoryBook AI at it",
@@ -445,16 +445,20 @@ export const en = {
     howHeading: "How the app is built",
     sections: [
       {
+        heading: "A fully closed digital safe",
+        body: "StoryBook AI is built around one rule: your manuscript is your property, and it should never leave your computer. There is no way out to the internet in this app — no API keys for ChatGPT, Claude, or other cloud services (that's not a missing feature, it's a deliberate choice), no update checks against GitHub, and the fonts ship bundled with the app instead of being fetched from anywhere. Your text lives only in your browser, and the AI model runs only on your own processor. Whatever you're writing — a diary, trade secrets, or your next big fantasy epic — every letter stays with you."
+      },
+      {
         heading: "Author beats AI, always",
         body: "The model proposes; you decide. A detail the model invents in prose stays a proposal — shown with a light dashed underline — until you lock it into the Story Bible. Nothing crosses into canon on its own."
       },
       {
         heading: "Brainstorm & Synopsis",
-        body: "Brainstorm is where ideas live before they are story — one note per idea, draggable, no order required. Lift the ones that stick into the Synopsis: the shape of the whole book, in a few sentences. Every chapter draft leans on the Synopsis, never on brainstorm notes you have not lifted."
+        body: "Brainstorm is your private corkboard — scratch paper or a wall of sticky notes, one note per idea, draggable, no order required. Draft never leans on a note you haven't lifted into Synopsis. (Ask the model about your notes, or have it extend or elaborate one, and it naturally reads what you're asking about — but nothing from there becomes canon or leaks into chapter-writing on its own.) Lift the ideas that stick into Synopsis: the shape of the whole book, in a few sentences. It's what the AI model leans on when it later helps you write chapters."
       },
       {
         heading: "Chapters: Draft, Recast, Analyze",
-        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age. Below the text, Rare and Clichés toggle two optional highlights — uncommon words for that reader, and phrasing that reads as AI-generated (\"a testament to\", overused em dashes) — one at a time, off by default."
+        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues without rewriting a word — telling instead of showing (instead of \"Lisa was furious,\" it might suggest \"Lisa slammed the door so hard the coffee cups rattled\"), filler dialogue, or a beat that clashes with a locked trait. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age. Below the text, Rare and Clichés toggle two optional highlights — uncommon words for that reader, and phrasing that reads as AI-generated (\"a testament to\", overused em dashes) — one at a time, off by default."
       },
       {
         heading: "Scenes",
@@ -462,7 +466,7 @@ export const en = {
       },
       {
         heading: "Story Bible",
-        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon. If something they say is worth keeping, press Extract facts to propose it for the Story Bible, same review queue as any other extraction — nothing is added until you approve it. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
+        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict — if a new proposal contradicts an already-locked fact (say, someone suddenly has brown eyes when you've locked blue), it gets flagged extra clearly in the review queue. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon. If something they say is worth keeping, press Extract facts to propose it for the Story Bible, same review queue as any other extraction — nothing is added until you approve it. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
       },
       {
         heading: "Continuity warnings",

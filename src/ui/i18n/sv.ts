@@ -428,7 +428,7 @@ export const sv: Messages = {
     quickstartSteps: [
       {
         heading: "1. Installera en lokal modell",
-        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — den visar ett bibliotek att välja från. Vilken vanlig chattmodell som helst funkar för att börja (t.ex. llama3 eller mistral — några gigabyte att ladda ner, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
+        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — den visar ett bibliotek att välja från. Vi rekommenderar varmt en modell tränad för skönlitterär prosa, till exempel fluffy/l3-8b-stheno-v3.2 (sök efter \"stheno\" i Ollama). Annars fungerar vilken allmän chattmodell som helst för att börja (t.ex. llama3 eller mistral — några gigabyte att ladda ner, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
       },
       {
         heading: "2. Peka StoryBook AI mot den",
@@ -446,16 +446,20 @@ export const sv: Messages = {
     howHeading: "Så är appen uppbyggd",
     sections: [
       {
+        heading: "Ett helt stängt digitalt kassaskåp",
+        body: "StoryBook AI är byggd kring en enda regel: ditt manus är din egendom, och det ska aldrig lämna din dator. Det finns ingen väg ut mot internet i appen — inga API-nycklar till ChatGPT, Claude eller andra molntjänster (det är inte en saknad funktion, utan ett medvetet val), inga uppdateringskontroller mot GitHub, och typsnitten ligger paketerade i appen istället för att hämtas utifrån. Din text lagras enbart lokalt i webbläsaren, och AI-modellen körs enbart på din egen processor. Oavsett vad du skriver — dagbok, företagshemligheter eller nästa stora fantasy-epos — stannar varje bokstav hos dig."
+      },
+      {
         heading: "Författaren vinner alltid över AI:n",
         body: "Modellen föreslår, du bestämmer. En detalj modellen hittar på i prosan förblir ett förslag — visas med en lätt streckad understrykning — tills du låser den i Story Bible. Inget blir kanon av sig självt."
       },
       {
         heading: "Brainstorm & Synopsis",
-        body: "Brainstorm är där idéer lever innan de blir berättelse — en anteckning per idé, dragbar, ingen ordning krävs. Dra de som håller till Synopsis: formen på hela boken, i några meningar. Varje kapitelutkast lutar sig mot Synopsis, aldrig mot brainstorm-anteckningar du inte lyft över."
+        body: "Brainstorm är din privata anslagstavla — ett kladdpapper eller en tavla med post-it-lappar, en anteckning per idé, dragbar, ingen ordning krävs. Skriv utkast lutar sig aldrig mot en anteckning du inte lyft över till Synopsis. (Frågar du modellen om dina anteckningar, eller ber den förlänga eller utveckla en av dem, läser den förstås det du frågar om — men inget därifrån blir kanon eller läcker in i kapitel-skrivandet av sig självt.) Dra de idéer som håller till Synopsis: formen på hela boken, i några meningar. Det är detta AI-modellen lutar sig mot när den senare hjälper dig skriva kapitel."
       },
       {
         heading: "Kapitel: Skriv utkast, Omskriv, Analysera",
-        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern. Under texten växlar Ovanliga ord och Klichéer mellan två valfria markeringar — ovanliga ord för den läsaren, och formuleringar som låter AI-skrivna (\"ett bevis på\", överanvända tankstreck) — en i taget, avstängt som standard."
+        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem utan att skriva om en enda rad — till exempel \"berätta\" istället för att visa (istället för \"Lisa var jättearg\" föreslår den kanske \"Lisa smällde igen dörren så att kaffekopparna skallrade\"), meningslös dialog, eller ett drag som krockar med ett låst karaktärsdrag. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern. Under texten växlar Ovanliga ord och Klichéer mellan två valfria markeringar — ovanliga ord för den läsaren, och formuleringar som låter AI-skrivna (\"ett bevis på\", överanvända tankstreck) — en i taget, avstängt som standard."
       },
       {
         heading: "Scener",
@@ -463,7 +467,7 @@ export const sv: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Säger de något värt att spara, tryck Plocka ut fakta för att föreslå det till Story Bible — samma granskningskö som all annan extraktion, inget läggs till förrän du godkänner. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga — motsäger ett nytt förslag redan låst fakta (till exempel att någon plötsligt har bruna ögon fast du låst att de är blå) flaggas det extra tydligt i granskningskön. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Säger de något värt att spara, tryck Plocka ut fakta för att föreslå det till Story Bible — samma granskningskö som all annan extraktion, inget läggs till förrän du godkänner. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
       },
       {
         heading: "Kontinuitetsvarningar",

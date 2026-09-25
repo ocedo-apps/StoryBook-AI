@@ -1,9 +1,55 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.4
+Status: living document, v0.99.5
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.4 → v0.99.5:** Författaren skrev om stora delar av
+Guiden själv och bad mig faktagranska den mot koden innan den lades
+in. Granskningen hittade en sak som var direkt fel och en som
+riskerade att missleda — båda korrigerade innan texten gick in, efter
+författarens beslut på varje punkt.
+
+- **"Helt isolerad" var inte sant.** `index.html` laddade tre
+  typsnitt (Figtree, Newsreader, IBM Plex Mono) från Google Fonts vid
+  varje start — den enda externa nätverkskopplingen som gick att
+  hitta någonstans i `src/`. Löst genom att bunta typsnitten lokalt:
+  hämtade woff2-filerna direkt (5 unika filer efter att ha filtrerat
+  bort `latin-ext`-delmängden, som inte behövs för sv/en/nb — några
+  av typsnitten visade sig vara variabla fonter där flera
+  deklarerade vikter pekar på samma fil), lade dem i
+  `public/fonts/`, skrev egna `@font-face`-regler i `styles.css` och
+  tog bort Google Fonts-länkarna helt. Verifierat med Playwright: hela
+  appen laddades och renderade korrekt med *alla* icke-lokala
+  värdnamn blockerade på nätverksnivå — noll externa anrop, typsnitten
+  bekräftat "loaded" via `document.fonts`. Nu stämmer påståendet i
+  guidens nya filosofi-avsnitt.
+- **Stheno-rekommendationen pekade fel.** `l3-8b-stheno` går inte att
+  hitta i Ollama rakt av — riktiga Ollama-namn är namnrymdade
+  (`fluffy/l3-8b-stheno-v3.2`, verifierat via websökning). Rättat i
+  snabbstartens steg 1 i alla tre språk.
+- Mindre rättningar: knappen heter "Lås" i granskningskön, inte
+  "Godkänn". "AI:n läser inte Brainstorm" stämde inte helt — Fråga/
+  Förläng/Utveckla-funktionerna läser faktiskt anteckningarna när man
+  använder dem (det som är sant är att inget därifrån blir kanon av
+  sig självt); omformulerat med författarens egna "anslagstavla/
+  post-it"-metafor. Ett exempel om en fakta-konflikt (bruna kontra
+  låsta blå ögon) flyttades från Analysera-avsnittet (som bara
+  jämför mot karaktärsdrag, inte sakuppgifter) till Story
+  Bible-avsnittet (där konfliktflaggning faktiskt sker).
+- Ny sektion "Ett helt stängt digitalt kassaskåp" (första i "Så är
+  appen uppbyggd") — ny `GUIDE_SECTION_IDS`-post `"privacy"` i
+  `GuidePanel.tsx`, plus motsvarande `guide.sections[0]` i alla tre
+  språkfiler. Ingen ny "?"-hjälpknapp kopplad till den (inget enskilt
+  navigeringselement den hör till), men anker-id:t finns för framtida
+  bruk.
+- Innehållet är nu översatt och konsekvent i alla tre språk (en/sv/
+  nb) — appens beteende och dess egen dokumentation stämmer nu
+  överens på den punkt som var den enda kända medvetna luckan.
+- 597/597 gröna genom hela arbetet (typsnittsbytet och textändringarna
+  rör ingen kärnlogik). Verifierat i webbläsaren i både engelskt och
+  svenskt gränssnitt.
 
 **Ändringslogg v0.99.3 → v0.99.4:** Justerade proportionerna på
 startsidans nya rubrik, på författarens direkta begäran: loggan
