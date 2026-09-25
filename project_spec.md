@@ -1,9 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.21
+Status: living document, v0.99.22
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.21 → v0.99.22:** Korsnedtoning mellan förstasidan
+och manussidan, på författarens begäran.
+
+- Använder webbläsarens inbyggda View Transitions API
+  (`document.startViewTransition`) istället för ett eget animations-
+  bibliotek — noll nya beroenden, fungerar automatiskt i alla
+  Chromium-baserade webbläsare. Webbläsare utan stöd (äldre Firefox)
+  hoppar bara direkt till nya sidan, ingen krasch.
+- Ny hjälpfunktion `withViewTransition()` i `BookStore.tsx`, som
+  slår in själva state-bytet (`setBook` + tillhörande setters) i
+  `flushSync` så att React hinner rendera klart innan webbläsaren tar
+  sin "efter"-ögonblicksbild.
+- Satte den bara runt de fem ställen där bok-läget faktiskt växlar
+  på författarens egen handling — öppna ett manus, skapa ett nytt,
+  importera en backup, gå tillbaka till förstasidan, radera det
+  öppna manuset. Rörde INTE de täta `setBook`-anropen för
+  autosparning/redigering (skulle ha gett en blinkning vid varje
+  knapptryck).
+- Justerade tondurationen till 320ms (webbläsarens standard är
+  250ms) för en lite lugnare känsla.
+- 597/597 gröna. Verifierat i webbläsaren: fångade en mellanbild
+  mitt i övertoningen där båda sidorna syns blandade, och bekräftade
+  att övergången bara triggas en gång per klick.
 
 **Ändringslogg v0.99.20 → v0.99.21:** "Nytt manus" → "Starta nytt
 manus", "Öppna" → "Skapa" — dels rättar en miss från v0.99.19 (bad om

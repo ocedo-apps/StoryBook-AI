@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   createBook,
   openingSurface,
@@ -103,6 +104,15 @@ const BASE_URL_KEY = "storybook-ai.base-url";
 
 function readEngine(): LlmEngine {
   return localStorage.getItem(ENGINE_KEY) === "openai-compatible" ? "openai-compatible" : "ollama";
+}
+
+/** Crossfades Home and Editor when the book/no-book boundary flips, via the browser's View Transitions API. Falls back to a plain state update where unsupported (e.g. Firefox). */
+function withViewTransition(update: () => void): void {
+  if (typeof document.startViewTransition === "function") {
+    document.startViewTransition(() => flushSync(update));
+  } else {
+    update();
+  }
 }
 
 function ollamaHint(error: unknown): string {
@@ -300,11 +310,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const openBook = useCallback(
     async (id: string) => {
       const loaded = await repo.get(id);
-      setBook(loaded);
-      const first = sortedChapters(loaded)[0]?.id ?? null;
-      setChapterIdState(first);
-      setSurface(openingSurface(loaded));
-      setChapterFeedback(null);
+      withViewTransition(() => {
+        setBook(loaded);
+        setChapterIdState(sortedChapters(loaded)[0]?.id ?? null);
+        setSurface(openingSurface(loaded));
+        setChapterFeedback(null);
+      });
       localStorage.setItem(LAST_BOOK_KEY, id);
       setError(null);
     },
@@ -321,10 +332,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     }
     const current = bookRef.current;
     if (current) void persist(current);
-    setBook(null);
-    setChapterIdState(null);
-    setSurface("brainstorm");
-    setChapterFeedback(null);
+    withViewTransition(() => {
+      setBook(null);
+      setChapterIdState(null);
+      setSurface("brainstorm");
+      setChapterFeedback(null);
+    });
     localStorage.removeItem(LAST_BOOK_KEY);
     void refresh();
   }, [persist, refresh]);
@@ -334,10 +347,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const created = createBook(title);
       await repo.save(created);
       setSummaries(await repo.list());
-      setBook(created);
-      setChapterIdState(sortedChapters(created)[0]?.id ?? null);
-      setSurface(openingSurface(created));
-      setChapterFeedback(null);
+      withViewTransition(() => {
+        setBook(created);
+        setChapterIdState(sortedChapters(created)[0]?.id ?? null);
+        setSurface(openingSurface(created));
+        setChapterFeedback(null);
+      });
       localStorage.setItem(LAST_BOOK_KEY, created.id);
       setError(null);
     },
@@ -384,10 +399,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       await repo.save(backup.book);
       setSummaries(await repo.list());
-      setBook(backup.book);
-      setChapterIdState(sortedChapters(backup.book)[0]?.id ?? null);
-      setSurface(openingSurface(backup.book));
-      setChapterFeedback(null);
+      withViewTransition(() => {
+        setBook(backup.book);
+        setChapterIdState(sortedChapters(backup.book)[0]?.id ?? null);
+        setSurface(openingSurface(backup.book));
+        setChapterFeedback(null);
+      });
       localStorage.setItem(LAST_BOOK_KEY, backup.book.id);
       recordLastJsonBackup(backup.book.id, new Date().toISOString());
       setError(null);
@@ -400,10 +417,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       await repo.delete(id);
       forgetLastJsonBackup(id);
       if (bookRef.current?.id === id) {
-        setBook(null);
-        setChapterIdState(null);
-        setSurface("brainstorm");
-        setChapterFeedback(null);
+        withViewTransition(() => {
+          setBook(null);
+          setChapterIdState(null);
+          setSurface("brainstorm");
+          setChapterFeedback(null);
+        });
       }
       await refresh();
     },

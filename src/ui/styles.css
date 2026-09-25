@@ -44,6 +44,13 @@
   src: url("/fonts/ibm-plex-mono-500.woff2") format("woff2");
 }
 
+/* Crossfades Home <-> Editor (see withViewTransition in BookStore.tsx). Browsers without support just skip straight to the new page. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: ease;
+}
+
 :root {
   --bg: #14110e;
   --panel: #1c1814;
