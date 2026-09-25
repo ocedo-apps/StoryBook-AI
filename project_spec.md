@@ -1,9 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.17
+Status: living document, v0.99.18
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.17 → v0.99.18:** Flyttade "Importera backup"
+till en knapp under "Läs snabbstarten", samma bredd på båda — på
+författarens begäran.
+
+- Ny kolumn, `.home-heading-actions` (flex-column, `align-items:
+  stretch`), runt de två knapparna — stretch gör att båda automatiskt
+  får bredden av den bredaste texten ("Ny här? Läs snabbstarten"),
+  utan att jag behövde hårdkoda ett bredd-värde.
+- Städade bort `.home-restore`, som blev föräldralös CSS när knappen
+  flyttade ut ur sin gamla `<p>`-wrapper.
+- 597/597 gröna. Verifierat i ljust tema vid 1600px — båda knapparna
+  267px breda.
 
 **Ändringslogg v0.99.16 → v0.99.17:** Flyttade "Ny här? Läs
 snabbstarten" från en trång länk ovanför "Nytt manus"-fältet till en

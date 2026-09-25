@@ -34,9 +34,25 @@ export function Home({
             <br />
             {m.home.truth}
           </h1>
-          <button type="button" className="home-guide-button" onClick={onOpenGuide}>
-            {m.guide.openFromHome}
-          </button>
+          <div className="home-heading-actions">
+            <button type="button" className="home-guide-button" onClick={onOpenGuide}>
+              {m.guide.openFromHome}
+            </button>
+            <button type="button" className="home-guide-button" onClick={() => fileRef.current?.click()}>
+              {m.home.importBackup}
+            </button>
+            <input
+              ref={fileRef}
+              className="setup-file"
+              type="file"
+              accept="application/json,.json"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) void importManuscript(file);
+              }}
+            />
+          </div>
         </div>
         <p className="lede">{m.home.lede}</p>
       </header>
@@ -64,23 +80,6 @@ export function Home({
           </button>
         </div>
       </form>
-
-      <p className="home-restore">
-        <input
-          ref={fileRef}
-          className="setup-file"
-          type="file"
-          accept="application/json,.json"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (file) void importManuscript(file);
-          }}
-        />
-        <button type="button" className="text-button" onClick={() => fileRef.current?.click()}>
-          {m.home.importBackup}
-        </button>
-      </p>
 
       <section className="home-quickstart guide-quickstart-block">
         <QuickstartCards />

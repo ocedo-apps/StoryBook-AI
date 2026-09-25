@@ -349,6 +349,14 @@ button:disabled {
   min-width: 0;
 }
 
+.home-heading-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+
 .home-guide-button {
   flex: 0 0 auto;
   border: 1px solid var(--border);
@@ -423,10 +431,6 @@ button:disabled {
 
 .setup-file {
   display: none;
-}
-
-.home-restore {
-  margin: 0.75rem 0 0;
 }
 
 .home-quickstart {
