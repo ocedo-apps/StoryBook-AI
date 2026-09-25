@@ -382,7 +382,7 @@ export const sv: Messages = {
       },
       {
         heading: "Korrekturläsning",
-        body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, och en faktakontroll mot hela boken. När Läsare är satt till en barn- eller ungdomsnivå flaggar den dessutom svordomar, våld eller explicit innehåll som inte passar den åldern. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
+        body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, en kontinuitetskontroll, en koll efter planterade detaljer som aldrig löses in (en pistol som visas i kapitel 4 men som ingen någonsin avfyrar), och en faktakontroll mot hela boken. När Läsare är satt till en barn- eller ungdomsnivå flaggar den dessutom svordomar, våld eller explicit innehåll som inte passar den åldern. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
       },
       {
         heading: "Fråga manuset",
@@ -497,12 +497,14 @@ export const sv: Messages = {
     style: "Stil och känsla mellan kapitel",
     age: "Åldersrapport",
     continuity: "Kontinuitet",
+    setups: "Planterat & inlöst",
     facts: "Faktakontroll",
     grammarProgress: "Grammatik — {done} av {total} kapitel klara",
     scenesProgress: "Letar upprepade scener — {done} av {total} styckepar jämförda",
     styleProgress: "Stil- och känslokonsekvens mellan kapitel",
     ageProgress: "Sammanställer åldersrapport",
     continuityProgress: "Kontrollerar att ingen är på två platser samtidigt",
+    setupsProgress: "Letar efter planterade detaljer som inte lösts in än",
     factsProgress: "Kontrollerar fakta mot Story Bible — {done} av {total} kapitel klara",
     now: "Just nu: {detail}",
     nowGrammar: "läser kapitel {n}…",
@@ -510,6 +512,7 @@ export const sv: Messages = {
     nowStyle: "lyssnar efter ett skifte i register eller känsla…",
     nowAge: "väger prosan mot Läsare…",
     nowContinuity: "kontrollerar vem och vad som är var, och när…",
+    nowSetups: "kontrollerar vad som planterats, och vad som lösts in…",
     nowFacts: "kontrollerar kapitel {n} mot Story Bible…",
     stillWorking: "Jobbar fortfarande — ett enda kapitel kan ta några minuter på långsammare hårdvara. Inget har fastnat.",
     percent: "{n}%",

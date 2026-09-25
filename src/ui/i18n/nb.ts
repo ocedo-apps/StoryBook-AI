@@ -382,7 +382,7 @@ export const nb: Messages = {
       },
       {
         heading: "Korrekturlesing",
-        body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, og en faktasjekk mot hele boken. Når Leser er satt til et barne- eller ungdomsnivå, flagger den også banning, vold eller eksplisitt innhold som ikke passer den alderen. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
+        body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, en kontinuitetssjekk, et søk etter plantede detaljer som aldri innfris (en pistol som vises i kapittel 4, men som ingen noensinne avfyrer), og en faktasjekk mot hele boken. Når Leser er satt til et barne- eller ungdomsnivå, flagger den også banning, vold eller eksplisitt innhold som ikke passer den alderen. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
       },
       {
         heading: "Spør manuskriptet",
@@ -497,12 +497,14 @@ export const nb: Messages = {
     style: "Stil og følelse mellom kapitler",
     age: "Aldersrapport",
     continuity: "Kontinuitet",
+    setups: "Plantet & innfridd",
     facts: "Faktakontroll",
     grammarProgress: "Grammatikk — {done} av {total} kapitler ferdige",
     scenesProgress: "Leter etter gjentatte scener — {done} av {total} avsnittspar sammenlignet",
     styleProgress: "Stil- og følelseskonsekvens mellom kapitler",
     ageProgress: "Setter sammen aldersrapporten",
     continuityProgress: "Sjekker at ingen er på to steder samtidig",
+    setupsProgress: "Leter etter plantede detaljer som ikke er innfridd ennå",
     factsProgress: "Kontrollerer fakta mot Story Bible — {done} av {total} kapitler ferdige",
     now: "Akkurat nå: {detail}",
     nowGrammar: "leser kapittel {n}…",
@@ -510,6 +512,7 @@ export const nb: Messages = {
     nowStyle: "lytter etter et skifte i register eller følelse…",
     nowAge: "veier prosaen mot Leser…",
     nowContinuity: "sjekker hvem og hva som er hvor, og når…",
+    nowSetups: "sjekker hva som er plantet, og hva som er innfridd…",
     nowFacts: "kontrollerer kapittel {n} mot Story Bible…",
     stillWorking: "Jobber fortsatt — et enkelt kapittel kan ta noen minutter på tregere maskinvare. Ingenting har stanset.",
     percent: "{n}%",

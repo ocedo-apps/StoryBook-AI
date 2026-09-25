@@ -10,6 +10,7 @@ import {
   CONTINUITY_SYSTEM,
   GRAMMAR_SYSTEM,
   SCENE_SYSTEM,
+  SETUP_SYSTEM,
   STYLE_SYSTEM,
   ageUserPrompt,
   continuityUserPrompt,
@@ -23,9 +24,11 @@ import {
   parseContinuityResult,
   parseGrammarItems,
   parseSceneVerdict,
+  parseSetupResult,
   parseStyleItems,
   proseChapters,
   sceneUserPrompt,
+  setupUserPrompt,
   styleUserPrompt,
   touchProofread,
   type ProofreadJob
@@ -47,6 +50,7 @@ export async function runProofread(job: ProofreadJob, io: ProofreadIO, signal: A
   current = await runStyle(current, io, signal);
   current = await runAge(current, io, signal);
   current = await runContinuity(current, io, signal);
+  current = await runSetups(current, io, signal);
   current = await runFacts(current, io, signal);
   current = touchProofread(current, { status: "done", stage: "done", detail: "" });
   await io.save(current);
@@ -83,7 +87,7 @@ async function runGrammar(job: ProofreadJob, io: ProofreadIO, signal: AbortSigna
 
 async function runScenes(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
-  if (current.stage !== "scenes" && ["style", "age", "continuity", "facts", "done"].includes(current.stage)) return current;
+  if (current.stage !== "scenes" && ["style", "age", "continuity", "setups", "facts", "done"].includes(current.stage)) return current;
   current = touchProofread(current, { stage: "scenes", status: "running" });
   const book = io.getBook();
   if (current.scenePairsTotal === 0 && current.sceneQueue.length === 0) {
@@ -146,7 +150,7 @@ async function runScenes(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal
 
 async function runStyle(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
-  if (current.stage !== "style" && ["age", "continuity", "facts", "done"].includes(current.stage)) return current;
+  if (current.stage !== "style" && ["age", "continuity", "setups", "facts", "done"].includes(current.stage)) return current;
   if (current.styleDone) return touchProofread(current, { stage: "age" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "style", status: "running", detail: "style" });
@@ -220,6 +224,34 @@ async function runContinuity(job: ProofreadJob, io: ProofreadIO, signal: AbortSi
       })
     ],
     continuityDone: true,
+    stage: "setups"
+  });
+  await io.save(current);
+  return current;
+}
+
+async function runSetups(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
+  let current = job;
+  if (current.setupsDone || current.stage === "done") return current;
+  throwIfAborted(signal);
+  current = touchProofread(current, { stage: "setups", status: "running", detail: "setups" });
+  await io.save(current);
+  const book = io.getBook();
+  const chapters = proseChapters(book);
+  let items: ReturnType<typeof parseSetupResult> = [];
+  if (chapters.length > 0) {
+    const raw = await io.complete(SETUP_SYSTEM, setupUserPrompt(book), signal);
+    items = parseSetupResult(raw, book);
+  }
+  current = touchProofread(current, {
+    flags: [
+      ...current.flags,
+      ...items.map((item) => {
+        const { chapterId, ...rest } = item;
+        return makeFlag("setups", chapterId, rest);
+      })
+    ],
+    setupsDone: true,
     stage: "facts"
   });
   await io.save(current);

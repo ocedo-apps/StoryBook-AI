@@ -27,7 +27,7 @@ inte en ensidig lista.
 | 9 | Story time + Timeline | ✅ byggd (v0.76) |
 | 10 | Continuity 2.0 | ✅ byggd (kunskapsläckor v0.78, spatial kontinuitet v0.94) |
 | 11 | Plotlines / scen-matris | ✅ byggd (v0.79) |
-| 12 | Setup/payoff/ledtrådsspårning | ⬜ ej påbörjad |
+| 12 | Setup/payoff/ledtrådsspårning | ✅ byggd (v0.98) |
 | 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
 | 15 | Klickbara namn i manuset → Story Bible | ✅ byggd (v0.97) |
@@ -320,9 +320,24 @@ tråd), inte en nodgraf som Sandbox-sidans Storyboard — de löser olika
 problem. `plotline_ids` hamnade på `Chapter`, inte på scenen, samma
 motivering som `story_time` (punkt 9).
 
-### 12. Setup/payoff/ledtrådsspårning
+### 12. Setup/payoff/ledtrådsspårning ✅ byggd (v0.98)
 "Pistolen introducerades scen 4, ingen payoff än." AI kan föreslå,
 författaren markerar. Bra särart för genrefiction, men inte brådskande.
+
+Byggd som ett sjunde Korrekturläsnings-steg ("Setups & payoffs"),
+samma mönster som Continuity (punkt 10) — återanvänder hela
+stegmaskinen och "bara anteckningar"-principen. Till skillnad från
+Continuitys platshistorik gick det inte att göra deterministiskt; att
+avgöra vad som är "planterat" kräver berättarförståelse, så det är ett
+riktigt AI-omdöme, försiktigt instruerat att hellre missa en flagga än
+larma i onödan. Återanvänder Style-stegets etablerade teknik för att
+hålla hela manuset i ett enda modellanrop utan full prosa (kompakta
+per-kapitel-utdrag) — medvetet skilt från punkt 14 (hel-manus
+developmental analys), som uttryckligen kräver att ALDRIG göra hela
+manuset i ett enda anrop för en djupare analys. Ingen ny persisterad
+spårningslista byggd (som Plotlines) — vald bort till förmån för den
+lättare Proofread-formen, i linje med att punkten själv beskrevs som
+"inte brådskande". En sådan lista är en möjlig framtida utbyggnad.
 
 ### 13. Utvecklingsmetoder som pluggbart lager
 Generalisera den befintliga pipelinen (Brainstorm → Synopsis →

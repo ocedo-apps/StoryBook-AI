@@ -380,7 +380,7 @@ export const en = {
       },
       {
         heading: "Proofread",
-        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, and a fact check against the whole book. When Reader is set to a children's or YA level, it also flags swearing, violence, or explicit content that does not fit that age. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
+        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, a continuity check, a look for planted details that never pay off (a gun shown in chapter 4 that no one ever fires), and a fact check against the whole book. When Reader is set to a children's or YA level, it also flags swearing, violence, or explicit content that does not fit that age. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
       },
       {
         heading: "Ask Manuscript",
@@ -495,12 +495,14 @@ export const en = {
     style: "Style and mood across chapters",
     age: "Age report",
     continuity: "Continuity",
+    setups: "Setups & payoffs",
     facts: "Fact check",
     grammarProgress: "Grammar — {done} of {total} chapters done",
     scenesProgress: "Looking for repeated scenes — {done} of {total} paragraph pairs compared",
     styleProgress: "Style and mood consistency between chapters",
     ageProgress: "Compiling the age report",
     continuityProgress: "Checking that no one is in two places at once",
+    setupsProgress: "Looking for planted details that have not paid off yet",
     factsProgress: "Checking facts against the Story Bible — {done} of {total} chapters done",
     now: "Now: {detail}",
     nowGrammar: "reading chapter {n}…",
@@ -508,6 +510,7 @@ export const en = {
     nowStyle: "listening for a shift in register or mood…",
     nowAge: "weighing the prose against Reader…",
     nowContinuity: "checking who and what is where, and when…",
+    nowSetups: "checking what has been planted, and what has paid off…",
     nowFacts: "checking chapter {n} against the Story Bible…",
     stillWorking: "Still working — a single chapter can take a few minutes on slower hardware. Nothing is stuck.",
     percent: "{n}%",

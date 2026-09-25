@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const PROOFREAD_STAGES = ["grammar", "scenes", "style", "age", "continuity", "facts"] as const;
+export const PROOFREAD_STAGES = ["grammar", "scenes", "style", "age", "continuity", "setups", "facts"] as const;
 export type ProofreadStage = (typeof PROOFREAD_STAGES)[number];
 
 export const PROOFREAD_STATUSES = ["running", "paused", "done", "error"] as const;
@@ -34,7 +34,7 @@ export const ProofreadJobSchema = z.object({
   started_at: z.string().min(1),
   updated_at: z.string().min(1),
   status: z.enum(PROOFREAD_STATUSES),
-  stage: z.enum(["grammar", "scenes", "style", "age", "continuity", "facts", "done"]),
+  stage: z.enum(["grammar", "scenes", "style", "age", "continuity", "setups", "facts", "done"]),
   grammarDone: z.array(z.string()).default([]),
   scenePairsTotal: z.number().int().nonnegative().default(0),
   scenePairsDone: z.number().int().nonnegative().default(0),
@@ -44,6 +44,8 @@ export const ProofreadJobSchema = z.object({
   ageDone: z.boolean().default(false),
   /** Missing on older saves — treated as not-yet-run, same as the other *Done flags. */
   continuityDone: z.boolean().default(false),
+  /** Missing on older saves — treated as not-yet-run, same as the other *Done flags. */
+  setupsDone: z.boolean().default(false),
   /** Chapter ids the facts stage has already extracted from. Missing on older saves. */
   factsDone: z.array(z.string()).default([]),
   detail: z.string().default(""),

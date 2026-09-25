@@ -1,9 +1,48 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.97
+Status: living document, v0.98
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.97 → v0.98:** Setup/payoff-spårning (roadmap #12) —
+"pistolen introducerades i kapitel 4, ingen payoff än". Byggd som ett
+sjunde Korrekturläsnings-steg ("Setups & payoffs"), samma mönster som
+Continuity (#10): återanvänder hela stegmaskinen, "bara
+anteckningar"-principen och flagg-renderingen, inget nytt UI-skelett.
+
+- Deterministisk detektering var inte möjligt den här gången (till
+  skillnad från Continuitys platshistorik) — att avgöra om något är
+  "planterat" och saknar payoff kräver berättarförståelse, så det är
+  ett riktigt AI-omdöme. Modellen ombeds vara försiktig: bara flagga
+  det som läser som medvetet planterat, hellre missa en flagga än ge
+  ett falskt alarm, och aldrig flagga något en senare kapitel-utdrag
+  redan verkar lösa in.
+- Återanvänder Style-stegets etablerade mönster för att hålla hela
+  manuset i EN modellanrop utan att skicka full prosa: ett kompakt
+  utdrag per kapitel (första två styckena + sista stycket, klippta).
+  Samma teknik, ny användning — inget nytt att uppfinna där.
+- Medveten avgränsning mot roadmap-punkt 14 (hel-manus developmental
+  analys): den punkten säger uttryckligen "aldrig hela manuset i ett
+  enda modellanrop" för en djup analys av allt manuset. Setup/payoff
+  är en mycket smalare fråga (bara "märktes X, löstes X in") som
+  klarar sig med kompakta utdrag i ett anrop — inte samma sak som en
+  fullständig utvecklingsanalys.
+- Ingen ny persisterad datamodell (t.ex. en Plotlines-liknande
+  spårningslista med öppna/lösta poster) — medvetet vald bort till
+  förmån för den lättare Proofread-formen, i linje med att
+  författaren själv beskrev punkten som "inte brådskande". En sådan
+  lista är en möjlig framtida utbyggnad om flaggorna visar sig för
+  flyktiga i praktiken.
+
+Nya tester för `parseSetupResult` (kapitelmappning, tomt vid saknad
+observation/okänt kapitel, tomt vid oparsad JSON). Integrationstestet
+för hela pipelinen uppdaterat till sju steg. Fixade även en
+föråldrad testfixtur ("skips chapters already recorded in factsDone
+when resumed") som inte satte de nya continuityDone/setupsDone-
+flaggorna och därför fick ett extra anrop den inte förväntade sig.
+587/587 gröna. Verifierat i webbläsaren: flaggan renderas korrekt
+under en egen "Setups & payoffs"-rubrik.
 
 **Ändringslogg v0.96 → v0.97:** Klickbara namn i manuset → Story
 Bible-kortet (roadmap #15) — omvänd riktning mot Mentions (punkt 3):

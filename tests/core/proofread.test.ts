@@ -9,6 +9,7 @@ import {
   parseContinuityResult,
   parseGrammarItems,
   parseSceneVerdict,
+  parseSetupResult,
   proofreadPercent,
   proseHash,
   startProofreadJob
@@ -269,6 +270,30 @@ describe("parseContinuityResult", () => {
   });
 });
 
+describe("parseSetupResult", () => {
+  it("maps a flagged chapter number back to a chapter id", () => {
+    const { book, first } = twoChapters();
+    const items = parseSetupResult(
+      '{"items":[{"chapter":1,"observation":"The night keys are counted with unusual care, but nothing comes of it yet."}]}',
+      book
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]?.chapterId).toBe(first);
+    expect(items[0]?.observation).toContain("night keys");
+  });
+
+  it("drops an item with no observation or an unknown chapter number", () => {
+    const { book } = twoChapters();
+    expect(parseSetupResult('{"items":[{"chapter":1,"observation":""}]}', book)).toEqual([]);
+    expect(parseSetupResult('{"items":[{"chapter":9,"observation":"x"}]}', book)).toEqual([]);
+  });
+
+  it("returns nothing for unparsable JSON", () => {
+    const { book } = twoChapters();
+    expect(parseSetupResult("not json", book)).toEqual([]);
+  });
+});
+
 describe("craftDriftNotes", () => {
   it("names a chapter whose camera was set apart from the manuscript", () => {
     const { book, second } = twoChapters();
@@ -279,7 +304,7 @@ describe("craftDriftNotes", () => {
 });
 
 describe("runProofread", () => {
-  it("walks the six stages, saves as it goes, and never sends brainstorm", async () => {
+  it("walks the seven stages, saves as it goes, and never sends brainstorm", async () => {
     const { book } = twoChapters();
     const secret = { ...book, brainstorm: "The stowaway is the captain's sister." };
     let latest = secret;
@@ -320,6 +345,7 @@ describe("runProofread", () => {
     expect(saved.includes("scenes")).toBe(true);
     expect(saved.includes("style")).toBe(true);
     expect(saved.includes("continuity")).toBe(true);
+    expect(saved.includes("setups")).toBe(true);
     expect(saved.includes("facts")).toBe(true);
     expect(saved.at(-1)).toBe("done");
     expect(prompts.some((prompt) => prompt.includes("stowaway"))).toBe(false);
@@ -463,6 +489,8 @@ describe("runProofread — facts stage", () => {
       stage: "facts" as const,
       styleDone: true,
       ageDone: true,
+      continuityDone: true,
+      setupsDone: true,
       factsDone: [first]
     };
     let latest = book;

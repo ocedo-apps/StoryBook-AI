@@ -200,7 +200,7 @@ function stageMark(job: ProofreadJob, stage: ProofreadStage): string {
 
 function stageDone(job: ProofreadJob, stage: ProofreadStage): boolean {
   if (job.status === "done") return true;
-  const order = { grammar: 0, scenes: 1, style: 2, age: 3, continuity: 4, facts: 5, done: 6 };
+  const order = { grammar: 0, scenes: 1, style: 2, age: 3, continuity: 4, setups: 5, facts: 6, done: 7 };
   return order[job.stage] > order[stage];
 }
 
@@ -218,6 +218,7 @@ function stageLine(
   }
   if (stage === "style") return m.proofread.styleProgress;
   if (stage === "continuity") return m.proofread.continuityProgress;
+  if (stage === "setups") return m.proofread.setupsProgress;
   if (stage === "facts") {
     return format(m.proofread.factsProgress, { done: job.factsDone.length, total: Math.max(1, chapterCount) });
   }
@@ -234,6 +235,7 @@ function nowDetail(detail: string, m: ReturnType<typeof useLocale>["messages"]):
   if (detail === "style") return m.proofread.nowStyle;
   if (detail === "age") return m.proofread.nowAge;
   if (detail === "continuity") return m.proofread.nowContinuity;
+  if (detail === "setups") return m.proofread.nowSetups;
   return detail;
 }
 

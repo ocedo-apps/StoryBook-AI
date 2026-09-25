@@ -71,6 +71,7 @@ export function startProofreadJob(book: Book): ProofreadJob {
     styleDone: false,
     ageDone: false,
     continuityDone: false,
+    setupsDone: false,
     factsDone: [],
     detail: "",
     flags: [],
@@ -494,6 +495,50 @@ export function parseContinuityResult(raw: string, chains: ContinuityChain[]): O
     const b = chain.entries.find((entry) => entry.chapterNumber === bNumber);
     if (!a || !b) continue;
     items.push({ chapterId: a.chapterId, chapterIdB: b.chapterId, quote: a.value, quoteB: b.value, observation });
+  }
+  return items;
+}
+
+export const SETUP_SYSTEM = `You check a manuscript for setups that never got a payoff — a planted detail, promise, or question raised early that the story seems to forget: an object called out for later use, a threat or prophecy, a question a character asks that is never answered, a promise made and never kept or broken on the page.
+Return JSON only: {"items":[{"chapter":4,"observation":"..."}]}
+
+Only flag a setup that reads as deliberately planted — most background detail never needs a payoff, and not flagging something is always safer than a false alarm. Do not flag a setup that a later chapter's excerpt already appears to resolve. Cite the chapter where it was introduced. The observation should name the setup in one clause and say briefly why it looks unresolved so far.
+Empty items are allowed. At most 6 items.`;
+
+export function setupUserPrompt(book: Book): string {
+  const chapters = proseChapters(book);
+  const samples = chapters.map((chapter) => {
+    const n = chapter.sequence_index + 1;
+    const title = chapter.title.trim() || `Chapter ${n}`;
+    const paras = splitFlowParagraphs(chapter.prose);
+    const head = paras.slice(0, 2).join(" ");
+    const tail = paras.length > 2 ? paras[paras.length - 1] : "";
+    return [`Chapter ${n}: ${title}`, clip(head, 420), tail ? clip(tail, 280) : ""].filter(Boolean).join("\n");
+  });
+  return [`Manuscript: ${book.title}`, samples.join("\n\n"), "JSON only."].join("\n\n");
+}
+
+export function parseSetupResult(raw: string, book: Book): Omit<ProofreadFlag, "id" | "stage">[] {
+  let payload: unknown;
+  try {
+    payload = recoverJsonObject(raw);
+  } catch {
+    return [];
+  }
+  const rows = (payload as { items?: unknown })?.items;
+  if (!Array.isArray(rows)) return [];
+  const chapters = proseChapters(book);
+  const items: Omit<ProofreadFlag, "id" | "stage">[] = [];
+  for (const row of rows) {
+    if (items.length >= 6) break;
+    if (!row || typeof row !== "object") continue;
+    const rec = row as Record<string, unknown>;
+    const n = typeof rec.chapter === "number" ? rec.chapter : Number(rec.chapter);
+    const chapter = chapters.find((entry) => entry.sequence_index + 1 === n) ?? chapters[n - 1];
+    if (!chapter) continue;
+    const observation = typeof rec.observation === "string" ? rec.observation.trim() : "";
+    if (!observation) continue;
+    items.push({ chapterId: chapter.id, quote: "", observation });
   }
   return items;
 }
