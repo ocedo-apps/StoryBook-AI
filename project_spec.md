@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.96
+Status: living document, v0.97
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.96 → v0.97:** Klickbara namn i manuset → Story
+Bible-kortet (roadmap #15) — omvänd riktning mot Mentions (punkt 3):
+Ctrl-klicka (Cmd-klicka på Mac) på ett namn medan du skriver hoppar
+direkt till dess Story Bible-kort. Vanligt klick fungerar precis som
+förut (placerar markören), så det stör aldrig vanlig redigering.
+
+- Ny `findNameHitsInText()` i `bibleMentions.ts` — samma
+  matchningslogik (`mentionPattern`/`matchesFor`) som Mentions redan
+  använder, bara körd i motsatt riktning (en text, alla entiteter,
+  istället för en entitet, alla kapitel). Vid namnkrock mellan två
+  entiteter (t.ex. "Henrik" och "Henrik Andersson" som separata
+  poster) vinner den längsta träffen.
+- Ingen permanent markering i texten — bara en tooltip vid hovring
+  ("Ctrl-klicka för att öppna Henriks kort") plus själva klicket.
+  Medvetet val: till skillnad från ovanliga ord/klichéer (en
+  granskningsvy man slår på) är namnhoppet en navigeringsgenväg som
+  ska finnas där hela tiden utan att tynga ner texten visuellt.
+- Krävde att lösa samma tekniska hinder som tooltip-tillägget i
+  v0.96 löste (markeringslagret har `pointer-events: none`) — men nu
+  även för klick, inte bara hovring, via `onClickCapture` på den
+  riktiga textytan så vanlig markörplacering aldrig störs.
+- `BiblePanel` fick en ny `openEntitySignal`-prop (ett nytt objekt
+  varje gång, så samma namn kan klickas två gånger i rad utan att
+  behöva stängas emellan) eftersom kortets öppna/stängda-state bor
+  lokalt i `BiblePanel`, inte i storen.
+
+Nya tester för `findNameHitsInText` (rätt entitet per träff, längsta
+match vinner vid krock, tomt vid inga/okända namn). 584/584 gröna.
+Verifierat i webbläsaren: hovring visar tooltipen, Ctrl-klick öppnar
+rätt kort, vanligt klick gör det inte.
 
 **Ändringslogg v0.95 → v0.96:** Character Interviews (roadmap #18) +
 tooltips på markeringarna från v0.95, efter direkt önskemål om båda.

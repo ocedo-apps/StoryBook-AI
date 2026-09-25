@@ -158,6 +158,16 @@ export function entityLabels(facts: NarrativeFact[], kinds: EntityKind[] = []): 
   return groupBibleEntities(facts, kinds).flatMap((section) => section.entities.map((entity) => entity.entity_label));
 }
 
+/** Every locked entity's ref + label, across all kinds — the lookup clickable names in prose resolve against. */
+export function entityRefsAndLabels(
+  facts: NarrativeFact[],
+  kinds: EntityKind[] = []
+): { entity_ref: string; entity_label: string }[] {
+  return groupBibleEntities(facts, kinds).flatMap((section) =>
+    section.entities.map((entity) => ({ entity_ref: entity.entity_ref, entity_label: entity.entity_label }))
+  );
+}
+
 export function entityMatchesQuery(
   entity: BibleEntityGroup,
   query: string,

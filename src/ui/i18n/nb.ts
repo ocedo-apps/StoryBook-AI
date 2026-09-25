@@ -366,7 +366,7 @@ export const nb: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon."
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
       },
       {
         heading: "Kontinuitetsvarsler",
@@ -668,6 +668,7 @@ export const nb: Messages = {
     }
   },
   canvas: {
+    jumpToEntity: "Ctrl-klikk (Cmd-klikk på Mac) for å åpne {name}s Story Bible-kort",
     extend: "Forleng",
     elaborate: "Utdyp",
     rewriteMenu: "Skriv om…",

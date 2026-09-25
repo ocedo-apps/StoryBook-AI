@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { peopleLabels, entityLabels } from "@core/bibleGroups";
+import { peopleLabels, entityLabels, entityRefsAndLabels } from "@core/bibleGroups";
 import { countWords } from "@core/proseStats";
 import { replaceCollapsedSentence } from "@core/sentenceSplit";
 import {
@@ -384,6 +384,8 @@ export function Editor() {
   );
   const dragChapterIdRef = useRef<string | null>(null);
   const names = entityLabels(book.facts, book.entity_kinds);
+  const nameLinks = entityRefsAndLabels(book.facts, book.entity_kinds);
+  const [openEntitySignal, setOpenEntitySignal] = useState<{ ref: string } | null>(null);
   const pageText =
     onSettings || onAskManuscript || onTimeline || onPlotlines
       ? ""
@@ -1270,6 +1272,8 @@ export function Editor() {
               highlightRare={highlightRare}
               highlightTics={highlightTics}
               names={names}
+              nameLinks={nameLinks}
+              onJumpToEntity={(ref) => setOpenEntitySignal({ ref })}
               {...(readerExtra !== undefined ? { extraSyllables: readerExtra } : {})}
               {...findCanvas}
               onSuggestAlternatives={(args) => store.suggestAlternatives(args)}
@@ -1353,6 +1357,8 @@ export function Editor() {
               highlightRare={highlightRare}
               highlightTics={highlightTics}
               names={names}
+              nameLinks={nameLinks}
+              onJumpToEntity={(ref) => setOpenEntitySignal({ ref })}
               {...(readerExtra !== undefined ? { extraSyllables: readerExtra } : {})}
               {...findCanvas}
               onSuggestAlternatives={(args) => store.suggestAlternatives(args)}
@@ -1447,6 +1453,7 @@ export function Editor() {
         <BiblePanel
           onOpenGuide={() => openGuide("story-bible")}
           onInterview={(entityRef, entityLabel) => store.startInterview(entityRef, entityLabel)}
+          openEntitySignal={openEntitySignal}
         />
       </div>
       {statsOpen ? (

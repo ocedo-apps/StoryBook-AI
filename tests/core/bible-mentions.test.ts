@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, discardChapter, updateChapter } from "@core/BookSchema";
-import { mentionsForEntity, nameVariantsForLabel } from "@core/bibleMentions";
+import { findNameHitsInText, mentionsForEntity, nameVariantsForLabel } from "@core/bibleMentions";
 
 describe("nameVariantsForLabel", () => {
   it("includes the full label and its meaningful name tokens, longest first", () => {
@@ -90,5 +90,35 @@ describe("mentionsForEntity", () => {
   it("returns nothing for an empty entity label", () => {
     const book = createBook("Night Keys");
     expect(mentionsForEntity(book, "")).toEqual([]);
+  });
+});
+
+describe("findNameHitsInText", () => {
+  const entities = [
+    { entity_ref: "emma", entity_label: "Emma" },
+    { entity_ref: "henrik", entity_label: "Henrik Andersson" }
+  ];
+
+  it("tags each hit with the entity it belongs to", () => {
+    const hits = findNameHitsInText("Emma met Henrik Andersson by the quay.", entities);
+    expect(hits.map((hit) => hit.entityRef)).toEqual(["emma", "henrik"]);
+  });
+
+  it("prefers the longer match when two entities' names overlap at the same spot", () => {
+    const ambiguous = [
+      { entity_ref: "henrik", entity_label: "Henrik" },
+      { entity_ref: "henrik-andersson", entity_label: "Henrik Andersson" }
+    ];
+    const hits = findNameHitsInText("Henrik Andersson walked in.", ambiguous);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]?.entityRef).toBe("henrik-andersson");
+  });
+
+  it("returns nothing when no known name appears", () => {
+    expect(findNameHitsInText("The tide pulled away from the shore.", entities)).toEqual([]);
+  });
+
+  it("returns nothing for an empty entity list", () => {
+    expect(findNameHitsInText("Emma was here.", [])).toEqual([]);
   });
 });

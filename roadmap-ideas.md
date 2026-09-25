@@ -30,7 +30,7 @@ inte en ensidig lista.
 | 12 | Setup/payoff/ledtrådsspårning | ⬜ ej påbörjad |
 | 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
-| 15 | Klickbara namn i manuset → Story Bible | ⬜ ej påbörjad |
+| 15 | Klickbara namn i manuset → Story Bible | ✅ byggd (v0.97) |
 | 16 | Tidsmedveten Story Bible | ✅ byggd (v0.87) |
 | 17 | AI-skrivtics-markering | ✅ byggd (v0.95) |
 | 18 | Character Interviews | ✅ byggd (v0.96) |
@@ -350,13 +350,21 @@ skrivinstruktion som `core.*`-namnrymden finns för att hålla; fler-
 boks-/serie-stöd är en helt annan arkitekturnivå). Fyra idéer var
 värda att spara:
 
-### 15. Klickbara namn i manuset → hoppa till Story Bible-kortet
+### 15. Klickbara namn i manuset → hoppa till Story Bible-kortet ✅ byggd (v0.97)
 Omvänd riktning mot Mentions (punkt 3): Mentions går Story Bible →
 manus ("var nämns Henrik"), den här går manus → Story Bible (klicka på
 "Henrik" medan du skriver → öppna hans kort direkt). Samma
 matchningslogik som redan finns i `bibleMentions.ts` går att återanvända
 — jobbet är en klickbar overlay ovanpå prosan, liknande hur
 "rare words"-markeringen redan fungerar i `ProseCanvas`.
+
+Byggd med Ctrl/Cmd-klick snarare än vanligt klick, eftersom vanligt
+klick redan är upptaget av markörplacering vid redigering — samma
+"skriv normalt, extra funktion bakom en modifierartangent"-princip som
+högerklicket för ordalternativ redan använder. Ingen permanent
+markering i texten (till skillnad från ovanliga ord/klichéer), bara en
+tooltip vid hovring — det här är en alltid-på navigeringsgenväg, inte
+en granskningsvy man slår på.
 
 ### 16. Tidsmedveten Story Bible ("fakta som de var då") ✅ byggd (v0.87)
 Den starkaste av de fyra. Visa en entitets tillstånd vid en viss punkt

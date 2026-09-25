@@ -366,7 +366,7 @@ export const sv: Messages = {
       },
       {
         heading: "Story Bible",
-        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon."
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
       },
       {
         heading: "Kontinuitetsvarningar",
@@ -668,6 +668,7 @@ export const sv: Messages = {
     }
   },
   canvas: {
+    jumpToEntity: "Ctrl-klicka (Cmd-klicka på Mac) för att öppna {name}s Story Bible-kort",
     extend: "Förläng",
     elaborate: "Brodera ut",
     rewriteMenu: "Skriv om…",

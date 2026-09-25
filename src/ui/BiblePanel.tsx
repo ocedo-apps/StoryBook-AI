@@ -55,10 +55,13 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
 
 export function BiblePanel({
   onOpenGuide,
-  onInterview
+  onInterview,
+  openEntitySignal
 }: {
   onOpenGuide?: () => void;
   onInterview?: (entityRef: string, entityLabel: string) => void;
+  /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
+  openEntitySignal?: { ref: string } | null;
 }) {
   const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
@@ -67,6 +70,10 @@ export function BiblePanel({
   const [overlay, setOverlay] = useState<Overlay | null>(null);
   const [asOfChapterId, setAsOfChapterId] = useState<string | null>(null);
   const pendingSeen = useRef(0);
+
+  useEffect(() => {
+    if (openEntitySignal) setOverlay({ type: "entity", ref: openEntitySignal.ref });
+  }, [openEntitySignal]);
 
   const sections = useMemo(() => (book ? groupBibleEntities(book.facts, book.entity_kinds) : []), [book]);
   const liveChapters = useMemo(() => (book ? sortedChapters(book) : []), [book]);

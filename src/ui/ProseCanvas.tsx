@@ -4,6 +4,7 @@ import { htmlFromProse, splitFlowParagraphs } from "@core/proseFlow";
 import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
 import { findAiTicHits } from "@core/aiTics";
+import { findNameHitsInText } from "@core/bibleMentions";
 import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
   isCaretAtEnd,
@@ -60,7 +61,9 @@ export function ProseCanvas({
   instructPlaceholder,
   instructAction,
   rewriteWho = "",
-  aside
+  aside,
+  nameLinks,
+  onJumpToEntity
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -92,6 +95,9 @@ export function ProseCanvas({
   /** Named viewpoint when the camera needs one. Empty = stay in the camera. */
   rewriteWho?: string;
   aside?: React.ReactNode;
+  /** Story Bible entities whose names, when Ctrl/Cmd-clicked in the text, jump to their card. */
+  nameLinks?: { entity_ref: string; entity_label: string }[];
+  onJumpToEntity?: (entityRef: string) => void;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -125,6 +131,11 @@ export function ProseCanvas({
     }
     return [];
   }, [highlightRare, highlightTics, value, names, extraSyllables, m]);
+
+  const nameHits = useMemo(
+    () => (nameLinks && nameLinks.length > 0 ? findNameHitsInText(value, nameLinks) : []),
+    [nameLinks, value]
+  );
 
   useEffect(() => {
     if (!menu) return;
@@ -353,18 +364,35 @@ export function ProseCanvas({
         onInput={emitProse}
         onContextMenu={onContextMenu}
         onMouseMove={(event) => {
-          if (highlightHits.length === 0) {
+          if (highlightHits.length === 0 && nameHits.length === 0) {
             if (hoverTip) setHoverTip(null);
             return;
           }
           const area = areaRef.current;
           if (!area) return;
           const offset = offsetFromPoint(area, event.clientX, event.clientY);
+          const nameHit = nameHits.find((item) => offset >= item.start && offset <= item.end);
+          if (nameHit && onJumpToEntity) {
+            setHoverTip({ x: event.clientX, y: event.clientY, text: format(m.canvas.jumpToEntity, { name: nameHit.entityLabel }) });
+            return;
+          }
           const hit = highlightHits.find((item) => offset >= item.start && offset <= item.end);
           if (hit) setHoverTip({ x: event.clientX, y: event.clientY, text: hit.text });
           else if (hoverTip) setHoverTip(null);
         }}
         onMouseLeave={() => setHoverTip(null)}
+        onClickCapture={(event) => {
+          if (!onJumpToEntity || nameHits.length === 0) return;
+          if (!event.metaKey && !event.ctrlKey) return;
+          const area = areaRef.current;
+          if (!area) return;
+          const offset = offsetFromPoint(area, event.clientX, event.clientY);
+          const hit = nameHits.find((item) => offset >= item.start && offset <= item.end);
+          if (!hit) return;
+          event.preventDefault();
+          event.stopPropagation();
+          onJumpToEntity(hit.entityRef);
+        }}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.shiftKey) return;
           event.preventDefault();

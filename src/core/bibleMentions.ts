@@ -44,6 +44,39 @@ function matchesFor(text: string, pattern: RegExp): { start: number; end: number
   });
 }
 
+export type NameHit = { start: number; end: number; entityRef: string; entityLabel: string };
+
+/**
+ * The reverse of mentionsForEntity (Story Bible → manuscript): given one
+ * chapter's prose and the book's locked entities, find every name mention
+ * and which entity it belongs to — roadmap-ideas.md #15, clicking a name
+ * while writing to jump straight to its Story Bible card. Same matching
+ * logic (mentionPattern/matchesFor), just run per entity against one text
+ * instead of per entity against every chapter. Overlapping matches from
+ * different entities keep the longest, earliest one.
+ */
+export function findNameHitsInText(
+  text: string,
+  entities: { entity_ref: string; entity_label: string }[]
+): NameHit[] {
+  const raw: NameHit[] = [];
+  for (const entity of entities) {
+    const pattern = mentionPattern(entity.entity_label);
+    if (!pattern) continue;
+    for (const { start, end } of matchesFor(text, pattern)) {
+      raw.push({ start, end, entityRef: entity.entity_ref, entityLabel: entity.entity_label });
+    }
+  }
+  raw.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const merged: NameHit[] = [];
+  for (const hit of raw) {
+    const last = merged[merged.length - 1];
+    if (last && hit.start < last.end) continue;
+    merged.push(hit);
+  }
+  return merged;
+}
+
 /**
  * Every live chapter whose prose mentions this entity by name — deterministic
  * substring matching against the label and its name tokens, no embeddings.
