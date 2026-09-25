@@ -594,9 +594,9 @@ export function Editor() {
   }, [busy]);
 
   useEffect(() => {
-    const status = book.proofread?.status;
-    if (status === "running" || status === "paused") setProofreadOpen(true);
-    else setProofreadOpen(false);
+    // Only barge in front of whatever surface you land on when a pass is actually mid-flight.
+    // A merely paused one stays closed until you reopen it yourself from the rail button.
+    setProofreadOpen(book.proofread?.status === "running");
   }, [book.id]);
 
   useEffect(() => {

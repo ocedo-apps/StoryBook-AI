@@ -106,6 +106,26 @@ function readEngine(): LlmEngine {
   return localStorage.getItem(ENGINE_KEY) === "openai-compatible" ? "openai-compatible" : "ollama";
 }
 
+function lastPositionKey(bookId: string): string {
+  return `storybook-ai.last-position.${bookId}`;
+}
+
+/** Where you were last time you had this book open — which tab, and which chapter if it was the chapter tab. Falls back to null (caller then uses openingSurface's guess) if nothing is stored, the stored chapter no longer exists, or the value is corrupt. */
+function readLastPosition(book: Book): { surface: EditorSurface; chapterId: string | null } | null {
+  const raw = localStorage.getItem(lastPositionKey(book.id));
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { surface?: EditorSurface; chapterId?: string | null };
+    if (!parsed.surface) return null;
+    const chapters = sortedChapters(book);
+    const chapterId = parsed.chapterId && chapters.some((chapter) => chapter.id === parsed.chapterId) ? parsed.chapterId : null;
+    if (parsed.surface === "chapter" && !chapterId) return null;
+    return { surface: parsed.surface, chapterId };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Crossfades between pages via the browser's View Transitions API — Home vs.
  * Editor at the default duration, and the editor's own rail surfaces
@@ -233,13 +253,19 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     const last = localStorage.getItem(LAST_BOOK_KEY);
     if (!last) return;
     void repo.get(last).then((loaded) => {
+      const remembered = readLastPosition(loaded);
       setBook(loaded);
-      setChapterIdState(sortedChapters(loaded)[0]?.id ?? null);
-      setSurface(openingSurface(loaded));
+      setChapterIdState(remembered?.chapterId ?? sortedChapters(loaded)[0]?.id ?? null);
+      setSurface(remembered?.surface ?? openingSurface(loaded));
     }).catch(() => {
       localStorage.removeItem(LAST_BOOK_KEY);
     });
   }, [repo]);
+
+  useEffect(() => {
+    if (!book) return;
+    localStorage.setItem(lastPositionKey(book.id), JSON.stringify({ surface, chapterId }));
+  }, [book?.id, surface, chapterId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -316,10 +342,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const openBook = useCallback(
     async (id: string) => {
       const loaded = await repo.get(id);
+      const remembered = readLastPosition(loaded);
       withViewTransition(() => {
         setBook(loaded);
-        setChapterIdState(sortedChapters(loaded)[0]?.id ?? null);
-        setSurface(openingSurface(loaded));
+        setChapterIdState(remembered?.chapterId ?? sortedChapters(loaded)[0]?.id ?? null);
+        setSurface(remembered?.surface ?? openingSurface(loaded));
         setChapterFeedback(null);
       });
       localStorage.setItem(LAST_BOOK_KEY, id);
@@ -405,10 +432,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       await repo.save(backup.book);
       setSummaries(await repo.list());
+      const remembered = readLastPosition(backup.book);
       withViewTransition(() => {
         setBook(backup.book);
-        setChapterIdState(sortedChapters(backup.book)[0]?.id ?? null);
-        setSurface(openingSurface(backup.book));
+        setChapterIdState(remembered?.chapterId ?? sortedChapters(backup.book)[0]?.id ?? null);
+        setSurface(remembered?.surface ?? openingSurface(backup.book));
         setChapterFeedback(null);
       });
       localStorage.setItem(LAST_BOOK_KEY, backup.book.id);
@@ -422,6 +450,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     async (id: string) => {
       await repo.delete(id);
       forgetLastJsonBackup(id);
+      localStorage.removeItem(lastPositionKey(id));
       if (bookRef.current?.id === id) {
         withViewTransition(() => {
           setBook(null);

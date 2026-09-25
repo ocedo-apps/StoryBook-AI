@@ -1,9 +1,31 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.23
+Status: living document, v0.99.24
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.23 → v0.99.24:** Två separata orsaker till samma
+klagomål — författaren märkte att vissa manus (t.ex. "the trio") alltid
+öppnade på Kapitel 1 med Proofread-rutan i vägen.
+
+- **Kommer ihåg var du var.** Nytt: `readLastPosition()` i
+  `BookStore.tsx` läser en per-manus localStorage-nyckel
+  (`storybook-ai.last-position.<id>`) och landar dig där du senast var
+  — flik OCH kapitel — istället för att `openingSurface()` alltid
+  gissar Kapitel 1 så fort manuset har skriven text. En ny `useEffect`
+  sparar position varje gång flik eller kapitel ändras medan ett manus
+  är öppet. Gäller både klick från förstasidan och auto-återställning
+  vid appstart. Rensas när ett manus raderas.
+- **Proofread-rutan slutar tjuvstarta.** Den öppnade sig automatiskt
+  om ett korrekturpass stod som "running" ELLER "paused" i sparat
+  läge — även ett pass som bara var pausat för länge sen. Nu bara
+  "running" (faktiskt pågående just när du öppnar). Ett pausat pass
+  väntar tyst tills du själv trycker på Korrekturläsning-knappen.
+- 597/597 gröna. Verifierat i webbläsaren: skapade ett tomt manus
+  (öppnar på Guide per design), navigerade till Tidslinjen, stängde
+  och öppnade igen — landade direkt på Tidslinjen. Verifierade också
+  att en "paused"-status inte längre tvingar fram Proofread-rutan.
 
 **Ändringslogg v0.99.22 → v0.99.23:** Samma korsnedtoning, nu även
 mellan editorns egna flikar (Brainstorm, Synopsis, Tidslinje,
