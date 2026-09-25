@@ -191,6 +191,12 @@ export const BookSchema = z.object({
    */
   plotlines: z.array(PlotlineSchema).default([]),
   /**
+   * Chosen outline method id (roadmap-ideas.md #13), e.g. "snowflake".
+   * Purely a UI choice — a method only ever writes into Synopsis or
+   * Plotlines, never its own data. Missing means no method chosen.
+   */
+  development_method: z.string().optional(),
+  /**
    * Last-pass Review job over the manuscript. Missing on older saves.
    */
   proofread: ProofreadJobSchema.optional(),
@@ -265,6 +271,7 @@ export type EditorSurface =
   | "ask"
   | "timeline"
   | "plotlines"
+  | "method"
   | "guide";
 
 /**

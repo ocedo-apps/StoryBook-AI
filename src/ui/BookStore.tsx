@@ -29,6 +29,7 @@ import {
   type ManuscriptSource
 } from "@core/askManuscript";
 import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
+import { developExpandUserPrompt, developmentMethodById, materializeBeats, DEVELOP_EXPAND_SYSTEM, type DevelopmentStep } from "@core/developmentMethod";
 import {
   ANALYZE_SYSTEM,
   analyzeSceneUserPrompt,
@@ -163,6 +164,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
   const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
+  const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
@@ -480,6 +482,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
 
   const showPlotlines = useCallback(() => {
     setSurface("plotlines");
+  }, []);
+
+  const showMethod = useCallback(() => {
+    setSurface("method");
   }, []);
 
   const showGuide = useCallback(() => {
@@ -1435,6 +1441,84 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, interviewEntity, interviewHistory, model, models.length, ollamaError, recordPrompt]
   );
 
+  const setDevelopmentMethod = useCallback(
+    async (id: string | null) => {
+      setDevelopSuggestion(null);
+      const method = id ? developmentMethodById(id) : undefined;
+      const methodMessages = id ? getMessages().method.methods[id as keyof ReturnType<typeof getMessages>["method"]["methods"]] : undefined;
+      await patchBook((current) => {
+        const withMethod = touch(current, { development_method: id ?? undefined });
+        if (!method || !methodMessages) return withMethod;
+        const labelsByStepId: Record<string, string> = {};
+        for (const step of method.steps) {
+          if (step.kind !== "beat") continue;
+          const stepMessages = (methodMessages.steps as Record<string, { label: string }>)[step.id];
+          if (stepMessages) labelsByStepId[step.id] = stepMessages.label;
+        }
+        return materializeBeats(withMethod, method, labelsByStepId);
+      });
+    },
+    [patchBook]
+  );
+
+  const developExpand = useCallback(
+    async (step: Extract<DevelopmentStep, { kind: "expand" }>, draft: string) => {
+      const current = bookRef.current;
+      if (!current || busy) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      const method = developmentMethodById(current.development_method);
+      const methodMessages = current.development_method
+        ? getMessages().method.methods[current.development_method as keyof ReturnType<typeof getMessages>["method"]["methods"]]
+        : undefined;
+      const stepMessages = methodMessages ? (methodMessages.steps as Record<string, { label: string; prompt: string }>)[step.id] : undefined;
+      if (!method || !stepMessages) return;
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("develop");
+      setError(null);
+      setDevelopSuggestion(null);
+
+      try {
+        const provider = makeProvider(model);
+        const askMessages: PromptDebugMessage[] = [
+          { role: "system", content: writingSystem(DEVELOP_EXPAND_SYSTEM) },
+          {
+            role: "user",
+            content: developExpandUserPrompt({
+              book: current,
+              stepLabel: stepMessages.label,
+              stepPrompt: stepMessages.prompt,
+              priorStepsText: current.synopsis,
+              draft
+            })
+          }
+        ];
+        recordPrompt("develop", model, askMessages);
+        const raw = await provider.chat({
+          messages: askMessages,
+          temperature: 0.8,
+          maxTokens: 500,
+          signal: abort.signal
+        });
+        setDevelopSuggestion(raw.trim());
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return;
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, model, models.length, ollamaError, recordPrompt]
+  );
+
+  const dismissDevelopSuggestion = useCallback(() => setDevelopSuggestion(null), []);
+
   const startProofread = useCallback(
     async (opts?: { restart?: boolean }) => {
       const current = bookRef.current;
@@ -1590,6 +1674,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     askManuscriptAnswer,
     interviewEntity,
     interviewHistory,
+    developSuggestion,
     refresh,
     openBook,
     closeBook,
@@ -1605,6 +1690,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showAsk,
     showTimeline,
     showPlotlines,
+    showMethod,
     showGuide,
     dismissModelAside,
     setModel,
@@ -1636,6 +1722,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startInterview,
     askCharacter,
     closeInterview,
+    setDevelopmentMethod,
+    developExpand,
+    dismissDevelopSuggestion,
     addFact,
     reviseFact: revise,
     approve,

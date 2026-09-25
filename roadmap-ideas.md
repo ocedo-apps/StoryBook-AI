@@ -28,7 +28,7 @@ inte en ensidig lista.
 | 10 | Continuity 2.0 | ✅ byggd (kunskapsläckor v0.78, spatial kontinuitet v0.94) |
 | 11 | Plotlines / scen-matris | ✅ byggd (v0.79) |
 | 12 | Setup/payoff/ledtrådsspårning | ✅ byggd (v0.98) |
-| 13 | Utvecklingsmetoder som pluggbart lager | ⬜ ej påbörjad |
+| 13 | Utvecklingsmetoder som pluggbart lager | ✅ byggd (v0.99) |
 | 14 | Hel-manus developmental analys | ⬜ ej påbörjad |
 | 15 | Klickbara namn i manuset → Story Bible | ✅ byggd (v0.97) |
 | 16 | Tidsmedveten Story Bible | ✅ byggd (v0.87) |
@@ -340,12 +340,52 @@ spårningslista byggd (som Plotlines) — vald bort till förmån för den
 lättare Proofread-formen, i linje med att punkten själv beskrevs som
 "inte brådskande". En sådan lista är en möjlig framtida utbyggnad.
 
-### 13. Utvecklingsmetoder som pluggbart lager
-Generalisera den befintliga pipelinen (Brainstorm → Synopsis →
+### 13. Utvecklingsmetoder som pluggbart lager ✅ byggd (v0.99)
+Generaliserade den befintliga pipelinen (Brainstorm → Synopsis →
 Dispositioner → Kapitel) till en valbar "Development Method"
-(Snowflake, Three Act, Save the Cat, Hero's Journey, …). Metoderna får
-bara producera/redigera samma underliggande data (Synopsis, Story
-Bible, Plotlines, Scener) — aldrig en egen parallell databas.
+(Snowflake, Three-Act Structure, Save the Cat, Hero's Journey).
+Metoderna producerar/redigerar bara samma underliggande data (Synopsis
+och Plotlines) — precis som kravet i punkten sa, ingen egen parallell
+databas alls, bara `Book.development_method?: string` som minns
+vilken metod som är vald.
+
+Två sorters steg, båda ren återanvändning av det som redan fanns:
+
+- **Vändpunktsbaserade** metoder (Three-Act, Save the Cat, Hero's
+  Journey) materialiserar varje vändpunkt som en tråd i Plotlines så
+  fort metoden väljs (`materializeBeats()`, byggd ovanpå den befintliga
+  `addPlotline()`, med dubblettskydd på titel så att man kan byta fram
+  och tillbaka mellan metoder utan att skräpa ner trådlistan).
+  Författaren kopplar sedan kapitel till vändpunkter precis som med
+  vilken annan tråd som helst — panelen visar bara en läslig
+  referenslista (vändpunkt, ungefärlig position, en kort ledtråd) och
+  en genväg till Plotlines-matrisen.
+- **Expansionsbaserad** metod (Snowflake) är en guidad stegsekvens
+  (en mening → ett stycke → full synopsis) med ett utkastfält per
+  steg, en valfri AI-föreslagning och en "Skicka till
+  Synopsis"-knapp som återanvänder `liftFragmentToSynopsis()` från
+  Brainstorm rakt av. AI-förslaget använder samma icke-strömmande
+  `provider.chat()`-mönster som Ask Manuscript, med författarens eget
+  utkast (om något är skrivet) som kontext att växa vidare på, inte
+  ersätta.
+
+All visningstext — metodnamn, beskrivningar, vändpunktsetiketter,
+ledtrådar, stegprompter — ligger i `i18n` under `method.methods.<id>`,
+inte i kärnmodulen. `developmentMethod.ts` håller bara ordning på
+steg-id, steg-typ (`beat`/`expand`) och för vändpunkter en ungefärlig
+position — helt språkoberoende, precis som resten av kärnan. Metodernas
+egna namn (Snowflake Method, Save the Cat, Three-Act Structure, Hero's
+Journey) hålls medvetet oöversatta i alla tre språk, i linje med
+tidigare beslut om globalt kända skrivtermer — men alla beskrivningar,
+vändpunktsetiketter och stegtexter är fullt översatta till svenska och
+norska, enligt den stående principen att all text till författaren
+ska vara tydlig och lätt att förstå.
+
+10 nya tester i `development-method.test.ts`. Verifierat i
+webbläsaren: metodväljaren med alla fyra kort, en vändpunktsmetod som
+fyller Plotlines-matrisen korrekt när man öppnar den, och Snowflakes
+"Skicka till Synopsis" som faktiskt lyfter texten till
+Synopsis-sidan.
 
 ### 14. Hel-manus developmental analys
 Hierarkisk: scen-analys → kapitel-syntes → akt-syntes →

@@ -1,9 +1,52 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.98
+Status: living document, v0.99
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.98 → v0.99:** Utvecklingsmetoder som pluggbart
+lager (roadmap #13) — ett valbart "Development Method" (Snowflake,
+Three-Act Structure, Save the Cat, Hero's Journey) som generaliserar
+den befintliga pipelinen Brainstorm → Synopsis → Dispositioner →
+Kapitel. Precis som roadmap-punkten kräver äger en metod aldrig någon
+egen data: den skriver bara in i det som redan finns.
+
+- Två sorters steg, båda återanvändning av befintlig funktionalitet:
+  **vändpunktsbaserade** metoder (Three-Act, Save the Cat, Hero's
+  Journey) materialiserar varje vändpunkt som en tråd i Trådar
+  (`materializeBeats()` bygger vidare på `addPlotline()`, med
+  dubblettskydd på titel) — författaren kopplar sedan kapitel till
+  vändpunkter precis som med vilken annan tråd som helst.
+  **Expansionsbaserade** metoder (Snowflake) är en guidad
+  stegsekvens där varje steg har ett eget utkastfält, en valfri
+  AI-föreslagning (`developExpand`, samma icke-strömmande
+  `provider.chat()`-mönster som Ask Manuscript) och en "Skicka till
+  Synopsis"-knapp som återanvänder `liftFragmentToSynopsis()` från
+  Brainstorm.
+- Ny `Book.development_method?: string` — bara vilken metod som är
+  vald, inget annat. Ny ytenum-medlem `"method"`.
+- All visningstext (metodnamn, beskrivningar, vändpunktsetiketter,
+  ledtrådar, steg-prompter) ligger i `i18n` under
+  `method.methods.<id>`, inte i kärnlogiken — kärnan
+  (`developmentMethod.ts`) håller bara ordning på steg-id, steg-typ
+  och (för vändpunkter) ungefärlig position. Metodernas egna namn
+  (Snowflake Method, Save the Cat, osv.) hålls omedvetet oöversatta i
+  alla tre språk, i linje med tidigare beslut att globalt kända
+  skrivtermer förblir sina originalnamn — men alla beskrivningar,
+  vändpunktsetiketter och stegtexter är fullt översatta till svenska
+  och norska.
+- Ny guide-sektion ("Development method" / "Utvecklingsmetod" /
+  "Utviklingsmetode") mellan Plotlines och Proofread, plus
+  "?"-hjälpknapp i navigeringen som för alla andra ytor.
+- 10 nya tester för `developmentMethodById`, metodernas
+  steg-invarianter (ingen blandning av vändpunkt/expansion inom en
+  metod, inga dubbla steg-id), `materializeBeats` (lägger till,
+  dedupliserar, gör inget för expansionsmetoder eller vid saknad
+  etikett) och `developExpandUserPrompt`. 597/597 gröna. Verifierat i
+  webbläsaren: metodväljaren, en vändpunktsmetod som fyller Trådar
+  korrekt, och Snowflakes "Skicka till Synopsis" som faktiskt lyfter
+  texten till Synopsis-sidan.
 
 **Ändringslogg v0.97 → v0.98:** Setup/payoff-spårning (roadmap #12) —
 "pistolen introducerades i kapitel 4, ingen payoff än". Byggd som ett

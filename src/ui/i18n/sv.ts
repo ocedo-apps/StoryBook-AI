@@ -261,7 +261,8 @@ export const sv: Messages = {
       illustrate: "Illustrationsprompt",
       proofread: "Korrekturläsning",
       "ask-manuscript": "Fråga manuset",
-      interview: "Karaktärsintervju"
+      interview: "Karaktärsintervju",
+      develop: "Utvecklingsmetod"
     }
   },
   askManuscript: {
@@ -318,6 +319,99 @@ export const sv: Messages = {
     cellLabel: "{chapter} — {thread}",
     emptyPlotlines: "Inga trådar än. Lägg till en nedanför för att starta matrisen.",
     emptyChapters: "Skriv ett kapitel först — matrisen behöver något att visa."
+  },
+  method: {
+    nav: "Utvecklingsmetod",
+    title: "Utvecklingsmetod",
+    lede: "En utvecklingsmetod är en färdig serie steg för att låta din berättelse växa från en gnista till en form. Den behåller aldrig något eget — varje steg skriver bara in i Synopsis eller Trådar, som du redan har. Hoppa över det här helt om du hellre skriver fritt.",
+    pickerLede: "Välj en metod för att få en vägledd väg. Du kan ändra dig senare — inget som redan är skrivet tas någonsin bort.",
+    useAction: "Använd den här metoden",
+    changeAction: "Byt metod",
+    noneAction: "Ingen metod — skriv fritt",
+    activeBadge: "Används",
+    beatsHeading: "Vändpunkter",
+    beatsHint: "Varje vändpunkt nedan blev en tråd i Trådar. Öppna Trådar för att markera vilka kapitel som täcker vilken vändpunkt.",
+    openPlotlines: "Öppna Trådar",
+    assistAction: "Föreslå en start",
+    assisting: "Tänker…",
+    draftPlaceholder: "Skriv egen text, eller be assistenten om en start…",
+    suggestionHeading: "Förslag",
+    useSuggestionAction: "Använd den här texten",
+    sendToSynopsisAction: "Skicka till Synopsis",
+    sentToSynopsis: "Tillagd i Synopsis.",
+    methods: {
+      snowflake: {
+        name: "Snowflake Method",
+        description:
+          "Börja med en enda mening och låt berättelsen växa utåt i några allt bredare omgångar. En förenklad, tre-stegs variant av Randy Ingermansons metod.",
+        steps: {
+          logline: {
+            label: "En mening",
+            prompt: "Sammanfatta hela berättelsen i en mening — karaktären, vad hen vill ha, och vad som står i vägen."
+          },
+          paragraph: {
+            label: "Ett stycke",
+            prompt: "Väx meningen till ett kort stycke: upptakten, konflikten som utvecklar den, vändpunkten på vägen, och hur det slutar."
+          },
+          synopsis: {
+            label: "Full synopsis",
+            prompt: "Väx stycket till en full synopsis — hela bokens form, scen för scen där det hjälper."
+          }
+        }
+      },
+      "three-act": {
+        name: "Three-Act Structure",
+        description: "Den klassiska formen upptakt / konfrontation / upplösning, som sju igenkännbara vändpunkter.",
+        steps: {
+          setup: { label: "Upptakt", hint: "Vardagsvärlden, innan berättelsen rubbar den." },
+          inciting: { label: "Utlösande händelse", hint: "Händelsen som sätter berättelsen i rörelse." },
+          "break-two": { label: "Steget in i andra akten", hint: "Karaktären bestämmer sig — det finns ingen väg tillbaka till vardagsvärlden." },
+          midpoint: { label: "Mittpunkt", hint: "En falsk seger eller falskt nederlag som höjer insatserna." },
+          "all-is-lost": { label: "Allt är förlorat", hint: "Lågpunkten — det ser ut som att karaktären inte kan vinna." },
+          climax: { label: "Klimax", hint: "Den slutgiltiga konfrontationen som hela berättelsen har byggt mot." },
+          resolution: { label: "Upplösning", hint: "Den nya vardagsvärlden, efter berättelsens förändring." }
+        }
+      },
+      "save-the-cat": {
+        name: "Save the Cat",
+        description: "Blake Snyders 15 vändpunkter — en detaljerad, procentbaserad struktur som är populär i genrelitteratur och film.",
+        steps: {
+          "opening-image": { label: "Öppningsbild", hint: "En glimt av karaktärens värld innan berättelsen." },
+          "theme-stated": { label: "Temat sägs", hint: "Någon säger, nästan i förbifarten, vad berättelsen egentligen handlar om." },
+          "set-up": { label: "Upptakt", hint: "Världen, persongalleriet, och vad som saknas i karaktärens liv." },
+          catalyst: { label: "Katalysator", hint: "Händelsen som sätter berättelsen i rörelse." },
+          debate: { label: "Tvekan", hint: "Karaktären tvekar — kan hen verkligen göra det här?" },
+          "break-two": { label: "Steget in i andra akten", hint: "Karaktären väljer att agera och lämnar den gamla världen bakom sig." },
+          "b-story": { label: "B-berättelsen", hint: "En andra tråd börjar — ofta en relation som bär temat." },
+          "fun-and-games": { label: "Löftet infrias", hint: "Grundidén levererar det den lovade — de klassiska scenerna." },
+          midpoint: { label: "Mittpunkt", hint: "En falsk seger eller falskt nederlag; insatserna höjs, klockan börjar ticka." },
+          "bad-guys-close-in": { label: "Motståndet trycker på", hint: "Både yttre och inre press hårdnar." },
+          "all-is-lost": { label: "Allt är förlorat", hint: "Lågpunkten — ofta markerad av en förlust eller en död." },
+          "dark-night": { label: "Själens mörka natt", hint: "Karaktären sitter kvar i förlusten innan hen hittar en väg framåt." },
+          "break-three": { label: "Steget in i tredje akten", hint: "Karaktären hittar lösningen, ofta från B-berättelsens lärdom." },
+          finale: { label: "Final", hint: "Karaktären agerar på lärdomen och löser berättelsens problem." },
+          "final-image": { label: "Slutbild", hint: "En bild som speglar öppningsbilden och visar hur mycket som förändrats." }
+        }
+      },
+      "hero-journey": {
+        name: "Hero's Journey",
+        description: "Campbells och Voglers mytiska struktur — tolv steg för en karaktär som lämnar den kända världen och återvänder förändrad.",
+        steps: {
+          "ordinary-world": { label: "Vardagsvärlden", hint: "Livet innan äventyret." },
+          call: { label: "Kallelsen", hint: "Något rubbar vardagsvärlden." },
+          refusal: { label: "Att avvisa kallelsen", hint: "Rädsla eller tvekan håller karaktären tillbaka." },
+          mentor: { label: "Att möta mentorn", hint: "Någon ger karaktären det hen behöver för att gå vidare." },
+          threshold: { label: "Att korsa tröskeln", hint: "Karaktären bestämmer sig och lämnar vardagsvärlden." },
+          tests: { label: "Prövningar, allierade, fiender", hint: "Den nya världens regler, vänner och rivaler lärs in." },
+          approach: { label: "Närmande till den inre grottan", hint: "Förberedelser inför den centrala prövningen." },
+          ordeal: { label: "Den stora prövningen", hint: "Den centrala krisen — en beröring med döden, bokstavlig eller inte." },
+          reward: { label: "Belöningen", hint: "Karaktären tar det hen kom för." },
+          "road-back": { label: "Vägen tillbaka", hint: "Att bestämma sig för att fullfölja resan och återvända." },
+          resurrection: { label: "Återuppståndelsen", hint: "En sista, mer avgörande prövning som bevisar att förändringen är äkta." },
+          return: { label: "Återkomsten med elixiret", hint: "Karaktären kommer hem förändrad, med något att ge tillbaka." }
+        }
+      }
+    }
   },
   guide: {
     nav: "Guide",
@@ -379,6 +473,10 @@ export const sv: Messages = {
       {
         heading: "Trådar (Plotlines)",
         body: "Håll koll på vilken tråd som går genom vilket kapitel i en tabell, så en tråd som varit tyst i tio kapitel är lätt att upptäcka."
+      },
+      {
+        heading: "Utvecklingsmetod",
+        body: "En valfri, färdig serie steg för att låta en gnista växa till en form — Snowflake, Three-Act Structure, Save the Cat eller Hero's Journey. Den behåller aldrig något eget: en vändpunktsbaserad metods vändpunkter blir trådar i Trådar, och Snowflakes steg skriver rakt in i Synopsis, precis som vilken annan anteckning du lyfter dit. Att byta metod, eller välja ingen alls, tar aldrig bort något som redan finns i endera."
       },
       {
         heading: "Korrekturläsning",

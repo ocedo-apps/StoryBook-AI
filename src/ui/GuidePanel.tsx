@@ -16,6 +16,7 @@ export const GUIDE_SECTION_IDS = [
   "continuity",
   "timeline",
   "plotlines",
+  "method",
   "proofread",
   "ask-manuscript",
   "publish"

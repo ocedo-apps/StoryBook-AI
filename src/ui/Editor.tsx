@@ -83,6 +83,7 @@ import { ContinuityWarning } from "./ContinuityWarning";
 import { ScenesPanel } from "./ScenesPanel";
 import { GuidePanel, type GuideSectionId } from "./GuidePanel";
 import { PlotlineMatrixPanel } from "./PlotlineMatrix";
+import { DevelopmentMethodPanel } from "./DevelopmentMethodPanel";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
 import { BrainstormBoard } from "./BrainstormBoard";
@@ -341,6 +342,7 @@ export function Editor() {
   const onAskManuscript = surface === "ask";
   const onTimeline = surface === "timeline";
   const onPlotlines = surface === "plotlines";
+  const onMethod = surface === "method";
   const onGuide = surface === "guide";
   const [guideAnchor, setGuideAnchor] = useState<GuideSectionId | null>(null);
   const openGuide = (anchor?: GuideSectionId) => {
@@ -387,7 +389,7 @@ export function Editor() {
   const nameLinks = entityRefsAndLabels(book.facts, book.entity_kinds);
   const [openEntitySignal, setOpenEntitySignal] = useState<{ ref: string } | null>(null);
   const pageText =
-    onSettings || onAskManuscript || onTimeline || onPlotlines
+    onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? ""
       : onBrainstorm
         ? book.brainstorm
@@ -396,7 +398,7 @@ export function Editor() {
           : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
   const activeReaderAge =
-    onBrainstorm || onSynopsis || onSettings || onAskManuscript || onTimeline || onPlotlines
+    onBrainstorm || onSynopsis || onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? book.reader_age
       : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
@@ -834,6 +836,24 @@ export function Editor() {
               onOpen={openGuide}
             />
           </div>
+          <div className="synopsis-item-row">
+            <button
+              type="button"
+              className={onMethod && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showMethod();
+              }}
+            >
+              {m.method.nav}
+            </button>
+            <GuideHelpButton
+              anchor="method"
+              ariaLabel={format(m.guide.helpFor, { topic: m.method.nav })}
+              onOpen={openGuide}
+            />
+          </div>
           <button
             type="button"
             className={onBoard ? "synopsis-item is-active" : "synopsis-item"}
@@ -1257,6 +1277,21 @@ export function Editor() {
             }
             onRemovePlotline={(plotlineId) => void store.patchBook((current) => removePlotline(current, plotlineId))}
             onJumpToChapter={store.setChapterId}
+          />
+        ) : onMethod ? (
+          <DevelopmentMethodPanel
+            developmentMethod={book.development_method}
+            busy={busy === "develop"}
+            suggestion={store.developSuggestion}
+            onUseMethod={(id) => void store.setDevelopmentMethod(id)}
+            onNoMethod={() => void store.setDevelopmentMethod(null)}
+            onAssist={(step, draft) => void store.developExpand(step, draft)}
+            onDismissSuggestion={store.dismissDevelopSuggestion}
+            onSendToSynopsis={(text) => void store.liftToSynopsis(text)}
+            onOpenPlotlines={() => {
+              setBoardOpen(false);
+              store.showPlotlines();
+            }}
           />
         ) : onGuide ? (
           <GuidePanel scrollTo={guideAnchor} />

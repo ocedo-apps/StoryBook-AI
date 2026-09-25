@@ -2,6 +2,7 @@ import { createContext, useContext } from "react";
 import type { Book, BookSummary, EditorSurface } from "@core/BookSchema";
 import type { AskManuscriptAnswer } from "@core/askManuscript";
 import type { InterviewMessage } from "@core/characterInterview";
+import type { DevelopmentStep } from "@core/developmentMethod";
 import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
@@ -22,6 +23,7 @@ export type Busy =
   | "proofread"
   | "illustrate"
   | "interview"
+  | "develop"
   | null;
 
 export type BookStoreValue = {
@@ -45,6 +47,7 @@ export type BookStoreValue = {
   askManuscriptAnswer: AskManuscriptAnswer | null;
   interviewEntity: { ref: string; label: string } | null;
   interviewHistory: InterviewMessage[];
+  developSuggestion: string | null;
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
   closeBook: () => void;
@@ -60,6 +63,7 @@ export type BookStoreValue = {
   showAsk: () => void;
   showTimeline: () => void;
   showPlotlines: () => void;
+  showMethod: () => void;
   showGuide: () => void;
   dismissModelAside: () => void;
   setModel: (name: string) => void;
@@ -99,6 +103,9 @@ export type BookStoreValue = {
   startProofread: (opts?: { restart?: boolean }) => Promise<void>;
   generateIllustrationPrompt: (passage: string) => Promise<string | null>;
   askManuscript: (question: string) => Promise<void>;
+  setDevelopmentMethod: (id: string | null) => Promise<void>;
+  developExpand: (step: Extract<DevelopmentStep, { kind: "expand" }>, draft: string) => Promise<void>;
+  dismissDevelopSuggestion: () => void;
   startInterview: (entityRef: string, entityLabel: string) => void;
   askCharacter: (question: string) => Promise<void>;
   closeInterview: () => void;

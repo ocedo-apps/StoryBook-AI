@@ -259,7 +259,8 @@ export const en = {
       illustrate: "Illustration prompt",
       proofread: "Proofread",
       "ask-manuscript": "Ask Manuscript",
-      interview: "Character interview"
+      interview: "Character interview",
+      develop: "Development method"
     }
   },
   askManuscript: {
@@ -316,6 +317,100 @@ export const en = {
     cellLabel: "{chapter} — {thread}",
     emptyPlotlines: "No threads yet. Add one below to start the matrix.",
     emptyChapters: "Write a chapter first — the matrix needs something to show."
+  },
+  method: {
+    nav: "Development method",
+    title: "Development method",
+    lede: "A development method is a ready-made set of steps for growing your story from a spark into a shape. It never keeps anything of its own — every step just writes into Synopsis or Plotlines, which you already have. Skip this entirely if you'd rather write freeform.",
+    pickerLede: "Pick a method to get a guided path. You can change your mind later — nothing already written is ever deleted.",
+    useAction: "Use this method",
+    changeAction: "Change method",
+    noneAction: "No method — write freely",
+    activeBadge: "In use",
+    beatsHeading: "Beats",
+    beatsHint: "Each beat below became a thread in Plotlines. Open Plotlines to mark which chapters cover which beat.",
+    openPlotlines: "Open Plotlines",
+    assistAction: "Suggest a start",
+    assisting: "Thinking…",
+    draftPlaceholder: "Write your own, or ask the assistant for a start…",
+    suggestionHeading: "Suggestion",
+    useSuggestionAction: "Use this text",
+    sendToSynopsisAction: "Send to Synopsis",
+    sentToSynopsis: "Added to Synopsis.",
+    methods: {
+      snowflake: {
+        name: "Snowflake Method",
+        description:
+          "Start with one sentence and grow the story outward in a few widening passes. A simplified, three-pass take on Randy Ingermanson's method.",
+        steps: {
+          logline: {
+            label: "One sentence",
+            prompt: "Sum up the whole story in one sentence — the character, what they want, and what stands in the way."
+          },
+          paragraph: {
+            label: "One paragraph",
+            prompt:
+              "Grow that sentence into a short paragraph: the setup, the conflict that develops it, the turn partway through, and how it ends."
+          },
+          synopsis: {
+            label: "Full synopsis",
+            prompt: "Grow the paragraph into a full synopsis — the shape of the whole book, scene by scene where it helps."
+          }
+        }
+      },
+      "three-act": {
+        name: "Three-Act Structure",
+        description: "The classic setup / confrontation / resolution shape, as seven recognizable turning points.",
+        steps: {
+          setup: { label: "Setup", hint: "The ordinary world, before the story disturbs it." },
+          inciting: { label: "Inciting incident", hint: "The event that starts the story moving." },
+          "break-two": { label: "Break into Act Two", hint: "The character commits — there is no going back to the ordinary world." },
+          midpoint: { label: "Midpoint", hint: "A false victory or false defeat that raises the stakes." },
+          "all-is-lost": { label: "All is lost", hint: "The low point — it looks like the character cannot win." },
+          climax: { label: "Climax", hint: "The final confrontation the whole story has been building to." },
+          resolution: { label: "Resolution", hint: "The new ordinary world, after the story's change." }
+        }
+      },
+      "save-the-cat": {
+        name: "Save the Cat",
+        description: "Blake Snyder's 15-beat sheet — a detailed, percentage-mapped structure popular in genre fiction and screenwriting.",
+        steps: {
+          "opening-image": { label: "Opening image", hint: "A snapshot of the character's world before the story." },
+          "theme-stated": { label: "Theme stated", hint: "Someone states, almost in passing, what the story is really about." },
+          "set-up": { label: "Set-up", hint: "The world, the cast, and what is missing from the character's life." },
+          catalyst: { label: "Catalyst", hint: "The event that kicks the story into motion." },
+          debate: { label: "Debate", hint: "The character hesitates — can they really do this?" },
+          "break-two": { label: "Break into Two", hint: "The character chooses to act, leaving the old world behind." },
+          "b-story": { label: "B story", hint: "A second thread begins — often a relationship that carries the theme." },
+          "fun-and-games": { label: "Fun and games", hint: "The premise delivers on its promise — the trailer moments." },
+          midpoint: { label: "Midpoint", hint: "A false victory or false defeat; stakes rise, the clock starts." },
+          "bad-guys-close-in": { label: "Bad guys close in", hint: "External and internal pressure both tighten." },
+          "all-is-lost": { label: "All is lost", hint: "The lowest point — often marked by a loss or a death." },
+          "dark-night": { label: "Dark night of the soul", hint: "The character sits with the loss before finding a way forward." },
+          "break-three": { label: "Break into Three", hint: "The character finds the solution, often from the B story's lesson." },
+          finale: { label: "Finale", hint: "The character acts on the lesson and resolves the story's problem." },
+          "final-image": { label: "Final image", hint: "A snapshot that mirrors the opening image, showing how much has changed." }
+        }
+      },
+      "hero-journey": {
+        name: "Hero's Journey",
+        description: "Campbell and Vogler's mythic structure — twelve stages of a character leaving the known world and returning changed.",
+        steps: {
+          "ordinary-world": { label: "Ordinary world", hint: "Life before the adventure." },
+          call: { label: "Call to adventure", hint: "Something disturbs the ordinary world." },
+          refusal: { label: "Refusal of the call", hint: "Fear or doubt holds the character back." },
+          mentor: { label: "Meeting the mentor", hint: "Someone gives the character what they need to go on." },
+          threshold: { label: "Crossing the threshold", hint: "The character commits and leaves the ordinary world." },
+          tests: { label: "Tests, allies, enemies", hint: "The new world's rules, friends, and rivals are learned." },
+          approach: { label: "Approach to the inmost cave", hint: "Preparing for the central ordeal." },
+          ordeal: { label: "Ordeal", hint: "The central crisis — a brush with death, literal or otherwise." },
+          reward: { label: "Reward", hint: "The character takes hold of what they came for." },
+          "road-back": { label: "The road back", hint: "Committing to finish the journey and return." },
+          resurrection: { label: "Resurrection", hint: "A final, higher-stakes test that proves the change is real." },
+          return: { label: "Return with the elixir", hint: "The character comes home changed, with something to give back." }
+        }
+      }
+    }
   },
   guide: {
     nav: "Guide",
@@ -377,6 +472,10 @@ export const en = {
       {
         heading: "Plotlines",
         body: "Track which thread runs through which chapter in a table, so a thread that has gone quiet for ten chapters is easy to spot."
+      },
+      {
+        heading: "Development method",
+        body: "An optional, ready-made set of steps for growing a spark into a shape — Snowflake, Three-Act Structure, Save the Cat, or Hero's Journey. It never keeps anything of its own: a beat-based method's beats become threads in Plotlines, and Snowflake's steps write straight into Synopsis, the same as any other note you lift there. Switching method, or choosing none, never deletes anything either of those already hold."
       },
       {
         heading: "Proofread",
