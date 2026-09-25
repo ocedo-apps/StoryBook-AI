@@ -466,7 +466,7 @@ button:disabled {
 }
 
 .home-logo {
-  height: 2.6rem;
+  height: 5.2rem;
   width: auto;
   margin: 0 0 0.75rem;
 }
@@ -490,7 +490,7 @@ button:disabled {
 .home h1 {
   font-family: var(--font-prose);
   font-weight: 500;
-  font-size: clamp(2rem, 5vw, 3.1rem);
+  font-size: clamp(1.5rem, 3.75vw, 2.325rem);
   line-height: 1.15;
   margin: 0 0 0.75rem;
   grid-column: 1 / -1;

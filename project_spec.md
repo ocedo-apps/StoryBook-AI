@@ -1,9 +1,15 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.3
+Status: living document, v0.99.4
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.3 → v0.99.4:** Justerade proportionerna på
+startsidans nya rubrik, på författarens direkta begäran: loggan
+dubbelt så stor (`.home-logo` 2.6rem → 5.2rem), rubriktexten till 75%
+(`.home h1` `clamp(2rem, 5vw, 3.1rem)` → `clamp(1.5rem, 3.75vw,
+2.325rem)`). 597/597 gröna, verifierat i båda teman.
 
 **Ändringslogg v0.99.2 → v0.99.3:** Riktig logga överst på
 "alla manuskript"-sidan (`Home.tsx`), istället för textetiketten
