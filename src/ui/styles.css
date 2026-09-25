@@ -4561,18 +4561,12 @@ button.illustration-genre-item:focus-visible {
 }
 
 .guide-quickstart-block {
-  max-width: 60rem;
+  max-width: none;
 }
 
 .guide-quickstart-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.guide-card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 

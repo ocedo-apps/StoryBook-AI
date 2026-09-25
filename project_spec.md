@@ -1,9 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.12
+Status: living document, v0.99.13
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.12 → v0.99.13:** Rullade tillbaka tvåkolumns-
+korten från v0.99.12 — författaren tyckte inte det blev bra: "Man
+tappar 1-2-3 känslan. På min skärm skulle de rymmas i bredd. Krymp
+hellre bredden om skärmen är smalare än min."
+
+- Tillbaka till tre kolumner (`.guide-quickstart-grid`, samma rutnät
+  för både kort- och stegraden igen). `.guide-card-grid` borttagen.
+- Tog samtidigt bort `max-width: 60rem`-taket på hela blocket helt
+  (`max-width: none`) — författarens egen skärmbild av tvåkorts-
+  versionen visade tydligt oanvänt utrymme till höger om korten, vilket
+  bevisar att taket (inte sidopanelerna) var den faktiska begränsningen
+  på hennes skärm.
+- Verifierat med Playwright vid tre fönsterbredder — kolumnantalet
+  ligger fast på tre hela vägen, bredden krymper proportionerligt:
+  2200px → 397px/kort, 1400px → 173px/kort, 1100px → 89px/kort. Vid
+  den smalaste testade bredden (1100px, smalare än appen i övrigt är
+  tänkt för — sidopanelerna ensamma tar redan ~745px) blir korttexten
+  tät, men det matchar exakt vad som efterfrågades: krympa hellre än
+  att tappa radkänslan.
+- 597/597 gröna. Verifierat i webbläsaren.
 
 **Ändringslogg v0.99.11 → v0.99.12:** Gjorde guide-korten 50% bredare,
 på författarens begäran.
