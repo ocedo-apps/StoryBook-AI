@@ -1,9 +1,32 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.15
+Status: living document, v0.99.16
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.15 → v0.99.16:** Fördubblade förstasidans bredd
+och la tillbaka loggan högst upp på sidan, på författarens begäran.
+
+- `.home` gick från `max-width: 40rem` till `80rem` — dubbelt, som
+  efterfrågat. Allt innehåll (rubrik, ingress, formulär, snabbstarts-
+  korten) drar nytta av den extra bredden; korten gick från ~187px
+  till 400px vid 1920px fönsterbredd.
+- Hittade samtidigt en regression: den stora loggan högst upp på
+  förstasidan (`.home-logo`, redan definierad i CSS:en) försvann av
+  misstag när den globala verktygsraden lades till (commit aee1fee)
+  — bilderna togs bort ur `Home.tsx` men CSS-reglerna blev kvar
+  oanvända. Bara den lilla loggan i verktygsraden (1.7rem) fanns kvar,
+  inte den ursprungliga stora versionen på själva sidan. Lade tillbaka
+  `<img>`-taggarna (samma tema-växling ljus/mörk som redan fanns).
+- Samtidigt upptäcktes att `.home-brand` fortfarande var ett
+  tvåkolumns-rutnät (`grid-template-columns: 1fr auto`) kvarlämnat
+  från samma refaktorering — det gjorde att loggan och rubriken skulle
+  hamna i fel rutnätsceller. Bytte till vanligt blockflöde, vilket
+  samtidigt rättade till att "Ny här? Läs snabbstarten"-länken av
+  misstag hamnade centrerad istället för vänsterställd som allt annat.
+- 597/597 gröna. Verifierat i webbläsaren vid 1920px (ingen logga/
+  layoutbugg) och 1100px (ingen horisontell overflow).
 
 **Ändringslogg v0.99.14 → v0.99.15:** Visar nu snabbstartskorten
 ("Kom igång med en lokal AI") även på förstasidan, inte bara i

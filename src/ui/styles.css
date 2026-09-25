@@ -327,16 +327,13 @@ button:disabled {
 /* Home */
 
 .home {
-  max-width: 40rem;
+  max-width: 80rem;
   margin: 0 auto;
   padding: 12vh 1.5rem 4rem;
 }
 
 .home-brand {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: start;
-  column-gap: 1.5rem;
+  display: block;
 }
 
 .theme-toggle {
