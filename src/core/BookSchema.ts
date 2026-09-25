@@ -257,10 +257,19 @@ export function createBook(title: string): Book {
   };
 }
 
-export type EditorSurface = "settings" | "brainstorm" | "synopsis" | "chapter" | "ask" | "timeline" | "plotlines";
+export type EditorSurface =
+  | "settings"
+  | "brainstorm"
+  | "synopsis"
+  | "chapter"
+  | "ask"
+  | "timeline"
+  | "plotlines"
+  | "guide";
 
 /**
- * A blank manuscript opens on Settings. Brainstorm once notes exist.
+ * A blank manuscript opens on the Guide — a new author has nothing to
+ * configure yet, but everything to learn. Brainstorm once notes exist.
  * A book with a synopsis but no prose opens on the map. Once a chapter
  * has prose, reopen on the chapter.
  */
@@ -269,7 +278,7 @@ export function openingSurface(book: Book): EditorSurface {
   if (book.synopsis.trim().length > 0) return "synopsis";
   const notes = book.brainstorm_notes ?? [];
   if (book.brainstorm.trim() || notes.some((note) => note.text.trim())) return "brainstorm";
-  return "settings";
+  return "guide";
 }
 
 export function createChapter(sequence_index: number, title = ""): Chapter {

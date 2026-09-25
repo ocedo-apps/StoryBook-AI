@@ -69,9 +69,9 @@ describe("createBook", () => {
 });
 
 describe("openingSurface", () => {
-  it("opens a blank manuscript on settings", () => {
+  it("opens a blank manuscript on the guide", () => {
     const book = createBook("X");
-    expect(openingSurface(book)).toBe("settings");
+    expect(openingSurface(book)).toBe("guide");
   });
 
   it("opens on brainstorm once notes exist, then synopsis, then chapter prose", () => {

@@ -303,6 +303,95 @@ export const en = {
     emptyPlotlines: "No threads yet. Add one below to start the matrix.",
     emptyChapters: "Write a chapter first — the matrix needs something to show."
   },
+  guide: {
+    nav: "Guide",
+    title: "Guide",
+    intro: "A short walkthrough — how to get the app talking to a model, and what everything does once it is.",
+    openFromHome: "New here? Read the quickstart",
+    closeAction: "Close",
+    fromErrorLink: "See the quickstart guide",
+    quickstartHeading: "Quickstart",
+    quickstartSteps: [
+      {
+        heading: "1. Install a local model",
+        body: "The simplest option is Ollama. Download it from ollama.com and install it like any other program, then open it and pull a model — any general chat model works to start (a few gigabytes, once). Prefer LM Studio or another local server instead? That works too — see the next step."
+      },
+      {
+        heading: "2. Point StoryBook AI at it",
+        body: "Nothing to configure if you used Ollama — StoryBook AI finds it automatically on your computer. Using LM Studio or another local server instead? Open Settings → Models, choose it under Engine, and paste the server address it shows you."
+      },
+      {
+        heading: "3. Start your manuscript",
+        body: "A title is all it takes. Open it, and you land here — in Brainstorm once you have ideas, but first: a private scratch space with nothing to configure yet."
+      },
+      {
+        heading: "4. Write",
+        body: "Drag the ideas that are ready into Synopsis — the shape of the whole story. Then open a chapter and press Draft: the model writes from your Synopsis, your Story Bible, and that chapter's own brief. Nothing it writes is locked truth until you say so — rewrite it, recast the camera, or ask for an analysis pass any time."
+      }
+    ],
+    howHeading: "How the app is built",
+    sections: [
+      {
+        heading: "Author beats AI, always",
+        body: "The model proposes; you decide. A detail the model invents in prose stays a proposal — shown with a light dashed underline — until you lock it into the Story Bible. Nothing crosses into canon on its own."
+      },
+      {
+        heading: "Brainstorm & Synopsis",
+        body: "Brainstorm is where ideas live before they are story — one note per idea, draggable, no order required. Lift the ones that stick into the Synopsis: the shape of the whole book, in a few sentences. Every chapter draft leans on the Synopsis, never on brainstorm notes you have not lifted."
+      },
+      {
+        heading: "Chapters: Draft, Recast, Analyze",
+        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues — telling instead of showing, filler dialogue, a beat that clashes with a locked trait — without rewriting a word."
+      },
+      {
+        heading: "Scenes",
+        body: "A long chapter can be split into scenes — pick where one ends and the next begins, name it, add a short note. Once a chapter has scenes, Draft, Recast and Analyze can each target just one of them."
+      },
+      {
+        heading: "Story Bible",
+        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict."
+      },
+      {
+        heading: "Continuity warnings",
+        body: "When a chapter can see a fact that was only established later in the manuscript, it is flagged — not necessarily wrong, maybe it is a flashback, just worth a glance."
+      },
+      {
+        heading: "Timeline",
+        body: "Reading order and story-time order are not always the same thing. Give a chapter a story-time note, and see how the book falls when sorted by when things actually happen, next to where it sits in the manuscript."
+      },
+      {
+        heading: "Plotlines",
+        body: "Track which thread runs through which chapter in a table, so a thread that has gone quiet for ten chapters is easy to spot."
+      },
+      {
+        heading: "Proofread",
+        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, and a fact check against the whole book. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
+      },
+      {
+        heading: "Ask Manuscript",
+        body: "Ask a question about your own story and get an answer built only from what is actually written — with the chapters it came from, so you can check it yourself."
+      },
+      {
+        heading: "Publish",
+        body: "Export a clean reading copy — Markdown, RTF, ODT, HTML, ePub, or PDF. Brainstorm never leaves the book; only the manuscript itself does."
+      }
+    ],
+    faqHeading: "Troubleshooting",
+    faq: [
+      {
+        heading: "“No local model found”",
+        body: "StoryBook AI cannot reach your local server. Using Ollama? Make sure it is running. Using LM Studio or another server? Check Settings → Models — the engine and server address need to match what is actually running on your computer."
+      },
+      {
+        heading: "Where is my book stored?",
+        body: "On your own computer, in the browser's local storage — nothing is uploaded anywhere. Use Backup from time to time to save a copy you can restore from, in case you clear your browser's data."
+      },
+      {
+        heading: "Can I use a paid AI service instead?",
+        body: "No — on purpose. StoryBook AI only ever talks to a model running on your own computer or network. That is not a missing feature; it is the whole point: your manuscript never has to leave your machine."
+      }
+    ]
+  },
   scenes: {
     toggleCount: {
       one: "{count} scene",

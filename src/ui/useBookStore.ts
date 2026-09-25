@@ -56,6 +56,7 @@ export type BookStoreValue = {
   showAsk: () => void;
   showTimeline: () => void;
   showPlotlines: () => void;
+  showGuide: () => void;
   dismissModelAside: () => void;
   setModel: (name: string) => void;
   setWritingPrimer: (text: string) => void;

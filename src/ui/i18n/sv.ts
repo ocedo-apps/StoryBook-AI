@@ -305,6 +305,95 @@ export const sv: Messages = {
     emptyPlotlines: "Inga trådar än. Lägg till en nedanför för att starta matrisen.",
     emptyChapters: "Skriv ett kapitel först — matrisen behöver något att visa."
   },
+  guide: {
+    nav: "Guide",
+    title: "Guide",
+    intro: "En kort genomgång — hur du får appen att prata med en modell, och vad allt gör när den väl gör det.",
+    openFromHome: "Ny här? Läs snabbstarten",
+    closeAction: "Stäng",
+    fromErrorLink: "Se snabbstartsguiden",
+    quickstartHeading: "Snabbstart",
+    quickstartSteps: [
+      {
+        heading: "1. Installera en lokal modell",
+        body: "Enklast är Ollama. Ladda ner den från ollama.com och installera den som vilket program som helst, öppna den sen och hämta en modell — vilken vanlig chattmodell som helst funkar för att börja (några gigabyte, en gång). Föredrar du LM Studio eller en annan lokal server istället? Det funkar också — se nästa steg."
+      },
+      {
+        heading: "2. Peka StoryBook AI mot den",
+        body: "Inget att ställa in om du använde Ollama — StoryBook AI hittar den automatiskt på din dator. Kör du LM Studio eller en annan lokal server istället? Öppna Inställningar → Modeller, välj den under Motor, och klistra in serveradressen den visar dig."
+      },
+      {
+        heading: "3. Starta ditt manus",
+        body: "En titel räcker. Öppna det, så hamnar du här — i Brainstorm så fort du har idéer, men först: ett privat skissutrymme utan något att ställa in än."
+      },
+      {
+        heading: "4. Skriv",
+        body: "Dra de idéer som är klara till Synopsis — formen på hela berättelsen. Öppna sen ett kapitel och tryck Skriv utkast: modellen skriver utifrån ditt Synopsis, din Story Bible och kapitlets egen instruktion. Inget den skriver blir låst sanning förrän du säger till — skriv om det, byt kamera, eller be om en analys när som helst."
+      }
+    ],
+    howHeading: "Så är appen uppbyggd",
+    sections: [
+      {
+        heading: "Författaren vinner alltid över AI:n",
+        body: "Modellen föreslår, du bestämmer. En detalj modellen hittar på i prosan förblir ett förslag — visas med en lätt streckad understrykning — tills du låser den i Story Bible. Inget blir kanon av sig självt."
+      },
+      {
+        heading: "Brainstorm & Synopsis",
+        body: "Brainstorm är där idéer lever innan de blir berättelse — en anteckning per idé, dragbar, ingen ordning krävs. Dra de som håller till Synopsis: formen på hela boken, i några meningar. Varje kapitelutkast lutar sig mot Synopsis, aldrig mot brainstorm-anteckningar du inte lyft över."
+      },
+      {
+        heading: "Kapitel: Skriv utkast, Omskriv, Analysera",
+        body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem — berättar istället för att visa, meningslös dialog, ett drag som krockar med ett låst karaktärsdrag — utan att skriva om en enda rad."
+      },
+      {
+        heading: "Scener",
+        body: "Ett långt kapitel kan delas upp i scener — välj var en slutar och nästa börjar, namnge den, lägg till en kort anteckning. När ett kapitel har scener kan Skriv utkast, Omskriv och Analysera var för sig riktas mot bara en av dem."
+      },
+      {
+        heading: "Story Bible",
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga."
+      },
+      {
+        heading: "Kontinuitetsvarningar",
+        body: "När ett kapitel kan se ett fakta som bara etablerades senare i manuset flaggas det — inte nödvändigtvis fel, kanske är det en tillbakablick, bara värt en snabb koll."
+      },
+      {
+        heading: "Timeline",
+        body: "Läsordning och berättelsens egen tidsordning är inte alltid samma sak. Ge ett kapitel en tidsanteckning, och se hur boken faller ut sorterad efter när saker faktiskt händer, bredvid var det ligger i manuset."
+      },
+      {
+        heading: "Trådar (Plotlines)",
+        body: "Håll koll på vilken tråd som går genom vilket kapitel i en tabell, så en tråd som varit tyst i tio kapitel är lätt att upptäcka."
+      },
+      {
+        heading: "Korrekturläsning",
+        body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, och en faktakontroll mot hela boken. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
+      },
+      {
+        heading: "Fråga manuset",
+        body: "Ställ en fråga om din egen berättelse och få ett svar byggt bara på det som faktiskt är skrivet — med kapitlen det kom från, så att du kan kontrollera det själv."
+      },
+      {
+        heading: "Publicera",
+        body: "Exportera en ren läskopia — Markdown, RTF, ODT, HTML, ePub eller PDF. Brainstorm lämnar aldrig boken; bara själva manuset gör det."
+      }
+    ],
+    faqHeading: "Felsökning",
+    faq: [
+      {
+        heading: "”Ingen lokal modell hittades”",
+        body: "StoryBook AI når inte din lokala server. Kör du Ollama? Se till att den är igång. Kör du LM Studio eller en annan server? Kolla Inställningar → Modeller — motorn och serveradressen måste stämma med det som faktiskt körs på din dator."
+      },
+      {
+        heading: "Var lagras min bok?",
+        body: "På din egen dator, i webbläsarens lokala lagring — inget laddas upp någonstans. Använd Backup då och då för att spara en kopia du kan återställa från, ifall du rensar webbläsarens data."
+      },
+      {
+        heading: "Kan jag använda en betald AI-tjänst istället?",
+        body: "Nej — medvetet. StoryBook AI pratar bara någonsin med en modell som körs på din egen dator eller nätverk. Det är inte en saknad funktion; det är hela poängen: ditt manus behöver aldrig lämna din maskin."
+      }
+    ]
+  },
   scenes: {
     toggleCount: {
       one: "{count} scen",

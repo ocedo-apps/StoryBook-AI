@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.85
+Status: living document, v0.86
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.85 → v0.86:** Andra delen av förberedelsen för
+externa testare: en integrerad guide med snabbstart. Författaren
+misstänkte, rimligt nog, att andra författare som testar appen inte
+är de mest tekniska — och appen kräver faktiskt ett tekniskt steg
+(en lokal modellserver) innan den gör något alls.
+
+Ny sida i navigeringen, "Guide" (`GuidePanel.tsx`), byggd som ren text
+utan AI, i tre delar: en fyrastegs snabbstart (installera Ollama eller
+LM Studio, peka appen mot den, starta ett manus, börja skriva), en
+förklaring av appens elva huvuddelar, och tre felsökningsfrågor.
+
+`GuidePanel` byggdes medvetet fristående från bokdata (tar bara ett
+valfritt `scrollTo`-ankare), så samma komponent funkar både som en
+sida i manus-navigeringen OCH som en overlay på hemskärmen innan ett
+manus ens finns — hemskärmen fick en "New here? Read the
+quickstart"-länk som öppnar den. Ett nytt, tomt manus (inga kapitel,
+inget synopsis, inga brainstorm-anteckningar) öppnas nu direkt på
+Guide istället för Inställningar (`openingSurface()`) — en ny
+författare har inget att ställa in än, men allt att lära sig.
+
+Den globala felbannern ("Ingen lokal modell hittades" m.fl.) fick en
+direktlänk till exakt rätt paragraf i Felsökning-avsnittet, med
+automatisk skroll dit — `GuidePanel` exporterar stabila,
+språkoberoende ankare (`GUIDE_SECTION_IDS`, `GUIDE_FAQ_IDS`) som
+andra delar av appen kan peka på, redo för nästa steg: små
+"?"-genvägar vid andra panelers rubriker (författarens idé, sparad
+som roadmap-punkt 22, inte byggd än).
+
+561/561 gröna (samma antal — `openingSurface`s testfall bytte bara
+förväntat värde). Verifierat i webbläsaren: guiden öppnas korrekt från
+både hemskärmen och manus-navigeringen på alla tre språk, ett nytt
+manus landar på Guide, och felbannerns länk hoppar till och skrollar
+fram rätt paragraf.
 
 **Ändringslogg v0.84 → v0.85:** Författaren har fått externa testare
 och bad om en genomgång av gränssnittet med det i åtanke. Gick igenom

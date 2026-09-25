@@ -72,6 +72,7 @@ import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
 import { ScenesPanel } from "./ScenesPanel";
+import { GuidePanel, type GuideSectionId } from "./GuidePanel";
 import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
@@ -82,7 +83,7 @@ import { FindReplaceCard, type FindHighlight, type FindLaunch } from "./FindRepl
 import { ProofreadCard } from "./ProofreadCard";
 import { ProgressCard } from "./ProgressCard";
 import type { FindOccurrence } from "@core/findReplace";
-import { count, format, translateError, type Messages, useLocale } from "./i18n";
+import { count, format, STORE_ERROR, translateError, type Messages, useLocale } from "./i18n";
 
 function craftCue(book: CraftFields, chapter: ChapterCraft, m: Messages): string {
   if (!hasCraftOverride(chapter)) return "";
@@ -292,6 +293,12 @@ export function Editor() {
   const onAskManuscript = surface === "ask";
   const onTimeline = surface === "timeline";
   const onPlotlines = surface === "plotlines";
+  const onGuide = surface === "guide";
+  const [guideAnchor, setGuideAnchor] = useState<GuideSectionId | null>(null);
+  const openGuide = (anchor?: GuideSectionId) => {
+    setGuideAnchor(anchor ?? null);
+    store.showGuide();
+  };
   const [boardOpen, setBoardOpen] = useState(false);
   const onBoard = boardOpen;
   const [askOpen, setAskOpen] = useState(false);
@@ -644,6 +651,13 @@ export function Editor() {
       {(error || ollamaError) && (
         <p className="banner" role="status">
           {translateError(error ?? ollamaError ?? "", m)}
+          {([STORE_ERROR.noModel, STORE_ERROR.ollamaOrigins, STORE_ERROR.serverUrlMissing] as string[]).includes(
+            error ?? ollamaError ?? ""
+          ) ? (
+            <button type="button" className="text-button" onClick={() => openGuide("no-model")}>
+              {m.guide.fromErrorLink}
+            </button>
+          ) : null}
         </p>
       )}
       {continuesNotice ? (
@@ -657,6 +671,17 @@ export function Editor() {
 
       <div className="editor-body">
         <aside className="rail rail-left">
+          <button
+            type="button"
+            className={onGuide && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              openGuide();
+            }}
+          >
+            {m.guide.nav}
+          </button>
           <button
             type="button"
             className={onSettings && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
@@ -1118,6 +1143,8 @@ export function Editor() {
             onRemovePlotline={(plotlineId) => void store.patchBook((current) => removePlotline(current, plotlineId))}
             onJumpToChapter={store.setChapterId}
           />
+        ) : onGuide ? (
+          <GuidePanel scrollTo={guideAnchor} />
         ) : onSynopsis ? (
           <main className="manuscript">
             <h1 className="chapter-title">{m.editor.synopsis}</h1>

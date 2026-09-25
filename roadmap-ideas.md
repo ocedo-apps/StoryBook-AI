@@ -36,6 +36,8 @@ inte en ensidig lista.
 | 18 | Character Interviews | ⬜ ej påbörjad |
 | 19 | Korrekturläsning: Faktakontroll-steg | ✅ byggd (v0.80) |
 | 20 | Korrekturläsning: stil-steget kollar även känsla | ✅ byggd (v0.80) |
+| 21 | Integrerad guide + snabbstart | ✅ byggd (v0.85) |
+| 22 | "?"-genvägar från rubriker till guiden | ⬜ ej påbörjad |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -383,6 +385,61 @@ omfatta känsla/stämning, inte bara diktion mot den deklarerade
 Voice-texten. Ingen ny arkitektur — bara `STYLE_SYSTEM`-prompten
 utökad, eftersom steget redan ser alla kapitel i ett enda anrop och
 därför redan kan bedöma stämningsskiften mellan grannkapitel.
+
+---
+
+## Extern testning (2026-09-25)
+
+Författaren fick sina första externa testare och bad om två saker
+med det i åtanke: ett gränssnitt som inte antar svensk kontext eller
+kräver att man redan känner appen, och en guide — helst inbyggd,
+kanske PDF-exporterbar senare. Under samtalet tillkom ett tredje
+behov: en tydlig snabbstart, eftersom författare i allmänhet inte är
+de mest tekniska — och den här appen kräver faktiskt ett tekniskt
+steg (en lokal modellserver) innan den gör något alls.
+
+### 21. Integrerad guide + snabbstart ✅ byggd (v0.85)
+Ny sida i navigeringen ("Guide"), samma mönster som Inställningar/
+Timeline/Trådar — ren text, ingen AI inblandad, byggd i tre delar:
+
+- **Snabbstart** (fyra steg): installera Ollama (eller LM Studio/en
+  annan lokal server, se punkt 4 om motor-valet), peka appen mot den
+  (automatiskt för Ollama, Inställningar → Modeller för resten),
+  starta ett manus, börja skriva.
+- **Hur appen är uppbyggd** (elva korta avsnitt): en förklaring per
+  huvudfunktion — Author > AI-principen, Brainstorm/Synopsis,
+  Skriv utkast/Omskriv/Analysera, Scener, Story Bible,
+  kontinuitetsvarningar, Timeline, Trådar, Korrekturläsning, Fråga
+  manuset, Publicera.
+- **Felsökning**: tre vanliga frågor, bland dem "Ingen lokal modell
+  hittades" — samma felmeddelande som redan visas i den globala
+  felbannern.
+
+**Var den dyker upp:** ett nytt manus utan kapitel, synopsis eller
+brainstorm-anteckningar öppnas nu direkt på Guide istället för
+Inställningar (`openingSurface()` i `BookSchema.ts`) — en ny
+författare har inget att ställa in än, men allt att lära sig.
+Hemskärmen (innan man ens skapat ett manus) fick en egen länk,
+"New here? Read the quickstart", som öppnar samma guide-innehåll i
+en overlay — `GuidePanel` är byggd fristående från bokdata så den
+funkar i båda lägena utan duplicerad kod. Den globala felbannern
+("Ingen lokal modell hittades" osv.) fick en direktlänk till precis
+den paragrafen i Felsökning-avsnittet, med automatisk skroll dit.
+
+**Framtida PDF-export** (nämnd som "kanske senare" i samtalet): inte
+byggd nu, men arkitekturen ligger rätt för det — guide-innehållet är
+redan strukturerad text i språkfilerna, så det borde kunna återanvända
+Publish-flödets befintliga PDF-renderare istället för att bygga en ny.
+
+### 22. "?"-genvägar från rubriker till guiden — nästa steg
+Författaren föreslog små "?"-ikoner vid huvudrubriker (Story Bible,
+Scener, Korrekturläsning, Timeline, …) som hoppar rakt till rätt
+avsnitt i guiden, istället för spridda hjälptexter som måste hållas i
+synk på flera ställen. `GuidePanel.tsx` har redan stabila,
+språkoberoende ankare för det här (`GUIDE_SECTION_IDS`,
+`GUIDE_FAQ_IDS`) och `Editor.tsx`s `openGuide(anchor)` hoppar redan
+dit med skroll — det som återstår är att sätta en liten "?"-knapp vid
+varje relevant panels rubrik som anropar den.
 
 ---
 

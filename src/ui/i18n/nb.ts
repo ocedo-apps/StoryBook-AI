@@ -305,6 +305,95 @@ export const nb: Messages = {
     emptyPlotlines: "Ingen tråder ennå. Legg til en under for å starte matrisen.",
     emptyChapters: "Skriv et kapittel først — matrisen trenger noe å vise."
   },
+  guide: {
+    nav: "Guide",
+    title: "Guide",
+    intro: "En kort gjennomgang — hvordan du får appen til å snakke med en modell, og hva alt gjør når den først gjør det.",
+    openFromHome: "Ny her? Les hurtigstarten",
+    closeAction: "Lukk",
+    fromErrorLink: "Se hurtigstartguiden",
+    quickstartHeading: "Hurtigstart",
+    quickstartSteps: [
+      {
+        heading: "1. Installer en lokal modell",
+        body: "Enklest er Ollama. Last den ned fra ollama.com og installer den som et hvilket som helst annet program, åpne den så og hent en modell — enhver vanlig chattemodell fungerer for å starte (noen gigabyte, én gang). Foretrekker du LM Studio eller en annen lokal server i stedet? Det fungerer også — se neste steg."
+      },
+      {
+        heading: "2. Pek StoryBook AI mot den",
+        body: "Ingenting å stille inn om du brukte Ollama — StoryBook AI finner den automatisk på datamaskinen din. Kjører du LM Studio eller en annen lokal server i stedet? Åpne Innstillinger → Modeller, velg den under Motor, og lim inn serveradressen den viser deg."
+      },
+      {
+        heading: "3. Start manuskriptet ditt",
+        body: "En tittel er alt som trengs. Åpne det, og du havner her — i Idémyldring så snart du har idéer, men først: et privat skisserom uten noe å stille inn ennå."
+      },
+      {
+        heading: "4. Skriv",
+        body: "Dra idéene som er klare til Synopsis — formen på hele historien. Åpne så et kapittel og trykk Lag utkast: modellen skriver ut fra ditt Synopsis, din Story Bible og kapittelets egen instruks. Ingenting den skriver blir låst sannhet før du sier ifra — skriv det om, bytt kamera, eller be om en analyse når som helst."
+      }
+    ],
+    howHeading: "Slik er appen bygd opp",
+    sections: [
+      {
+        heading: "Forfatteren vinner alltid over AI-en",
+        body: "Modellen foreslår, du bestemmer. En detalj modellen finner på i prosaen forblir et forslag — vist med en lett stiplet understrek — til du låser den i Story Bible. Ingenting blir kanon av seg selv."
+      },
+      {
+        heading: "Idémyldring & Synopsis",
+        body: "Idémyldring er der idéer lever før de blir historie — ett notat per idé, dragbart, ingen rekkefølge kreves. Dra de som holder mål til Synopsis: formen på hele boken, i noen setninger. Hvert kapittelutkast lener seg på Synopsis, aldri på idémyldring-notater du ikke har løftet over."
+      },
+      {
+        heading: "Kapitler: Lag utkast, Omskriv, Analyser",
+        body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer — forteller i stedet for å vise, meningsløs dialog, et trekk som krasjer med et låst karaktertrekk — uten å skrive om en eneste linje."
+      },
+      {
+        heading: "Scener",
+        body: "Et langt kapittel kan deles opp i scener — velg hvor en slutter og neste begynner, gi den navn, legg til et kort notat. Når et kapittel har scener, kan Lag utkast, Omskriv og Analyser hver for seg rettes mot bare én av dem."
+      },
+      {
+        heading: "Story Bible",
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi."
+      },
+      {
+        heading: "Kontinuitetsvarsler",
+        body: "Når et kapittel kan se et faktum som først ble etablert senere i manuskriptet, blir det flagget — ikke nødvendigvis feil, kanskje er det et tilbakeblikk, bare verdt en rask sjekk."
+      },
+      {
+        heading: "Tidslinje",
+        body: "Leserekkefølge og historiens egen tidsrekkefølge er ikke alltid det samme. Gi et kapittel et tidsnotat, og se hvordan boken faller når den sorteres etter når ting faktisk skjer, ved siden av hvor det ligger i manuskriptet."
+      },
+      {
+        heading: "Tråder (Plotlines)",
+        body: "Hold styr på hvilken tråd som går gjennom hvilket kapittel i en tabell, så en tråd som har vært stille i ti kapitler er lett å oppdage."
+      },
+      {
+        heading: "Korrekturlesing",
+        body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, og en faktasjekk mot hele boken. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
+      },
+      {
+        heading: "Spør manuskriptet",
+        body: "Still et spørsmål om din egen historie og få et svar bygget bare på det som faktisk er skrevet — med kapitlene det kom fra, så du kan sjekke det selv."
+      },
+      {
+        heading: "Publiser",
+        body: "Eksporter en ren lesekopi — Markdown, RTF, ODT, HTML, ePub eller PDF. Idémyldring forlater aldri boken; bare selve manuskriptet gjør det."
+      }
+    ],
+    faqHeading: "Feilsøking",
+    faq: [
+      {
+        heading: "«Ingen lokal modell funnet»",
+        body: "StoryBook AI når ikke den lokale serveren din. Kjører du Ollama? Sørg for at den kjører. Kjører du LM Studio eller en annen server? Sjekk Innstillinger → Modeller — motoren og serveradressen må stemme med det som faktisk kjører på datamaskinen din."
+      },
+      {
+        heading: "Hvor lagres boken min?",
+        body: "På din egen datamaskin, i nettleserens lokale lagring — ingenting lastes opp noe sted. Bruk Sikkerhetskopi innimellom for å lagre en kopi du kan gjenopprette fra, i tilfelle du sletter nettleserdataene dine."
+      },
+      {
+        heading: "Kan jeg bruke en betalt AI-tjeneste i stedet?",
+        body: "Nei — med vilje. StoryBook AI snakker bare noensinne med en modell som kjører på din egen datamaskin eller nettverk. Det er ikke en manglende funksjon; det er hele poenget: manuskriptet ditt trenger aldri å forlate maskinen din."
+      }
+    ]
+  },
   scenes: {
     toggleCount: {
       one: "{count} scene",

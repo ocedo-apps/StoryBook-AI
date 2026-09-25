@@ -2,12 +2,14 @@ import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { ThemeToggle } from "./ThemeToggle";
 import { LocaleSelect } from "./LocaleSelect";
+import { GuidePanel } from "./GuidePanel";
 import { count, format, translateError, useLocale } from "./i18n";
 
 export function Home() {
   const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
   const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function submitNew(event?: React.SyntheticEvent) {
@@ -29,6 +31,9 @@ export function Home() {
           {m.home.truth}
         </h1>
         <p className="lede">{m.home.lede}</p>
+        <button type="button" className="text-button" onClick={() => setGuideOpen(true)}>
+          {m.guide.openFromHome}
+        </button>
       </header>
 
       {error ? (
@@ -103,6 +108,25 @@ export function Home() {
           </ul>
         )}
       </section>
+
+      {guideOpen ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setGuideOpen(false);
+          }}
+        >
+          <div className="edit-card guide-overlay-card">
+            <div className="edit-actions guide-overlay-close">
+              <button type="button" className="text-button" onClick={() => setGuideOpen(false)}>
+                {m.guide.closeAction}
+              </button>
+            </div>
+            <GuidePanel />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

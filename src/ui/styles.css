@@ -4087,3 +4087,59 @@ button.illustration-genre-item:focus-visible {
   font-size: 0.8rem;
   padding: 0.28rem 0.55rem;
 }
+
+.guide-block {
+  margin-top: 1.6rem;
+  max-width: 42rem;
+}
+
+.guide-block:first-of-type {
+  margin-top: 1.8rem;
+}
+
+.guide-steps {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 0 0 1.3rem;
+}
+
+.guide-steps li {
+  padding-left: 0.2rem;
+}
+
+.guide-sections {
+  display: grid;
+  gap: 1rem;
+}
+
+.guide-section {
+  border-left: 2px solid var(--border-soft);
+  padding-left: 0.8rem;
+}
+
+.guide-block h3 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-prose);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.guide-block p {
+  margin: 0;
+  font-family: var(--font-prose);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.guide-overlay-card {
+  width: min(44rem, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.guide-overlay-close {
+  justify-content: flex-end;
+}
