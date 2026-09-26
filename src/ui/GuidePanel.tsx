@@ -82,6 +82,7 @@ function guideAnchorId(id: string): string {
 export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
   const { messages: m } = useLocale();
   const [category, setCategory] = useState<GuideCategoryId>("getting-started");
+  const [aiSetupOpen, setAiSetupOpen] = useState(false);
 
   useEffect(() => {
     if (!scrollTo) return;
@@ -92,6 +93,15 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
     if (!scrollTo) return;
     document.getElementById(guideAnchorId(scrollTo))?.scrollIntoView({ block: "start" });
   }, [scrollTo, category]);
+
+  useEffect(() => {
+    if (!aiSetupOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setAiSetupOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [aiSetupOpen]);
 
   const sectionsInCategory = GUIDE_SECTION_IDS.filter((id) => GUIDE_SECTION_CATEGORY[id] === category);
 
@@ -116,8 +126,10 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
       </div>
 
       {category === "getting-started" ? (
-        <section className="guide-block guide-quickstart-block">
-          <QuickstartCards />
+        <section className="guide-block">
+          <button type="button" className="primary" onClick={() => setAiSetupOpen(true)}>
+            {m.guide.connectAiButton}
+          </button>
         </section>
       ) : null}
 
@@ -148,6 +160,26 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
             ))}
           </div>
         </section>
+      ) : null}
+
+      {aiSetupOpen ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAiSetupOpen(false);
+          }}
+        >
+          <div className="edit-card ai-setup-card" role="dialog" aria-modal="true" aria-label={m.guide.connectAiButton}>
+            <div className="stats-card-head">
+              <p className="chapter-craft-label">{m.guide.connectAiButton}</p>
+              <button type="button" className="text-button" onClick={() => setAiSetupOpen(false)}>
+                {m.common.close}
+              </button>
+            </div>
+            <QuickstartCards />
+          </div>
+        </div>
       ) : null}
     </main>
   );

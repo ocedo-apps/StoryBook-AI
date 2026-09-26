@@ -446,6 +446,7 @@ export const sv: Messages = {
     closeAction: "Stäng",
     fromErrorLink: "Se snabbstartsguiden",
     helpFor: "Guide: {topic}",
+    connectAiButton: "Anslut en lokal AI",
     quickstartHeading: "Kom igång med en lokal AI",
     quickstartCards: [
       {
@@ -462,7 +463,7 @@ export const sv: Messages = {
       }
     ],
     categories: {
-      "getting-started": "Getting Started",
+      "getting-started": "Introduction",
       "basic-writing": "Basic Writing",
       "the-writer": "The Writer",
       images: "Images",

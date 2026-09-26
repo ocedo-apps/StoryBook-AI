@@ -4137,6 +4137,12 @@ button:disabled {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
 
+.edit-card.ai-setup-card {
+  width: min(60rem, 95vw);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
 .illustration-library-card input[type="text"] {
   width: 100%;
   background: var(--paper);

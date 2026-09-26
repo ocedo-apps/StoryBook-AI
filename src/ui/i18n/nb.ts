@@ -446,6 +446,7 @@ export const nb: Messages = {
     closeAction: "Lukk",
     fromErrorLink: "Se hurtigstartguiden",
     helpFor: "Guide: {topic}",
+    connectAiButton: "Koble til en lokal AI",
     quickstartHeading: "Kom i gang med en lokal AI",
     quickstartCards: [
       {
@@ -462,7 +463,7 @@ export const nb: Messages = {
       }
     ],
     categories: {
-      "getting-started": "Getting Started",
+      "getting-started": "Introduction",
       "basic-writing": "Basic Writing",
       "the-writer": "The Writer",
       images: "Images",

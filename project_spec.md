@@ -1,9 +1,28 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.39
+Status: living document, v0.99.40
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.39 → v0.99.40:** "Getting Started" döpt om till
+"Introduction" och rensad — de tre gråa installationskorten (Installera
+server / Välj modell / Anslut den) ligger inte längre statiskt i vägen
+för sekretesstexten, utan nås via en knapp istället.
+
+- Fliken heter nu Introduction. Överst en enda orange knapp, "Connect
+  a local AI" — klick öppnar en popup med exakt samma tre kort som
+  innan (helt oförändrat innehåll, bara flyttat bakom en knapp).
+  Escape eller Stäng-knappen stänger popupen igen.
+- Under knappen står nu bara det som faktiskt är introduktionen: "Ett
+  helt stängt digitalt kassaskåp" och "Författaren vinner alltid över
+  AI:n", följt av Felsökning precis som innan.
+- Hemsidans egna tre kort (samma `QuickstartCards`-komponent) rörs
+  inte — bara Guidens kopia av dem flyttades bakom knappen, eftersom de
+  redan syns där nya användare först landar.
+- 662/662 gröna, typkontroll ren. Verifierat i webbläsaren: fliken
+  heter Introduction, korten syns inte förrän man klickar knappen, och
+  popupen stänger både via Stäng och Escape.
 
 **Ändringslogg v0.99.38 → v0.99.39:** Två snabba finslip på gårdagens
 flikindelade Guide.

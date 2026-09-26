@@ -1,7 +1,7 @@
 import type { GuideCategoryId, GuideMainSectionId } from "../GuidePanel";
 
 const guideCategories: Record<GuideCategoryId, string> = {
-  "getting-started": "Getting Started",
+  "getting-started": "Introduction",
   "basic-writing": "Basic Writing",
   "the-writer": "The Writer",
   images: "Images",
@@ -525,6 +525,7 @@ export const en = {
     closeAction: "Close",
     fromErrorLink: "See the quickstart guide",
     helpFor: "Guide: {topic}",
+    connectAiButton: "Connect a local AI",
     quickstartHeading: "Getting started with a local AI",
     quickstartCards: [
       {
