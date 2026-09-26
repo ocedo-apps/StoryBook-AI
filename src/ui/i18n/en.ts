@@ -27,7 +27,7 @@ const guideSections: Record<GuideMainSectionId, { heading: string; body: string 
   },
   "editor-tools": {
     heading: "The right-click menu",
-    body: "Select a passage and right-click for Extend (continues on from where the selection ends), Elaborate (expands the passage itself), Rewrite… (give your own instruction, like \"make her angrier\"), Illustration prompt… (see Images), and Manual editing (rewrite just the marked passage yourself, by hand — the rest of the chapter stays as it was). Right-click with nothing selected instead, and you get a single option, Write a beat…: describe what happens next in one line, and the model writes just that — a short paragraph, not the rest of the scene — dropped in exactly at your cursor."
+    body: "Select a passage and right-click for Extend (continues on from where the selection ends), Elaborate (expands the passage itself), Rewrite… (give your own instruction, like \"make her angrier\"), Illustration prompt… (see Images), and Manual editing (rewrite just the marked passage yourself, by hand — the rest of the chapter stays as it was). Right-click with nothing selected instead, and you get a single option, Write a beat…: describe what happens next in one line, and the model writes just that — a short paragraph, not the rest of the scene — dropped in exactly at your cursor. Selecting a passage also shows a small Bold/Italic/Underline toolbar above it (or Ctrl+B/I/U) — display formatting only, saved separately from the text itself, so it never reaches the model."
   },
   "add-picture": {
     heading: "A picture for the chapter",
@@ -872,6 +872,10 @@ export const en = {
     rewriteMenu: "Rewrite…",
     illustrate: "Illustration prompt…",
     lift: "Lift to synopsis",
+    formatToolbar: "Formatting",
+    bold: "Bold",
+    italic: "Italic",
+    underline: "Underline",
     manual: "Manual Edit",
     insteadOf: "Instead of “{word}”",
     looking: "Looking…",

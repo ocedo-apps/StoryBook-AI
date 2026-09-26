@@ -488,7 +488,7 @@ export const nb: Messages = {
       },
       "editor-tools": {
         heading: "Høyreklikkmenyen",
-        body: "Merk et avsnitt og høyreklikk for Forleng (fortsetter der merkingen slutter), Utdyp (utvider selve avsnittet), Skriv om… (din egen instruks, f.eks. «gjør henne sintere»), Illustrasjonsprompt… (se Images) og Manuell redigering (skriv om bare det markerte avsnittet selv, for hånd — resten av kapittelet blir liggende). Høyreklikker du i stedet uten å merke noe, får du ett eneste valg, Skriv en beat…: beskriv i én linje hva som skjer videre, så skriver modellen bare den beaten — et kort avsnitt, ikke resten av scenen — og setter den inn akkurat der markøren står."
+        body: "Merk et avsnitt og høyreklikk for Forleng (fortsetter der merkingen slutter), Utdyp (utvider selve avsnittet), Skriv om… (din egen instruks, f.eks. «gjør henne sintere»), Illustrasjonsprompt… (se Images) og Manuell redigering (skriv om bare det markerte avsnittet selv, for hånd — resten av kapittelet blir liggende). Høyreklikker du i stedet uten å merke noe, får du ett eneste valg, Skriv en beat…: beskriv i én linje hva som skjer videre, så skriver modellen bare den beaten — et kort avsnitt, ikke resten av scenen — og setter den inn akkurat der markøren står. Merker du et avsnitt dukker det også opp en liten Fet/Kursiv/Understreket-verktøylinje over det (eller Ctrl+B/I/U) — bare visuell formatering, lagret atskilt fra selve teksten, så den når aldri modellen."
       },
       "add-picture": {
         heading: "Et bilde til kapittelet",
@@ -867,6 +867,10 @@ export const nb: Messages = {
     rewriteMenu: "Skriv om…",
     illustrate: "Illustrasjonsprompt…",
     lift: "Løft til synopsis",
+    formatToolbar: "Formatering",
+    bold: "Fet",
+    italic: "Kursiv",
+    underline: "Understreket",
     manual: "Manuell redigering",
     insteadOf: "I stedet for “{word}”",
     looking: "Søker…",

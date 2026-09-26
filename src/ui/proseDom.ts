@@ -1,5 +1,11 @@
 import { joinFlowParagraphs, splitFlowParagraphs } from "@core/proseFlow";
 import { normalizeSpan, type TextSpan } from "@core/textSpan";
+import {
+  FORMATTING_STYLES,
+  mergeAdjacentRanges,
+  type ProseFormattingRange,
+  type ProseFormattingStyle
+} from "@core/proseFormatting";
 
 export function proseFromElement(root: HTMLElement): string {
   const blocks = flowBlocks(root)
@@ -101,4 +107,117 @@ function textOffsetIn(block: HTMLElement, target: Node, targetOffset: number): n
     count += len;
   }
   return count;
+}
+
+const STYLE_TAGS: Partial<Record<string, ProseFormattingStyle>> = {
+  B: "bold",
+  STRONG: "bold",
+  I: "italic",
+  EM: "italic",
+  U: "underline"
+};
+
+function activeStylesFor(node: Node, block: HTMLElement): ProseFormattingStyle[] {
+  const styles: ProseFormattingStyle[] = [];
+  let current: Node | null = node.parentNode;
+  while (current && current !== block) {
+    if (current instanceof HTMLElement) {
+      const style = STYLE_TAGS[current.tagName];
+      if (style && !styles.includes(style)) styles.push(style);
+    }
+    current = current.parentNode;
+  }
+  return styles;
+}
+
+/**
+ * Reads Bold/Italic/Underline back out of the live canvas after an edit —
+ * the reverse of `htmlFromProse`'s formatting-aware rendering. Walks the
+ * same blocks `proseFromElement` does, using the same "raw text-node
+ * lengths within a block, collapsed lengths across block boundaries" offset
+ * scheme as `caretToOffset` below, so a range's start/end line up with the
+ * plain-text offsets `proseFromElement` produces for the same edit.
+ */
+export function formattingFromElement(root: HTMLElement): ProseFormattingRange[] {
+  const blocks = flowBlocks(root);
+  const ranges: ProseFormattingRange[] = [];
+  const openStart = new Map<ProseFormattingStyle, number>();
+  let pos = 0;
+
+  function closeAllAt(at: number) {
+    for (const [style, start] of openStart) {
+      if (at > start) ranges.push({ start, end: at, style });
+    }
+    openStart.clear();
+  }
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i]!;
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      const len = node.textContent?.length ?? 0;
+      if (len === 0) continue;
+      const active = activeStylesFor(node, block);
+      for (const style of FORMATTING_STYLES) {
+        const isActive = active.includes(style);
+        const wasOpen = openStart.has(style);
+        if (isActive && !wasOpen) openStart.set(style, pos);
+        else if (!isActive && wasOpen) {
+          ranges.push({ start: openStart.get(style)!, end: pos, style });
+          openStart.delete(style);
+        }
+      }
+      pos += len;
+    }
+    closeAllAt(pos);
+    if (i < blocks.length - 1) pos += 2;
+  }
+  return mergeAdjacentRanges(ranges);
+}
+
+function pointWithinBlock(block: HTMLElement, localOffset: number): { node: Node; offset: number } {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  let node: Node | null;
+  let count = 0;
+  let last: Node = block;
+  while ((node = walker.nextNode())) {
+    const len = node.textContent?.length ?? 0;
+    last = node;
+    if (localOffset <= count + len) return { node, offset: localOffset - count };
+    count += len;
+  }
+  return { node: last, offset: last.textContent?.length ?? 0 };
+}
+
+function pointAtOffset(root: HTMLElement, offset: number): { node: Node; offset: number } | null {
+  const blocks = flowBlocks(root);
+  if (blocks.length === 0) return null;
+  let pos = 0;
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i]!;
+    const body = (block.textContent ?? "").replace(/ /g, " ");
+    const collapsedLength = body.replace(/\s+/g, " ").trim().length;
+    const isLast = i === blocks.length - 1;
+    if (offset <= pos + collapsedLength || isLast) {
+      const local = Math.max(0, Math.min(offset - pos, collapsedLength));
+      return pointWithinBlock(block, local);
+    }
+    pos += collapsedLength + 2;
+  }
+  return null;
+}
+
+/** The reverse of `spanFromSelection` — restores a selection after a formatting toggle rebuilds the canvas's HTML, so clicking Bold doesn't drop the user's selection. */
+export function placeSelectionAtSpan(root: HTMLElement, span: TextSpan): void {
+  const { start, end } = normalizeSpan(span.start, span.end);
+  const startPoint = pointAtOffset(root, start);
+  const endPoint = pointAtOffset(root, end);
+  if (!startPoint || !endPoint) return;
+  const range = document.createRange();
+  range.setStart(startPoint.node, startPoint.offset);
+  range.setEnd(endPoint.node, endPoint.offset);
+  const sel = window.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
 }

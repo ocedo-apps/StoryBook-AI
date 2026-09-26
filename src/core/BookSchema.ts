@@ -9,6 +9,7 @@ import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
+import { ProseFormattingRangeSchema } from "./proseFormatting";
 
 export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
@@ -87,7 +88,17 @@ export const ChapterSchema = z.object({
    * in v1, same reasoning as story_time — a chapter is still one scene.
    * Missing/empty on older saves and untouched chapters.
    */
-  plotline_ids: z.array(z.string().min(1)).optional()
+  plotline_ids: z.array(z.string().min(1)).optional(),
+  /**
+   * Bold/Italic/Underline ranges over `prose`'s own character offsets —
+   * display-only formatting, never spliced into the text itself, so the
+   * model, extraction, proofreading, and word count all keep reading
+   * `prose` exactly as before. Missing/empty on older saves and chapters
+   * with no formatting applied. Cleared (not migrated) whenever `prose` is
+   * regenerated wholesale (Draft, Recast, restoring an older revision) —
+   * old positions would no longer line up with the new text.
+   */
+  formatting: z.array(ProseFormattingRangeSchema).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 

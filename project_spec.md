@@ -1,9 +1,55 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.42
+Status: living document, v0.99.43
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.42 → v0.99.43:** Fetstil, kursiv och understruket i
+kapitelprosan — den säkrare vägen som skissades upp innan bygget: formatering
+lever helt vid sidan av texten, aldrig inbäddad i den.
+
+- Markera ett stycke text i ett kapitel och en liten verktygsrad
+  (Fet/Kursiv/Understruken) dyker upp ovanför markeringen — eller
+  Ctrl+B/I/U. Klicka igen för att ta bort formateringen från exakt den
+  markeringen; övrig formatering i kapitlet rörs inte.
+- `chapter.prose` är fortfarande, bokstavligen, bara en textsträng —
+  precis som innan. Ny valfri kolumn `chapter.formatting`: en lista med
+  teckenintervall ("tecken 40 till 52 är fet") som pekar in i den
+  strängen, aldrig tecken inbäddade i den. Allt som läser prosan direkt
+  — AI-prompterna, fakta-extraktionen, korrekturläsningen, ordräkningen
+  — fortsätter läsa exakt samma rena text som innan. Modellen ser
+  aldrig en `<b>`, ett `**`, eller något annat formateringstecken.
+- Höger­klicksmenyns Förläng/Brodera ut/Skriv om/Skriv en beat/Manuell
+  redigering flyttar och klipper formateringsintervallen korrekt när de
+  ändrar texten, så en fet mening längre ner i kapitlet inte hoppar iväg
+  när AI:n skriver in något tidigare i texten.
+- Skriv utkast (som bygger vidare på det som redan finns) behåller
+  formateringen på den gamla texten och lägger bara till oformaterad ny
+  text. Omskriv (som skriver om hela kapitlet från grunden) och en
+  återställd version från Historik nollställer formateringen istället —
+  den gamla positionen stämmer inte längre mot en helt ny text.
+- **Kända avgränsningar för den här första versionen**, medvetet
+  avgränsat för att hålla ändringen hanterbar: scen-nivåns Skriv
+  utkast/Omskriv nollställer HELA kapitlets formatering (inte bara den
+  berörda scenen) tills en mer exakt scen-nivå-lösning byggs. Synopsis
+  och Brainstorm har ännu ingen formatering — bara kapitelprosan. Export
+  till RTF/ODT/HTML/ePub/PDF skriver ännu inte ut den fetstil/kursiv man
+  satt i appen — texten kommer ut ren, som innan.
+- Ny fil `proseFormatting.ts` (skift/växla/slå-ihop-logik för
+  intervallen, 22 nya tester), `htmlFromProse` i `proseFlow.ts` gjord
+  formateringsmedveten (5 nya tester, alla gamla oförändrade), två nya
+  DOM-funktioner i `proseDom.ts` för att läsa av och återställa
+  formatering/markering i redigeringsytan (verifierat i webbläsaren,
+  ingen jsdom i det här projektets testuppsättning).
+- 689/689 gröna, typkontroll ren. Verifierat grundligt i webbläsaren:
+  markerade tre olika ord, satte fet/kursiv/understruken på var och en
+  (inklusive Ctrl+U-genvägen), togglade av fetstilen igen och såg bara
+  den ordets formatering försvinna, skrev mer text efteråt utan att
+  något gick sönder, stängde och öppnade kapitlet igen och såg
+  formateringen ligga kvar. Höger­klicksmenyn och Manuell
+  redigering-dialogen fungerar oförändrat sida vid sida med den nya
+  verktygsraden.
 
 **Ändringslogg v0.99.41 → v0.99.42:** Guidens textblock 33% bredare —
 författaren ville testa mer läsbredd under flikarna.

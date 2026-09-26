@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { htmlFromProse, peelModelAsides, splitFlowParagraphs } from "@core/proseFlow";
+import type { ProseFormattingRange } from "@core/proseFormatting";
 
 describe("splitFlowParagraphs", () => {
   it("treats blank lines as the same break as a single newline", () => {
@@ -31,6 +32,42 @@ describe("htmlFromProse", () => {
     expect(htmlFromProse("He locked the door (the old one) and waited.")).toBe(
       "<p>He locked the door (the old one) and waited.</p>"
     );
+  });
+
+  it("wraps a formatted range in the matching tag", () => {
+    const text = "Walked to the ship.";
+    const formatting: ProseFormattingRange[] = [{ start: 0, end: 6, style: "bold" }];
+    expect(htmlFromProse(text, formatting)).toBe("<p><b>Walked</b> to the ship.</p>");
+  });
+
+  it("nests bold, italic, and underline in a fixed order when they overlap", () => {
+    const text = "abcdef";
+    const formatting: ProseFormattingRange[] = [
+      { start: 1, end: 5, style: "italic" },
+      { start: 2, end: 4, style: "bold" },
+      { start: 2, end: 4, style: "underline" }
+    ];
+    expect(htmlFromProse(text, formatting)).toBe("<p>a<i>b</i><b><i><u>cd</u></i></b><i>e</i>f</p>");
+  });
+
+  it("maps formatting offsets onto the right paragraph, not just the first", () => {
+    const text = "First para.\n\nSecond para.";
+    const secondStart = text.indexOf("Second");
+    const formatting: ProseFormattingRange[] = [{ start: secondStart, end: secondStart + 6, style: "bold" }];
+    expect(htmlFromProse(text, formatting)).toBe("<p>First para.</p><p><b>Second</b> para.</p>");
+  });
+
+  it("keeps a model aside unformatted even when a range overlaps its position", () => {
+    const text = '(Note: swapped a verb.)Jeff moved.';
+    const formatting: ProseFormattingRange[] = [{ start: 0, end: text.length, style: "bold" }];
+    const html = htmlFromProse(text, formatting);
+    expect(html).toContain('<span class="prose-aside">(Note: swapped a verb.)</span>');
+    expect(html).toContain("<b>Jeff moved.</b>");
+  });
+
+  it("renders identically to the unformatted call when no ranges are given", () => {
+    const text = "Plain sentence, nothing marked.";
+    expect(htmlFromProse(text, [])).toBe(htmlFromProse(text));
   });
 });
 

@@ -27,6 +27,7 @@ import {
 } from "@core/craft";
 import { characterCast, profileFor } from "@core/characterProfile";
 import { lockedFactsFromChapter } from "@core/NarrativeFact";
+import { toggleFormatting } from "@core/proseFormatting";
 import {
   formatManuscriptMarkdown,
   manuscriptBackupBasename,
@@ -1411,6 +1412,15 @@ export function Editor() {
             <ProseCanvas
               value={chapter.prose}
               onChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { prose: next }))}
+              formatting={chapter.formatting ?? []}
+              onFormatChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { formatting: next }))}
+              onToggleFormat={(span, style) =>
+                void store.patchBook((current) => {
+                  const target = current.chapters.find((item) => item.id === chapter.id);
+                  if (!target) return current;
+                  return updateChapter(current, chapter.id, { formatting: toggleFormatting(target.formatting ?? [], span, style) });
+                })
+              }
               placeholder={m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}

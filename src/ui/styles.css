@@ -2322,6 +2322,65 @@ button:disabled {
   background: var(--paper);
 }
 
+.format-toolbar {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.25rem;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+
+.format-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.format-btn:nth-child(1) {
+  font-weight: 700;
+}
+
+.format-btn:nth-child(2) {
+  font-style: italic;
+}
+
+.format-btn:nth-child(3) {
+  text-decoration: underline;
+}
+
+.format-btn:hover,
+.format-btn:focus-visible {
+  background: var(--paper);
+}
+
+.format-btn.is-on {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.prose b,
+.prose strong {
+  font-weight: 700;
+}
+
+.prose i,
+.prose em {
+  font-style: italic;
+}
+
+.prose u {
+  text-decoration: underline;
+}
+
 .proofread-card {
   width: min(40rem, 100%);
   max-height: min(90vh, 52rem);

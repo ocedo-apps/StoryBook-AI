@@ -1,9 +1,38 @@
+import { formattingSegments, type ProseFormattingRange, type ProseFormattingStyle } from "./proseFormatting";
+
 export function splitFlowParagraphs(text: string): string[] {
   return text
     .replace(/\r\n/g, "\n")
     .split(/\n+/)
     .map((block) => block.replace(/[ \t]+/g, " ").trim())
     .filter(Boolean);
+}
+
+/**
+ * Same split as `splitFlowParagraphs`, but keeps each paragraph's start
+ * offset in the original string — needed to map formatting ranges (offsets
+ * into `chapter.prose`) onto the right paragraph when rendering. Exact as
+ * long as `text` is already in the "joined" form `joinFlowParagraphs`
+ * produces (trimmed blocks, single spaces, "\n\n" between them) — true for
+ * any `chapter.prose` that has passed through the canvas or a span edit,
+ * which is the only kind of prose formatting ranges are ever computed
+ * against.
+ */
+function splitFlowParagraphsWithOffsets(text: string): { text: string; start: number }[] {
+  const normalized = text.replace(/\r\n/g, "\n");
+  const result: { text: string; start: number }[] = [];
+  let index = 0;
+  for (const part of normalized.split(/(\n+)/)) {
+    if (part === "" || /^\n+$/.test(part)) {
+      index += part.length;
+      continue;
+    }
+    const leading = part.match(/^[ \t]*/)?.[0].length ?? 0;
+    const collapsed = part.replace(/[ \t]+/g, " ").trim();
+    if (collapsed) result.push({ text: collapsed, start: index + leading });
+    index += part.length;
+  }
+  return result;
 }
 
 /** Model commentary glued onto a rewrite, e.g. `(Note: swapped the verbs…)`. */
@@ -101,13 +130,13 @@ function tidyPeeledProse(text: string): string {
     .trim();
 }
 
-export function htmlFromProse(text: string): string {
-  const paras = splitFlowParagraphs(text);
+export function htmlFromProse(text: string, formatting: ProseFormattingRange[] = []): string {
+  const paras = splitFlowParagraphsWithOffsets(text);
   if (paras.length === 0) return "<p><br></p>";
-  return paras.map((block) => `<p>${markupProseBlock(block)}</p>`).join("");
+  return paras.map((para) => `<p>${markupProseBlock(para.text, para.start, formatting)}</p>`).join("");
 }
 
-function markupProseBlock(block: string): string {
+function markupProseBlock(block: string, blockStart: number, formatting: ProseFormattingRange[]): string {
   let out = "";
   let i = 0;
   while (i < block.length) {
@@ -121,10 +150,29 @@ function markupProseBlock(block: string): string {
       return `<span class="prose-aside">${escapeHtml(block)}</span>`;
     }
     const next = block.indexOf("(", i + 1);
-    const slice = next === -1 ? block.slice(i) : block.slice(i, next);
-    out += escapeHtml(slice);
-    i = next === -1 ? block.length : next;
+    const sliceEnd = next === -1 ? block.length : next;
+    out += markupFormattedSlice(block.slice(i, sliceEnd), blockStart + i, formatting);
+    i = sliceEnd;
   }
+  return out;
+}
+
+function markupFormattedSlice(text: string, offset: number, formatting: ProseFormattingRange[]): string {
+  if (text.length === 0) return "";
+  if (formatting.length === 0) return escapeHtml(text);
+  let out = "";
+  for (const segment of formattingSegments(formatting, offset, offset + text.length)) {
+    const piece = text.slice(segment.start - offset, segment.end - offset);
+    out += wrapStyles(escapeHtml(piece), segment.styles);
+  }
+  return out;
+}
+
+function wrapStyles(html: string, styles: ProseFormattingStyle[]): string {
+  let out = html;
+  if (styles.includes("underline")) out = `<u>${out}</u>`;
+  if (styles.includes("italic")) out = `<i>${out}</i>`;
+  if (styles.includes("bold")) out = `<b>${out}</b>`;
   return out;
 }
 

@@ -488,7 +488,7 @@ export const sv: Messages = {
       },
       "editor-tools": {
         heading: "Högerklicksmenyn",
-        body: "Markera ett stycke och högerklicka för Förläng (fortsätter där markeringen slutar), Brodera ut (utvecklar själva stycket), Skriv om… (din egen instruktion, t.ex. \"gör henne argare\"), Illustrationsprompt… (se Images) och Manuell redigering (skriv om bara det markerade stycket själv, för hand — resten av kapitlet ligger kvar). Högerklickar du istället utan att markera något får du ett enda val, Skriv en beat…: beskriv i en rad vad som händer härnäst, så skriver modellen bara den beaten — ett kort stycke, inte resten av scenen — och lägger in den precis vid markören."
+        body: "Markera ett stycke och högerklicka för Förläng (fortsätter där markeringen slutar), Brodera ut (utvecklar själva stycket), Skriv om… (din egen instruktion, t.ex. \"gör henne argare\"), Illustrationsprompt… (se Images) och Manuell redigering (skriv om bara det markerade stycket själv, för hand — resten av kapitlet ligger kvar). Högerklickar du istället utan att markera något får du ett enda val, Skriv en beat…: beskriv i en rad vad som händer härnäst, så skriver modellen bara den beaten — ett kort stycke, inte resten av scenen — och lägger in den precis vid markören. Markerar du ett stycke dyker det också upp en liten Fet/Kursiv/Understruken-verktygsrad ovanför (eller Ctrl+B/I/U) — bara visuell formatering, sparas separat från själva texten, så den når aldrig modellen."
       },
       "add-picture": {
         heading: "En bild till kapitlet",
@@ -867,6 +867,10 @@ export const sv: Messages = {
     rewriteMenu: "Skriv om…",
     illustrate: "Illustrationsprompt…",
     lift: "Lyft till synopsis",
+    formatToolbar: "Formatering",
+    bold: "Fet",
+    italic: "Kursiv",
+    underline: "Understruken",
     manual: "Manuell redigering",
     insteadOf: "I stället för “{word}”",
     looking: "Söker…",

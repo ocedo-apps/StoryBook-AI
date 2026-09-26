@@ -1,15 +1,25 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { applyReplace, isNonEmptySpan, selectedText, type TextSpan } from "@core/textSpan";
 import { htmlFromProse, splitFlowParagraphs } from "@core/proseFlow";
+import {
+  FORMATTING_STYLES,
+  formattingRangesEqual,
+  isFullyStyled,
+  shiftFormattingRanges,
+  type ProseFormattingRange,
+  type ProseFormattingStyle
+} from "@core/proseFormatting";
 import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
 import { findAiTicHits } from "@core/aiTics";
 import { findNameHitsInText } from "@core/bibleMentions";
 import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
+  formattingFromElement,
   isCaretAtEnd,
   offsetFromPoint,
   placeCaretAtEnd,
+  placeSelectionAtSpan,
   proseFromElement,
   spanFromSelection
 } from "./proseDom";
@@ -67,7 +77,10 @@ export function ProseCanvas({
   rewriteWho = "",
   aside,
   nameLinks,
-  onJumpToEntity
+  onJumpToEntity,
+  formatting = [],
+  onFormatChange,
+  onToggleFormat
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -105,6 +118,12 @@ export function ProseCanvas({
   /** Story Bible entities whose names, when Ctrl/Cmd-clicked in the text, jump to their card. */
   nameLinks?: { entity_ref: string; entity_label: string }[];
   onJumpToEntity?: (entityRef: string) => void;
+  /** Bold/Italic/Underline ranges over `value`'s own offsets. Omitted (default `[]`) disables the formatting toolbar entirely — Synopsis has no use for it yet. */
+  formatting?: ProseFormattingRange[];
+  /** Fires after typing or a manual edit changes what's formatted, so the caller can persist it — the counterpart to `onChange` for formatting. */
+  onFormatChange?: (next: ProseFormattingRange[]) => void;
+  /** A deliberate Bold/Italic/Underline toggle on the given selection, from the floating format toolbar or a Ctrl+B/I/U shortcut. */
+  onToggleFormat?: (span: TextSpan, style: ProseFormattingStyle) => void;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -121,6 +140,9 @@ export function ProseCanvas({
   const [instruct, setInstruct] = useState<InstructState | null>(null);
   const [beat, setBeat] = useState<BeatState | null>(null);
   const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [formatBar, setFormatBar] = useState<{ x: number; y: number; span: TextSpan } | null>(null);
+  const [pendingSelection, setPendingSelection] = useState<TextSpan | null>(null);
+  const formattingEnabled = Boolean(onFormatChange || onToggleFormat);
 
   const highlightHits = useMemo(() => {
     if (highlightRare) {
@@ -168,6 +190,48 @@ export function ProseCanvas({
     const span = spanFromSelection(area);
     return span && isNonEmptySpan(value, span) ? span : null;
   }
+
+  function toggleFormat(style: ProseFormattingStyle, span: TextSpan) {
+    if (!onToggleFormat) return;
+    setPendingSelection(span);
+    onToggleFormat(span, style);
+  }
+
+  useEffect(() => {
+    if (!formattingEnabled) return;
+    function onSelectionChange() {
+      const area = areaRef.current;
+      if (!area) {
+        setFormatBar(null);
+        return;
+      }
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !sel.anchorNode || !area.contains(sel.anchorNode)) {
+        setFormatBar(null);
+        return;
+      }
+      const span = spanFromArea();
+      if (!span) {
+        setFormatBar(null);
+        return;
+      }
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) {
+        setFormatBar(null);
+        return;
+      }
+      const pad = 8;
+      const width = 132;
+      const height = 40;
+      setFormatBar({
+        x: Math.min(Math.max(rect.left + rect.width / 2 - width / 2, pad), window.innerWidth - width - pad),
+        y: Math.max(rect.top - height, pad),
+        span
+      });
+    }
+    document.addEventListener("selectionchange", onSelectionChange);
+    return () => document.removeEventListener("selectionchange", onSelectionChange);
+  }, [formattingEnabled, value]);
 
   function placeMenu(event: React.MouseEvent, extraHeight: number, extraWidth = 0): { x: number; y: number } {
     const pad = 12;
@@ -288,6 +352,9 @@ export function ProseCanvas({
     event.preventDefault();
     if (!manual) return;
     onChange(applyReplace(value, manual.span, manual.draft));
+    if (formattingEnabled) {
+      onFormatChange?.(shiftFormattingRanges(formatting, manual.span.start, manual.span.end, manual.draft.length));
+    }
     setManual(null);
   }
 
@@ -330,21 +397,29 @@ export function ProseCanvas({
     if (!area) return;
     const current = proseFromElement(area);
     const empty = !value.trim();
-    if (!empty && current === value) return;
+    const textChanged = empty ? current !== "" : current !== value;
+    const formattingChanged = formattingEnabled && !formattingRangesEqual(formattingFromElement(area), formatting);
+    if (!textChanged && !formattingChanged) return;
     if (empty && current === "") {
       if (area.innerHTML !== "<p><br></p>") area.innerHTML = "<p><br></p>";
       return;
     }
     const focused = document.activeElement === area;
     const atEnd = focused && isCaretAtEnd(area);
-    area.innerHTML = htmlFromProse(value);
-    if (focused && atEnd) placeCaretAtEnd(area);
-  }, [value]);
+    area.innerHTML = htmlFromProse(value, formatting);
+    if (pendingSelection) {
+      placeSelectionAtSpan(area, pendingSelection);
+      setPendingSelection(null);
+    } else if (focused && atEnd) {
+      placeCaretAtEnd(area);
+    }
+  }, [value, formatting, formattingEnabled, pendingSelection]);
 
   function emitProse() {
     const area = areaRef.current;
     if (!area) return;
     onChange(proseFromElement(area));
+    if (formattingEnabled) onFormatChange?.(formattingFromElement(area));
   }
 
   const findOn = Boolean(findNeedle?.trim());
@@ -421,6 +496,16 @@ export function ProseCanvas({
           onJumpToEntity(hit.entityRef);
         }}
         onKeyDown={(event) => {
+          if (onToggleFormat && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
+            const key = event.key.toLowerCase();
+            const style = key === "b" ? "bold" : key === "i" ? "italic" : key === "u" ? "underline" : null;
+            if (style) {
+              event.preventDefault();
+              const span = spanFromArea();
+              if (span) toggleFormat(style, span);
+              return;
+            }
+          }
           if (event.key !== "Enter" || event.shiftKey) return;
           event.preventDefault();
           document.execCommand("insertParagraph");
@@ -437,6 +522,33 @@ export function ProseCanvas({
         </div>
       ) : null}
       </div>
+      {formatBar && onToggleFormat ? (
+        <div
+          className="format-toolbar"
+          style={{ left: formatBar.x, top: formatBar.y }}
+          role="toolbar"
+          aria-label={m.canvas.formatToolbar}
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          {FORMATTING_STYLES.map((style) => {
+            const on = isFullyStyled(formatting, formatBar.span.start, formatBar.span.end, style);
+            const label = style === "bold" ? m.canvas.bold : style === "italic" ? m.canvas.italic : m.canvas.underline;
+            return (
+              <button
+                key={style}
+                type="button"
+                className={on ? "format-btn is-on" : "format-btn"}
+                aria-pressed={on}
+                title={label}
+                aria-label={label}
+                onClick={() => toggleFormat(style, formatBar.span)}
+              >
+                {style === "bold" ? "B" : style === "italic" ? "I" : "U"}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       {menu?.kind === "rewrite" ? (
         <div
           ref={menuRef}
