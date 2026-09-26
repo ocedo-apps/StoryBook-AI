@@ -52,4 +52,26 @@ describe("parseExtractorPayload", () => {
   it("returns an empty list when the model found nothing", () => {
     expect(parseExtractorPayload('{"facts":[]}')).toEqual([]);
   });
+
+  it("salvages complete facts from a response truncated mid-array (hit its token budget)", () => {
+    const raw =
+      '{"facts":[' +
+      '{"entity_label":"Jeff","entity_ref":"jeff","predicate":"core.identity","value":"Captain of the Odyssey"},' +
+      '{"entity_label":"Odyssey","entity_ref":"odyssey","predicate":"core.object","value":"A type-A cargo ship"},' +
+      '{"entity_label":"Odyssey","entity_ref":"odyssey","predicate":"core.trait","value":"The largest hypersonic cargo mo';
+    const drafts = parseExtractorPayload(raw);
+    expect(drafts).toHaveLength(2);
+    expect(drafts.map((d) => d.entity_label)).toEqual(["Jeff", "Odyssey"]);
+  });
+
+  it("salvages complete facts truncated right after a trailing comma, with no partial object at all", () => {
+    const raw =
+      '{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.identity","value":"Bartender"},';
+    const drafts = parseExtractorPayload(raw);
+    expect(drafts).toEqual([{ entity_ref: "emma", entity_label: "Emma", predicate: "core.identity", value: "Bartender" }]);
+  });
+
+  it("still throws when truncation cuts off before even one fact object closes", () => {
+    expect(() => parseExtractorPayload('{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.id')).toThrow();
+  });
 });

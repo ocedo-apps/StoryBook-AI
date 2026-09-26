@@ -546,7 +546,9 @@ export const nb: Messages = {
     splitHint: "Velg hvor den nye scenen skal starte:",
     draft: "Lag utkast",
     recast: "Omskriv",
-    analyze: "Analyser"
+    analyze: "Analyser",
+    addScene: "Legg til scene",
+    addSceneDisabledHint: "Fullfør denne scenen før du legger til neste"
   },
   publish: {
     title: "Publiser",

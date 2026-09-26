@@ -546,7 +546,9 @@ export const sv: Messages = {
     splitHint: "Välj var den nya scenen ska börja:",
     draft: "Skriv utkast",
     recast: "Omskriv",
-    analyze: "Analysera"
+    analyze: "Analysera",
+    addScene: "Lägg till scen",
+    addSceneDisabledHint: "Skriv klart den här scenen innan du lägger till nästa"
   },
   publish: {
     title: "Publicera",

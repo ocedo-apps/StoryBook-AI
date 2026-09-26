@@ -36,12 +36,17 @@ export type BookScene = {
   brief?: string;
 };
 
-/** Drops splits past the current paragraph count, dedupes, sorts, and forces the first split to 0. */
+/**
+ * Drops splits past the current paragraph count, dedupes, sorts, and forces
+ * the first split to 0. A split exactly AT paragraphCount survives — an
+ * empty scene waiting at the end of the chapter's prose for its own draft
+ * (see `addScene`), not yet past it.
+ */
 function normalizeSceneMetas(stored: SceneMeta[] | undefined, paragraphCount: number): SceneMeta[] {
   if (!stored || stored.length === 0) return [];
   const seen = new Set<number>();
   const clean = stored
-    .filter((meta) => meta.startParagraph < paragraphCount)
+    .filter((meta) => meta.startParagraph <= paragraphCount)
     .filter((meta) => {
       if (seen.has(meta.startParagraph)) return false;
       seen.add(meta.startParagraph);
@@ -91,6 +96,26 @@ export function splitSceneAtParagraph(chapter: Chapter, paragraphIndex: number):
   return [...base, { id: newId(), startParagraph: paragraphIndex }].sort(
     (a, b) => a.startParagraph - b.startParagraph
   );
+}
+
+/**
+ * Appends a new, empty scene right after the chapter's current prose — the
+ * only way to add a scene ahead of writing anything into it, since a split
+ * point only means something once there is text on both sides of it. Writing
+ * scene-by-scene from an empty chapter then works by alternating this with
+ * drafting the new (always-last) scene: draft the first scene from its
+ * brief, add the next once it has content, draft that, and so on.
+ * No-ops on a chapter with no prose yet, or when the last scene is already
+ * an empty one waiting to be drafted — there is nothing yet to anchor
+ * another split to.
+ */
+export function addScene(chapter: Chapter): SceneMeta[] {
+  const paragraphs = splitFlowParagraphs(chapter.prose);
+  if (paragraphs.length === 0) return chapter.scenes ?? [];
+  const current = normalizeSceneMetas(chapter.scenes, paragraphs.length);
+  const base = current.length > 0 ? current : [{ id: `${chapter.id}:scene-1`, startParagraph: 0 }];
+  if (base[base.length - 1]!.startParagraph >= paragraphs.length) return chapter.scenes ?? [];
+  return [...base, { id: newId(), startParagraph: paragraphs.length }];
 }
 
 /** Folds the scene right after `sceneId` into it, removing that split point. No-op on the last scene. */

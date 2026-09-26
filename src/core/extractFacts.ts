@@ -3,18 +3,87 @@ import { isCorePredicate } from "./predicates";
 import type { FactDraft } from "./NarrativeFact";
 
 /**
- * Pull a JSON object out of model output (fences, leading prose, trailing notes).
+ * Salvages whatever complete `{...}` objects appear inside a `facts` array
+ * that got cut off mid-stream (the model hit its token budget before
+ * finishing) — walks the array by brace depth, parsing each balanced
+ * object in turn, and stops at the first one that doesn't close cleanly
+ * (the truncated tail) rather than losing every fact the model already
+ * produced to one JSON.parse failure on the whole blob.
+ */
+function recoverTruncatedFacts(fromArrayStart: string): unknown[] {
+  const arrayStart = fromArrayStart.indexOf("[");
+  if (arrayStart < 0) return [];
+  const facts: unknown[] = [];
+  let depth = 0;
+  let objectStart = -1;
+  let inString = false;
+  let escapeNext = false;
+  for (let i = arrayStart + 1; i < fromArrayStart.length; i++) {
+    const ch = fromArrayStart[i];
+    if (inString) {
+      if (escapeNext) escapeNext = false;
+      else if (ch === "\\") escapeNext = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") {
+      if (depth === 0) objectStart = i;
+      depth++;
+      continue;
+    }
+    if (ch === "}") {
+      depth--;
+      if (depth === 0 && objectStart >= 0) {
+        try {
+          facts.push(JSON.parse(fromArrayStart.slice(objectStart, i + 1)));
+        } catch {
+          break;
+        }
+        objectStart = -1;
+      } else if (depth < 0) {
+        break;
+      }
+      continue;
+    }
+    if (ch === "]" && depth === 0) break;
+  }
+  return facts;
+}
+
+/**
+ * Pull a JSON object out of model output (fences, leading prose, trailing
+ * notes). Falls back to `recoverTruncatedFacts` when the response looks
+ * like it was cut off before the closing braces arrived — a real risk with
+ * a long chapter and many facts to enumerate in one completion — so a
+ * truncated response still yields whatever facts the model got out before
+ * running out of room, instead of the whole extraction failing on one
+ * unparseable blob.
  */
 export function recoverJsonObject(raw: string): unknown {
   const trimmed = raw.trim();
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   const body = (fenced?.[1] ?? trimmed).trim();
   const start = body.indexOf("{");
-  const end = body.lastIndexOf("}");
-  if (start < 0 || end <= start) {
+  if (start < 0) {
     throw new Error("Extractor returned no JSON object.");
   }
-  return JSON.parse(body.slice(start, end + 1));
+  const end = body.lastIndexOf("}");
+  if (end > start) {
+    try {
+      return JSON.parse(body.slice(start, end + 1));
+    } catch {
+      // Falls through to salvage whatever complete fact objects it can.
+    }
+  }
+  const facts = recoverTruncatedFacts(body.slice(start));
+  if (facts.length === 0) {
+    throw new Error("Extractor returned no JSON object.");
+  }
+  return { facts };
 }
 
 export function parseExtractorPayload(raw: string): FactDraft[] {

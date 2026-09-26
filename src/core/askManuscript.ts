@@ -1,10 +1,10 @@
 import { normalizeWord, wordsIn } from "./proseStats";
 
 /**
- * One chapter's sole scene (roadmap-ideas.md #5), offered up as retrieval
- * material. Once real scene-splitting exists this becomes one row per
- * scene instead of one per chapter — the retrieval and prompt code below
- * does not need to change for that.
+ * One scene's prose (roadmap-ideas.md #5), offered up as retrieval
+ * material — one row per scene, not per chapter, so an unsplit chapter's
+ * whole text is a single (large) source and a split chapter contributes a
+ * smaller, more focused one per scene.
  */
 export type ManuscriptSource = {
   sceneId: string;
@@ -28,7 +28,8 @@ export type AskManuscriptAnswer = {
 };
 
 const DEFAULT_TOP_K = 4;
-const EXCERPT_MAX_LENGTH = 220;
+const EXCERPT_MAX_LENGTH = 1000;
+const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
 export function cosineSimilarity(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length);
@@ -55,7 +56,61 @@ export function chapterExcerpt(prose: string, maxLength = EXCERPT_MAX_LENGTH): s
   return `${cut.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
 }
 
-function toEvidence(entries: { source: ManuscriptSource; score: number }[], topK: number): ManuscriptEvidence[] {
+function keywordHitPositions(flatText: string, keywords: Set<string>): number[] {
+  if (keywords.size === 0) return [];
+  const positions: number[] = [];
+  for (const match of flatText.matchAll(WORD_RE)) {
+    if (match.index !== undefined && keywords.has(normalizeWord(match[0]))) positions.push(match.index);
+  }
+  return positions;
+}
+
+/**
+ * An excerpt built around where the question's own words actually cluster
+ * in this source, instead of always the source's opening lines — a source
+ * chosen as relevant is useless as evidence if the part the model actually
+ * sees is a few hundred characters from the start of a long scene, nowhere
+ * near the detail being asked about. Falls back to `chapterExcerpt`'s
+ * start-of-text behavior when no keyword appears here at all (an
+ * embedding-ranked source with no keywords supplied, or a genuine miss).
+ */
+export function excerptWindow(prose: string, keywords: Set<string>, maxLength = EXCERPT_MAX_LENGTH): string {
+  const flat = prose.trim().replace(/\s+/g, " ");
+  if (flat.length <= maxLength) return flat;
+
+  const hits = keywordHitPositions(flat, keywords);
+  if (hits.length === 0) return chapterExcerpt(flat, maxLength);
+
+  let bestLeft = 0;
+  let bestCount = 0;
+  let left = 0;
+  for (let right = 0; right < hits.length; right++) {
+    while (hits[right]! - hits[left]! > maxLength) left++;
+    const count = right - left + 1;
+    if (count > bestCount) {
+      bestCount = count;
+      bestLeft = left;
+    }
+  }
+
+  const clusterStart = hits[bestLeft]!;
+  let start = Math.max(0, clusterStart - Math.floor(maxLength / 4));
+  let end = Math.min(flat.length, start + maxLength);
+  start = Math.max(0, end - maxLength);
+  if (start > 0) {
+    const nextSpace = flat.indexOf(" ", start);
+    if (nextSpace !== -1 && nextSpace < end) start = nextSpace + 1;
+  }
+  if (end < flat.length) {
+    const lastSpace = flat.lastIndexOf(" ", end);
+    if (lastSpace > start) end = lastSpace;
+  }
+  const prefix = start > 0 ? "…" : "";
+  const suffix = end < flat.length ? "…" : "";
+  return `${prefix}${flat.slice(start, end)}${suffix}`;
+}
+
+function toEvidence(entries: { source: ManuscriptSource; score: number }[], topK: number, keywords: Set<string>): ManuscriptEvidence[] {
   return entries
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -64,21 +119,28 @@ function toEvidence(entries: { source: ManuscriptSource; score: number }[], topK
       sceneId: entry.source.sceneId,
       chapterId: entry.source.chapterId,
       chapterTitle: entry.source.chapterTitle,
-      excerpt: chapterExcerpt(entry.source.prose),
+      excerpt: excerptWindow(entry.source.prose, keywords),
       score: entry.score
     }));
 }
 
-/** Primary path: rank sources by embedding similarity to the question. */
+/**
+ * Primary path: rank sources by embedding similarity to the question.
+ * `question` is optional and only used to center each excerpt on its own
+ * matching words — omitting it just falls back to an excerpt from the
+ * start of each chosen source.
+ */
 export function rankBySimilarity(
   queryEmbedding: number[],
   sources: ManuscriptSource[],
   sourceEmbeddings: number[][],
-  topK = DEFAULT_TOP_K
+  topK = DEFAULT_TOP_K,
+  question = ""
 ): ManuscriptEvidence[] {
   return toEvidence(
     sources.map((source, index) => ({ source, score: cosineSimilarity(queryEmbedding, sourceEmbeddings[index] ?? []) })),
-    topK
+    topK,
+    keywordTokens(question)
   );
 }
 
@@ -120,7 +182,8 @@ export function rankByKeywordOverlap(
       }
       return { source, score: overlap };
     }),
-    topK
+    topK,
+    questionTokens
   );
 }
 

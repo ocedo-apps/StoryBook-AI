@@ -545,7 +545,9 @@ export const en = {
     splitHint: "Pick where the new scene starts:",
     draft: "Draft",
     recast: "Recast",
-    analyze: "Analyze"
+    analyze: "Analyze",
+    addScene: "Add scene",
+    addSceneDisabledHint: "Finish writing this scene before adding the next"
   },
   publish: {
     title: "Publish",

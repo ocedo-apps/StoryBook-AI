@@ -103,6 +103,16 @@ const REVIEW_MODEL_KEY = "storybook-ai.review-model";
 const LAST_BOOK_KEY = "storybook-ai.last-book";
 const ENGINE_KEY = "storybook-ai.engine";
 const BASE_URL_KEY = "storybook-ai.base-url";
+/**
+ * A whole unsplit chapter (or a long interview) can hold many facts to
+ * enumerate in one JSON response — 1200 was tight enough that a dense
+ * chapter routinely got its response cut off mid-array, which then failed
+ * to parse at all. `parseExtractorPayload` now salvages a truncated
+ * response's complete facts regardless, but a roomier budget means it
+ * rarely needs to. Also used as Proofread's shared per-stage token budget,
+ * since its "facts" stage runs this same extractor.
+ */
+const EXTRACTOR_MAX_TOKENS = 4000;
 
 function readEngine(): LlmEngine {
   return localStorage.getItem(ENGINE_KEY) === "openai-compatible" ? "openai-compatible" : "ollama";
@@ -1285,7 +1295,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const raw = await provider.chat({
           messages: extractMessages,
           temperature: 0.1,
-          maxTokens: 1200
+          maxTokens: EXTRACTOR_MAX_TOKENS
         });
         const drafts = parseExtractorPayload(raw);
         totalDrafts += drafts.length;
@@ -1407,15 +1417,16 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy("ask-manuscript");
       setError(null);
 
-      const sources: ManuscriptSource[] = chaptersWithProse.map((chapterItem) => {
-        const scene = chapterScenes(chapterItem)[0];
-        return {
-          sceneId: scene?.id ?? chapterItem.id,
-          chapterId: chapterItem.id,
-          chapterTitle: chapterItem.title,
-          prose: scene?.prose ?? chapterItem.prose
-        };
-      });
+      const sources: ManuscriptSource[] = chaptersWithProse.flatMap((chapterItem) =>
+        chapterScenes(chapterItem)
+          .filter((scene) => scene.prose.trim())
+          .map((scene) => ({
+            sceneId: scene.id,
+            chapterId: chapterItem.id,
+            chapterTitle: chapterItem.title,
+            prose: scene.prose
+          }))
+      );
 
       try {
         const provider = makeProvider(reviewModel);
@@ -1427,7 +1438,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           ]);
           const queryEmbedding = queryEmbeddings[0];
           if (!queryEmbedding) throw new Error("No query embedding returned.");
-          evidence = rankBySimilarity(queryEmbedding, sources, sourceEmbeddings);
+          evidence = rankBySimilarity(queryEmbedding, sources, sourceEmbeddings, undefined, trimmed);
         } catch (embedErr) {
           if ((embedErr as { name?: string }).name === "AbortError") throw embedErr;
           evidence = rankByKeywordOverlap(trimmed, sources);
@@ -1555,7 +1566,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const raw = await provider.chat({
         messages: extractMessages,
         temperature: 0.1,
-        maxTokens: 1200
+        maxTokens: EXTRACTOR_MAX_TOKENS
       });
       const drafts = parseExtractorPayload(raw);
       if (drafts.length === 0) {
@@ -1690,7 +1701,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
               return makeProvider(reviewModel).chat({
                 messages: proofreadMessages,
                 temperature: 0.2,
-                maxTokens: 1600,
+                maxTokens: EXTRACTOR_MAX_TOKENS,
                 signal
               });
             },

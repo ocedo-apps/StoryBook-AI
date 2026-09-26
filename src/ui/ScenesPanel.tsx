@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Chapter } from "@core/BookSchema";
-import { chapterScenes, splitSceneAtParagraph, updateSceneMeta, type SceneMeta } from "@core/bookScene";
+import { addScene, chapterScenes, splitSceneAtParagraph, updateSceneMeta, type SceneMeta } from "@core/bookScene";
 import { splitFlowParagraphs } from "@core/proseFlow";
 import { count, format, useLocale } from "./i18n";
 
@@ -28,6 +28,8 @@ export function ScenesPanel({
   const scenes = chapterScenes(chapter);
   const [open, setOpen] = useState(scenes.length > 1);
   const [splitOpenId, setSplitOpenId] = useState<string | null>(null);
+  const showSceneActions = scenes.length > 1 || !chapter.prose.trim();
+  const canAddScene = (scenes[scenes.length - 1]?.prose.trim().length ?? 0) > 0;
 
   return (
     <div className="scenes-panel">
@@ -73,7 +75,7 @@ export function ScenesPanel({
                     {scene.prose.trim().length > PREVIEW_LEN ? "…" : ""}
                   </p>
                 ) : null}
-                {scenes.length > 1 ? (
+                {showSceneActions ? (
                   <div className="scene-actions">
                     <button type="button" disabled={busy} onClick={() => onDraftScene(scene.id)}>
                       {m.scenes.draft}
@@ -130,6 +132,17 @@ export function ScenesPanel({
             );
           })}
         </ol>
+      ) : null}
+      {open ? (
+        <button
+          type="button"
+          className="text-button scenes-add"
+          disabled={!canAddScene}
+          title={canAddScene ? undefined : m.scenes.addSceneDisabledHint}
+          onClick={() => onPatch(addScene(chapter))}
+        >
+          {m.scenes.addScene}
+        </button>
       ) : null}
     </div>
   );

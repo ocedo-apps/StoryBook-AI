@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  addScene,
   chapterScenes,
   mergeSceneWithNext,
   replaceSceneProse,
@@ -72,6 +73,54 @@ describe("chapterScenes", () => {
   it("forces the first stored split back to paragraph 0 if it drifted", () => {
     const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 1 }] };
     expect(chapterScenes(chapter)[0]).toMatchObject({ id: "s1", startParagraph: 0 });
+  });
+
+  it("keeps a stored split exactly at the paragraph count as an empty trailing scene", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 3 }] };
+    const scenes = chapterScenes(chapter);
+    expect(scenes).toHaveLength(2);
+    expect(scenes[1]).toMatchObject({ id: "s2", startParagraph: 3, prose: "" });
+  });
+});
+
+describe("addScene", () => {
+  it("appends a new empty scene right after the current end of the prose", () => {
+    const chapter = threeParagraphChapter();
+    const next = addScene(chapter);
+    expect(next.map((s) => s.startParagraph)).toEqual([0, 3]);
+    const scenes = chapterScenes({ ...chapter, scenes: next });
+    expect(scenes).toHaveLength(2);
+    expect(scenes[1]?.prose).toBe("");
+  });
+
+  it("appends after an already-split chapter's last scene, not the first", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    const next = addScene(chapter);
+    expect(next.map((s) => s.startParagraph)).toEqual([0, 2, 3]);
+  });
+
+  it("no-ops on a chapter with no prose yet — nothing to anchor a split to", () => {
+    const chapter = { ...createChapter(0, "One"), prose: "" };
+    expect(addScene(chapter)).toEqual(chapter.scenes ?? []);
+  });
+
+  it("no-ops when the last scene is already an empty one waiting to be drafted", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 3 }] };
+    expect(addScene(chapter)).toEqual(chapter.scenes);
+  });
+
+  it("lets a scene-by-scene chapter grow one drafted scene at a time", () => {
+    let chapter: Chapter = { ...createChapter(0, "One"), prose: "" };
+    // Nothing to add to yet.
+    expect(addScene(chapter)).toEqual([]);
+    // Author writes (or drafts) the first scene.
+    chapter = { ...chapter, prose: "The dock at dawn." };
+    chapter = { ...chapter, scenes: addScene(chapter) };
+    expect(chapterScenes(chapter).map((s) => s.prose)).toEqual(["The dock at dawn.", ""]);
+    // Drafting the second scene fills the placeholder in place.
+    const spliced = replaceSceneProse(chapter, chapterScenes(chapter)[1]!.id, "A gull cried overhead.");
+    chapter = { ...chapter, prose: spliced.prose, scenes: spliced.scenes };
+    expect(chapterScenes(chapter).map((s) => s.prose)).toEqual(["The dock at dawn.", "A gull cried overhead."]);
   });
 });
 

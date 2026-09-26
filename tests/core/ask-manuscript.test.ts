@@ -3,6 +3,7 @@ import {
   askManuscriptUserPrompt,
   chapterExcerpt,
   cosineSimilarity,
+  excerptWindow,
   rankByKeywordOverlap,
   rankBySimilarity,
   type ManuscriptSource
@@ -61,6 +62,41 @@ describe("rankBySimilarity", () => {
       [1, 1, 1]
     ];
     expect(rankBySimilarity(queryEmbedding, sources, sourceEmbeddings, 2)).toHaveLength(2);
+  });
+});
+
+describe("excerptWindow", () => {
+  it("returns short prose unchanged regardless of keywords", () => {
+    expect(excerptWindow("Short line.", new Set(["short"]), 40)).toBe("Short line.");
+  });
+
+  it("falls back to the start of the text when no keyword appears in it at all", () => {
+    const long = "filler ".repeat(80).trim();
+    expect(excerptWindow(long, new Set(["missing"]), 40)).toBe(chapterExcerpt(long, 40));
+  });
+
+  it("centers the excerpt on where the keywords actually cluster, not the start of a long source", () => {
+    const filler = "the ship sailed on through quiet open water for what felt like days ".repeat(20);
+    const detail = "the hidden lever behind the mural opens the vault";
+    const long = `${filler}${detail}${filler}`;
+    const excerpt = excerptWindow(long, new Set(["lever", "mural", "vault"]), 80);
+    expect(excerpt).toContain("hidden lever");
+    expect(excerpt).toContain("vault");
+  });
+});
+
+describe("rankBySimilarity centers excerpts on the question when given one", () => {
+  it("finds a buried detail instead of always the source's opening lines", () => {
+    const filler = "a quiet corridor stretched on for what felt like miles of empty hallway ".repeat(20);
+    const detail = "Henrik confessed that Elin was his sister all along";
+    const longSources: ManuscriptSource[] = [
+      { sceneId: "ch1:scene-1", chapterId: "ch1", chapterTitle: "Long chapter", prose: `${filler}${detail}${filler}` }
+    ];
+    const withoutQuestion = rankBySimilarity([1], longSources, [[1]]);
+    expect(withoutQuestion[0]?.excerpt).not.toContain("confessed");
+
+    const withQuestion = rankBySimilarity([1], longSources, [[1]], 4, "Is Elin related to Henrik?");
+    expect(withQuestion[0]?.excerpt).toContain("confessed");
   });
 });
 

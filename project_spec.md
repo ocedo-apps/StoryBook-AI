@@ -1,9 +1,52 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.30
+Status: living document, v0.99.31
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.30 → v0.99.31:** Tre buggar rättade från en
+testares feedback: Fråga manuset, Extrahera fakta, och scener i ett
+tomt kapitel.
+
+- **Fråga manuset såg nästan ingenting.** Rotorsaken: varje källa
+  kapades till 220 tecken — och alltid kapitlets *första* 220 tecken,
+  oavsett vad frågan handlade om. Med ett långt kapitel fick modellen
+  bara se inledningen. Ny `excerptWindow()` i `askManuscript.ts`
+  centrerar nu utdraget kring där frågans egna ord faktiskt
+  förekommer i texten, och taket höjdes samtidigt till 1000 tecken.
+  Fixade också en separat bugg på samma ställe: bara kapitlets
+  *första* scen skickades som källa — ett kapitel med flera scener
+  hade osynliga scener för funktionen. Nu är varje scen sin egen källa.
+- **Extrahera fakta kastade ett JSON-fel** (det olösta ärendet från
+  tidigare) — rotorsak hittad: modellen fick bara 1200 tokens för att
+  räkna upp ALLA fakta i ett helt, odelat kapitel i ett enda svar. Med
+  många fakta att hitta blev svaret helt enkelt avkapat mitt i, vilket
+  gav exakt det JSON-felet. Två fixar: budgeten höjdes till 4000
+  tokens (gäller extraktion från kapitel, intervju, och
+  korrekturläsningens fakta-steg), och `parseExtractorPayload` i
+  `extractFacts.ts` räddar nu de fakta som faktiskt hann bli klara
+  innan avbrottet istället för att kasta bort alla vid minsta
+  JSON-fel.
+- **Scenpanelen i ett tomt kapitel.** Scener kunde bara skapas genom
+  att dela redan skriven text — utan text fanns inget att dela vid,
+  så "Skriv utkast"-knappen för scener syntes aldrig i ett tomt
+  kapitel. Ny `addScene()` i `bookScene.ts` lägger till en tom scen
+  direkt efter kapitlets nuvarande text (kräver bara att den
+  *föregående* scenen redan har text — annars finns inget att skilja
+  den nya från). Ny "Lägg till scen"-knapp i scenpanelen, avstängd
+  tills den senaste scenen har något skrivet. Scen-för-scen-skrivande
+  från noll fungerar nu: skriv scen 1, lägg till scen 2, skriv den,
+  osv.
+- 643/643 gröna (13 nya tester). Verifierat i webbläsaren:
+  scen-bugg-fixen end-to-end (tomt kapitel → skrev scen 1 → "Lägg
+  till scen" gick från avstängd till aktiv → klickade → scen 2 dök
+  upp tom och redo). Fråga manuset och Extrahera fakta är verifierade
+  på funktionsnivå (nya riktade tester som återskapar exakt den
+  rapporterade bristen) men inte end-to-end i webbläsaren — den här
+  sessionen har ingen lokal Ollama/LM Studio att prata med, så en
+  riktig fråga-och-svar-runda gick inte att köra. Värt att dubbelkolla
+  i din egen miljö.
 
 **Ändringslogg v0.99.29 → v0.99.30:** Relations-fakta som nämner en
 annan namngiven karaktär speglas nu automatiskt som ett förslag på den
