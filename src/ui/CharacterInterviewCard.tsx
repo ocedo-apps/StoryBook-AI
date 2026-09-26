@@ -27,6 +27,10 @@ export function CharacterInterviewCard({
   history,
   busy,
   extracting,
+  personalityDraft,
+  savedPersonality,
+  onPersonalityDraftChange,
+  onSavePersonality,
   onAsk,
   onExtractFacts,
   onClose
@@ -36,6 +40,10 @@ export function CharacterInterviewCard({
   history: InterviewMessage[];
   busy: boolean;
   extracting: boolean;
+  personalityDraft: string;
+  savedPersonality: string;
+  onPersonalityDraftChange: (text: string) => void;
+  onSavePersonality: () => void;
   onAsk: (question: string) => void;
   onExtractFacts: () => void;
   onClose: () => void;
@@ -84,6 +92,27 @@ export function CharacterInterviewCard({
         </div>
         <h2 id="interview-title">{format(m.interview.title, { name: entity.label })}</h2>
         <p className="quiet">{format(m.interview.lede, { name: entity.label })}</p>
+
+        <div className="interview-personality">
+          <label htmlFor="interview-personality-field" className="field-label">
+            {m.interview.personalityLabel}
+          </label>
+          <textarea
+            id="interview-personality-field"
+            value={personalityDraft}
+            onChange={(event) => onPersonalityDraftChange(event.target.value)}
+            placeholder={m.interview.personalityPlaceholder}
+            rows={2}
+          />
+          <button
+            type="button"
+            className="text-button"
+            disabled={personalityDraft === savedPersonality}
+            onClick={onSavePersonality}
+          >
+            {m.interview.personalitySave}
+          </button>
+        </div>
 
         <div className="interview-transcript" ref={transcriptRef}>
           {history.length === 0 ? <p className="quiet interview-empty">{format(m.interview.empty, { name: entity.label })}</p> : null}

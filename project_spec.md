@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.28
+Status: living document, v0.99.29
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.28 → v0.99.29:** Intervju med karaktär kan nu
+testa olika personlighet/ton innan man sparar den till profilen.
+
+- Ny textruta överst i Intervju-kortet: "Personlighet för detta
+  samtal — testa dig fram, spara till profilen när tonen känns rätt".
+  Fylls från karaktärens sparade `personality`-fält, men varje ändring
+  påverkar nästa svar direkt i samma samtal — helt oberoende av om
+  man någonsin sparar.
+- Egen "Spara till profil"-knapp, avstängd så länge texten är
+  identisk med det sparade värdet. Sparar via `upsertCharacterProfile`
+  (samma mekanism som redigering av utseende/taggar).
+- `characterInterviewSystem()` i `characterInterview.ts` tar en ny
+  valfri 4:e parameter `personalityDraft` — vinner över profilens
+  sparade `personality` när den är satt, annars faller tillbaka på
+  profilen som förut.
+- Hittade och rättade en riktig bugg under verifieringen, inte ny
+  kod utan en sovande bugg i `CharacterFields` (profil-formuläret i
+  karaktärskortet): dess unmount-städning skrev alltid tillbaka sitt
+  eget `draft`-state till profilen, oavsett om något faktiskt
+  ändrats där. Så länge inget annat kunde ändra profilen medan
+  kortet var öppet syntes det aldrig — men nu när Intervju-panelen
+  kan spara `personality` medan karaktärskortet står öppet bakom den,
+  skrev den gamla (tomma) `draft`-snapshotten över den nysparade
+  texten så fort man stängde karaktärskortet. Fix: unmount-städningen
+  flushar nu bara om `dirtyRef.current` är sant, precis som den
+  vanliga `flush()`-funktionen redan gjorde.
+- 621/621 gröna (3 nya enhetstester). Verifierat i webbläsaren
+  end-to-end: öppnade Intervju, fältet var tomt, skrev en
+  personlighetsbeskrivning, sparade, stängde Intervju-kortet OCH
+  karaktärskortet, öppnade karaktären igen och Intervju igen — texten
+  låg kvar. Innan bugfixen försvann den i just det steget.
 
 **Ändringslogg v0.99.27 → v0.99.28:** Städade en föräldralös
 `scene_id`-koppling — författaren märkte att om en fakta hör till en

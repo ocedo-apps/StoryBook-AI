@@ -297,7 +297,10 @@ export const nb: Messages = {
     thinking: "{name} tenker…",
     empty: "Ingenting spurt om ennå. Start samtalen med {name} nedenfor.",
     extractAction: "Hent ut fakta",
-    extracting: "Henter ut…"
+    extracting: "Henter ut…",
+    personalityLabel: "Personlighet for denne samtalen — prøv deg fram, lagre til profilen når tonen føles riktig",
+    personalityPlaceholder: "F.eks. \"Kort og fåmælt, ser alltid problemet først\"",
+    personalitySave: "Lagre til profilen"
   },
   timeline: {
     nav: "Tidslinje",

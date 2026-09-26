@@ -30,6 +30,7 @@ import {
   type ManuscriptSource
 } from "@core/askManuscript";
 import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
+import { profileFor, upsertCharacterProfile } from "@core/characterProfile";
 import { developExpandUserPrompt, developmentMethodById, materializeBeats, DEVELOP_EXPAND_SYSTEM, type DevelopmentStep } from "@core/developmentMethod";
 import {
   ANALYZE_SYSTEM,
@@ -200,6 +201,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
   const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
+  const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
   const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
@@ -1461,13 +1463,26 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const startInterview = useCallback((entityRef: string, entityLabel: string) => {
     setInterviewEntity({ ref: entityRef, label: entityLabel });
     setInterviewHistory([]);
+    setInterviewPersonalityDraft(profileFor(bookRef.current?.profiles ?? [], entityRef).personality);
   }, []);
 
   const closeInterview = useCallback(() => {
     abortRef.current?.abort();
     setInterviewEntity(null);
     setInterviewHistory([]);
+    setInterviewPersonalityDraft("");
   }, []);
+
+  const saveInterviewPersonality = useCallback(() => {
+    const target = interviewEntity;
+    if (!target) return;
+    void patchBook((current) => {
+      const profile = profileFor(current.profiles, target.ref);
+      return touch(current, {
+        profiles: upsertCharacterProfile(current.profiles, { ...profile, personality: interviewPersonalityDraft })
+      });
+    });
+  }, [interviewEntity, interviewPersonalityDraft, patchBook]);
 
   const askCharacter = useCallback(
     async (question: string) => {
@@ -1492,7 +1507,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       try {
         const provider = makeProvider(model);
         const askMessages: PromptDebugMessage[] = [
-          { role: "system", content: characterInterviewSystem(current, target.ref, target.label) },
+          { role: "system", content: characterInterviewSystem(current, target.ref, target.label, interviewPersonalityDraft) },
           ...priorTurns,
           { role: "user", content: trimmed }
         ];
@@ -1513,7 +1528,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         abortRef.current = null;
       }
     },
-    [busy, interviewEntity, interviewHistory, model, models.length, ollamaError, recordPrompt]
+    [busy, interviewEntity, interviewHistory, interviewPersonalityDraft, model, models.length, ollamaError, recordPrompt]
   );
 
   const extractInterview = useCallback(async () => {
@@ -1790,6 +1805,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     askManuscriptAnswer,
     interviewEntity,
     interviewHistory,
+    interviewPersonalityDraft,
     developSuggestion,
     refresh,
     openBook,
@@ -1840,6 +1856,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     askCharacter,
     extractInterview,
     closeInterview,
+    setInterviewPersonalityDraft,
+    saveInterviewPersonality,
     setDevelopmentMethod,
     developExpand,
     dismissDevelopSuggestion,

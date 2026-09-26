@@ -25,7 +25,7 @@ import {
   type PovMode,
   type Tense
 } from "@core/craft";
-import { characterCast } from "@core/characterProfile";
+import { characterCast, profileFor } from "@core/characterProfile";
 import {
   formatManuscriptMarkdown,
   manuscriptBackupBasename,
@@ -1559,6 +1559,10 @@ export function Editor() {
           history={store.interviewHistory}
           busy={busy === "interview"}
           extracting={busy === "extract-interview"}
+          personalityDraft={store.interviewPersonalityDraft}
+          savedPersonality={profileFor(book.profiles, store.interviewEntity.ref).personality}
+          onPersonalityDraftChange={store.setInterviewPersonalityDraft}
+          onSavePersonality={store.saveInterviewPersonality}
           onAsk={(question) => void store.askCharacter(question)}
           onExtractFacts={() => void store.extractInterview()}
           onClose={store.closeInterview}

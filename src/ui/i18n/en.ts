@@ -295,7 +295,10 @@ export const en = {
     thinking: "{name} is thinking…",
     empty: "Nothing asked yet. Start the conversation with {name} below.",
     extractAction: "Extract facts",
-    extracting: "Extracting…"
+    extracting: "Extracting…",
+    personalityLabel: "Personality for this conversation — try it out, save to the profile once the tone feels right",
+    personalityPlaceholder: "E.g. \"Terse, always sees the problem first\"",
+    personalitySave: "Save to profile"
   },
   timeline: {
     nav: "Timeline",

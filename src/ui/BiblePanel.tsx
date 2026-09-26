@@ -899,6 +899,8 @@ function CharacterFields({
     tagsRef.current = formatTagList(profile.tags);
     return () => {
       window.clearTimeout(timerRef.current);
+      if (!dirtyRef.current) return;
+      dirtyRef.current = false;
       onChangeRef.current(snapshot());
     };
     // Re-bind only when the open card changes. Live book patches must not reset typing.

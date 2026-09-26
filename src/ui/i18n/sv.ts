@@ -297,7 +297,10 @@ export const sv: Messages = {
     thinking: "{name} tänker…",
     empty: "Inget frågat än. Börja samtalet med {name} nedan.",
     extractAction: "Plocka ut fakta",
-    extracting: "Plockar ut…"
+    extracting: "Plockar ut…",
+    personalityLabel: "Personlighet för det här samtalet — testa dig fram, spara till profilen när tonen känns rätt",
+    personalityPlaceholder: "T.ex. \"Korthugget, ser alltid problem först\"",
+    personalitySave: "Spara till profilen"
   },
   timeline: {
     nav: "Tidslinje",

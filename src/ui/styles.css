@@ -2336,6 +2336,24 @@ button:disabled {
   overflow: hidden;
 }
 
+.interview-personality {
+  flex: 0 0 auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.interview-personality textarea {
+  resize: vertical;
+}
+
+.interview-personality .text-button {
+  align-self: flex-start;
+}
+
 .interview-transcript {
   flex: 1 1 auto;
   overflow-y: auto;

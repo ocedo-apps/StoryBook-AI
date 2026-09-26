@@ -47,4 +47,33 @@ describe("characterInterviewSystem", () => {
     const system = characterInterviewSystem(book, "henrik", "Henrik");
     expect(system).not.toContain("secretly a spy");
   });
+
+  it("uses the saved profile personality when no draft override is given", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "clipped, always sees the downside first", tags: [] }]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik");
+    expect(system).toContain("clipped, always sees the downside first");
+  });
+
+  it("a personality draft overrides the saved profile personality", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", tags: [] }]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "terse, one-word answers");
+    expect(system).toContain("terse, one-word answers");
+    expect(system).not.toContain("warm and talkative");
+  });
+
+  it("an empty-string draft overrides on purpose — clearing the field really means no personality line", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", tags: [] }]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "");
+    expect(system).not.toContain("warm and talkative");
+    expect(system).not.toContain("How you tend to be");
+  });
 });

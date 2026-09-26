@@ -48,6 +48,7 @@ export type BookStoreValue = {
   askManuscriptAnswer: AskManuscriptAnswer | null;
   interviewEntity: { ref: string; label: string } | null;
   interviewHistory: InterviewMessage[];
+  interviewPersonalityDraft: string;
   developSuggestion: string | null;
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
@@ -112,6 +113,8 @@ export type BookStoreValue = {
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
   closeInterview: () => void;
+  setInterviewPersonalityDraft: (text: string) => void;
+  saveInterviewPersonality: () => void;
   addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;
