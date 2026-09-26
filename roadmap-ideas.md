@@ -769,6 +769,28 @@ användare skulle se den ett tag till, innan korten börjar gömma sig.
 Enkelt att bygga när det blir aktuellt — en villkorsrendering runt
 `<QuickstartCards />` i `Home.tsx`.
 
+### 27. Riktig mobilanpassning av redigeringsytan
+Uppstod ur en fråga om appen är mobilanpassad. Testat i en simulerad
+telefon-webbläsare (390px bred) innan svar: sidan kraschar inte och
+layouten viker om sig — förstasidan ser bra ut, och kapitel-editorns tre
+kolumner (vänsterpanel/skrivyta/Story Bible) blir en enda scrollbar
+kolumn under 960px bredd (`.editor-body` i `styles.css`).
+
+**Två verkliga begränsningar hittade:**
+- Vänsterpanelen (Brainstorm, Synopsis, Kapitellista osv.) staplas
+  *ovanför* skrivytan istället för att ligga i en egen flik/undermeny —
+  man scrollar förbi hela den listan för att nå texten.
+- AI-redigeringsmenyn (Förläng/Brodera ut/Skriv om/Beat) öppnas via
+  högerklick på markerad text (`onContextMenu` i `ProseCanvas.tsx`) —
+  ingen tryck-och-håll-motsvarighet finns byggd, och det är helt otestat
+  på riktig pekskärm.
+
+**Status: avvaktar.** Författaren vill inte prioritera det nu — mobilen
+är inte förstahandsvalet för att skriva text, appen är i grunden tänkt
+för dator. Skulle kräva en egen mobilnavigering (flikväxling istället
+för stapling) plus en tryck-och-håll-öppnad meny som ersättning för
+högerklicket för att bli en riktig lösning, inte en snabb CSS-fix.
+
 ---
 
 ## Medvetet nedprioriterat just nu (inte avvisat)
