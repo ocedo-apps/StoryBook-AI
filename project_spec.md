@@ -1,9 +1,42 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.37
+Status: living document, v0.99.38
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.37 → v0.99.38:** Guiden omgjord från en lång
+scroll till flikar — författarens observation: appen har vuxit sig för
+stor för att någon ska orka läsa igenom en enda lång text, och han hade
+rätt i att den behövde delas upp.
+
+- 8 flikar istället för en enda lista: Getting Started (sekretess,
+  författaren-vinner-över-AI, snabbstart mot en lokal AI-server,
+  felsökning), Basic Writing (kapitel: Skriv utkast/Omskriv/Analysera),
+  The Writer (ny text: högerklicksmenyn, en bild till kapitlet), Images
+  (ny text: illustrationsprompter och stilbiblioteket), Focused
+  Workflow (Brainstorm & Synopsis), Advanced Writing Tools
+  (Utvecklingsmetod, Trådar, Scener, Timeline — författarens egen
+  gruppering), Story Bible (Story Bible, kontinuitetsvarningar) och
+  Polish & Publish (korrekturläsning, fråga manuset, publicera).
+- Två helt nya avsnitt skrevs från grunden: högerklicksmenyn
+  (Förläng/Brodera ut/Skriv om/Skriv en beat/Illustrationsprompt/Manuell
+  redigering) och illustrationsprompter fanns inte alls i Guiden innan,
+  trots att båda är riktiga, befintliga funktioner.
+- Alla "?"-knappar i appen (t.ex. bredvid Utvecklingsmetod, Fråga
+  manuset, Story Bible) pekar fortfarande rätt — de öppnar nu bara rätt
+  flik också, inte bara rätt stycke. Story Bible-avsnittet uppdaterades
+  samtidigt för att nämna att Intervjua numera fungerar för alla
+  korttyper, inte bara karaktärer.
+- `guide.sections` gick från en ordningsberoende array (skör — fel
+  ordning i en enda språkfil hade parat ihop fel rubrik med fel text)
+  till en `Record` nyckel-för-nyckel, så TypeScript numera flaggar om
+  en sektion saknas i något språk.
+- 662/662 gröna (ingen ny kärnlogik, bara innehåll och layout),
+  typkontroll ren. Verifierat i webbläsaren: alla 8 flikar visar rätt
+  innehåll, snabbstart och felsökning syns bara under Getting Started,
+  och fyra olika "?"-knappar (Utvecklingsmetod, Fråga manuset, Kapitel,
+  Story Bible) landade alla på rätt flik och rätt stycke.
 
 **Ändringslogg v0.99.36 → v0.99.37:** Intervjun öppnad för hela Story
 Bible, inte bara karaktärer — svar på författarens fråga: vissa

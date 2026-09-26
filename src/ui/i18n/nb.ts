@@ -472,61 +472,82 @@ export const nb: Messages = {
         body: "Dra idéene som er klare til Synopsis — formen på hele historien. Åpne så et kapittel og trykk Lag utkast: modellen skriver ut fra ditt Synopsis, din Story Bible og kapittelets egen instruks. Ingenting den skriver blir låst sannhet før du sier ifra — skriv det om, bytt kamera, eller be om en analyse når som helst."
       }
     ],
-    howHeading: "Slik er appen bygd opp",
-    sections: [
-      {
+    categories: {
+      "getting-started": "Getting Started",
+      "basic-writing": "Basic Writing",
+      "the-writer": "The Writer",
+      images: "Images",
+      "focused-workflow": "Focused Workflow",
+      "advanced-tools": "Advanced Writing Tools",
+      "world-bible": "Story Bible",
+      "polish-publish": "Polish & Publish"
+    },
+    sections: {
+      privacy: {
         heading: "Et helt lukket digitalt pengeskap",
         body: "StoryBook AI er bygget rundt én regel: manuset ditt er din eiendom, og det skal aldri forlate datamaskinen din. Det finnes ingen vei ut til internett i appen — ingen API-nøkler til ChatGPT, Claude eller andre skytjenester (det er ikke en manglende funksjon, men et bevisst valg), ingen oppdateringssjekker mot GitHub, og skriftene følger med i appen i stedet for å hentes utenfra. Teksten din lever bare lokalt i nettleseren, og AI-modellen kjører bare på din egen prosessor. Uansett hva du skriver — dagbok, forretningshemmeligheter eller det neste store fantasy-eposet — blir hver bokstav hos deg."
       },
-      {
+      author: {
         heading: "Forfatteren vinner alltid over AI-en",
         body: "Modellen foreslår, du bestemmer. En detalj modellen finner på i prosaen forblir et forslag — vist med en lett stiplet understrek — til du låser den i Story Bible. Ingenting blir kanon av seg selv."
       },
-      {
-        heading: "Idémyldring & Synopsis",
-        body: "Idémyldring er din private oppslagstavle — kladdepapir eller en tavle med post-it-lapper, ett notat per idé, dragbart, ingen rekkefølge kreves. Lag utkast lener seg aldri på et notat du ikke har løftet over til Synopsis. (Spør du modellen om notatene dine, eller ber den forlenge eller utdype et av dem, leser den selvsagt det du spør om — men ingenting derfra blir kanon eller lekker inn i kapittelskrivingen av seg selv.) Løft ideene som holder mål over til Synopsis: formen på hele boken, i noen setninger. Det er dette AI-modellen lener seg på når den senere hjelper deg å skrive kapitler."
-      },
-      {
+      chapters: {
         heading: "Kapitler: Lag utkast, Omskriv, Analyser",
         body: "Lag utkast skriver ny prosa ut fra det som allerede er etablert. Omskriv skriver om samme kapittel i et annet perspektiv eller tempus, med samme hendelser. Analyser gjennomgår et kapittel for vanlige skriveproblemer uten å skrive om en eneste linje — for eksempel å \"fortelle\" i stedet for å vise (i stedet for \"Lisa var rasende\" foreslår den kanskje \"Lisa smalt igjen døren så kaffekoppene skalv\"), fyll-dialog, eller et trekk som kolliderer med et låst karaktertrekk. Leser (i Innstillinger, og per kapittel) angir hvem teksten skrives for — Pekebok til Voksen — slik at setningslengde og ordvalg passer den alderen. Under teksten veksler Sjeldne ord og Klisjeer mellom to valgfrie markeringer — uvanlige ord for den leseren, og formuleringer som høres AI-skrevne ut (\"et bevis på\", overbrukte tankestreker) — én om gangen, avslått som standard."
       },
-      {
-        heading: "Scener",
-        body: "Et langt kapittel kan deles opp i scener — velg hvor en slutter og neste begynner, gi den navn, legg til et kort notat. Når et kapittel har scener, kan Lag utkast, Omskriv og Analyser hver for seg rettes mot bare én av dem."
+      "editor-tools": {
+        heading: "Høyreklikkmenyen",
+        body: "Merk et avsnitt og høyreklikk for Forleng (fortsetter der merkingen slutter), Utdyp (utvider selve avsnittet), Skriv om… (din egen instruks, f.eks. «gjør henne sintere»), Illustrasjonsprompt… (se Images) og Manuell redigering (skriv om bare det markerte avsnittet selv, for hånd — resten av kapittelet blir liggende). Høyreklikker du i stedet uten å merke noe, får du ett eneste valg, Skriv en beat…: beskriv i én linje hva som skjer videre, så skriver modellen bare den beaten — et kort avsnitt, ikke resten av scenen — og setter den inn akkurat der markøren står."
       },
-      {
-        heading: "Story Bible",
-        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi — motsier et nytt forslag et allerede låst faktum (for eksempel at noen plutselig har brune øyne når du har låst blå), blir det flagget ekstra tydelig i gjennomgangskøen. Åpne et karakterkort og trykk Intervju for å chatte med dem, i deres egen stemme, bygget bare på det som til nå er låst — en måte å høre stemmen på og oppdage hull, ikke skape ny kanon. Sier de noe verdt å ta vare på, trykk Hent ut fakta for å foreslå det til Story Bible — samme gjennomgangskø som all annen ekstraksjon, ingenting legges til før du godkjenner. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
+      "add-picture": {
+        heading: "Et bilde til kapittelet",
+        body: "Legg til et eget bilde — JPEG, PNG eller WebP — øverst i et kapittel. Det er dekorativt, ikke AI-generert: velg en fil fra datamaskinen din, så vises det over kapittelets første linjer, og følger med når du publiserer til HTML, ePub eller PDF."
       },
-      {
-        heading: "Kontinuitetsvarsler",
-        body: "Når et kapittel kan se et faktum som først ble etablert senere i manuskriptet, blir det flagget — ikke nødvendigvis feil, kanskje er det et tilbakeblikk, bare verdt en rask sjekk. Korrekturlesing går lenger: den sjekker en persons eller en gjenstands registrerte sted gjennom hele historien, i historiens egen tidsrekkefølge, og flagger en forflytning som ser umulig eller uforklart ut gitt hvor mye tid som har gått."
+      "illustration-prompts": {
+        heading: "Illustrasjonsprompter",
+        body: "Merk et avsnitt og velg Illustrasjonsprompt… i høyreklikkmenyen. Modellen skriver en bildegenereringsprompt — ikke et bilde — bygget på avsnittet, dine låste Story Bible-fakta og manusets illustrasjonsstil, klar til å limes inn i det bildeverktøyet du bruker; StoryBook AI forblir helt lokalt og genererer aldri selve bildet. Sett en standardstil under Innstillinger → Illustrasjonsstil, eller åpne stilbiblioteket for å lagre navngitte, gjenbrukbare stiler — hver med egne sjangertagger og et eksempelbilde — slik at hver prompt holder samme utseende gjennom hele boken."
       },
-      {
-        heading: "Tidslinje",
-        body: "Leserekkefølge og historiens egen tidsrekkefølge er ikke alltid det samme. Gi et kapittel et tidsnotat, og se hvordan boken faller når den sorteres etter når ting faktisk skjer, ved siden av hvor det ligger i manuskriptet."
+      "brainstorm-synopsis": {
+        heading: "Idémyldring & Synopsis",
+        body: "Idémyldring er din private oppslagstavle — kladdepapir eller en tavle med post-it-lapper, ett notat per idé, dragbart, ingen rekkefølge kreves. Lag utkast lener seg aldri på et notat du ikke har løftet over til Synopsis. (Spør du modellen om notatene dine, eller ber den forlenge eller utdype et av dem, leser den selvsagt det du spør om — men ingenting derfra blir kanon eller lekker inn i kapittelskrivingen av seg selv.) Løft ideene som holder mål over til Synopsis: formen på hele boken, i noen setninger. Det er dette AI-modellen lener seg på når den senere hjelper deg å skrive kapitler."
       },
-      {
-        heading: "Tråder (Plotlines)",
-        body: "Hold styr på hvilken tråd som går gjennom hvilket kapittel i en tabell, så en tråd som har vært stille i ti kapitler er lett å oppdage."
-      },
-      {
+      method: {
         heading: "Utviklingsmetode",
         body: "En valgfri, ferdig serie steg for å la en gnist vokse til en form — Snowflake, Three-Act Structure, Save the Cat eller Hero's Journey. Den beholder aldri noe eget: en vendepunktbasert metodes vendepunkter blir tråder i Tråder, og Snowflakes steg skriver rett inn i Synopsis, akkurat som enhver annen notat du sender dit. Å bytte metode, eller velge ingen, sletter aldri noe som allerede finnes i noen av dem."
       },
-      {
+      plotlines: {
+        heading: "Tråder (Plotlines)",
+        body: "Hold styr på hvilken tråd som går gjennom hvilket kapittel i en tabell, så en tråd som har vært stille i ti kapitler er lett å oppdage."
+      },
+      scenes: {
+        heading: "Scener",
+        body: "Et langt kapittel kan deles opp i scener — velg hvor en slutter og neste begynner, gi den navn, legg til et kort notat. Når et kapittel har scener, kan Lag utkast, Omskriv og Analyser hver for seg rettes mot bare én av dem."
+      },
+      timeline: {
+        heading: "Tidslinje",
+        body: "Leserekkefølge og historiens egen tidsrekkefølge er ikke alltid det samme. Gi et kapittel et tidsnotat, og se hvordan boken faller når den sorteres etter når ting faktisk skjer, ved siden av hvor det ligger i manuskriptet."
+      },
+      "story-bible": {
+        heading: "Story Bible",
+        body: "Den ene sannhetskilden for historiens fakta — hvem noen er, hvor et sted ligger, hva et navn betyr. Et faktum starter som et forslag, fra deg eller fra en ekstraksjon, og blir bare låst sannhet når du godkjenner det. Låste fakta er det modellen får vite at den ikke får motsi — motsier et nytt forslag et allerede låst faktum (for eksempel at noen plutselig har brune øyne når du har låst blå), blir det flagget ekstra tydelig i gjennomgangskøen. Åpne et kort og trykk Intervju for å chatte om det — i en karakters egen stemme, eller for et sted, en gjenstand, en gruppe eller et konsept, med en verdensbygger-kollega som drøfter det i tredje person — bygget bare på det som til nå er låst. En måte å høre en stemme på eller utforske lore og oppdage hull, ikke skape ny kanon. Sies det noe verdt å ta vare på, trykk Hent ut fakta for å foreslå det til Story Bible — samme gjennomgangskø som all annen ekstraksjon, ingenting legges til før du godkjenner. Ctrl-klikk (Cmd-klikk på Mac) på et navn du kjenner igjen hvor som helst i teksten for å hoppe rett til kortet — et vanlig klikk plasserer bare markøren der, som vanlig."
+      },
+      continuity: {
+        heading: "Kontinuitetsvarsler",
+        body: "Når et kapittel kan se et faktum som først ble etablert senere i manuskriptet, blir det flagget — ikke nødvendigvis feil, kanskje er det et tilbakeblikk, bare verdt en rask sjekk. Korrekturlesing går lenger: den sjekker en persons eller en gjenstands registrerte sted gjennom hele historien, i historiens egen tidsrekkefølge, og flagger en forflytning som ser umulig eller uforklart ut gitt hvor mye tid som har gått."
+      },
+      proofread: {
         heading: "Korrekturlesing",
         body: "En siste gjennomgang av hele manuskriptet: grammatikk, gjentatte scener, stil- og stemningsdrift mellom kapitler, alderstilpasning, en kontinuitetssjekk, et søk etter plantede detaljer som aldri innfris (en pistol som vises i kapittel 4, men som ingen noensinne avfyrer), og en faktasjekk mot hele boken. Når Leser er satt til et barne- eller ungdomsnivå, flagger den også banning, vold eller eksplisitt innhold som ikke passer den alderen. Bare notater — ingenting skrives om for deg. Den pauser og gjenopptar, og sjekker bare på nytt det som faktisk har endret seg."
       },
-      {
+      "ask-manuscript": {
         heading: "Spør manuskriptet",
         body: "Still et spørsmål om din egen historie og få et svar bygget bare på det som faktisk er skrevet — med kapitlene det kom fra, så du kan sjekke det selv."
       },
-      {
+      publish: {
         heading: "Publiser",
         body: "Eksporter en ren lesekopi — Markdown, RTF, ODT, HTML, ePub eller PDF. Idémyldring forlater aldri boken; bare selve manuskriptet gjør det."
       }
-    ],
+    },
     faqHeading: "Feilsøking",
     faq: [
       {

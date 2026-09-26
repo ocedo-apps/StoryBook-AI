@@ -472,61 +472,82 @@ export const sv: Messages = {
         body: "Dra de idéer som är klara till Synopsis — formen på hela berättelsen. Öppna sen ett kapitel och tryck Skriv utkast: modellen skriver utifrån ditt Synopsis, din Story Bible och kapitlets egen instruktion. Inget den skriver blir låst sanning förrän du säger till — skriv om det, byt kamera, eller be om en analys när som helst."
       }
     ],
-    howHeading: "Så är appen uppbyggd",
-    sections: [
-      {
+    categories: {
+      "getting-started": "Getting Started",
+      "basic-writing": "Basic Writing",
+      "the-writer": "The Writer",
+      images: "Images",
+      "focused-workflow": "Focused Workflow",
+      "advanced-tools": "Advanced Writing Tools",
+      "world-bible": "Story Bible",
+      "polish-publish": "Polish & Publish"
+    },
+    sections: {
+      privacy: {
         heading: "Ett helt stängt digitalt kassaskåp",
         body: "StoryBook AI är byggd kring en enda regel: ditt manus är din egendom, och det ska aldrig lämna din dator. Det finns ingen väg ut mot internet i appen — inga API-nycklar till ChatGPT, Claude eller andra molntjänster (det är inte en saknad funktion, utan ett medvetet val), inga uppdateringskontroller mot GitHub, och typsnitten ligger paketerade i appen istället för att hämtas utifrån. Din text lagras enbart lokalt i webbläsaren, och AI-modellen körs enbart på din egen processor. Oavsett vad du skriver — dagbok, företagshemligheter eller nästa stora fantasy-epos — stannar varje bokstav hos dig."
       },
-      {
+      author: {
         heading: "Författaren vinner alltid över AI:n",
         body: "Modellen föreslår, du bestämmer. En detalj modellen hittar på i prosan förblir ett förslag — visas med en lätt streckad understrykning — tills du låser den i Story Bible. Inget blir kanon av sig självt."
       },
-      {
-        heading: "Brainstorm & Synopsis",
-        body: "Brainstorm är din privata anslagstavla — ett kladdpapper eller en tavla med post-it-lappar, en anteckning per idé, dragbar, ingen ordning krävs. Skriv utkast lutar sig aldrig mot en anteckning du inte lyft över till Synopsis. (Frågar du modellen om dina anteckningar, eller ber den förlänga eller utveckla en av dem, läser den förstås det du frågar om — men inget därifrån blir kanon eller läcker in i kapitel-skrivandet av sig självt.) Dra de idéer som håller till Synopsis: formen på hela boken, i några meningar. Det är detta AI-modellen lutar sig mot när den senare hjälper dig skriva kapitel."
-      },
-      {
+      chapters: {
         heading: "Kapitel: Skriv utkast, Omskriv, Analysera",
         body: "Skriv utkast skriver ny prosa utifrån det som redan är etablerat. Omskriv skriver om samma kapitel i ett annat perspektiv eller tempus, med samma händelser kvar. Analysera granskar ett kapitel för vanliga skrivproblem utan att skriva om en enda rad — till exempel \"berätta\" istället för att visa (istället för \"Lisa var jättearg\" föreslår den kanske \"Lisa smällde igen dörren så att kaffekopparna skallrade\"), meningslös dialog, eller ett drag som krockar med ett låst karaktärsdrag. Läsare (i Inställningar, och per kapitel) anger vem texten skrivs för — Pekbok till Vuxen — så meningslängd och ordval matchar den åldern. Under texten växlar Ovanliga ord och Klichéer mellan två valfria markeringar — ovanliga ord för den läsaren, och formuleringar som låter AI-skrivna (\"ett bevis på\", överanvända tankstreck) — en i taget, avstängt som standard."
       },
-      {
-        heading: "Scener",
-        body: "Ett långt kapitel kan delas upp i scener — välj var en slutar och nästa börjar, namnge den, lägg till en kort anteckning. När ett kapitel har scener kan Skriv utkast, Omskriv och Analysera var för sig riktas mot bara en av dem."
+      "editor-tools": {
+        heading: "Högerklicksmenyn",
+        body: "Markera ett stycke och högerklicka för Förläng (fortsätter där markeringen slutar), Brodera ut (utvecklar själva stycket), Skriv om… (din egen instruktion, t.ex. \"gör henne argare\"), Illustrationsprompt… (se Images) och Manuell redigering (skriv om bara det markerade stycket själv, för hand — resten av kapitlet ligger kvar). Högerklickar du istället utan att markera något får du ett enda val, Skriv en beat…: beskriv i en rad vad som händer härnäst, så skriver modellen bara den beaten — ett kort stycke, inte resten av scenen — och lägger in den precis vid markören."
       },
-      {
-        heading: "Story Bible",
-        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga — motsäger ett nytt förslag redan låst fakta (till exempel att någon plötsligt har bruna ögon fast du låst att de är blå) flaggas det extra tydligt i granskningskön. Öppna en karaktärs kort och tryck Intervjua för att chatta med dem, i deras egen röst, byggt bara på det som hittills är låst — ett sätt att höra rösten och upptäcka luckor, inte skapa ny kanon. Säger de något värt att spara, tryck Plocka ut fakta för att föreslå det till Story Bible — samma granskningskö som all annan extraktion, inget läggs till förrän du godkänner. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
+      "add-picture": {
+        heading: "En bild till kapitlet",
+        body: "Lägg till en egen bild — JPEG, PNG eller WebP — högst upp i ett kapitel. Den är dekorativ, inte AI-genererad: välj en fil från din dator så visas den ovanför kapitlets första rader, och följer med när du publicerar till HTML, ePub eller PDF."
       },
-      {
-        heading: "Kontinuitetsvarningar",
-        body: "När ett kapitel kan se ett fakta som bara etablerades senare i manuset flaggas det — inte nödvändigtvis fel, kanske är det en tillbakablick, bara värt en snabb koll. Korrekturläsningen går längre: den kontrollerar en persons eller ett föremåls registrerade plats genom hela berättelsen, i berättelsens egen tidsordning, och flaggar en förflyttning som ser omöjlig eller oförklarad ut med tanke på hur mycket tid som gått."
+      "illustration-prompts": {
+        heading: "Illustrationsprompter",
+        body: "Markera ett stycke och välj Illustrationsprompt… i högerklicksmenyn. Modellen skriver en bildgenereringsprompt — inte en bild — byggd på stycket, dina låsta Story Bible-fakta och manusets illustrationsstil, redo att klistras in i vilket bildverktyg du än använder; StoryBook AI förblir helt lokal och genererar aldrig själva bilden. Sätt en standardstil under Inställningar → Illustrationsstil, eller öppna stilbiblioteket för att spara namngivna, återanvändbara stilar — var och en med egna genretaggar och en exempelbild — så att varje prompt håller samma look genom hela boken."
       },
-      {
-        heading: "Timeline",
-        body: "Läsordning och berättelsens egen tidsordning är inte alltid samma sak. Ge ett kapitel en tidsanteckning, och se hur boken faller ut sorterad efter när saker faktiskt händer, bredvid var det ligger i manuset."
+      "brainstorm-synopsis": {
+        heading: "Brainstorm & Synopsis",
+        body: "Brainstorm är din privata anslagstavla — ett kladdpapper eller en tavla med post-it-lappar, en anteckning per idé, dragbar, ingen ordning krävs. Skriv utkast lutar sig aldrig mot en anteckning du inte lyft över till Synopsis. (Frågar du modellen om dina anteckningar, eller ber den förlänga eller utveckla en av dem, läser den förstås det du frågar om — men inget därifrån blir kanon eller läcker in i kapitel-skrivandet av sig självt.) Dra de idéer som håller till Synopsis: formen på hela boken, i några meningar. Det är detta AI-modellen lutar sig mot när den senare hjälper dig skriva kapitel."
       },
-      {
-        heading: "Trådar (Plotlines)",
-        body: "Håll koll på vilken tråd som går genom vilket kapitel i en tabell, så en tråd som varit tyst i tio kapitel är lätt att upptäcka."
-      },
-      {
+      method: {
         heading: "Utvecklingsmetod",
         body: "En valfri, färdig serie steg för att låta en gnista växa till en form — Snowflake, Three-Act Structure, Save the Cat eller Hero's Journey. Den behåller aldrig något eget: en vändpunktsbaserad metods vändpunkter blir trådar i Trådar, och Snowflakes steg skriver rakt in i Synopsis, precis som vilken annan anteckning du lyfter dit. Att byta metod, eller välja ingen alls, tar aldrig bort något som redan finns i endera."
       },
-      {
+      plotlines: {
+        heading: "Trådar (Plotlines)",
+        body: "Håll koll på vilken tråd som går genom vilket kapitel i en tabell, så en tråd som varit tyst i tio kapitel är lätt att upptäcka."
+      },
+      scenes: {
+        heading: "Scener",
+        body: "Ett långt kapitel kan delas upp i scener — välj var en slutar och nästa börjar, namnge den, lägg till en kort anteckning. När ett kapitel har scener kan Skriv utkast, Omskriv och Analysera var för sig riktas mot bara en av dem."
+      },
+      timeline: {
+        heading: "Timeline",
+        body: "Läsordning och berättelsens egen tidsordning är inte alltid samma sak. Ge ett kapitel en tidsanteckning, och se hur boken faller ut sorterad efter när saker faktiskt händer, bredvid var det ligger i manuset."
+      },
+      "story-bible": {
+        heading: "Story Bible",
+        body: "Den enda sanningskällan för din berättelses fakta — vem någon är, var en plats ligger, vad ett namn betyder. Ett fakta börjar som ett förslag, från dig eller från en extraktion, och blir bara låst sanning när du godkänner det. Låsta fakta är det modellen får veta att den inte får motsäga — motsäger ett nytt förslag redan låst fakta (till exempel att någon plötsligt har bruna ögon fast du låst att de är blå) flaggas det extra tydligt i granskningskön. Öppna ett kort och tryck Intervjua för att chatta om det — i en karaktärs egen röst, eller för en plats, ett föremål, en grupp eller ett koncept, med en världsbyggar-kollega som diskuterar det i tredje person — byggt bara på det som hittills är låst. Ett sätt att höra en röst eller utforska lore och upptäcka luckor, inte skapa ny kanon. Är något som sägs värt att spara, tryck Plocka ut fakta för att föreslå det till Story Bible — samma granskningskö som all annan extraktion, inget läggs till förrän du godkänner. Ctrl-klicka (Cmd-klicka på Mac) på ett namn du känner igen var som helst i din text för att hoppa direkt till kortet — ett vanligt klick placerar bara markören där, som vanligt."
+      },
+      continuity: {
+        heading: "Kontinuitetsvarningar",
+        body: "När ett kapitel kan se ett fakta som bara etablerades senare i manuset flaggas det — inte nödvändigtvis fel, kanske är det en tillbakablick, bara värt en snabb koll. Korrekturläsningen går längre: den kontrollerar en persons eller ett föremåls registrerade plats genom hela berättelsen, i berättelsens egen tidsordning, och flaggar en förflyttning som ser omöjlig eller oförklarad ut med tanke på hur mycket tid som gått."
+      },
+      proofread: {
         heading: "Korrekturläsning",
         body: "En sista genomgång av hela manuset: grammatik, upprepade scener, stil- och känsloglidning mellan kapitel, åldersanpassning, en kontinuitetskontroll, en koll efter planterade detaljer som aldrig löses in (en pistol som visas i kapitel 4 men som ingen någonsin avfyrar), och en faktakontroll mot hela boken. När Läsare är satt till en barn- eller ungdomsnivå flaggar den dessutom svordomar, våld eller explicit innehåll som inte passar den åldern. Bara anteckningar — inget skrivs om åt dig. Den pausar och återupptar, och kollar bara om det som faktiskt ändrats."
       },
-      {
+      "ask-manuscript": {
         heading: "Fråga manuset",
         body: "Ställ en fråga om din egen berättelse och få ett svar byggt bara på det som faktiskt är skrivet — med kapitlen det kom från, så att du kan kontrollera det själv."
       },
-      {
+      publish: {
         heading: "Publicera",
         body: "Exportera en ren läskopia — Markdown, RTF, ODT, HTML, ePub eller PDF. Brainstorm lämnar aldrig boken; bara själva manuset gör det."
       }
-    ],
+    },
     faqHeading: "Felsökning",
     faq: [
       {

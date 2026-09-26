@@ -3380,6 +3380,31 @@ button:disabled {
   letter-spacing: 0;
 }
 
+.guide-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1.25rem 0 1.5rem;
+}
+
+.guide-tab {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 650;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+}
+
+.guide-tab.is-active {
+  background: var(--raised);
+  border-color: var(--raised);
+  color: var(--text);
+}
+
 .bible-review-btn.is-flagged {
   color: var(--flag);
 }

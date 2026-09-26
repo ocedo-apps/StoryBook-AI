@@ -1,3 +1,83 @@
+import type { GuideCategoryId, GuideMainSectionId } from "../GuidePanel";
+
+const guideCategories: Record<GuideCategoryId, string> = {
+  "getting-started": "Getting Started",
+  "basic-writing": "Basic Writing",
+  "the-writer": "The Writer",
+  images: "Images",
+  "focused-workflow": "Focused Workflow",
+  "advanced-tools": "Advanced Writing Tools",
+  "world-bible": "Story Bible",
+  "polish-publish": "Polish & Publish"
+};
+
+const guideSections: Record<GuideMainSectionId, { heading: string; body: string }> = {
+  privacy: {
+    heading: "A fully closed digital safe",
+    body: "StoryBook AI is built around one rule: your manuscript is your property, and it should never leave your computer. There is no way out to the internet in this app — no API keys for ChatGPT, Claude, or other cloud services (that's not a missing feature, it's a deliberate choice), no update checks against GitHub, and the fonts ship bundled with the app instead of being fetched from anywhere. Your text lives only in your browser, and the AI model runs only on your own processor. Whatever you're writing — a diary, trade secrets, or your next big fantasy epic — every letter stays with you."
+  },
+  author: {
+    heading: "Author beats AI, always",
+    body: "The model proposes; you decide. A detail the model invents in prose stays a proposal — shown with a light dashed underline — until you lock it into the Story Bible. Nothing crosses into canon on its own."
+  },
+  chapters: {
+    heading: "Chapters: Draft, Recast, Analyze",
+    body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues without rewriting a word — telling instead of showing (instead of \"Lisa was furious,\" it might suggest \"Lisa slammed the door so hard the coffee cups rattled\"), filler dialogue, or a beat that clashes with a locked trait. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age. Below the text, Rare and Clichés toggle two optional highlights — uncommon words for that reader, and phrasing that reads as AI-generated (\"a testament to\", overused em dashes) — one at a time, off by default."
+  },
+  "editor-tools": {
+    heading: "The right-click menu",
+    body: "Select a passage and right-click for Extend (continues on from where the selection ends), Elaborate (expands the passage itself), Rewrite… (give your own instruction, like \"make her angrier\"), Illustration prompt… (see Images), and Manual editing (rewrite just the marked passage yourself, by hand — the rest of the chapter stays as it was). Right-click with nothing selected instead, and you get a single option, Write a beat…: describe what happens next in one line, and the model writes just that — a short paragraph, not the rest of the scene — dropped in exactly at your cursor."
+  },
+  "add-picture": {
+    heading: "A picture for the chapter",
+    body: "Add your own image — JPEG, PNG, or WebP — to the top of a chapter. It's decorative, not AI-generated: pick a file from your computer and it appears above the chapter's opening lines, carrying through when you publish to HTML, ePub, or PDF."
+  },
+  "illustration-prompts": {
+    heading: "Illustration prompts",
+    body: "Select a passage and choose Illustration prompt… from the right-click menu. The model writes an image-generation prompt — not a picture — built from the passage, your locked Story Bible facts, and your manuscript's illustration style, ready to paste into whatever image generator you use; StoryBook AI stays fully local and never generates the image itself. Set a default style under Settings → Illustration style, or open the style library to save named, reusable styles — each with its own genre tags and an example image — so every prompt keeps a consistent look across the book."
+  },
+  "brainstorm-synopsis": {
+    heading: "Brainstorm & Synopsis",
+    body: "Brainstorm is your private corkboard — scratch paper or a wall of sticky notes, one note per idea, draggable, no order required. Draft never leans on a note you haven't lifted into Synopsis. (Ask the model about your notes, or have it extend or elaborate one, and it naturally reads what you're asking about — but nothing from there becomes canon or leaks into chapter-writing on its own.) Lift the ideas that stick into Synopsis: the shape of the whole book, in a few sentences. It's what the AI model leans on when it later helps you write chapters."
+  },
+  method: {
+    heading: "Development method",
+    body: "An optional, ready-made set of steps for growing a spark into a shape — Snowflake, Three-Act Structure, Save the Cat, or Hero's Journey. It never keeps anything of its own: a beat-based method's beats become threads in Plotlines, and Snowflake's steps write straight into Synopsis, the same as any other note you lift there. Switching method, or choosing none, never deletes anything either of those already hold."
+  },
+  plotlines: {
+    heading: "Plotlines",
+    body: "Track which thread runs through which chapter in a table, so a thread that has gone quiet for ten chapters is easy to spot."
+  },
+  scenes: {
+    heading: "Scenes",
+    body: "A long chapter can be split into scenes — pick where one ends and the next begins, name it, add a short note. Once a chapter has scenes, Draft, Recast and Analyze can each target just one of them."
+  },
+  timeline: {
+    heading: "Timeline",
+    body: "Reading order and story-time order are not always the same thing. Give a chapter a story-time note, and see how the book falls when sorted by when things actually happen, next to where it sits in the manuscript."
+  },
+  "story-bible": {
+    heading: "Story Bible",
+    body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict — if a new proposal contradicts an already-locked fact (say, someone suddenly has brown eyes when you've locked blue), it gets flagged extra clearly in the review queue. Open a card and press Interview to chat about it — in a character's own voice, or, for a place, object, group, or concept, with a worldbuilding collaborator who discusses it in the third person — built only from what is locked so far. A way to hear a voice or explore lore and spot gaps, not to create new canon. If something said is worth keeping, press Extract facts to propose it for the Story Bible, same review queue as any other extraction — nothing is added until you approve it. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
+  },
+  continuity: {
+    heading: "Continuity warnings",
+    body: "When a chapter can see a fact that was only established later in the manuscript, it is flagged — not necessarily wrong, maybe it is a flashback, just worth a glance. Proofread goes further: it checks a person or object's recorded place across the whole story, in story-time order, and flags a jump that looks impossible or unexplained given how much time passed."
+  },
+  proofread: {
+    heading: "Proofread",
+    body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, a continuity check, a look for planted details that never pay off (a gun shown in chapter 4 that no one ever fires), and a fact check against the whole book. When Reader is set to a children's or YA level, it also flags swearing, violence, or explicit content that does not fit that age. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
+  },
+  "ask-manuscript": {
+    heading: "Ask Manuscript",
+    body: "Ask a question about your own story and get an answer built only from what is actually written — with the chapters it came from, so you can check it yourself."
+  },
+  publish: {
+    heading: "Publish",
+    body: "Export a clean reading copy — Markdown, RTF, ODT, HTML, ePub, or PDF. Brainstorm never leaves the book; only the manuscript itself does."
+  }
+};
+
 export const en = {
   common: {
     cancel: "Cancel",
@@ -471,61 +551,8 @@ export const en = {
         body: "Drag the ideas that are ready into Synopsis — the shape of the whole story. Then open a chapter and press Draft: the model writes from your Synopsis, your Story Bible, and that chapter's own brief. Nothing it writes is locked truth until you say so — rewrite it, recast the camera, or ask for an analysis pass any time."
       }
     ],
-    howHeading: "How the app is built",
-    sections: [
-      {
-        heading: "A fully closed digital safe",
-        body: "StoryBook AI is built around one rule: your manuscript is your property, and it should never leave your computer. There is no way out to the internet in this app — no API keys for ChatGPT, Claude, or other cloud services (that's not a missing feature, it's a deliberate choice), no update checks against GitHub, and the fonts ship bundled with the app instead of being fetched from anywhere. Your text lives only in your browser, and the AI model runs only on your own processor. Whatever you're writing — a diary, trade secrets, or your next big fantasy epic — every letter stays with you."
-      },
-      {
-        heading: "Author beats AI, always",
-        body: "The model proposes; you decide. A detail the model invents in prose stays a proposal — shown with a light dashed underline — until you lock it into the Story Bible. Nothing crosses into canon on its own."
-      },
-      {
-        heading: "Brainstorm & Synopsis",
-        body: "Brainstorm is your private corkboard — scratch paper or a wall of sticky notes, one note per idea, draggable, no order required. Draft never leans on a note you haven't lifted into Synopsis. (Ask the model about your notes, or have it extend or elaborate one, and it naturally reads what you're asking about — but nothing from there becomes canon or leaks into chapter-writing on its own.) Lift the ideas that stick into Synopsis: the shape of the whole book, in a few sentences. It's what the AI model leans on when it later helps you write chapters."
-      },
-      {
-        heading: "Chapters: Draft, Recast, Analyze",
-        body: "Draft writes new prose from what is established. Recast rewrites the same chapter in a different point of view or tense, keeping the same events. Analyze reviews a chapter for common craft issues without rewriting a word — telling instead of showing (instead of \"Lisa was furious,\" it might suggest \"Lisa slammed the door so hard the coffee cups rattled\"), filler dialogue, or a beat that clashes with a locked trait. Reader (in Settings, and per chapter) sets who it is written for — Board book through Adult — so sentence length and word choice match that age. Below the text, Rare and Clichés toggle two optional highlights — uncommon words for that reader, and phrasing that reads as AI-generated (\"a testament to\", overused em dashes) — one at a time, off by default."
-      },
-      {
-        heading: "Scenes",
-        body: "A long chapter can be split into scenes — pick where one ends and the next begins, name it, add a short note. Once a chapter has scenes, Draft, Recast and Analyze can each target just one of them."
-      },
-      {
-        heading: "Story Bible",
-        body: "The single source of truth for your story's facts — who someone is, where a place is, what a name means. A fact starts as a proposal, from you or from an extraction pass, and only becomes locked truth once you approve it. Locked facts are what the model is told it must not contradict — if a new proposal contradicts an already-locked fact (say, someone suddenly has brown eyes when you've locked blue), it gets flagged extra clearly in the review queue. Open a character's card and press Interview to chat with them, in their own voice, built only from what is locked so far — a way to hear their voice and spot gaps, not to create new canon. If something they say is worth keeping, press Extract facts to propose it for the Story Bible, same review queue as any other extraction — nothing is added until you approve it. Ctrl+click (Cmd+click on Mac) a known name anywhere in your prose to jump straight to its card — a plain click still just places your cursor there, as usual."
-      },
-      {
-        heading: "Continuity warnings",
-        body: "When a chapter can see a fact that was only established later in the manuscript, it is flagged — not necessarily wrong, maybe it is a flashback, just worth a glance. Proofread goes further: it checks a person or object's recorded place across the whole story, in story-time order, and flags a jump that looks impossible or unexplained given how much time passed."
-      },
-      {
-        heading: "Timeline",
-        body: "Reading order and story-time order are not always the same thing. Give a chapter a story-time note, and see how the book falls when sorted by when things actually happen, next to where it sits in the manuscript."
-      },
-      {
-        heading: "Plotlines",
-        body: "Track which thread runs through which chapter in a table, so a thread that has gone quiet for ten chapters is easy to spot."
-      },
-      {
-        heading: "Development method",
-        body: "An optional, ready-made set of steps for growing a spark into a shape — Snowflake, Three-Act Structure, Save the Cat, or Hero's Journey. It never keeps anything of its own: a beat-based method's beats become threads in Plotlines, and Snowflake's steps write straight into Synopsis, the same as any other note you lift there. Switching method, or choosing none, never deletes anything either of those already hold."
-      },
-      {
-        heading: "Proofread",
-        body: "A last pass over the whole manuscript: grammar, repeated scenes, style and mood drift between chapters, age-appropriateness, a continuity check, a look for planted details that never pay off (a gun shown in chapter 4 that no one ever fires), and a fact check against the whole book. When Reader is set to a children's or YA level, it also flags swearing, violence, or explicit content that does not fit that age. Notes only — nothing is rewritten for you. It pauses and resumes, and only re-checks what has changed."
-      },
-      {
-        heading: "Ask Manuscript",
-        body: "Ask a question about your own story and get an answer built only from what is actually written — with the chapters it came from, so you can check it yourself."
-      },
-      {
-        heading: "Publish",
-        body: "Export a clean reading copy — Markdown, RTF, ODT, HTML, ePub, or PDF. Brainstorm never leaves the book; only the manuscript itself does."
-      }
-    ],
+    categories: guideCategories,
+    sections: guideSections,
     faqHeading: "Troubleshooting",
     faq: [
       {
