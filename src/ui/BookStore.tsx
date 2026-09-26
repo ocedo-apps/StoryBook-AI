@@ -18,7 +18,7 @@ import {
   nextNotePosition,
   updateBrainstormNote
 } from "@core/brainstormNotes";
-import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
+import { applyAuthorAddition, applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { withRelationshipMirrorFor } from "@core/relationshipMirror";
 import { chapterScenes, mergeSceneWithNext, replaceSceneProse, sceneIdRemovedByMerge } from "@core/bookScene";
 import {
@@ -1584,6 +1584,54 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, reviewModel]);
 
+  /**
+   * A porting aid for an author's existing lorebook (roadmap: rich-lore
+   * import) — paste one article's text and run it through the same
+   * extractor a chapter or interview uses. Not tied to any chapter (no
+   * chapter_id/scene_id): the article isn't manuscript prose, so nothing
+   * here is "as of" a story-time position. Lands in the same review queue
+   * as any other extraction, never locked directly.
+   */
+  const importLoreArticle = useCallback(
+    async (title: string, text: string) => {
+      const current = bookRef.current;
+      const trimmedText = text.trim();
+      if (!current || busy || !trimmedText) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      setBusy("import-lore");
+      setError(null);
+      try {
+        const provider = makeProvider(reviewModel);
+        const extractMessages: PromptDebugMessage[] = [
+          { role: "system", content: EXTRACTOR_SYSTEM },
+          { role: "user", content: extractorUserPrompt(trimmedText, title.trim() || "Imported lore article") }
+        ];
+        recordPrompt("import-lore", reviewModel, extractMessages);
+        const raw = await provider.chat({
+          messages: extractMessages,
+          temperature: 0.1,
+          maxTokens: EXTRACTOR_MAX_TOKENS
+        });
+        const drafts = parseExtractorPayload(raw);
+        if (drafts.length === 0) {
+          setError(STORE_ERROR.importLoreNone);
+          return;
+        }
+        const latest = bookRef.current ?? current;
+        const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length);
+        await flushSave(touch(latest, { facts: nextFacts }));
+      } catch (err) {
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [busy, flushSave, models.length, ollamaError, recordPrompt, reviewModel]
+  );
+
   const setDevelopmentMethod = useCallback(
     async (id: string | null) => {
       setDevelopSuggestion(null);
@@ -1749,7 +1797,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   }, [book?.id, book?.proofread?.status, busy, models.length, startProofread]);
 
   const addFact = useCallback(
-    async (input: { label: string; predicate: CorePredicate; value: string }) => {
+    async (input: { label: string; predicate: CorePredicate; value: string; mode?: "replace" | "add" }) => {
       const current = bookRef.current;
       const id = chapterRef.current;
       if (!current) return;
@@ -1762,7 +1810,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       };
       if (!draft.entity_label || !draft.value) return;
       const sceneId = chapter ? chapterScenes(chapter)[0]?.id : undefined;
-      const applied = applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId);
+      const applied =
+        input.mode === "add"
+          ? applyAuthorAddition(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId)
+          : applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId);
       const facts = withRelationshipMirrorFor(applied, draft, current.entity_kinds);
       await flushSave(touch(current, { facts }));
     },
@@ -1882,6 +1933,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startInterview,
     askCharacter,
     extractInterview,
+    importLoreArticle,
     closeInterview,
     setInterviewPersonalityDraft,
     saveInterviewPersonality,

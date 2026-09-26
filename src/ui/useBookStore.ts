@@ -24,6 +24,7 @@ export type Busy =
   | "illustrate"
   | "interview"
   | "extract-interview"
+  | "import-lore"
   | "develop"
   | null;
 
@@ -112,10 +113,11 @@ export type BookStoreValue = {
   startInterview: (entityRef: string, entityLabel: string) => void;
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
+  importLoreArticle: (title: string, text: string) => Promise<void>;
   closeInterview: () => void;
   setInterviewPersonalityDraft: (text: string) => void;
   saveInterviewPersonality: () => void;
-  addFact: (draft: { label: string; predicate: CorePredicate; value: string }) => Promise<void>;
+  addFact: (draft: { label: string; predicate: CorePredicate; value: string; mode?: "replace" | "add" }) => Promise<void>;
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;
   reject: (factId: string) => Promise<void>;

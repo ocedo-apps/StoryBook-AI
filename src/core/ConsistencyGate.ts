@@ -165,6 +165,43 @@ export function applyAuthorDraft(
   return facts.concat(factFromDraft(draft, args));
 }
 
+/**
+ * Manual "add a fact" when the author explicitly chose to keep it alongside
+ * whatever this predicate already holds, rather than the default
+ * `applyAuthorDraft` behavior of superseding the one locked row it finds.
+ * Skips `evaluateCandidate`'s author path entirely: an exact duplicate of
+ * an already-locked or already-flagged claim still no-ops (nothing gained
+ * by a second identical row), but any other value locks straight in as an
+ * independent row — the "several concurrent `core.trait` rows" case
+ * `bibleHistory.ts` already renders, now reachable from manual entry too,
+ * not just from approving separate proposals.
+ */
+export function applyAuthorAddition(
+  facts: NarrativeFact[],
+  draft: FactDraft,
+  sequence_index: number,
+  chapter_id?: string,
+  scene_id?: string
+): NarrativeFact[] {
+  const duplicate = activeFacts(facts).find(
+    (fact) =>
+      fact.entity_ref === draft.entity_ref &&
+      fact.predicate === draft.predicate &&
+      (fact.status === "locked" || fact.status === "flagged") &&
+      normalizeValue(fact.value) === normalizeValue(draft.value)
+  );
+  if (duplicate) return facts;
+
+  const args: { status: "locked"; source: "author"; sequence_index: number; chapter_id?: string; scene_id?: string } = {
+    status: "locked",
+    source: "author",
+    sequence_index
+  };
+  if (chapter_id) args.chapter_id = chapter_id;
+  if (scene_id) args.scene_id = scene_id;
+  return facts.concat(factFromDraft(draft, args));
+}
+
 export function applyExtractorDrafts(
   facts: NarrativeFact[],
   drafts: FactDraft[],

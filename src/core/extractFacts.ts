@@ -124,9 +124,9 @@ Return JSON only, shaped as: {"facts":[{"entity_label":"...","entity_ref":"slug"
 
 Rules:
 - Only claims the text states as true. No metaphor, mood, subtext, or guesses.
-- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event
-- entity_label is the person's, place's, object's, or group's displayed name. entity_ref is a lowercase slug.
-- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened.
+- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
+- entity_label is the person's, place's, object's, group's, or concept's displayed name. entity_ref is a lowercase slug.
+- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
 - Skip style, clothing-of-the-moment, and implied feelings.
 - If nothing is extractable, return {"facts":[]}.`;
 

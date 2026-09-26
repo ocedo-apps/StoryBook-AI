@@ -2,7 +2,7 @@ import { z } from "zod";
 import { lockedFacts, type NarrativeFact } from "./NarrativeFact";
 import { CORE_PREDICATES, type CorePredicate } from "./predicates";
 
-export const BIBLE_KINDS = ["characters", "locations", "objects", "groups", "events"] as const;
+export const BIBLE_KINDS = ["characters", "locations", "objects", "groups", "events", "concepts"] as const;
 export type BibleKind = (typeof BIBLE_KINDS)[number];
 
 export const BIBLE_KIND_LABELS: Record<BibleKind, string> = {
@@ -10,7 +10,8 @@ export const BIBLE_KIND_LABELS: Record<BibleKind, string> = {
   locations: "Locations",
   objects: "Objects",
   groups: "Groups",
-  events: "Events"
+  events: "Events",
+  concepts: "Concepts"
 };
 
 export const BIBLE_KIND_SINGULAR: Record<BibleKind, string> = {
@@ -18,7 +19,8 @@ export const BIBLE_KIND_SINGULAR: Record<BibleKind, string> = {
   locations: "Location",
   objects: "Object",
   groups: "Group",
-  events: "Event"
+  events: "Event",
+  concepts: "Concept"
 };
 
 export const BIBLE_KIND_NEW_LABEL: Record<BibleKind, string> = {
@@ -26,7 +28,8 @@ export const BIBLE_KIND_NEW_LABEL: Record<BibleKind, string> = {
   locations: "New location",
   objects: "New object",
   groups: "New group",
-  events: "New event"
+  events: "New event",
+  concepts: "New concept"
 };
 
 export const BIBLE_KIND_DEFAULT_PREDICATE: Record<BibleKind, CorePredicate> = {
@@ -34,7 +37,8 @@ export const BIBLE_KIND_DEFAULT_PREDICATE: Record<BibleKind, CorePredicate> = {
   locations: "core.place",
   objects: "core.object",
   groups: "core.group",
-  events: "core.event"
+  events: "core.event",
+  concepts: "core.concept"
 };
 
 export const EntityKindSchema = z.object({
@@ -60,6 +64,9 @@ export type BibleKindSection = {
  * Groups if it has a collective claim and is not a character.
  * Locations if it has a place claim and is not a character or group.
  * Objects if it has an object claim and is not one of the above.
+ * Concepts if it has a concept claim and is not one of the above — an
+ * abstract idea, system, rule, or piece of lore that is not a person,
+ * place, object, or group (a magic system, a historical era, a custom).
  * Events otherwise (event-only rows).
  * An explicit kind override wins — ships and orders are often locked as Identity first.
  */
@@ -76,6 +83,7 @@ export function classifyEntity(facts: NarrativeFact[], override?: BibleKind | un
   if (predicates.has("core.group")) return "groups";
   if (predicates.has("core.place")) return "locations";
   if (predicates.has("core.object")) return "objects";
+  if (predicates.has("core.concept")) return "concepts";
   return "events";
 }
 
@@ -99,7 +107,8 @@ function emptyBuckets(): Record<BibleKind, BibleEntityGroup[]> {
     locations: [],
     objects: [],
     groups: [],
-    events: []
+    events: [],
+    concepts: []
   };
 }
 

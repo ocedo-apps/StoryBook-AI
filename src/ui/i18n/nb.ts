@@ -271,7 +271,8 @@ export const nb: Messages = {
       "ask-manuscript": "Spør manuset",
       interview: "Karakterintervju",
       develop: "Utviklingsmetode",
-      "extract-interview": "Hent ut fakta (intervju)"
+      "extract-interview": "Hent ut fakta (intervju)",
+      "import-lore": "Importer lore"
     }
   },
   askManuscript: {
@@ -697,6 +698,15 @@ export const nb: Messages = {
     lockedCount: "{count} låste",
     exportCards: "Eksporter kort",
     exportCardsTitle: "Last ned karakterer, steder og gjenstander til Sandbox",
+    importLoreNav: "Importer lore",
+    importLoreTitle: "Importer en lore-artikkel",
+    importLoreLede: "Lim inn tekst fra din egen lorebok. En AI leser gjennom den og foreslår fakta til riktig kort — akkurat som når fakta hentes ut fra et kapittel. Ingenting låses direkte; alt havner i granskingskøen. Selve teksten lagres ikke i boken, bare faktaene den gir opphav til.",
+    importLoreArticleTitle: "Artikkelens navn (valgfritt, vises i granskingen)",
+    importLoreArticleTitlePlaceholder: "F.eks. \"Fyrtårnet\" eller \"Ordenens regler\"",
+    importLoreText: "Tekst å hente fakta fra",
+    importLoreTextPlaceholder: "Lim inn artikkelen her…",
+    importLoreAction: "Hent ut fakta",
+    importLoreExtracting: "Henter ut…",
     nothingMatches: "Ingenting matcher.",
     hidden: "Skjult",
     name: "Navn",
@@ -715,6 +725,10 @@ export const nb: Messages = {
     addFact: "Legg til fakta",
     claimPlaceholder: "Påstanden, på én linje",
     lockInto: "Lås til Story Bible",
+    addChoiceTitle: "Erstatt eller legg til?",
+    addChoiceBody: "Feltet {predicate} har allerede “{existing}”. Skal den nye teksten erstatte den, eller ligge ved siden av som enda en {predicate}-rad?",
+    addChoiceKeepBoth: "Legg til som enda en",
+    addChoiceReplace: "Erstatt den eksisterende",
     history: "Historikk",
     historyCurrent: "nå",
     asOfLabel: "Vis Story Bible slik den var ved",
@@ -763,28 +777,32 @@ export const nb: Messages = {
       locations: "Steder",
       objects: "Gjenstander",
       groups: "Grupper",
-      events: "Hendelser"
+      events: "Hendelser",
+      concepts: "Konsepter"
     },
     singular: {
       characters: "Karakter",
       locations: "Sted",
       objects: "Gjenstand",
       groups: "Gruppe",
-      events: "Hendelse"
+      events: "Hendelse",
+      concepts: "Konsept"
     },
     newLabel: {
       characters: "Ny karakter",
       locations: "Nytt sted",
       objects: "Ny gjenstand",
       groups: "Ny gruppe",
-      events: "Ny hendelse"
+      events: "Ny hendelse",
+      concepts: "Nytt konsept"
     },
     empty: {
       characters: "Ingen karakterer ennå.",
       locations: "Ingen steder ennå.",
       objects: "Ingen gjenstander ennå.",
       groups: "Ingen grupper ennå.",
-      events: "Ingen hendelser ennå."
+      events: "Ingen hendelser ennå.",
+      concepts: "Ingen konsepter ennå."
     },
     predicates: {
       "core.identity": "Identitet",
@@ -793,7 +811,8 @@ export const nb: Messages = {
       "core.object": "Gjenstand",
       "core.group": "Gruppe",
       "core.relationship": "Relasjon",
-      "core.event": "Hendelse"
+      "core.event": "Hendelse",
+      "core.concept": "Konsept"
     },
     pronouns: {
       she: "Hun",
@@ -1051,6 +1070,7 @@ export const nb: Messages = {
     analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
     interviewExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne samtalen.",
+    importLoreNone: "Ekstraktoren fant ingen uttalte fakta i den innlimte teksten.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",

@@ -1,9 +1,46 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.31
+Status: living document, v0.99.32
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.31 → v0.99.32:** De tre stegen för att göra
+Story Bible redo för en stor, importerad lorebok — svar på
+testarens fråga om hur man organiserar rik lore som inte passar
+prydligt i person/plats/föremål.
+
+- **Ersätt eller lägg till.** Manuell "Lägg till fakta" skrev tidigare
+  alltid över den befintliga faktan av samma typ — omöjligt att t.ex.
+  ha flera Identitet-rader om en plats samtidigt. Nu frågar rutan när
+  ett fält redan har något: "Ersätt den befintliga" (som förut) eller
+  "Lägg till som ytterligare en" (ny, oberoende rad, aldrig
+  automatiskt sammanslagen med den andra). Ny `applyAuthorAddition()`
+  i `ConsistencyGate.ts` — samma låsning som `applyAuthorDraft` men
+  utan att leta upp och skriva över en befintlig rad. En exakt
+  dubblett no-opar fortfarande.
+- **Nytt fält: Koncept.** En sjätte flik i Story Bible (`core.concept`
+  som nytt predikat) för sånt som varken är person, plats, föremål,
+  grupp eller händelse — ett magisystem, en historisk era, en sedvänja,
+  en lag. Klassificeras automatiskt precis som de andra fem.
+- **Importera lore.** Ny knapp i Story Bible-panelen: klistra in text
+  ur en befintlig lorebok, kör den genom samma extraktor som redan
+  används för kapitel och intervjuer, och låt resultatet hamna i
+  granskningskön som vanligt — inget låses direkt. Texten sparas
+  aldrig i boken, bara de fakta som blir av den. Ny `importLoreArticle`
+  i `BookStore.tsx`, inte knuten till något kapitel.
+- 648/648 gröna (5 nya tester — kärnlogiken är det som är testat;
+  själva gränssnittet, bekräftat manuellt nedan, har inga automatiska
+  tester i det här projektet). Verifierat i webbläsaren end-to-end:
+  skapade ett koncept ("Den ihåliga eden") och såg det landa rätt
+  under den nya fliken; lade till en andra Identitet-fakta på en
+  karaktär, valde "Lägg till som ytterligare en", båda fanns kvar;
+  lade till en tredje och valde "Ersätt den befintliga" — bara den
+  ursprungliga byttes ut, den oberoende raden orörd, historiken
+  bevarad. Importera lore-formuläret öppnar och validerar rätt; själva
+  extraktions-anropet gick inte att testa live i den här sessionen
+  (ingen lokal Ollama/LM Studio att prata med), samma begränsning som
+  för Fråga manuset tidigare.
 
 **Ändringslogg v0.99.30 → v0.99.31:** Tre buggar rättade från en
 testares feedback: Fråga manuset, Extrahera fakta, och scener i ett

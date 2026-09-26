@@ -269,7 +269,8 @@ export const en = {
       "ask-manuscript": "Ask Manuscript",
       interview: "Character interview",
       develop: "Development method",
-      "extract-interview": "Extract facts (interview)"
+      "extract-interview": "Extract facts (interview)",
+      "import-lore": "Import lore"
     }
   },
   askManuscript: {
@@ -696,6 +697,15 @@ export const en = {
     lockedCount: "{count} locked",
     exportCards: "Export cards",
     exportCardsTitle: "Download characters, places, and objects for Sandbox",
+    importLoreNav: "Import lore",
+    importLoreTitle: "Import a lore article",
+    importLoreLede: "Paste text from your own lorebook. An AI reads through it and proposes facts for the right cards — the same as extracting facts from a chapter. Nothing locks in directly; everything lands in the review queue. The text itself is never saved to the book, only whatever facts come out of it.",
+    importLoreArticleTitle: "Article title (optional, shown in review)",
+    importLoreArticleTitlePlaceholder: "e.g. \"The Lighthouse\" or \"Order's Rules\"",
+    importLoreText: "Text to extract facts from",
+    importLoreTextPlaceholder: "Paste the article here…",
+    importLoreAction: "Extract facts",
+    importLoreExtracting: "Extracting…",
     nothingMatches: "Nothing matches.",
     hidden: "Hidden",
     name: "Name",
@@ -714,6 +724,10 @@ export const en = {
     addFact: "Add fact",
     claimPlaceholder: "The claim, in one line",
     lockInto: "Lock into Story Bible",
+    addChoiceTitle: "Replace or add?",
+    addChoiceBody: "{predicate} already has “{existing}”. Should the new text replace it, or sit alongside it as another {predicate} row?",
+    addChoiceKeepBoth: "Add as another",
+    addChoiceReplace: "Replace the existing one",
     history: "History",
     historyCurrent: "current",
     asOfLabel: "View Story Bible as of",
@@ -762,28 +776,32 @@ export const en = {
       locations: "Locations",
       objects: "Objects",
       groups: "Groups",
-      events: "Events"
+      events: "Events",
+      concepts: "Concepts"
     },
     singular: {
       characters: "Character",
       locations: "Location",
       objects: "Object",
       groups: "Group",
-      events: "Event"
+      events: "Event",
+      concepts: "Concept"
     },
     newLabel: {
       characters: "New character",
       locations: "New location",
       objects: "New object",
       groups: "New group",
-      events: "New event"
+      events: "New event",
+      concepts: "New concept"
     },
     empty: {
       characters: "No characters yet.",
       locations: "No locations yet.",
       objects: "No objects yet.",
       groups: "No groups yet.",
-      events: "No events yet."
+      events: "No events yet.",
+      concepts: "No concepts yet."
     },
     predicates: {
       "core.identity": "Identity",
@@ -792,7 +810,8 @@ export const en = {
       "core.object": "Object",
       "core.group": "Group",
       "core.relationship": "Relationship",
-      "core.event": "Event"
+      "core.event": "Event",
+      "core.concept": "Concept"
     },
     pronouns: {
       she: "She",
@@ -1050,6 +1069,7 @@ export const en = {
     analyzeEmpty: "Write or draft some prose before analyzing the chapter.",
     extractorNone: "Extractor found no stated facts in this chapter.",
     interviewExtractorNone: "Extractor found no stated facts in this conversation.",
+    importLoreNone: "Extractor found no stated facts in the pasted text.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",

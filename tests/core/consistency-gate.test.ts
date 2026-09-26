@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyAuthorAddition,
   applyAuthorDraft,
   applyExtractorDrafts,
   approveFact,
@@ -66,6 +67,35 @@ describe("applyAuthorDraft", () => {
     expect(live).toHaveLength(1);
     expect(live[0]?.value).toBe("Keeps the night keys");
     expect(changed.some((fact) => fact.superseded_by === live[0]?.id)).toBe(true);
+  });
+});
+
+describe("applyAuthorAddition", () => {
+  it("locks a second, independent fact under a predicate that already has one", () => {
+    const withTrait = applyAuthorDraft([], { ...emmaIdentity, predicate: "core.trait", value: "Slow to trust" }, 0);
+    const withBoth = applyAuthorAddition(withTrait, { ...emmaIdentity, predicate: "core.trait", value: "Keeps odd hours" }, 1);
+    const live = withBoth.filter((fact) => !fact.superseded_by);
+    expect(live).toHaveLength(2);
+    expect(live.map((fact) => fact.value).sort()).toEqual(["Keeps odd hours", "Slow to trust"]);
+    expect(live.every((fact) => fact.status === "locked")).toBe(true);
+  });
+
+  it("never supersedes the existing row, unlike applyAuthorDraft", () => {
+    const withTrait = applyAuthorDraft([], { ...emmaIdentity, predicate: "core.trait", value: "Slow to trust" }, 0);
+    const withBoth = applyAuthorAddition(withTrait, { ...emmaIdentity, predicate: "core.trait", value: "Keeps odd hours" }, 1);
+    expect(withBoth.find((fact) => fact.value === "Slow to trust")?.superseded_by).toBeUndefined();
+  });
+
+  it("no-ops on an exact duplicate of what is already locked", () => {
+    const withTrait = applyAuthorDraft([], { ...emmaIdentity, predicate: "core.trait", value: "Slow to trust" }, 0);
+    const again = applyAuthorAddition(withTrait, { ...emmaIdentity, predicate: "core.trait", value: "slow to trust" }, 1);
+    expect(again).toHaveLength(1);
+  });
+
+  it("locks straight in as a new row even with nothing else under that predicate yet", () => {
+    const added = applyAuthorAddition([], emmaIdentity, 0);
+    expect(added).toHaveLength(1);
+    expect(added[0]?.status).toBe("locked");
   });
 });
 

@@ -5,7 +5,8 @@ export const CORE_PREDICATES = [
   "core.object",
   "core.group",
   "core.relationship",
-  "core.event"
+  "core.event",
+  "core.concept"
 ] as const;
 
 export type CorePredicate = (typeof CORE_PREDICATES)[number];
@@ -17,7 +18,8 @@ export const PREDICATE_LABELS: Record<CorePredicate, string> = {
   "core.object": "Object",
   "core.group": "Group",
   "core.relationship": "Relationship",
-  "core.event": "Event"
+  "core.event": "Event",
+  "core.concept": "Concept"
 };
 
 export function isCorePredicate(value: string): value is CorePredicate {

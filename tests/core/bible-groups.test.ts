@@ -55,6 +55,20 @@ describe("classifyEntity", () => {
     ).toBe("groups");
   });
 
+  it("treats a named abstract idea as a concept", () => {
+    expect(
+      classifyEntity([
+        fact({
+          id: "1",
+          entity_ref: "hollow-oath",
+          entity_label: "The Hollow Oath",
+          predicate: "core.concept",
+          value: "A binding vow that costs the speaker a memory"
+        })
+      ])
+    ).toBe("concepts");
+  });
+
   it("lets an override move a ship out of Characters", () => {
     const odyssey = [
       fact({ id: "1", entity_ref: "the-odyssey", entity_label: "The Odyssey", predicate: "core.identity", value: "A watch-ship" })

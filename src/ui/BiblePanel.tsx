@@ -14,7 +14,7 @@ import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
 import { chainsWithHistory, factHistoryForEntity, factsAsOfSequence, type FactHistoryChain } from "@core/bibleHistory";
 import { mentionsForEntity, type MentionHit } from "@core/bibleMentions";
 import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
-import { slugify } from "@core/ids";
+import { normalizeValue, slugify } from "@core/ids";
 import {
   CHARACTER_PRONOUNS,
   formatTagList,
@@ -41,12 +41,14 @@ import { picturesFromFile, EntityImageError } from "./entityImage";
 import { downloadJson } from "./downloadJson";
 import { useBookStore } from "./useBookStore";
 import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
+import { LoreImportCard } from "./LoreImportCard";
 
 type Overlay =
   | { type: "review" }
   | { type: "entity"; ref: string }
   | { type: "asOfEntity"; ref: string }
-  | { type: "new"; kind: BibleKind };
+  | { type: "new"; kind: BibleKind }
+  | { type: "importLore" };
 
 function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitled: string): string {
   const chapter = chapterId ? chapters.find((item) => item.id === chapterId) : undefined;
@@ -64,7 +66,7 @@ export function BiblePanel({
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
 }) {
-  const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
+  const { book, busy, approve, reject, addFact, reviseFact, patchBook, setChapterId, importLoreArticle } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
@@ -172,6 +174,11 @@ export function BiblePanel({
               title={m.bible.exportCardsTitle}
             >
               {m.bible.exportCards}
+            </button>
+          )}
+          {asOfChapter ? null : (
+            <button type="button" className="text-button" onClick={() => setOverlay({ type: "importLore" })}>
+              {m.bible.importLoreNav}
             </button>
           )}
         </div>
@@ -290,7 +297,9 @@ export function BiblePanel({
             setChapterId(chapterId);
             setOverlay(null);
           }}
-          onAdd={(predicate, value) => void addFact({ label: openEntity.entity_label, predicate, value })}
+          onAdd={(predicate, value, mode) =>
+            void addFact({ label: openEntity.entity_label, predicate, value, ...(mode ? { mode } : {}) })
+          }
           onSave={(id, value) => void reviseFact(id, value)}
           onToggleHidden={() =>
             void patchBook((current) =>
@@ -364,6 +373,13 @@ export function BiblePanel({
             await addFact({ label, predicate, value });
             setOverlay({ type: "entity", ref: slugify(label) });
           }}
+          onClose={() => setOverlay(null)}
+        />
+      ) : null}
+      {overlay?.type === "importLore" ? (
+        <LoreImportCard
+          busy={busy === "import-lore"}
+          onImport={(title, text) => void importLoreArticle(title, text)}
           onClose={() => setOverlay(null)}
         />
       ) : null}
@@ -600,7 +616,7 @@ function EntityOverlay({
   mentions: MentionHit[];
   chapters: Chapter[];
   onJumpToChapter: (chapterId: string) => void;
-  onAdd: (predicate: CorePredicate, value: string) => void;
+  onAdd: (predicate: CorePredicate, value: string, mode?: "replace" | "add") => void;
   onSave: (factId: string, value: string) => void;
   onToggleHidden: () => void;
   onToggleFactHidden: (factId: string, hidden: boolean) => void;
@@ -619,6 +635,7 @@ function EntityOverlay({
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
   const [nameOffer, setNameOffer] = useState<{ from: string; to: string; hits: number } | null>(null);
+  const [addChoice, setAddChoice] = useState<{ predicate: CorePredicate; value: string; existingValue: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const { messages: m } = useLocale();
 
@@ -793,6 +810,13 @@ function EntityOverlay({
           event.preventDefault();
           const next = value.trim();
           if (!next) return;
+          const existing = entity.facts.find(
+            (fact) => fact.predicate === predicate && normalizeValue(fact.value) !== normalizeValue(next)
+          );
+          if (existing) {
+            setAddChoice({ predicate, value: next, existingValue: existing.value });
+            return;
+          }
           onAdd(predicate, next);
           setValue("");
         }}
@@ -841,6 +865,52 @@ function EntityOverlay({
               }}
             >
               {m.bible.replace}
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : null}
+    {addChoice ? (
+      <div
+        className="edit-overlay"
+        role="presentation"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setAddChoice(null);
+        }}
+      >
+        <div className="edit-card" role="dialog" aria-modal="true" aria-labelledby="add-choice-title">
+          <h2 id="add-choice-title">{m.bible.addChoiceTitle}</h2>
+          <p className="quiet">
+            {format(m.bible.addChoiceBody, {
+              predicate: m.bible.predicates[addChoice.predicate],
+              existing: addChoice.existingValue
+            })}
+          </p>
+          <div className="edit-actions">
+            <button type="button" className="text-button" onClick={() => setAddChoice(null)}>
+              {m.common.cancel}
+            </button>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                onAdd(addChoice.predicate, addChoice.value, "add");
+                setAddChoice(null);
+                setValue("");
+              }}
+            >
+              {m.bible.addChoiceKeepBoth}
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => {
+                onAdd(addChoice.predicate, addChoice.value, "replace");
+                setAddChoice(null);
+                setValue("");
+              }}
+            >
+              {m.bible.addChoiceReplace}
             </button>
           </div>
         </div>
