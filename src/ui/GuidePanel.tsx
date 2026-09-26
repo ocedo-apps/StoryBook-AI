@@ -118,18 +118,6 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
       {category === "getting-started" ? (
         <section className="guide-block guide-quickstart-block">
           <QuickstartCards />
-
-          <h2 className="settings-heading guide-steps-heading">{m.guide.quickstartStepsHeading}</h2>
-          <div className="guide-quickstart-grid">
-            <ol className="guide-steps guide-quickstart-steps">
-              {m.guide.quickstartSteps.map((step, index) => (
-                <li key={index}>
-                  <h3>{step.heading}</h3>
-                  <p>{step.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
         </section>
       ) : null}
 

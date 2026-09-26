@@ -1,9 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.38
+Status: living document, v0.99.39
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.38 → v0.99.39:** Två snabba finslip på gårdagens
+flikindelade Guide.
+
+- Flikknapparna (Getting Started, Basic Writing, osv.) använder nu
+  appens orange märkesfärg (`--ink`) istället för den tidigare
+  diskreta grå tonen — outline på vilande flikar, helt fylld på den
+  aktiva — så de syns tydligt som klickbara mot den mörka bakgrunden.
+- Tog bort "Så jobbar du med StoryBook AI"-stegen (1. Starta ditt
+  manus / 2. Skriv) under snabbstartskorten på Getting Started —
+  dubbelt upp nu när Basic Writing-fliken redan täcker det. De tre
+  snabbstartskorten (installera server, välj modell, koppla den)
+  ligger kvar oförändrade.
+- 662/662 gröna, typkontroll ren. Verifierat i webbläsaren: flikarna
+  är orange i både vilande och aktivt läge, stegtexten är borta,
+  snabbstartskorten finns kvar.
 
 **Ändringslogg v0.99.37 → v0.99.38:** Guiden omgjord från en lång
 scroll till flikar — författarens observation: appen har vuxit sig för

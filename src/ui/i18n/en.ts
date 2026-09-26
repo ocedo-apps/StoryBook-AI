@@ -540,17 +540,6 @@ export const en = {
         body: "Using Ollama? Nothing to configure — StoryBook AI finds it automatically. Using LM Studio or another server instead? Open Settings → Models, choose it under Engine, and paste the server address it shows you."
       }
     ],
-    quickstartStepsHeading: "How you work with StoryBook AI",
-    quickstartSteps: [
-      {
-        heading: "1. Start your manuscript",
-        body: "Type a title into the \"Start a new manuscript\" field on the home page and press Create — that's all it takes. You land straight in Brainstorm: a private scratch space with nothing to configure, where you jot down ideas at your own pace."
-      },
-      {
-        heading: "2. Write",
-        body: "Drag the ideas that are ready into Synopsis — the shape of the whole story. Then open a chapter and press Draft: the model writes from your Synopsis, your Story Bible, and that chapter's own brief. Nothing it writes is locked truth until you say so — rewrite it, recast the camera, or ask for an analysis pass any time."
-      }
-    ],
     categories: guideCategories,
     sections: guideSections,
     faqHeading: "Troubleshooting",

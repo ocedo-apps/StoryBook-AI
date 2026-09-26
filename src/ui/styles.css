@@ -3389,8 +3389,8 @@ button:disabled {
 
 .guide-tab {
   background: none;
-  border: 1px solid var(--border);
-  color: var(--text-faint);
+  border: 1px solid var(--ink);
+  color: var(--ink);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3400,9 +3400,9 @@ button:disabled {
 }
 
 .guide-tab.is-active {
-  background: var(--raised);
-  border-color: var(--raised);
-  color: var(--text);
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
 }
 
 .bible-review-btn.is-flagged {
@@ -4685,17 +4685,6 @@ button.illustration-genre-item:focus-visible {
   margin-top: 1.8rem;
 }
 
-.guide-steps {
-  display: grid;
-  gap: 1rem;
-  margin: 0;
-  padding: 0 0 0 1.3rem;
-}
-
-.guide-steps li {
-  padding-left: 0.2rem;
-}
-
 .guide-quickstart-block {
   max-width: none;
 }
@@ -4731,14 +4720,6 @@ button.illustration-genre-item:focus-visible {
 .guide-card-icon svg {
   width: 1.2rem;
   height: 1.2rem;
-}
-
-.guide-steps-heading {
-  margin-top: 1.6rem;
-}
-
-.guide-quickstart-steps {
-  grid-column: span 2;
 }
 
 .guide-sections {

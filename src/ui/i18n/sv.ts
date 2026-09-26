@@ -461,17 +461,6 @@ export const sv: Messages = {
         body: "Kör du Ollama? Inget att ställa in — StoryBook AI hittar den automatiskt. Kör du LM Studio eller en annan server istället? Öppna Inställningar → Modeller, välj den under Motor, och klistra in serveradressen den visar dig."
       }
     ],
-    quickstartStepsHeading: "Så jobbar du med StoryBook AI",
-    quickstartSteps: [
-      {
-        heading: "1. Starta ditt manus",
-        body: "Skriv en titel i fältet \"Starta nytt manus\" på förstasidan och tryck Skapa — det är allt som krävs. Du hamnar direkt i Brainstorm: ett privat skissutrymme utan något att ställa in, där du skriver ner idéer i din egen takt."
-      },
-      {
-        heading: "2. Skriv",
-        body: "Dra de idéer som är klara till Synopsis — formen på hela berättelsen. Öppna sen ett kapitel och tryck Skriv utkast: modellen skriver utifrån ditt Synopsis, din Story Bible och kapitlets egen instruktion. Inget den skriver blir låst sanning förrän du säger till — skriv om det, byt kamera, eller be om en analys när som helst."
-      }
-    ],
     categories: {
       "getting-started": "Getting Started",
       "basic-writing": "Basic Writing",
