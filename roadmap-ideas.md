@@ -40,7 +40,7 @@ inte en ensidig lista.
 | 22 | "?"-genvägar från rubriker till guiden | ✅ byggd (v0.93) |
 | 23 | Läsarålder som fasta nivåer + innehållsflaggning i Korrekturläsning | ✅ byggd (v0.91) |
 | 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ✅ byggd (v0.99.26) |
-| 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ⬜ ej påbörjad — avvaktar, se nedan |
+| 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ✅ byggd (v0.99.43) |
 | 26 | Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten | ⬜ ej påbörjad — avvaktar, se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
@@ -725,6 +725,31 @@ behöva ett eget påhittat tecken.
 det kvar på listan. Fullt görbart när det blir aktuellt, men en
 egen liten funktion (markup-konvention + tolkning på tre ställen) —
 inte tre knappar.
+
+**Uppdatering — byggd (v0.99.43), på ett säkrare sätt än ovan skisserat.**
+I stället för markup-tecken i själva textsträngen (t.ex. `**fett**`)
+landade lösningen på en helt separat lista, `chapter.formatting:
+{start, end, style}[]`, som pekar in i den oförändrade `chapter.prose`-
+strängen via samma teckenintervall (`TextSpan`) appen redan använder för
+markeringar. Fördelen mot markup-tecken: `chapter.prose` som skickas till
+AI:n (Draft/Recast/Analysera/Extract facts/ordräkning) är exakt likadan
+som innan, tecken för tecken — ingen filtrering in och ut, och ingen risk
+att modellen imiterar syntaxen. Bara redigerarens visningslager
+(`htmlFromProse`/`ProseCanvas`) känner till formateringen alls.
+
+Byggd: markera text → en flytande verktygsrad (Fet/Kursiv/Understruken)
+eller Ctrl+B/I/U, klick igen tar bort. AI-redigeringar (Förläng/Brodera
+ut/Skriv om/Beat/Manuell redigering) flyttar och klipper
+formateringsintervallen korrekt när texten ändras.
+
+**Kvarstående, medvetet avgränsat i den här första versionen:**
+- Scen-nivåns Skriv utkast/Omskriv nollställer hela kapitlets formatering
+  (inte bara den berörda scenen) — en mer exakt lösning är möjlig senare.
+- Synopsis och Brainstorm har fortfarande ingen formatering, bara
+  kapitelprosan.
+- **Export (RTF/ODT/HTML/ePub/PDF) skriver ännu inte ut fetstilen/
+  kursiven/understrykningen** — publicerad text kommer ut ren, som innan.
+  Naturligt nästa litet steg om/när det blir aktuellt.
 
 ### 26. Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten
 Snabbstartskorten ("Kom igång med en lokal AI") visas just nu alltid
