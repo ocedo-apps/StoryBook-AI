@@ -8,7 +8,8 @@ const guideCategories: Record<GuideCategoryId, string> = {
   "focused-workflow": "Focused Workflow",
   "advanced-tools": "Advanced Writing Tools",
   "world-bible": "Story Bible",
-  "polish-publish": "Polish & Publish"
+  "polish-publish": "Polish & Publish",
+  troubleshooting: "Troubleshooting"
 };
 
 const guideSections: Record<GuideMainSectionId, { heading: string; body: string }> = {

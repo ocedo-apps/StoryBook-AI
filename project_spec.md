@@ -1,9 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.40
+Status: living document, v0.99.41
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.40 → v0.99.41:** Felsökning fick sin egen flik,
+längst till höger — författaren skickade en skiss av hur han ville ha
+det, med en nionde flik utöver de åtta som redan fanns.
+
+- Felsökningsfrågorna ("Ingen lokal modell hittades", var boken
+  lagras, varför inga betaltjänster) låg tidigare alltid synliga under
+  Introduction, oavsett om man brydde sig om dem just då. De har nu
+  en egen flik, "Troubleshooting", sist i raden.
+- Alla befintliga genvägar dit — länken "Se snabbstartsguiden" i
+  felmeddelandet när ingen lokal modell hittas, med flera — landar
+  fortfarande rätt, bara på den nya fliken istället för på
+  Introduction.
+- 662/662 gröna, typkontroll ren. Verifierat i webbläsaren: fliken
+  ligger sist i raden, Introduction visar bara sekretesstexterna nu,
+  och genvägen från felmeddelandet öppnar rätt flik.
 
 **Ändringslogg v0.99.39 → v0.99.40:** "Getting Started" döpt om till
 "Introduction" och rensad — de tre gråa installationskorten (Installera

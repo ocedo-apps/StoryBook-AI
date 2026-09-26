@@ -470,7 +470,8 @@ export const nb: Messages = {
       "focused-workflow": "Focused Workflow",
       "advanced-tools": "Advanced Writing Tools",
       "world-bible": "Story Bible",
-      "polish-publish": "Polish & Publish"
+      "polish-publish": "Polish & Publish",
+      troubleshooting: "Feilsøking"
     },
     sections: {
       privacy: {

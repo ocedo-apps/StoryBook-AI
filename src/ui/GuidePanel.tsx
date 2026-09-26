@@ -37,8 +37,9 @@ export type GuideSectionId = GuideMainSectionId | (typeof GUIDE_FAQ_IDS)[number]
 /**
  * The guide used to be one long scroll — 16 sections deep, per tester
  * feedback nobody was going to read start to finish. Grouped into tabs
- * instead, one topic at a time. FAQ and the AI-server quickstart always
- * live under "getting-started", since they're not per-feature reference.
+ * instead, one topic at a time. The AI-server quickstart lives behind a
+ * button under "getting-started"; FAQ gets its own tab at the far right,
+ * since it's troubleshooting reference, not a feature to learn.
  */
 export const GUIDE_CATEGORY_IDS = [
   "getting-started",
@@ -48,7 +49,8 @@ export const GUIDE_CATEGORY_IDS = [
   "focused-workflow",
   "advanced-tools",
   "world-bible",
-  "polish-publish"
+  "polish-publish",
+  "troubleshooting"
 ] as const;
 export type GuideCategoryId = (typeof GUIDE_CATEGORY_IDS)[number];
 
@@ -72,6 +74,7 @@ export const GUIDE_SECTION_CATEGORY: Record<GuideMainSectionId, GuideCategoryId>
 };
 
 function categoryForAnchor(id: GuideSectionId): GuideCategoryId {
+  if ((GUIDE_FAQ_IDS as readonly string[]).includes(id)) return "troubleshooting";
   return (GUIDE_SECTION_CATEGORY as Partial<Record<GuideSectionId, GuideCategoryId>>)[id] ?? "getting-started";
 }
 
@@ -133,22 +136,24 @@ export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
         </section>
       ) : null}
 
-      <section className="guide-block">
-        <h2 className="settings-heading">{m.guide.categories[category]}</h2>
-        <div className="guide-sections">
-          {sectionsInCategory.map((id) => {
-            const entry = m.guide.sections[id];
-            return (
-              <article key={id} id={guideAnchorId(id)} className="guide-section">
-                <h3>{entry.heading}</h3>
-                <p>{entry.body}</p>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+      {category !== "troubleshooting" ? (
+        <section className="guide-block">
+          <h2 className="settings-heading">{m.guide.categories[category]}</h2>
+          <div className="guide-sections">
+            {sectionsInCategory.map((id) => {
+              const entry = m.guide.sections[id];
+              return (
+                <article key={id} id={guideAnchorId(id)} className="guide-section">
+                  <h3>{entry.heading}</h3>
+                  <p>{entry.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
-      {category === "getting-started" ? (
+      {category === "troubleshooting" ? (
         <section className="guide-block">
           <h2 className="settings-heading">{m.guide.faqHeading}</h2>
           <div className="guide-sections">
