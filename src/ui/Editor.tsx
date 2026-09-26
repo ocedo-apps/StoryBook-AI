@@ -90,6 +90,7 @@ import { ProseCanvas } from "./ProseCanvas";
 import { ProseStatsCard } from "./ProseStatsCard";
 import { FindReplaceCard, type FindHighlight, type FindLaunch } from "./FindReplaceCard";
 import { ProofreadCard } from "./ProofreadCard";
+import { ProofreadSetupCard } from "./ProofreadSetupCard";
 import { ProgressCard } from "./ProgressCard";
 import type { FindOccurrence } from "@core/findReplace";
 import { count, format, STORE_ERROR, translateError, type Messages, useLocale } from "./i18n";
@@ -386,6 +387,7 @@ export function Editor() {
   const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
+  const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
   const [findKey, setFindKey] = useState(0);
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
@@ -530,12 +532,13 @@ export function Editor() {
     setFindHighlight(null);
     setBoardOpen(false);
     setProofreadOpen(true);
-    if (!book?.proofread) void store.startProofread();
+    if (!book?.proofread) setProofreadSetupOpen(true);
   }
 
   function dismissProofread() {
     if (busy === "proofread") return;
     setProofreadOpen(false);
+    setProofreadSetupOpen(false);
   }
 
   function findPhrase(phrase: string) {
@@ -1537,7 +1540,19 @@ export function Editor() {
           onClose={() => setStatsOpen(false)}
         />
       ) : null}
-      {proofreadOpen && book.proofread ? (
+      {proofreadOpen && proofreadSetupOpen ? (
+        <ProofreadSetupCard
+          chapter={{ id: chapter.id, title: chapter.title.trim() || m.editor.untitled }}
+          onStart={(options) => {
+            setProofreadSetupOpen(false);
+            void store.startProofread({ restart: true, ...options });
+          }}
+          onClose={() => {
+            setProofreadSetupOpen(false);
+            if (!book.proofread) setProofreadOpen(false);
+          }}
+        />
+      ) : proofreadOpen && book.proofread ? (
         <ProofreadCard
           book={book}
           job={book.proofread}
@@ -1545,7 +1560,7 @@ export function Editor() {
           onClose={() => setProofreadOpen(false)}
           onStop={store.stopDraft}
           onContinue={() => void store.startProofread()}
-          onRunAgain={() => void store.startProofread({ restart: true })}
+          onRunAgain={() => setProofreadSetupOpen(true)}
           onOpenChapter={(id) => {
             setProofreadOpen(false);
             store.setChapterId(id);

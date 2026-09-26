@@ -653,7 +653,18 @@ export const en = {
     paused: "Paused. What finished is saved.",
     error: "The pass stopped. What finished is saved.",
     craft: "Camera on the cards",
-    contentFlag: "Content check"
+    contentFlag: "Content check",
+    stageSkipped: "Not selected this time",
+    scopeSummary: "Scope: just {chapter}. Grammar and Fact-check only cover that chapter; the other stages always compare the whole manuscript.",
+    setupTitle: "Before we run this",
+    setupLede: "Check off what you want checked this time. Everything is checked by default, same as before.",
+    setupStagesLabel: "What to check",
+    setupScopeLabel: "Scope",
+    setupScopeManuscript: "Whole manuscript",
+    setupScopeChapter: "Just \"{chapter}\" (the open chapter)",
+    setupScopeChapterHint: "Only affects Grammar and Fact-check — the only two stages that scale with chapter count. The others always compare chapters to each other, so they run over the whole manuscript regardless.",
+    setupStart: "Start proofreading",
+    setupNothingSelected: "Pick at least one thing to check."
   },
   craft: {
     pov: "POV",

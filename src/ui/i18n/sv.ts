@@ -654,7 +654,18 @@ export const sv: Messages = {
     paused: "Pausad. Det som hunnit klart är sparat.",
     error: "Passet stannade. Det som hunnit klart är sparat.",
     craft: "Kamera på korten",
-    contentFlag: "Innehållsvarning"
+    contentFlag: "Innehållsvarning",
+    stageSkipped: "Inte vald den här gången",
+    scopeSummary: "Omfattning: bara {chapter}. Grammatik och Faktakontroll gäller bara det kapitlet; övriga steg jämför alltid hela manuset.",
+    setupTitle: "Innan vi kör",
+    setupLede: "Kryssa i det du vill kontrollera den här gången. Allt är förbockat som standard, precis som förut.",
+    setupStagesLabel: "Vad ska kontrolleras",
+    setupScopeLabel: "Omfattning",
+    setupScopeManuscript: "Hela manuset",
+    setupScopeChapter: "Bara \"{chapter}\" (det öppna kapitlet)",
+    setupScopeChapterHint: "Gäller bara Grammatik och Faktakontroll — de är de enda två stegen som skalar med antal kapitel. De andra jämför alltid mellan kapitel, så de körs över hela manuset oavsett.",
+    setupStart: "Starta korrekturläsning",
+    setupNothingSelected: "Välj minst en sak att kontrollera."
   },
   craft: {
     pov: "Perspektiv",

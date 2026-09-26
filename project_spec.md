@@ -1,9 +1,45 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.32
+Status: living document, v0.99.33
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.32 → v0.99.33:** Korrekturläsningen går nu att
+begränsa — svar på författarens fråga om att snabba upp eller dela
+upp passet, särskilt på svagare hårdvara.
+
+- **Ny ruta innan varje körning** ("Innan vi kör"): kryssa i vilka av
+  de sju stegen (Grammatik, Upprepade scener, Stil, Ålder,
+  Kontinuitet, Planterat & inlöst, Faktakontroll) som ska köras den
+  här gången. Allt förbockat som standard — rör man inget beter sig
+  allt precis som förut. Visas både vid första körningen och varje
+  gång man trycker "Kör igen", så valet aldrig är inaktuellt.
+- **Omfattning: hela manuset eller bara det öppna kapitlet.** Gäller
+  bara Grammatik och Faktakontroll — de enda två steg vars kostnad
+  faktiskt växer med antal kapitel (ett anrop per kapitel vardera). De
+  andra fem jämför alltid mellan kapitel och körs över hela manuset
+  oavsett, men är redan billiga (ett enda anrop var, eller upp till 24
+  för Upprepade scener som redan var takat).
+- Ett avbockat steg körs fortfarande igenom i sin tur (så
+  förloppsindikatorn och stegordningen håller ihop) men gör inget
+  jobb och visas som "Inte vald den här gången" i listan, tydligt
+  skilt från ett steg som faktiskt är klart.
+- Ny `enabledStages`/`scopeChapterId` på `ProofreadJob`
+  (`proofreadSchema.ts`), båda med säkra defaultvärden (alla steg,
+  hela manuset) för äldre sparfiler. `startProofreadJob()` tar dem som
+  valfria argument; varje steg-funktion i `proofreadRun.ts` kollar sitt
+  eget namn mot `enabledStages` och hoppar direkt till nästa steg om
+  avbockat, precis samma mönster som redan användes för "redan klar".
+- 651/651 gröna (3 nya tester som täcker: ett helt avbockat steg körs
+  aldrig, bara ett ikryssat steg körs, och Grammatik+Faktakontroll
+  begränsas korrekt till en enda kapitel-id). Verifierat i webbläsaren:
+  öppnade Korrekturläsning på ett nytt manus, såg inställningsrutan
+  (inte en automatisk körning), bockade av fem av sju steg, växlade
+  till "Bara kapitel 1", startade — inställningarna satt exakt rätt.
+  Själva körningen gick inte att se klart i den här sessionen (ingen
+  lokal Ollama/LM Studio att prata med), samma begränsning som tidigare
+  AI-beroende funktioner i den här sessionen.
 
 **Ändringslogg v0.99.31 → v0.99.32:** De tre stegen för att göra
 Story Bible redo för en stor, importerad lorebok — svar på

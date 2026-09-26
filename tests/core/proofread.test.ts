@@ -11,6 +11,7 @@ import {
   parseSceneVerdict,
   parseSetupResult,
   proofreadPercent,
+  PROOFREAD_STAGES,
   proseHash,
   startProofreadJob
 } from "@core/proofread";
@@ -405,6 +406,85 @@ function runFactsOnly(book: Book, complete: (system: string, user: string) => Pr
     new AbortController().signal
   ).then(() => latest);
 }
+
+describe("runProofread — enabledStages and scopeChapterId", () => {
+  it("skips a disabled stage entirely — no prompt sent for it, but the pass still finishes", async () => {
+    const { book } = twoChapters();
+    const job = startProofreadJob(book, { stages: PROOFREAD_STAGES.filter((stage) => stage !== "style") });
+    const systems: string[] = [];
+    let latest = book;
+    const result = await runProofread(
+      job,
+      {
+        complete: async (system) => {
+          systems.push(system);
+          return '{"items":[]}';
+        },
+        getBook: () => latest,
+        save: async (next) => {
+          latest = { ...latest, proofread: next };
+        },
+        saveFacts: async (facts) => {
+          latest = { ...latest, facts };
+        }
+      },
+      new AbortController().signal
+    );
+    expect(result.status).toBe("done");
+    expect(result.styleDone).toBe(true);
+    expect(systems.some((system) => system.includes("stay in the same register and mood"))).toBe(false);
+  });
+
+  it("runs only the enabled stages when just one is picked", async () => {
+    const { book } = twoChapters();
+    const job = startProofreadJob(book, { stages: ["grammar"] });
+    let grammarCalls = 0;
+    let latest = book;
+    const result = await runProofread(
+      job,
+      {
+        complete: async (system) => {
+          if (system.includes("proofread one chapter")) grammarCalls += 1;
+          return '{"items":[]}';
+        },
+        getBook: () => latest,
+        save: async (next) => {
+          latest = { ...latest, proofread: next };
+        },
+        saveFacts: async (facts) => {
+          latest = { ...latest, facts };
+        }
+      },
+      new AbortController().signal
+    );
+    expect(result.status).toBe("done");
+    expect(grammarCalls).toBe(2); // one per chapter, the whole point of the grammar stage
+    expect(result.styleDone).toBe(true); // walked through, just skipped
+    expect(result.setupsDone).toBe(true);
+  });
+
+  it("limits grammar and facts to just the scoped chapter", async () => {
+    const { book, first } = twoChapters();
+    const job = startProofreadJob(book, { stages: ["grammar", "facts"], scopeChapterId: first });
+    let latest = book;
+    const result = await runProofread(
+      job,
+      {
+        complete: async () => '{"items":[]}',
+        getBook: () => latest,
+        save: async (next) => {
+          latest = { ...latest, proofread: next };
+        },
+        saveFacts: async (facts) => {
+          latest = { ...latest, facts };
+        }
+      },
+      new AbortController().signal
+    );
+    expect(result.grammarDone).toEqual([first]);
+    expect(result.factsDone).toEqual([first]);
+  });
+});
 
 describe("runProofread — facts stage", () => {
   it("extracts new facts per chapter and files them for Story Bible review", async () => {

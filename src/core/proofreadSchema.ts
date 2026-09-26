@@ -52,6 +52,21 @@ export const ProofreadJobSchema = z.object({
   flags: z.array(ProofreadFlagSchema).default([]),
   ageReport: z.string().optional(),
   craftNotes: z.array(z.string()).default([]),
-  chapterHashes: z.record(z.string()).default({})
+  chapterHashes: z.record(z.string()).default({}),
+  /**
+   * Which stages this run actually does work in — missing (older saves) or
+   * unset means all of them, today's behavior. A disabled stage is still
+   * walked through in order (so `stage` and the progress bar stay
+   * meaningful) but does no work and flags nothing.
+   */
+  enabledStages: z.array(z.enum(PROOFREAD_STAGES)).default([...PROOFREAD_STAGES]),
+  /**
+   * Limits the two stages whose cost scales with chapter count — grammar
+   * and facts — to just this chapter. The other stages are inherently
+   * cross-chapter (they compare chapters to each other) and always look at
+   * the whole live manuscript regardless of this. Missing/unset means the
+   * whole manuscript, today's behavior.
+   */
+  scopeChapterId: z.string().min(1).optional()
 });
 export type ProofreadJob = z.infer<typeof ProofreadJobSchema>;

@@ -654,7 +654,18 @@ export const nb: Messages = {
     paused: "Pauset. Det som rakk å bli ferdig er lagret.",
     error: "Passet stoppet. Det som rakk å bli ferdig er lagret.",
     craft: "Kamera på kortene",
-    contentFlag: "Innholdsvarsel"
+    contentFlag: "Innholdsvarsel",
+    stageSkipped: "Ikke valgt denne gangen",
+    scopeSummary: "Omfang: bare {chapter}. Grammatikk og Faktasjekk gjelder bare det kapitlet; de andre stegene sammenligner alltid hele manuset.",
+    setupTitle: "Før vi kjører",
+    setupLede: "Kryss av det du vil kontrollere denne gangen. Alt er forhåndsavkrysset, akkurat som før.",
+    setupStagesLabel: "Hva skal kontrolleres",
+    setupScopeLabel: "Omfang",
+    setupScopeManuscript: "Hele manuset",
+    setupScopeChapter: "Bare \"{chapter}\" (det åpne kapitlet)",
+    setupScopeChapterHint: "Gjelder bare Grammatikk og Faktasjekk — de eneste to stegene som skalerer med antall kapitler. De andre sammenligner alltid mellom kapitler, så de kjøres over hele manuset uansett.",
+    setupStart: "Start korrekturlesing",
+    setupNothingSelected: "Velg minst én ting å kontrollere."
   },
   craft: {
     pov: "Perspektiv",

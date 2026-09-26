@@ -2473,8 +2473,35 @@ button:disabled {
   color: var(--text-dim);
 }
 
+.proofread-stages li.is-skipped {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
 .proofread-mark {
   font-variant-numeric: tabular-nums;
+}
+
+.proofread-setup-stages,
+.proofread-setup-scope {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.proofread-setup-stages legend,
+.proofread-setup-scope legend {
+  padding: 0 0.3rem;
+}
+
+.proofread-setup-stage,
+.proofread-setup-scope-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .proofread-bar {

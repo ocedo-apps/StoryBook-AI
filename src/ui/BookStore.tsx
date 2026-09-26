@@ -42,7 +42,7 @@ import {
 } from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
-import { proseChapters, startProofreadJob, touchProofread } from "@core/proofread";
+import { proseChapters, startProofreadJob, touchProofread, type ProofreadStage } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
 import {
   DRAFT_SYSTEM,
@@ -1711,7 +1711,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const dismissDevelopSuggestion = useCallback(() => setDevelopSuggestion(null), []);
 
   const startProofread = useCallback(
-    async (opts?: { restart?: boolean }) => {
+    async (opts?: { restart?: boolean; stages?: ProofreadStage[]; scopeChapterId?: string }) => {
       const current = bookRef.current;
       if (!current || busy || proofreadLock.current) return;
       if (proseChapters(current).length === 0) {
@@ -1728,7 +1728,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const job =
         !restart && existing && (existing.status === "paused" || existing.status === "running" || existing.status === "error")
           ? touchProofread(existing, { status: "running" })
-          : startProofreadJob(current);
+          : startProofreadJob(current, {
+              ...(opts?.stages ? { stages: opts.stages } : {}),
+              ...(opts?.scopeChapterId ? { scopeChapterId: opts.scopeChapterId } : {})
+            });
 
       proofreadLock.current = true;
       const abort = new AbortController();

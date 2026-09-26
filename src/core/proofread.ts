@@ -38,6 +38,13 @@ export function proseChapters(book: Book): Chapter[] {
     .sort((a, b) => a.sequence_index - b.sequence_index);
 }
 
+/** `proseChapters`, narrowed to `job.scopeChapterId` alone when the run is scoped to one chapter. */
+export function scopedChapters(book: Book, job: Pick<ProofreadJob, "scopeChapterId">): Chapter[] {
+  const chapters = proseChapters(book);
+  if (!job.scopeChapterId) return chapters;
+  return chapters.filter((chapter) => chapter.id === job.scopeChapterId);
+}
+
 export function proseHash(text: string): string {
   let hash = 2166136261;
   for (let i = 0; i < text.length; i++) {
@@ -55,7 +62,10 @@ export function chapterHashes(book: Book): Record<string, string> {
   return hashes;
 }
 
-export function startProofreadJob(book: Book): ProofreadJob {
+export function startProofreadJob(
+  book: Book,
+  options?: { stages?: ProofreadStage[]; scopeChapterId?: string }
+): ProofreadJob {
   const stamp = nowIso();
   return {
     id: newId(),
@@ -76,7 +86,9 @@ export function startProofreadJob(book: Book): ProofreadJob {
     detail: "",
     flags: [],
     craftNotes: [],
-    chapterHashes: chapterHashes(book)
+    chapterHashes: chapterHashes(book),
+    enabledStages: options?.stages ?? [...PROOFREAD_STAGES],
+    ...(options?.scopeChapterId ? { scopeChapterId: options.scopeChapterId } : {})
   };
 }
 

@@ -6,6 +6,7 @@ import type { DevelopmentStep } from "@core/developmentMethod";
 import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
+import type { ProofreadStage } from "@core/proofread";
 import type { TextSpan } from "@core/textSpan";
 import type { PromptDebugEntry } from "./promptDebug";
 import type { LlmEngine } from "@llm/provider";
@@ -104,7 +105,7 @@ export type BookStoreValue = {
   stopDraft: () => void;
   extractChapter: () => Promise<void>;
   analyzeChapter: () => Promise<boolean>;
-  startProofread: (opts?: { restart?: boolean }) => Promise<void>;
+  startProofread: (opts?: { restart?: boolean; stages?: ProofreadStage[]; scopeChapterId?: string }) => Promise<void>;
   generateIllustrationPrompt: (passage: string) => Promise<string | null>;
   askManuscript: (question: string) => Promise<void>;
   setDevelopmentMethod: (id: string | null) => Promise<void>;

@@ -28,6 +28,7 @@ import {
   parseStyleItems,
   proseChapters,
   sceneUserPrompt,
+  scopedChapters,
   setupUserPrompt,
   styleUserPrompt,
   touchProofread,
@@ -60,9 +61,10 @@ export async function runProofread(job: ProofreadJob, io: ProofreadIO, signal: A
 async function runGrammar(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.stage !== "grammar") return current;
+  if (!current.enabledStages.includes("grammar")) return touchProofread(current, { stage: "scenes" });
   current = touchProofread(current, { stage: "grammar", status: "running" });
   const book = io.getBook();
-  const chapters = proseChapters(book);
+  const chapters = scopedChapters(book, current);
   for (const chapter of chapters) {
     throwIfAborted(signal);
     if (current.grammarDone.includes(chapter.id)) continue;
@@ -88,6 +90,7 @@ async function runGrammar(job: ProofreadJob, io: ProofreadIO, signal: AbortSigna
 async function runScenes(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.stage !== "scenes" && ["style", "age", "continuity", "setups", "facts", "done"].includes(current.stage)) return current;
+  if (!current.enabledStages.includes("scenes")) return touchProofread(current, { stage: "style" });
   current = touchProofread(current, { stage: "scenes", status: "running" });
   const book = io.getBook();
   if (current.scenePairsTotal === 0 && current.sceneQueue.length === 0) {
@@ -152,6 +155,7 @@ async function runStyle(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal)
   let current = job;
   if (current.stage !== "style" && ["age", "continuity", "setups", "facts", "done"].includes(current.stage)) return current;
   if (current.styleDone) return touchProofread(current, { stage: "age" });
+  if (!current.enabledStages.includes("style")) return touchProofread(current, { styleDone: true, stage: "age" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "style", status: "running", detail: "style" });
   await io.save(current);
@@ -178,6 +182,7 @@ async function runStyle(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal)
 async function runAge(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.ageDone || current.stage === "done") return current;
+  if (!current.enabledStages.includes("age")) return touchProofread(current, { ageDone: true, stage: "continuity" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "age", status: "running", detail: "age" });
   await io.save(current);
@@ -205,6 +210,7 @@ async function runAge(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): 
 async function runContinuity(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.continuityDone || current.stage === "done") return current;
+  if (!current.enabledStages.includes("continuity")) return touchProofread(current, { continuityDone: true, stage: "setups" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "continuity", status: "running", detail: "continuity" });
   await io.save(current);
@@ -233,6 +239,7 @@ async function runContinuity(job: ProofreadJob, io: ProofreadIO, signal: AbortSi
 async function runSetups(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.setupsDone || current.stage === "done") return current;
+  if (!current.enabledStages.includes("setups")) return touchProofread(current, { setupsDone: true, stage: "facts" });
   throwIfAborted(signal);
   current = touchProofread(current, { stage: "setups", status: "running", detail: "setups" });
   await io.save(current);
@@ -261,8 +268,9 @@ async function runSetups(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal
 async function runFacts(job: ProofreadJob, io: ProofreadIO, signal: AbortSignal): Promise<ProofreadJob> {
   let current = job;
   if (current.stage !== "facts") return current;
+  if (!current.enabledStages.includes("facts")) return current;
   current = touchProofread(current, { stage: "facts", status: "running" });
-  const chapters = proseChapters(io.getBook());
+  const chapters = scopedChapters(io.getBook(), current);
   for (const chapter of chapters) {
     throwIfAborted(signal);
     if (current.factsDone.includes(chapter.id)) continue;

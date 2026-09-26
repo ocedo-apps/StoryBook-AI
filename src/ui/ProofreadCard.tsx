@@ -33,7 +33,8 @@ export function ProofreadCard({
   const { messages: m } = useLocale();
   const viewed = flagStale(job, book);
   const chapters = proseChapters(book);
-  const percent = proofreadPercent(viewed, chapters.length);
+  const scopedCount = viewed.scopeChapterId ? 1 : chapters.length;
+  const percent = proofreadPercent(viewed, scopedCount);
   const live = running || viewed.status === "running";
   const paused = viewed.status === "paused";
   const failed = viewed.status === "error";
@@ -86,6 +87,9 @@ export function ProofreadCard({
         </div>
         <h2 id="proofread-title">{live || paused || failed ? m.proofread.runningTitle : m.proofread.resultsTitle}</h2>
         <p className="quiet">{m.proofread.lede}</p>
+        {viewed.scopeChapterId ? (
+          <p className="quiet">{format(m.proofread.scopeSummary, { chapter: scopedChapterLabel(viewed.scopeChapterId, book, m) })}</p>
+        ) : null}
         {paused ? <p className="quiet">{m.proofread.paused}</p> : null}
         {failed ? <p className="quiet">{m.proofread.error}</p> : null}
 
@@ -97,7 +101,7 @@ export function ProofreadCard({
                   <span className="proofread-mark" aria-hidden="true">
                     {stageMark(viewed, stage)}
                   </span>
-                  <span>{stageLine(viewed, stage, chapters.length, m)}</span>
+                  <span>{stageLine(viewed, stage, scopedCount, m)}</span>
                 </li>
               ))}
             </ol>
@@ -186,13 +190,19 @@ export function ProofreadCard({
   );
 }
 
+function stageSkipped(job: ProofreadJob, stage: ProofreadStage): boolean {
+  return !job.enabledStages.includes(stage);
+}
+
 function stageClass(job: ProofreadJob, stage: ProofreadStage): string {
+  if (stageSkipped(job, stage)) return "is-skipped";
   if (stageDone(job, stage)) return "is-done";
   if (job.stage === stage) return "is-current";
   return "is-wait";
 }
 
 function stageMark(job: ProofreadJob, stage: ProofreadStage): string {
+  if (stageSkipped(job, stage)) return "—";
   if (stageDone(job, stage)) return "✓";
   if (job.stage === stage) return "▶";
   return "";
@@ -210,6 +220,7 @@ function stageLine(
   chapterCount: number,
   m: ReturnType<typeof useLocale>["messages"]
 ): string {
+  if (stageSkipped(job, stage)) return m.proofread.stageSkipped;
   if (stage === "grammar") {
     return format(m.proofread.grammarProgress, { done: job.grammarDone.length, total: Math.max(1, chapterCount) });
   }
@@ -237,6 +248,11 @@ function nowDetail(detail: string, m: ReturnType<typeof useLocale>["messages"]):
   if (detail === "continuity") return m.proofread.nowContinuity;
   if (detail === "setups") return m.proofread.nowSetups;
   return detail;
+}
+
+function scopedChapterLabel(chapterId: string, book: Book, m: ReturnType<typeof useLocale>["messages"]): string {
+  const chapter = book.chapters.find((item) => item.id === chapterId);
+  return format(m.proofread.chapter, { n: (chapter?.sequence_index ?? 0) + 1 });
 }
 
 function flagLabel(flag: ProofreadFlag, book: Book, m: ReturnType<typeof useLocale>["messages"]): string {
