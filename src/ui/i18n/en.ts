@@ -555,6 +555,10 @@ export const en = {
         body: "On your own computer, in the browser's local storage — nothing is uploaded anywhere. Use Backup from time to time to save a copy you can restore from, in case you clear your browser's data."
       },
       {
+        heading: "Can I run the app on another computer or phone on my home network?",
+        body: "Yes, but it's two separate things. To reach the app itself from another device, start it with \"npm run dev -- --host\" and use the network address the terminal prints (e.g. http://192.168.1.23:5175) instead of localhost. For that device to also talk to your local AI model, the model server (e.g. Ollama) needs to allow it too: let it listen broadly (OLLAMA_HOST=0.0.0.0), allow the address (OLLAMA_ORIGINS), and point the app's model setting at that computer's network address instead of localhost. Keep in mind each device still keeps its own library — manuscripts aren't shared between them automatically; move a book between devices with Backup/Restore."
+      },
+      {
         heading: "Can I use a paid AI service instead?",
         body: "No — on purpose. StoryBook AI only ever talks to a model running on your own computer or network. That is not a missing feature; it is the whole point: your manuscript never has to leave your machine."
       }

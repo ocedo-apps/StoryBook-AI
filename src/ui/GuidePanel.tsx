@@ -29,7 +29,7 @@ export const GUIDE_SECTION_IDS = [
 ] as const;
 
 /** Same idea, for the FAQ list. Keep in sync by hand with `guide.faq`, index-for-index. */
-export const GUIDE_FAQ_IDS = ["no-model", "storage", "cloud"] as const;
+export const GUIDE_FAQ_IDS = ["no-model", "storage", "network", "cloud"] as const;
 
 export type GuideMainSectionId = (typeof GUIDE_SECTION_IDS)[number];
 export type GuideSectionId = GuideMainSectionId | (typeof GUIDE_FAQ_IDS)[number];

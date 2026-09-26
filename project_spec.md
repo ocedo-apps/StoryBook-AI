@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.43
+Status: living document, v0.99.44
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.43 → v0.99.44:** Ny FAQ-punkt i Guidens Felsökning
+om att köra appen på en annan dator/mobil i hemnätverket — uppstod ur en
+fråga från författaren om appen (som medvetet aldrig går ut på internet)
+ändå kan nås från andra enheter i samma hemnätverk.
+
+- Ny punkt "Kan jag köra appen på en annan dator eller mobil i mitt
+  hemnätverk?" mellan "Var lagras min bok?" och "Kan jag använda en
+  betald AI-tjänst istället?" i alla tre språk. Svaret täcker två skilda
+  saker: att nå själva appen (`npm run dev -- --host` + nätverksadressen
+  terminalen visar) och att den lokala AI-modellen (t.ex. Ollama) också
+  måste tillåta det (`OLLAMA_HOST=0.0.0.0`, `OLLAMA_ORIGINS`, samt
+  modellinställningen i appen pekad mot nätverksadressen istället för
+  localhost) — plus en tydlig varning om att varje enhet har sitt eget
+  bibliotek (ingen delad bok mellan enheter utan Backup/Återställ).
+- `GUIDE_FAQ_IDS` fick ett nytt id (`"network"`), infogat mellan
+  `"storage"` och `"cloud"` — ren textändring, ingen ny logik.
+- 689/689 gröna, typkontroll ren (samma kända, orelaterade
+  `BrainstormBoard.tsx`-fel som tidigare). Verifierat i webbläsaren att
+  den nya punkten dyker upp i rätt ordning i Felsöknings-fliken.
 
 **Ändringslogg v0.99.42 → v0.99.43:** Fetstil, kursiv och understruket i
 kapitelprosan — den säkrare vägen som skissades upp innan bygget: formatering

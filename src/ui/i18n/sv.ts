@@ -550,6 +550,10 @@ export const sv: Messages = {
         body: "På din egen dator, i webbläsarens lokala lagring — inget laddas upp någonstans. Använd Backup då och då för att spara en kopia du kan återställa från, ifall du rensar webbläsarens data."
       },
       {
+        heading: "Kan jag köra appen på en annan dator eller mobil i mitt hemnätverk?",
+        body: "Ja, men det är två separata saker. För att nå själva appen från en annan enhet, starta den med \"npm run dev -- --host\" och använd nätverksadressen terminalen visar (t.ex. http://192.168.1.23:5175) istället för localhost. För att den enheten också ska kunna prata med din lokala AI-modell måste modellservern (t.ex. Ollama) själv tillåta det: låt den lyssna brett (OLLAMA_HOST=0.0.0.0), tillåt adressen (OLLAMA_ORIGINS), och peka appens modellinställning mot datorns nätverksadress istället för localhost. Tänk på att varje enhet ändå har sitt eget bibliotek — manus delas inte automatiskt mellan dem, du får flytta en bok mellan enheter via Backup/Återställ."
+      },
+      {
         heading: "Kan jag använda en betald AI-tjänst istället?",
         body: "Nej — medvetet. StoryBook AI pratar bara någonsin med en modell som körs på din egen dator eller nätverk. Det är inte en saknad funktion; det är hela poängen: ditt manus behöver aldrig lämna din maskin."
       }
