@@ -79,6 +79,7 @@ export type BookStoreValue = {
   draftScene: (sceneId: string) => Promise<void>;
   recastScene: (sceneId: string) => Promise<void>;
   analyzeScene: (sceneId: string) => Promise<boolean>;
+  mergeScene: (sceneId: string) => void;
   rewriteSpan: (args: {
     target: "prose" | "synopsis" | "brainstorm";
     mode: "extend" | "elaborate" | "instruct";

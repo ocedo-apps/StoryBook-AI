@@ -1,9 +1,28 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.27
+Status: living document, v0.99.28
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.27 → v0.99.28:** Städade en föräldralös
+`scene_id`-koppling — författaren märkte att om en fakta hör till en
+scen som sen slås ihop bort, blev kopplingen dinglande.
+
+- Ny `sceneIdRemovedByMerge()` i `bookScene.ts` — säger vilket scen-id
+  `mergeSceneWithNext()` är på väg att ta bort, utan att själv ändra
+  något (ren funktion, samma stil som grannfunktionerna).
+- Ny store-action `mergeScene()` i `BookStore.tsx` som gör båda
+  delarna atomiskt i en enda `patchBook`: uppdaterar `chapter.scenes`
+  OCH flyttar över `scene_id` på varje berörd fakta till den
+  kvarvarande scenen, istället för att lämna det pekande på ett
+  scen-id som inte längre finns. "Slå ihop med nästa"-knappen i
+  Scener-panelen kör nu den nya funktionen istället för att bara
+  patcha `scenes[]` för sig.
+- 618/618 gröna (3 nya enhetstester). Verifierat i webbläsaren end-
+  to-end: delade ett kapitel i två scener, satte en fakta på scen 2
+  direkt i databasen, slog ihop scenerna, läste tillbaka — faktans
+  `scene_id` pekade nu på scen 1:s id, inte längre på det borttagna.
 
 **Ändringslogg v0.99.26 → v0.99.27:** Rättade att kapitelnamnet
 försvann när man maximerar skrivytan.

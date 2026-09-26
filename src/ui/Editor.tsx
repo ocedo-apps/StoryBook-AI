@@ -1384,6 +1384,7 @@ export function Editor() {
             <ScenesPanel
               chapter={chapter}
               onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
+              onMergeWithNext={(sceneId) => store.mergeScene(sceneId)}
               busy={busy !== null}
               onDraftScene={(sceneId) => void store.draftScene(sceneId)}
               onRecastScene={(sceneId) => void store.recastScene(sceneId)}

@@ -3,6 +3,7 @@ import {
   chapterScenes,
   mergeSceneWithNext,
   replaceSceneProse,
+  sceneIdRemovedByMerge,
   splitSceneAtParagraph,
   updateSceneMeta
 } from "@core/bookScene";
@@ -120,6 +121,23 @@ describe("mergeSceneWithNext", () => {
   it("no-ops on an unknown scene id", () => {
     const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }] };
     expect(mergeSceneWithNext(chapter, "ghost")).toEqual(chapter.scenes);
+  });
+});
+
+describe("sceneIdRemovedByMerge", () => {
+  it("names the scene id that mergeSceneWithNext would remove", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    expect(sceneIdRemovedByMerge(chapter, "s1")).toBe("s2");
+  });
+
+  it("returns null on the last scene — nothing after it to remove", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }, { id: "s2", startParagraph: 2 }] };
+    expect(sceneIdRemovedByMerge(chapter, "s2")).toBeNull();
+  });
+
+  it("returns null on an unknown scene id", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }] };
+    expect(sceneIdRemovedByMerge(chapter, "ghost")).toBeNull();
   });
 });
 

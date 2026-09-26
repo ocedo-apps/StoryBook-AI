@@ -19,7 +19,7 @@ import {
   updateBrainstormNote
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
-import { chapterScenes, replaceSceneProse } from "@core/bookScene";
+import { chapterScenes, mergeSceneWithNext, replaceSceneProse, sceneIdRemovedByMerge } from "@core/bookScene";
 import {
   ASK_MANUSCRIPT_SYSTEM,
   askManuscriptUserPrompt,
@@ -892,6 +892,25 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       }
     },
     [busy, reviewModel, models.length, ollamaError]
+  );
+
+  const mergeScene = useCallback(
+    (sceneId: string) => {
+      const id = chapterRef.current;
+      if (!id) return;
+      void patchBook((current) => {
+        const chapter = current.chapters.find((item) => item.id === id);
+        if (!chapter) return current;
+        const removedId = sceneIdRemovedByMerge(chapter, sceneId);
+        const withChapter = updateChapter(current, id, { scenes: mergeSceneWithNext(chapter, sceneId) });
+        if (!removedId) return withChapter;
+        return {
+          ...withChapter,
+          facts: withChapter.facts.map((fact) => (fact.scene_id === removedId ? { ...fact, scene_id: sceneId } : fact))
+        };
+      });
+    },
+    [patchBook]
   );
 
   const rewriteSpan = useCallback(
@@ -1802,6 +1821,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     draftScene,
     recastScene,
     analyzeScene,
+    mergeScene,
     rewriteSpan,
     restoreChapterProse,
     askBrainstorm,

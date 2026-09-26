@@ -1,12 +1,6 @@
 import { useState } from "react";
 import type { Chapter } from "@core/BookSchema";
-import {
-  chapterScenes,
-  mergeSceneWithNext,
-  splitSceneAtParagraph,
-  updateSceneMeta,
-  type SceneMeta
-} from "@core/bookScene";
+import { chapterScenes, splitSceneAtParagraph, updateSceneMeta, type SceneMeta } from "@core/bookScene";
 import { splitFlowParagraphs } from "@core/proseFlow";
 import { count, format, useLocale } from "./i18n";
 
@@ -16,6 +10,7 @@ const PARA_PREVIEW_LEN = 60;
 export function ScenesPanel({
   chapter,
   onPatch,
+  onMergeWithNext,
   busy,
   onDraftScene,
   onRecastScene,
@@ -23,6 +18,7 @@ export function ScenesPanel({
 }: {
   chapter: Chapter;
   onPatch: (scenes: SceneMeta[]) => void;
+  onMergeWithNext: (sceneId: string) => void;
   busy: boolean;
   onDraftScene: (sceneId: string) => void;
   onRecastScene: (sceneId: string) => void;
@@ -58,11 +54,7 @@ export function ScenesPanel({
                     onChange={(event) => onPatch(updateSceneMeta(chapter, scene.id, { title: event.target.value }))}
                   />
                   {index < scenes.length - 1 ? (
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={() => onPatch(mergeSceneWithNext(chapter, scene.id))}
-                    >
+                    <button type="button" className="text-button" onClick={() => onMergeWithNext(scene.id)}>
                       {m.scenes.mergeWithNext}
                     </button>
                   ) : null}

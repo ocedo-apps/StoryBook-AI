@@ -103,6 +103,20 @@ export function mergeSceneWithNext(chapter: Chapter, sceneId: string): SceneMeta
 }
 
 /**
+ * The id `mergeSceneWithNext(chapter, sceneId)` would remove, or null on a
+ * no-op merge (unknown or last scene) — so the caller can reassign any
+ * `NarrativeFact.scene_id` pointing at it before it stops existing.
+ * `mergeSceneWithNext` only ever touches `chapter.scenes`, never facts.
+ */
+export function sceneIdRemovedByMerge(chapter: Chapter, sceneId: string): string | null {
+  const paragraphs = splitFlowParagraphs(chapter.prose);
+  const current = normalizeSceneMetas(chapter.scenes, paragraphs.length);
+  const index = current.findIndex((meta) => meta.id === sceneId);
+  if (index === -1 || index === current.length - 1) return null;
+  return current[index + 1]!.id;
+}
+
+/**
  * Replaces one scene's prose in place, shifting every later scene's split
  * point by the resulting paragraph-count delta. Everything before and
  * after the scene's span is untouched. On the common single-scene chapter
