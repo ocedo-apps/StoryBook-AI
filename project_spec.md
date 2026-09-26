@@ -1,9 +1,21 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.41
+Status: living document, v0.99.42
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.41 → v0.99.42:** Guidens textblock 33% bredare —
+författaren ville testa mer läsbredd under flikarna.
+
+- `.guide-block` (varje flik-sektions textinnehåll) gick från 42rem
+  till 56rem — 42 × 4⁄3 = 56, exakt 33% bredare. Berör alla flikar
+  utom snabbstartskortens rad (den har redan `max-width: none` för
+  sitt tre-kolumns-rutnät).
+- Ren CSS-ändring, ingen ny logik. Verifierat i webbläsaren på
+  Introduction och Advanced Writing Tools (den flik med flest
+  staplade avsnitt) — ryms fint utan att tränga in i Story
+  Bible-panelen till höger.
 
 **Ändringslogg v0.99.40 → v0.99.41:** Felsökning fick sin egen flik,
 längst till höger — författaren skickade en skiss av hur han ville ha
