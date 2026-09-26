@@ -4,6 +4,7 @@ export type PromptOperation =
   | "extend"
   | "elaborate"
   | "instruct"
+  | "beat"
   | "ask"
   | "ask-manuscript"
   | "interview"

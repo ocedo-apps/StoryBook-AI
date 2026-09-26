@@ -272,7 +272,8 @@ export const nb: Messages = {
       interview: "Karakterintervju",
       develop: "Utviklingsmetode",
       "extract-interview": "Hent ut fakta (intervju)",
-      "import-lore": "Importer lore"
+      "import-lore": "Importer lore",
+      beat: "Skriv en beat"
     }
   },
   askManuscript: {
@@ -835,6 +836,11 @@ export const nb: Messages = {
     jumpToEntity: "Ctrl-klikk (Cmd-klikk på Mac) for å åpne {name}s Story Bible-kort",
     extend: "Forleng",
     elaborate: "Utdyp",
+    beat: "Skriv en beat…",
+    beatTitle: "Skriv en beat",
+    beatHint: "Kort og konkret: hva skjer nå? Modellen skriver bare den beaten, ikke mer, og setter den inn akkurat der markøren står.",
+    beatPlaceholder: "Hun åpner brevet og leser den første linjen høyt.",
+    beatAction: "Skriv beaten",
     rewriteMenu: "Skriv om…",
     illustrate: "Illustrasjonsprompt…",
     lift: "Løft til synopsis",
@@ -1067,6 +1073,7 @@ export const nb: Messages = {
       extend: "Forleng",
       elaborate: "Utvid",
       rewrite: "Skriv om",
+      beat: "Beat",
       restore: "Gjenopprett"
     }
   },

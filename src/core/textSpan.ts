@@ -24,10 +24,25 @@ export function extendGlue(head: string): string {
   return " ";
 }
 
+/**
+ * `extendGlue`, mirrored for what follows the insertion — needed once an
+ * extension can land mid-text (a beat inserted between two sentences, not
+ * just appended after a selection at the very end of the prose) rather than
+ * always up against nothing.
+ */
+function leadingGlue(tail: string): string {
+  if (tail.length === 0) return "";
+  const first = tail[0];
+  if (first === " " || first === "\n" || first === "\t") return "";
+  return " ";
+}
+
 export function applyExtend(source: string, span: TextSpan, addition: string): string {
   const { end } = normalizeSpan(span.start, span.end);
   const head = source.slice(0, end);
-  return head + extendGlue(head) + addition + source.slice(end);
+  const tail = source.slice(end);
+  const closingGlue = /\s$/.test(addition) ? "" : leadingGlue(tail);
+  return head + extendGlue(head) + addition + closingGlue + tail;
 }
 
 export function applyReplace(source: string, span: TextSpan, replacement: string): string {

@@ -183,7 +183,7 @@ export function recastSceneUserPrompt(book: Book, chapter: Chapter, sceneId: str
   return parts.filter(Boolean).join("\n\n");
 }
 
-export const PASSAGE_SYSTEM = `You are a novelist working on one marked passage.
+export const PASSAGE_SYSTEM = `You are a novelist working on one marked passage, or inserting one short new beat at a marked point in the scene.
 The Story Bible is established truth. Do not contradict it.
 The synopsis is the intended shape of the story, not locked fact.
 Honor the point of view and tense of this chapter unless the author instruction explicitly asks to change them.
@@ -192,7 +192,7 @@ Reader, if set, retunes diction and sentence length. It does not rewrite the sto
 A paragraph may be long if one motive holds it. Start a new paragraph when focus shifts between present action, background, and interior thought. Do not pack a physical beat, a life history, and a philosophy into the same breath.
 Write the scene as it is lived, not as a film treatment. Do not mention a camera, a shot, or a cut.
 The passage itself is prose only — no title, no heading, no Rewritten passage: label, no quotes around it, no commentary inside it.
-A trailing NOTE: line after a blank line is allowed. Never put NOTE inside the passage.`;
+A trailing NOTE: line after a blank line is allowed for a rewrite (extend, elaborate, instruct) — never for an inserted beat, and never inside the passage.`;
 
 export const RECAST_SYSTEM = `You recast existing chapter prose to the requested point of view and tense.
 Keep the same events, order, names, and meaning. Do not add scenes or facts. Do not cut plot.
@@ -220,7 +220,7 @@ export function recastUserPrompt(book: Book, chapter: Chapter): string {
   return parts.filter(Boolean).join("\n\n");
 }
 
-export type PassageMode = "extend" | "elaborate" | "instruct";
+export type PassageMode = "extend" | "elaborate" | "instruct" | "beat";
 
 export function passageUserPrompt(args: {
   book: Book;
@@ -236,7 +236,11 @@ export function passageUserPrompt(args: {
       ? "Write only the next sentences that follow the marked passage. Do not repeat it. Stay in scene."
       : args.mode === "elaborate"
         ? "Rewrite the marked passage with more sensory and dramatic detail. Keep the same events and meaning. Output only the prose. No heading and no Rewritten passage: label."
-        : `Follow this author instruction when rewriting the marked passage. Change only what it asks.
+        : args.mode === "beat"
+          ? `Write only the next beat the author asks for — a short paragraph, at most a few sentences. Do not continue past it, do not summarize what comes after, and do not write the rest of the scene. Fit naturally between the text immediately before and after the insertion point; do not repeat either.
+
+Next beat:\n${(args.instruction ?? "").trim()}`
+          : `Follow this author instruction when rewriting the marked passage. Change only what it asks.
 
 Write only the new prose. No heading and no Rewritten passage: label.
 Then a blank line, then one line:
@@ -261,8 +265,8 @@ Author instruction:\n${(args.instruction ?? "").trim()}`;
       ? `Chapter ${args.chapter.sequence_index + 1}: ${args.chapter.title.trim() || "Untitled"}`
       : "This is the synopsis, not a chapter.",
     args.chapter?.brief.trim() ? `Chapter brief:\n${args.chapter.brief.trim()}` : "",
-    args.before.trim() ? `Text immediately before the mark:\n${args.before}` : "",
-    `Marked passage:\n${args.selected}`,
+    args.before.trim() ? `Text immediately before the mark:\n${args.before}` : "This is the very start of the scene.",
+    args.mode === "beat" ? "" : `Marked passage:\n${args.selected}`,
     args.after.trim() ? `Text immediately after the mark:\n${args.after}` : "",
     instruction
   ];

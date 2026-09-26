@@ -28,6 +28,14 @@ describe("applyExtend", () => {
       "Dawn on the quay. Gulls argued."
     );
   });
+
+  it("inserts at a bare cursor position (a zero-width span) — how a beat lands mid-text", () => {
+    const source = "Emma unlocked the door. The stranger waited outside.";
+    const cursor = source.indexOf("The stranger");
+    expect(applyExtend(source, { start: cursor, end: cursor }, "She hesitated.")).toBe(
+      "Emma unlocked the door. She hesitated. The stranger waited outside."
+    );
+  });
 });
 
 describe("selectedText", () => {

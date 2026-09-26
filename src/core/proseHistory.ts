@@ -31,7 +31,7 @@ export function writeProseHistoryLimit(
   store.setItem(PROSE_HISTORY_LIMIT_KEY, String(clampProseHistoryLimit(limit)));
 }
 
-export function rewriteHistoryOp(mode: "extend" | "elaborate" | "instruct"): ProseHistoryOp {
+export function rewriteHistoryOp(mode: "extend" | "elaborate" | "instruct" | "beat"): ProseHistoryOp {
   return mode === "instruct" ? "rewrite" : mode;
 }
 

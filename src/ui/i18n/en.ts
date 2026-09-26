@@ -270,7 +270,8 @@ export const en = {
       interview: "Character interview",
       develop: "Development method",
       "extract-interview": "Extract facts (interview)",
-      "import-lore": "Import lore"
+      "import-lore": "Import lore",
+      beat: "Write a beat"
     }
   },
   askManuscript: {
@@ -834,6 +835,11 @@ export const en = {
     jumpToEntity: "Ctrl+click (Cmd+click on Mac) to open {name}’s Story Bible card",
     extend: "Extend",
     elaborate: "Elaborate",
+    beat: "Write a beat…",
+    beatTitle: "Write a beat",
+    beatHint: "Short and concrete: what happens next? The model writes only that beat, nothing more, and inserts it right at the cursor.",
+    beatPlaceholder: "She opens the letter and reads the first line aloud.",
+    beatAction: "Write the beat",
     rewriteMenu: "Rewrite…",
     illustrate: "Illustration prompt…",
     lift: "Lift to synopsis",
@@ -1066,6 +1072,7 @@ export const en = {
       extend: "Extend",
       elaborate: "Elaborate",
       rewrite: "Rewrite",
+      beat: "Beat",
       restore: "Restore"
     }
   },

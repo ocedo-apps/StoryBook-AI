@@ -929,7 +929,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const rewriteSpan = useCallback(
     async (args: {
       target: "prose" | "synopsis" | "brainstorm";
-      mode: "extend" | "elaborate" | "instruct";
+      mode: "extend" | "elaborate" | "instruct" | "beat";
       span: TextSpan;
       instruction?: string;
     }) => {
@@ -952,8 +952,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             : chapter?.prose;
       if (source === undefined) return;
       const around = surroundingPassage(source, args.span);
-      if (!around.selected) return;
-      if (args.mode === "instruct" && !(args.instruction ?? "").trim()) return;
+      if (args.mode !== "beat" && !around.selected) return;
+      if ((args.mode === "instruct" || args.mode === "beat") && !(args.instruction ?? "").trim()) return;
 
       abortRef.current?.abort();
       const abort = new AbortController();
@@ -981,7 +981,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           args.target === "brainstorm"
             ? generated
             : manuscriptFromModel(generated, args.mode === "extend" ? "" : around.selected);
-        return args.mode === "extend" ? applyExtend(source, args.span, chunk) : applyReplace(source, args.span, chunk);
+        return args.mode === "extend" || args.mode === "beat"
+          ? applyExtend(source, args.span, chunk)
+          : applyReplace(source, args.span, chunk);
       };
 
       const persistAssembled = async (latest: Book, assembled: string) => {
@@ -1025,7 +1027,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         for await (const chunk of provider.streamChat({
           messages: rewriteMessages,
           temperature: args.target === "brainstorm" ? 0.9 : 0.8,
-          maxTokens: args.mode === "extend" ? 280 : 420,
+          maxTokens: args.mode === "extend" || args.mode === "beat" ? 280 : 420,
           signal: abort.signal
         })) {
           if (chunk.type === "text_delta") {

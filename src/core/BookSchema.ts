@@ -10,7 +10,7 @@ import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 
-export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "restore"] as const;
+export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
 
 export const ProseRevisionSchema = z.object({

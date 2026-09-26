@@ -1,9 +1,44 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.33
+Status: living document, v0.99.34
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.33 → v0.99.34:** "Skriv en beat" — lokaliserad
+generering mitt i en scen, den enklare av de två lösningar som
+diskuterades för Draft-funktionens andra stora begränsning (jämfört
+med Writingway 2: "a more localised generation for immediate beats").
+
+- Högerklicka **utan** att markera något i ett kapitel öppnar nu en
+  minimal meny med ett enda val: "Skriv en beat…". Skriv en kort,
+  konkret instruktion ("Hon öppnar brevet och läser första raden
+  högt") och modellen skriver bara den beaten — ett kort stycke, inte
+  resten av scenen — och lägger in den precis vid markören. Fungerar
+  även i en tom scen. Högerklick **med** en markering fungerar precis
+  som förut (Förläng/Brodera ut/Skriv om-menyn, orörd).
+- Byggt genom att återanvända ~90 % av det befintliga
+  Förläng/Skriv om-maskineriet: samma `PASSAGE_SYSTEM`, samma
+  `rewriteSpan`-store-action, samma historik. `PassageMode` fick ett
+  nytt `"beat"`-alternativ i `generateProse.ts`, med en egen
+  instruktionsram ("skriv bara nästa beat, inte resten av scenen") och
+  utan det vanliga "Marked passage"-blocket, eftersom en beat inte
+  utgår från något markerat.
+- Hittade och rättade en riktig, sedan tidigare existerande bugg i
+  `applyExtend()` (`textSpan.ts`) under arbetet: den lade bara till ett
+  mellanslag *före* en infogning, aldrig efter — ofarligt så länge
+  "Förläng" alltid kördes längst bak i kapitlet (inget kom efter), men
+  skulle ha klistrat ihop ord ("hesitated.The stranger") så fort något
+  infogas mitt i texten, vilket "Skriv en beat" gör som normalfall.
+  Fixad för båda hållen nu.
+- 654/654 gröna (5 nya tester: beat-prompten, `applyExtend` vid en ren
+  markörposition, historik-mappningen). Verifierat i webbläsaren:
+  högerklick mellan två meningar utan markering gav rätt minimeny på
+  rätt plats, öppnade instruktionsrutan, skrev en instruktion, avbröt
+  utan sidoeffekt; högerklick med markering visade fortfarande hela
+  den vanliga menyn (ingen regression). Själva AI-genereringen gick
+  inte att se klart i den här sessionen (ingen lokal Ollama/LM Studio
+  att prata med) — värt att prova i din egen miljö.
 
 **Ändringslogg v0.99.32 → v0.99.33:** Korrekturläsningen går nu att
 begränsa — svar på författarens fråga om att snabba upp eller dela

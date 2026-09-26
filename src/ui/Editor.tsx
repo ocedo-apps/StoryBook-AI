@@ -1416,6 +1416,7 @@ export function Editor() {
               onInstruct={(span, instruction) =>
                 void store.rewriteSpan({ target: "prose", mode: "instruct", span, instruction })
               }
+              onBeat={(span, instruction) => void store.rewriteSpan({ target: "prose", mode: "beat", span, instruction })}
               onIllustrate={(span) => {
                 setIllustratePrompt(null);
                 setIllustrateOpen(true);

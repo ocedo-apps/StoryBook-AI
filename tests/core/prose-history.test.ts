@@ -86,6 +86,7 @@ describe("recordProseRevision", () => {
     expect(rewriteHistoryOp("instruct")).toBe("rewrite");
     expect(rewriteHistoryOp("extend")).toBe("extend");
     expect(rewriteHistoryOp("elaborate")).toBe("elaborate");
+    expect(rewriteHistoryOp("beat")).toBe("beat");
   });
 });
 

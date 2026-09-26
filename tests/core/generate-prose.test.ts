@@ -438,6 +438,37 @@ describe("passageUserPrompt", () => {
     expect(prompt).toContain("Present tense throughout");
     expect(prompt).toContain("different point of view");
   });
+
+  it("asks for one short beat, inserted at the cursor, when given an instruction instead of marked text", () => {
+    const book = createBook("The Salt Road");
+    const prompt = passageUserPrompt({
+      book,
+      chapter: book.chapters[0]!,
+      mode: "beat",
+      before: "Emma unlocked the door.",
+      selected: "",
+      after: "The stranger waited outside.",
+      instruction: "She hesitates, then steps through."
+    });
+    expect(prompt).toContain("Next beat");
+    expect(prompt).toContain("She hesitates, then steps through.");
+    expect(prompt).toContain("do not write the rest of the scene");
+    expect(prompt).not.toContain("Marked passage:");
+  });
+
+  it("tells the model this is the start of the scene when there is nothing before the cursor", () => {
+    const book = createBook("The Salt Road");
+    const prompt = passageUserPrompt({
+      book,
+      chapter: book.chapters[0]!,
+      mode: "beat",
+      before: "",
+      selected: "",
+      after: "",
+      instruction: "Open on the harbor at dawn."
+    });
+    expect(prompt).toContain("This is the very start of the scene.");
+  });
 });
 
 describe("paragraph focus", () => {

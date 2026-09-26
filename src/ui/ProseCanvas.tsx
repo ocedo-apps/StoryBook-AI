@@ -23,6 +23,7 @@ import {
 } from "./rewriteChips";
 
 type RewriteMenu = { kind: "rewrite"; x: number; y: number; span: TextSpan };
+type BeatMenu = { kind: "beat-menu"; x: number; y: number; span: TextSpan };
 type AltsMenu = {
   kind: "alts";
   x: number;
@@ -35,8 +36,9 @@ type AltsMenu = {
   status: "loading" | "ready" | "error";
   options: string[];
 };
-type MenuState = RewriteMenu | AltsMenu;
+type MenuState = RewriteMenu | BeatMenu | AltsMenu;
 type InstructState = { span: TextSpan; marked: string; instruction: string };
+type BeatState = { span: TextSpan; instruction: string };
 
 export function ProseCanvas({
   value,
@@ -54,6 +56,7 @@ export function ProseCanvas({
   onExtend,
   onElaborate,
   onInstruct,
+  onBeat,
   onLift,
   onIllustrate,
   onSuggestAlternatives,
@@ -81,6 +84,8 @@ export function ProseCanvas({
   onExtend: (span: TextSpan) => void;
   onElaborate: (span: TextSpan) => void;
   onInstruct: (span: TextSpan, instruction: string) => void;
+  /** Insert one short beat at the cursor — no selection needed. Chapter/scene prose only; omitted for Synopsis and Brainstorm. */
+  onBeat?: (span: TextSpan, instruction: string) => void;
   onLift?: (span: TextSpan) => void;
   onIllustrate?: (span: TextSpan) => void;
   onSuggestAlternatives?: (args: {
@@ -114,6 +119,7 @@ export function ProseCanvas({
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [manual, setManual] = useState<{ span: TextSpan; draft: string } | null>(null);
   const [instruct, setInstruct] = useState<InstructState | null>(null);
+  const [beat, setBeat] = useState<BeatState | null>(null);
   const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
 
   const highlightHits = useMemo(() => {
@@ -201,10 +207,19 @@ export function ProseCanvas({
     }
 
     const span = spanFromArea();
-    if (!span) return;
-    event.preventDefault();
-    const at = placeMenu(event, onLift ? 210 : 168);
-    setMenu({ kind: "rewrite", ...at, span });
+    if (span) {
+      event.preventDefault();
+      const at = placeMenu(event, onLift ? 210 : 168);
+      setMenu({ kind: "rewrite", ...at, span });
+      return;
+    }
+
+    if (onBeat) {
+      const offset = offsetFromPoint(area, event.clientX, event.clientY);
+      event.preventDefault();
+      const at = placeMenu(event, 60);
+      setMenu({ kind: "beat-menu", ...at, span: { start: offset, end: offset } });
+    }
   }
 
   const suggestRef = useRef(onSuggestAlternatives);
@@ -289,6 +304,14 @@ export function ProseCanvas({
     const next = instruct;
     setInstruct(null);
     onInstruct(next.span, next.instruction.trim());
+  }
+
+  function applyBeat(event: React.FormEvent) {
+    event.preventDefault();
+    if (!beat || !beat.instruction.trim() || !onBeat) return;
+    const next = beat;
+    setBeat(null);
+    onBeat(next.span, next.instruction.trim());
   }
 
   useEffect(() => {
@@ -445,6 +468,21 @@ export function ProseCanvas({
           </button>
         </div>
       ) : null}
+      {menu?.kind === "beat-menu" ? (
+        <div ref={menuRef} className="selection-menu" style={{ left: menu.x, top: menu.y }} role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              const span = menu.span;
+              setMenu(null);
+              setBeat({ span, instruction: "" });
+            }}
+          >
+            {m.canvas.beat}
+          </button>
+        </div>
+      ) : null}
       {menu?.kind === "alts" ? (
         <div
           ref={menuRef}
@@ -545,6 +583,36 @@ export function ProseCanvas({
               </button>
               <button type="submit" className="primary" disabled={!instruct.instruction.trim()}>
                 {rewriteAction}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+      {beat ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setBeat(null);
+          }}
+        >
+          <form className="edit-card" action="#" onSubmit={applyBeat} aria-labelledby="beat-title">
+            <h2 id="beat-title">{m.canvas.beatTitle}</h2>
+            <p className="quiet">{m.canvas.beatHint}</p>
+            <textarea
+              value={beat.instruction}
+              onChange={(event) => setBeat({ ...beat, instruction: event.target.value })}
+              placeholder={m.canvas.beatPlaceholder}
+              rows={3}
+              autoFocus
+              required
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setBeat(null)}>
+                {m.common.cancel}
+              </button>
+              <button type="submit" className="primary" disabled={!beat.instruction.trim()}>
+                {m.canvas.beatAction}
               </button>
             </div>
           </form>

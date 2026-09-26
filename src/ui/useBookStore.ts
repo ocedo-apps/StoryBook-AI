@@ -17,6 +17,7 @@ export type Busy =
   | "extend"
   | "elaborate"
   | "instruct"
+  | "beat"
   | "ask"
   | "ask-manuscript"
   | "recast"
@@ -85,7 +86,7 @@ export type BookStoreValue = {
   mergeScene: (sceneId: string) => void;
   rewriteSpan: (args: {
     target: "prose" | "synopsis" | "brainstorm";
-    mode: "extend" | "elaborate" | "instruct";
+    mode: "extend" | "elaborate" | "instruct" | "beat";
     span: TextSpan;
     instruction?: string;
   }) => Promise<void>;
