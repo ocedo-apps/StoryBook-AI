@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { Book, BookSummary, EditorSurface } from "@core/BookSchema";
+import type { BibleKind } from "@core/bibleGroups";
 import type { AskManuscriptAnswer } from "@core/askManuscript";
 import type { InterviewMessage } from "@core/characterInterview";
 import type { DevelopmentStep } from "@core/developmentMethod";
@@ -49,7 +50,7 @@ export type BookStoreValue = {
   modelAsides: string[];
   lastPrompt: PromptDebugEntry | null;
   askManuscriptAnswer: AskManuscriptAnswer | null;
-  interviewEntity: { ref: string; label: string } | null;
+  interviewEntity: { ref: string; label: string; kind: BibleKind } | null;
   interviewHistory: InterviewMessage[];
   interviewPersonalityDraft: string;
   developSuggestion: string | null;
@@ -112,7 +113,7 @@ export type BookStoreValue = {
   setDevelopmentMethod: (id: string | null) => Promise<void>;
   developExpand: (step: Extract<DevelopmentStep, { kind: "expand" }>, draft: string) => Promise<void>;
   dismissDevelopSuggestion: () => void;
-  startInterview: (entityRef: string, entityLabel: string) => void;
+  startInterview: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
   importLoreArticle: (title: string, text: string) => Promise<void>;

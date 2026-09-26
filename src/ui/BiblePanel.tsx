@@ -63,7 +63,7 @@ export function BiblePanel({
   openEntitySignal
 }: {
   onOpenGuide?: () => void;
-  onInterview?: (entityRef: string, entityLabel: string) => void;
+  onInterview?: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
 }) {
@@ -353,7 +353,7 @@ export function BiblePanel({
             void patchBook((current) => replaceNameInManuscript(current, from, to));
           }}
           {...(onInterview
-            ? { onInterview: () => onInterview(openEntity.entity_ref, openEntity.entity_label) }
+            ? { onInterview: () => onInterview(openEntity.entity_ref, openEntity.entity_label, openSection.kind) }
             : {})}
           onDelete={() => {
             if (!window.confirm(format(m.bible.deleteConfirm, { name: openEntity.entity_label }))) return;
@@ -667,7 +667,7 @@ function EntityOverlay({
       className={kind === "characters" ? "is-character" : undefined}
       actions={
         <>
-          {kind === "characters" && onInterview ? (
+          {onInterview ? (
             <button type="button" className="text-button" onClick={onInterview}>
               {m.bible.interview}
             </button>

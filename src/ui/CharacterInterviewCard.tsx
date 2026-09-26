@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { InterviewMessage } from "@core/characterInterview";
+import type { BibleKind } from "@core/bibleGroups";
 import { format, useLocale } from "./i18n";
 
 function CharacterAvatar({ thumb, label }: { thumb: string | undefined; label: string }) {
@@ -35,7 +36,7 @@ export function CharacterInterviewCard({
   onExtractFacts,
   onClose
 }: {
-  entity: { ref: string; label: string };
+  entity: { ref: string; label: string; kind: BibleKind };
   characterThumb?: string;
   history: InterviewMessage[];
   busy: boolean;
@@ -51,6 +52,7 @@ export function CharacterInterviewCard({
   const { messages: m } = useLocale();
   const [question, setQuestion] = useState("");
   const transcriptRef = useRef<HTMLDivElement>(null);
+  const isCharacter = entity.kind === "characters";
 
   useEffect(() => {
     const el = transcriptRef.current;
@@ -90,32 +92,38 @@ export function CharacterInterviewCard({
             </button>
           </div>
         </div>
-        <h2 id="interview-title">{format(m.interview.title, { name: entity.label })}</h2>
-        <p className="quiet">{format(m.interview.lede, { name: entity.label })}</p>
+        <h2 id="interview-title">{format(isCharacter ? m.interview.title : m.interview.titleWorld, { name: entity.label })}</h2>
+        <p className="quiet">{format(isCharacter ? m.interview.lede : m.interview.ledeWorld, { name: entity.label })}</p>
 
-        <div className="interview-personality">
-          <label htmlFor="interview-personality-field" className="field-label">
-            {m.interview.personalityLabel}
-          </label>
-          <textarea
-            id="interview-personality-field"
-            value={personalityDraft}
-            onChange={(event) => onPersonalityDraftChange(event.target.value)}
-            placeholder={m.interview.personalityPlaceholder}
-            rows={2}
-          />
-          <button
-            type="button"
-            className="text-button"
-            disabled={personalityDraft === savedPersonality}
-            onClick={onSavePersonality}
-          >
-            {m.interview.personalitySave}
-          </button>
-        </div>
+        {isCharacter ? (
+          <div className="interview-personality">
+            <label htmlFor="interview-personality-field" className="field-label">
+              {m.interview.personalityLabel}
+            </label>
+            <textarea
+              id="interview-personality-field"
+              value={personalityDraft}
+              onChange={(event) => onPersonalityDraftChange(event.target.value)}
+              placeholder={m.interview.personalityPlaceholder}
+              rows={2}
+            />
+            <button
+              type="button"
+              className="text-button"
+              disabled={personalityDraft === savedPersonality}
+              onClick={onSavePersonality}
+            >
+              {m.interview.personalitySave}
+            </button>
+          </div>
+        ) : null}
 
         <div className="interview-transcript" ref={transcriptRef}>
-          {history.length === 0 ? <p className="quiet interview-empty">{format(m.interview.empty, { name: entity.label })}</p> : null}
+          {history.length === 0 ? (
+            <p className="quiet interview-empty">
+              {format(isCharacter ? m.interview.empty : m.interview.emptyWorld, { name: entity.label })}
+            </p>
+          ) : null}
           {history.map((turn, index) => {
             const isAuthor = turn.role === "user";
             return (
@@ -131,7 +139,9 @@ export function CharacterInterviewCard({
           {busy ? (
             <div className="interview-row is-character">
               <CharacterAvatar thumb={characterThumb} label={entity.label} />
-              <p className="quiet interview-pending">{format(m.interview.thinking, { name: entity.label })}</p>
+              <p className="quiet interview-pending">
+                {format(isCharacter ? m.interview.thinking : m.interview.thinkingWorld, { name: entity.label })}
+              </p>
             </div>
           ) : null}
         </div>
@@ -149,7 +159,7 @@ export function CharacterInterviewCard({
           <textarea
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder={format(m.interview.placeholder, { name: entity.label })}
+            placeholder={format(isCharacter ? m.interview.placeholder : m.interview.placeholderWorld, { name: entity.label })}
             rows={2}
             disabled={busy}
             aria-label={m.interview.action}

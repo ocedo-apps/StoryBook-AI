@@ -1521,7 +1521,7 @@ export function Editor() {
 
         <BiblePanel
           onOpenGuide={() => openGuide("story-bible")}
-          onInterview={(entityRef, entityLabel) => store.startInterview(entityRef, entityLabel)}
+          onInterview={(entityRef, entityLabel, kind) => store.startInterview(entityRef, entityLabel, kind)}
           openEntitySignal={openEntitySignal}
         />
       </div>

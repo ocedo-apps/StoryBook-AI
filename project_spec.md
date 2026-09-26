@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.36
+Status: living document, v0.99.37
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.36 → v0.99.37:** Intervjun öppnad för hela Story
+Bible, inte bara karaktärer — svar på författarens fråga: vissa
+skriver fram sin lore först, andra kastar sig rakt in i prosan och vill
+kunna fråga ut en by som just nämndes som fakta för att bygga ut den.
+
+- "Intervjua"-knappen fanns tidigare bara på karaktärskort. Den finns
+  nu på alla korttyper (platser, föremål, grupper, händelser, koncept).
+  "Extrahera fakta ur samtalet"-knappen i intervjurutan fanns redan och
+  är oförändrad — den återanvänder samma fakta-extraherare som
+  kapitelextraktion och loreimport, så svaren kunde redan bli riktiga
+  Story Bible-fakta. Det som saknades var bara tillgången för andra
+  korttyper än karaktärer.
+- Prompten skiljer nu på korttyp. Karaktärer fungerar precis som förut:
+  modellen SVARAR SOM karaktären, i jag-form. För allt annat (en by, ett
+  föremål, en grupp …) är modellen istället författarens
+  världsbyggar-kollega som svarar i tredje person, utgår från det som
+  redan är etablerat och föreslår rimliga, konkreta tillägg när något
+  saknas — tydligt som förslag, aldrig som redan bestämt.
+- Rutans text anpassar sig också: "Fråga om Ravendal" istället för
+  "Intervjua Ravendal", "Fråga något om Ravendal…" istället för "Fråga
+  Ravendal något…" och så vidare. "Personlighet"-fältet (för att testa
+  fram en karaktärs röst) visas bara för karaktärer — en by har ingen
+  röst att stämma av.
+- Ny `kind`-parameter i `characterInterviewSystem()`, 3 nya tester (rätt
+  tredjepersons-ramning, rätt förslag när inget är etablerat om en
+  plats, inget personlighetsfält läcker in för icke-karaktärer). 662/662
+  gröna, typkontroll ren. Verifierat i webbläsaren: skapade en plats
+  ("Ravendal") och en karaktär ("Henrik") i samma bok — platsen fick
+  "Fråga om Ravendal" utan personlighetsfält, karaktären fick precis
+  samma "Intervjua Henrik"-upplevelse som innan, ingen regression.
 
 **Ändringslogg v0.99.35 → v0.99.36:** Varning vid kapitelradering om
 Story Bible-fakta kommer därifrån — svar på författarens fråga om vad

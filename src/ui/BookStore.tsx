@@ -31,6 +31,7 @@ import {
   type ManuscriptSource
 } from "@core/askManuscript";
 import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
+import type { BibleKind } from "@core/bibleGroups";
 import { profileFor, upsertCharacterProfile } from "@core/characterProfile";
 import { developExpandUserPrompt, developmentMethodById, materializeBeats, DEVELOP_EXPAND_SYSTEM, type DevelopmentStep } from "@core/developmentMethod";
 import {
@@ -210,7 +211,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [modelAsides, setModelAsides] = useState<string[]>([]);
   const [lastPrompt, setLastPrompt] = useState<PromptDebugEntry | null>(null);
   const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
-  const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string } | null>(null);
+  const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string; kind: BibleKind } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
   const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
@@ -1474,8 +1475,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, models.length, ollamaError, recordPrompt, reviewModel]
   );
 
-  const startInterview = useCallback((entityRef: string, entityLabel: string) => {
-    setInterviewEntity({ ref: entityRef, label: entityLabel });
+  const startInterview = useCallback((entityRef: string, entityLabel: string, kind: BibleKind) => {
+    setInterviewEntity({ ref: entityRef, label: entityLabel, kind });
     setInterviewHistory([]);
     setInterviewPersonalityDraft(profileFor(bookRef.current?.profiles ?? [], entityRef).personality);
   }, []);
@@ -1521,7 +1522,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       try {
         const provider = makeProvider(model);
         const askMessages: PromptDebugMessage[] = [
-          { role: "system", content: characterInterviewSystem(current, target.ref, target.label, interviewPersonalityDraft) },
+          { role: "system", content: characterInterviewSystem(current, target.ref, target.label, target.kind, interviewPersonalityDraft) },
           ...priorTurns,
           { role: "user", content: trimmed }
         ];
