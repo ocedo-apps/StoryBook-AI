@@ -19,6 +19,7 @@ import {
   updateBrainstormNote
 } from "@core/brainstormNotes";
 import { applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
+import { withRelationshipMirrorFor } from "@core/relationshipMirror";
 import { chapterScenes, mergeSceneWithNext, replaceSceneProse, sceneIdRemovedByMerge } from "@core/bookScene";
 import {
   ASK_MANUSCRIPT_SYSTEM,
@@ -1750,7 +1751,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       };
       if (!draft.entity_label || !draft.value) return;
       const sceneId = chapter ? chapterScenes(chapter)[0]?.id : undefined;
-      const facts = applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId);
+      const applied = applyAuthorDraft(current.facts, draft, chapter?.sequence_index ?? 0, chapter?.id, sceneId);
+      const facts = withRelationshipMirrorFor(applied, draft, current.entity_kinds);
       await flushSave(touch(current, { facts }));
     },
     [flushSave]
@@ -1760,7 +1762,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     async (factId: string, value: string) => {
       const current = bookRef.current;
       if (!current) return;
-      await flushSave(touch(current, { facts: reviseFact(current.facts, factId, value) }));
+      const target = current.facts.find((fact) => fact.id === factId);
+      const revised = reviseFact(current.facts, factId, value);
+      const facts = target
+        ? withRelationshipMirrorFor(revised, { entity_ref: target.entity_ref, predicate: target.predicate, value }, current.entity_kinds)
+        : revised;
+      await flushSave(touch(current, { facts }));
     },
     [flushSave]
   );
@@ -1770,7 +1777,16 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const current = bookRef.current;
       if (!current) return;
       const next = value ? reviseFact(current.facts, factId, value) : current.facts;
-      await flushSave(touch(current, { facts: approveFact(next, factId) }));
+      const approved = approveFact(next, factId);
+      const target = approved.find((fact) => fact.id === factId);
+      const facts = target
+        ? withRelationshipMirrorFor(
+            approved,
+            { entity_ref: target.entity_ref, predicate: target.predicate, value: target.value },
+            current.entity_kinds
+          )
+        : approved;
+      await flushSave(touch(current, { facts }));
     },
     [flushSave]
   );

@@ -169,7 +169,7 @@ export function applyExtractorDrafts(
   facts: NarrativeFact[],
   drafts: FactDraft[],
   sequence_index: number,
-  chapter_id: string,
+  chapter_id?: string,
   scene_id?: string
 ): NarrativeFact[] {
   let next = facts;
@@ -196,7 +196,7 @@ export function applyExtractorDrafts(
           status: "flagged",
           source: "extractor",
           sequence_index,
-          chapter_id,
+          ...(chapter_id ? { chapter_id } : {}),
           ...(scene_id ? { scene_id } : {}),
           conflict_with: decision.againstId
         })
@@ -212,7 +212,7 @@ export function applyExtractorDrafts(
             status: "flagged",
             source: "extractor",
             sequence_index,
-            chapter_id,
+            ...(chapter_id ? { chapter_id } : {}),
             ...(scene_id ? { scene_id } : {}),
             conflict_with: decision.supersedesId,
             is_merge_suggestion: true
@@ -227,7 +227,7 @@ export function applyExtractorDrafts(
         status: "ai_proposed",
         source: "extractor",
         sequence_index,
-        chapter_id,
+        ...(chapter_id ? { chapter_id } : {}),
         ...(scene_id ? { scene_id } : {})
       })
     );

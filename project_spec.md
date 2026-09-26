@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.29
+Status: living document, v0.99.30
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.29 → v0.99.30:** Relations-fakta som nämner en
+annan namngiven karaktär speglas nu automatiskt som ett förslag på den
+andra karaktärens kort — svar på författarens fråga om vad som händer
+när en intervjufråga till A ("hur lärde du känna B?") egentligen
+handlar om två personer.
+
+- Ny `relationshipMirror.ts`: när en fakta av typen Relation blir låst
+  och texten nämner exakt en annan känd karaktär vid namn, dras samma
+  påstående (namnen bytta) genom precis samma granskningskö som en
+  fakta AI:n hittar i kapiteltext — aldrig låst direkt. Är den andra
+  karaktären inte omnämnd, eller nämns två eller fler, görs ingen
+  gissning alls.
+- Just därför löser det här också det författaren egentligen var
+  orolig för: skriver den andra karaktärens profil redan något annat
+  om samma relation, dyker spegelförslaget upp som en riktig krock
+  ("Krockar med: ...") i Granskning — inte en tyst dubbelsanning i
+  Story Bible. Är fältet tomt hos den andra blir det bara ett vanligt
+  väntande förslag att låsa eller förkasta.
+- Kopplat in där en Relations-fakta faktiskt blir låst sanning: manuell
+  "Lägg till fakta", godkännande av ett AI-förslag (t.ex. från Intervju
+  eller kapitel-extraktion), och redigering av en redan låst fakta —
+  samma tre ställen i `BookStore.tsx` (`addFact`, `approve`, `revise`).
+  `applyExtractorDrafts` i `ConsistencyGate.ts` fick sitt `chapter_id`
+  valfritt för att kunna återanvändas här utan ett kapitel i bakgrunden.
+- 630/630 gröna (9 nya tester i `relationship-mirror.test.ts`).
+  Verifierat i webbläsaren end-to-end: skapade Anna och Erik, lät Anna
+  berätta att hon träffat Erik vid hamnen — Erik fick automatiskt ett
+  väntande förslag om samma möte, ingenting låstes direkt. Låste
+  förslaget. Ändrade sedan Annas version till att hon aldrig träffat
+  Erik — spegelförslaget för Erik dök nu upp flaggat som en krock mot
+  det redan låsta, istället för att tyst skriva över.
 
 **Ändringslogg v0.99.28 → v0.99.29:** Intervju med karaktär kan nu
 testa olika personlighet/ton innan man sparar den till profilen.
