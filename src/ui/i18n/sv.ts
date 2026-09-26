@@ -98,6 +98,10 @@ export const sv: Messages = {
     restoreDiscarded: "Återställ",
     throwAwayChapter: "Kasta {title}",
     throwAwayConfirm: "Kasta “{title}” för gott? Kapitlet försvinner. Det går inte att ångra.",
+    chapterFactsNote: {
+      one: "{count} faktum i Story Bible kommer från det här kapitlet. Det tas inte bort eller ändras automatiskt — kolla Story Bible om du vill uppdatera eller ta bort det för hand.",
+      other: "{count} fakta i Story Bible kommer från det här kapitlet. De tas inte bort eller ändras automatiskt — kolla Story Bible om du vill uppdatera eller ta bort dem för hand."
+    },
     reorderChapters: "Kapitel. Dra för att ändra ordningen.",
     showBrief: "Visa disposition för {title}",
     hideBrief: "Dölj disposition för {title}",

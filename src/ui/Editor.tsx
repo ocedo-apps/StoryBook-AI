@@ -26,6 +26,7 @@ import {
   type Tense
 } from "@core/craft";
 import { characterCast, profileFor } from "@core/characterProfile";
+import { lockedFactsFromChapter } from "@core/NarrativeFact";
 import {
   formatManuscriptMarkdown,
   manuscriptBackupBasename,
@@ -974,7 +975,12 @@ export function Editor() {
                       })}
                       onClick={() => {
                         const title = item.title.trim() || m.editor.untitled;
-                        if (!window.confirm(format(m.editor.discardChapterConfirm, { title }))) return;
+                        const relatedFacts = lockedFactsFromChapter(book.facts, item.id).length;
+                        const message =
+                          relatedFacts > 0
+                            ? `${format(m.editor.discardChapterConfirm, { title })}\n\n${count(relatedFacts, m.editor.chapterFactsNote)}`
+                            : format(m.editor.discardChapterConfirm, { title });
+                        if (!window.confirm(message)) return;
                         const remaining = chapters.filter((entry) => entry.id !== item.id);
                         const fallback = remaining[0]?.id;
                         void store.patchBook((current) => discardChapter(current, item.id)).then(() => {
@@ -1114,7 +1120,12 @@ export function Editor() {
                           className="icon-button"
                           aria-label={format(m.editor.throwAwayChapter, { title })}
                           onClick={() => {
-                            if (!window.confirm(format(m.editor.throwAwayConfirm, { title }))) return;
+                            const relatedFacts = lockedFactsFromChapter(book.facts, item.id).length;
+                            const message =
+                              relatedFacts > 0
+                                ? `${format(m.editor.throwAwayConfirm, { title })}\n\n${count(relatedFacts, m.editor.chapterFactsNote)}`
+                                : format(m.editor.throwAwayConfirm, { title });
+                            if (!window.confirm(message)) return;
                             void store.patchBook((current) => removeChapter(current, item.id));
                           }}
                         >

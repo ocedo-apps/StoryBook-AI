@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { slugify, normalizeValue } from "@core/ids";
-import { NarrativeFactSchema } from "@core/NarrativeFact";
+import { NarrativeFactSchema, lockedFactsFromChapter, type NarrativeFact } from "@core/NarrativeFact";
 
 describe("slugify", () => {
   it("turns a display name into a stable ref", () => {
@@ -106,5 +106,39 @@ describe("NarrativeFactSchema", () => {
 describe("normalizeValue", () => {
   it("treats spacing and case as the same claim", () => {
     expect(normalizeValue("  Sister of Kael ")).toBe(normalizeValue("sister of kael"));
+  });
+});
+
+describe("lockedFactsFromChapter", () => {
+  function fact(overrides: Partial<NarrativeFact> = {}): NarrativeFact {
+    return {
+      id: overrides.id ?? "f1",
+      entity_ref: "emma",
+      entity_label: "Emma",
+      predicate: "core.identity",
+      value: "Something",
+      sequence_index: 0,
+      status: "locked",
+      source: "author",
+      created_at: "2026-09-26T00:00:00.000Z",
+      ...overrides
+    };
+  }
+
+  it("finds only locked, active facts sourced from the given chapter", () => {
+    const facts = [
+      fact({ id: "a", chapter_id: "ch1" }),
+      fact({ id: "b", chapter_id: "ch2" }),
+      fact({ id: "c", chapter_id: "ch1", status: "ai_proposed" }),
+      fact({ id: "d", chapter_id: "ch1", superseded_by: "e" }),
+      fact({ id: "e", chapter_id: "ch1" }),
+      fact({ id: "f" })
+    ];
+    const result = lockedFactsFromChapter(facts, "ch1");
+    expect(result.map((row) => row.id).sort()).toEqual(["a", "e"]);
+  });
+
+  it("returns an empty list when nothing locked traces back to that chapter", () => {
+    expect(lockedFactsFromChapter([fact({ chapter_id: "ch2" })], "ch1")).toEqual([]);
   });
 });

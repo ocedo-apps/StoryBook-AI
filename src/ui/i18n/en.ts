@@ -96,6 +96,10 @@ export const en = {
     restoreDiscarded: "Restore",
     throwAwayChapter: "Throw away {title}",
     throwAwayConfirm: "Throw away “{title}”? The chapter will be gone. This cannot be undone.",
+    chapterFactsNote: {
+      one: "{count} fact in the Story Bible comes from this chapter. It will not be removed or changed automatically — check the Story Bible if you want to update or delete it by hand.",
+      other: "{count} facts in the Story Bible come from this chapter. They will not be removed or changed automatically — check the Story Bible if you want to update or delete them by hand."
+    },
     reorderChapters: "Chapters. Drag to change order.",
     showBrief: "Show brief for {title}",
     hideBrief: "Hide brief for {title}",

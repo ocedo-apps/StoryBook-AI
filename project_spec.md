@@ -1,9 +1,35 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.35
+Status: living document, v0.99.36
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.35 → v0.99.36:** Varning vid kapitelradering om
+Story Bible-fakta kommer därifrån — svar på författarens fråga om vad
+som händer med fakta när ett kapitel skrivs om eller raderas. Svaret
+var: ingenting automatiskt, fakta finns bara kvar, oavkortade och utan
+koppling till någon kapiteltext. Det gäller fortfarande (ingen
+auto-korrigering byggd), men nu varnas författaren om det innan hen
+raderar.
+
+- Både "×" (flytta till Borttagna kapitel — går att ångra) och "Kasta
+  för gott" (permanent, går inte att ångra) i kapitellistan visar nu,
+  om kapitlet har låsta fakta i Story Bible som kom just därifrån, en
+  extra rad i bekräftelserutan: "N fakta i Story Bible kommer från det
+  här kapitlet. De tas inte bort eller ändras automatiskt — kolla
+  Story Bible om du vill uppdatera eller ta bort dem för hand." Har
+  kapitlet inga sådana fakta ser bekräftelserutan ut precis som förut.
+- Ny funktion `lockedFactsFromChapter()` i `NarrativeFact.ts`, 2 nya
+  tester (hittar bara låsta, ej ersatta, fakta för rätt kapitel —
+  ignorerar väntande/flaggade förslag och fakta från andra kapitel).
+- 659/659 gröna. Verifierat i webbläsaren: skapade en karaktär medan
+  Kapitel 1 var öppet (fakta fick `chapter_id` för Kapitel 1), försökte
+  radera Kapitel 1 — bekräftelserutan visade rätt varningstext med
+  korrekt singular/plural-form ("1 fact"/"N facts"), avbröt (inget
+  hände), raderade på riktigt (kapitlet flyttades till Borttagna
+  kapitel, sen kastades för gott) — fakta och karaktären fanns kvar
+  orörda i Story Bible genom hela flödet, precis som varningen sa.
 
 **Ändringslogg v0.99.34 → v0.99.35:** "Ta bort det här kortet" — en
 riktig raderingsfunktion i Story Bible, svar på testarens fråga "am I

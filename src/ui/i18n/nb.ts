@@ -98,6 +98,10 @@ export const nb: Messages = {
     restoreDiscarded: "Gjenopprett",
     throwAwayChapter: "Kast {title}",
     throwAwayConfirm: "Kast “{title}” for godt? Kapittelet forsvinner. Dette kan ikke angres.",
+    chapterFactsNote: {
+      one: "{count} faktum i Story Bible kommer fra dette kapittelet. Det fjernes eller endres ikke automatisk — sjekk Story Bible hvis du vil oppdatere eller slette det for hånd.",
+      other: "{count} fakta i Story Bible kommer fra dette kapittelet. De fjernes eller endres ikke automatisk — sjekk Story Bible hvis du vil oppdatere eller slette dem for hånd."
+    },
     reorderChapters: "Kapitler. Dra for å endre rekkefølgen.",
     showBrief: "Vis brief for {title}",
     hideBrief: "Skjul brief for {title}",

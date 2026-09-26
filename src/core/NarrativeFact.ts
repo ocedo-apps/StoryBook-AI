@@ -75,3 +75,15 @@ export function activeFacts(facts: NarrativeFact[]): NarrativeFact[] {
 export function lockedFacts(facts: NarrativeFact[]): NarrativeFact[] {
   return facts.filter((fact) => isActiveFact(fact) && fact.status === "locked");
 }
+
+/**
+ * Locked facts sourced from one chapter — for warning an author who is
+ * about to discard or remove it that this Story Bible truth traces back
+ * to text that is about to disappear. Deleting the chapter never touches
+ * these rows (they are not deleted with it), so the warning is the only
+ * signal the author gets before the link between fact and source text is
+ * lost for good.
+ */
+export function lockedFactsFromChapter(facts: NarrativeFact[], chapterId: string): NarrativeFact[] {
+  return lockedFacts(facts).filter((fact) => fact.chapter_id === chapterId);
+}
