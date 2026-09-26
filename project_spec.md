@@ -1,9 +1,35 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.34
+Status: living document, v0.99.35
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.34 → v0.99.35:** "Ta bort det här kortet" — en
+riktig raderingsfunktion i Story Bible, svar på testarens fråga "am I
+blind or is there really no way to delete the articles?". Det stämde:
+det gick inte.
+
+- Varje kort (karaktär, plats, föremål, grupp, händelse, koncept) har
+  nu en "Ta bort det här kortet"-knapp bredvid "Intervjua" och "Dölj
+  för utkast". Klick öppnar en bekräftelseruta med kortets namn och en
+  tydlig varning om att det inte går att ångra; avbryt lämnar allt
+  orört.
+- Bekräftar man raderas kortet helt och på riktigt: alla dess fakta
+  (låsta, väntande och tidigare ersatta — inte bara de synliga),
+  karaktärsprofilen, bilderna, "dölj för utkast"-flaggan och en
+  eventuell manuell kategori-ändring. Skiljer sig medvetet från hur
+  fakta annars hanteras i Story Bible (aldrig raderade, bara ersatta av
+  nyare fakta) — den principen gäller för ett kort som fortfarande
+  finns kvar och utvecklas, inte för ett kort som aldrig borde funnits:
+  en duplikat, ett testkort, en struken karaktär. "Dölj för utkast"
+  fanns redan för att behålla ett kort men gömma det för modellen; nu
+  finns även den riktiga raderingen.
+- Ny ren funktion `deleteEntity()` i `src/core/deleteEntity.ts`, 3 nya
+  tester. 657/657 gröna totalt. Verifierat i webbläsaren: skapade ett
+  testkort, kontrollerade att bekräftelsetexten stämde, avbröt (kortet
+  fanns kvar), raderade på riktigt (kortet, dess fakta och allt annat
+  försvann direkt ur listan, rutan stängdes).
 
 **Ändringslogg v0.99.33 → v0.99.34:** "Skriv en beat" — lokaliserad
 generering mitt i en scen, den enklare av de två lösningar som

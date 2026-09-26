@@ -34,6 +34,7 @@ import {
 } from "@core/entityMedia";
 import { sortedChapters, touch, type Chapter } from "@core/BookSchema";
 import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "@core/renameEntity";
+import { deleteEntity } from "@core/deleteEntity";
 import { storyTimeRankByChapterId } from "@core/timeline";
 import { entityIsHidden, nextPositionOverride, setFactHidden, setFactPositionOverride, toggleHiddenEntity } from "@core/visibility";
 import { count, format, useLocale } from "./i18n";
@@ -354,6 +355,11 @@ export function BiblePanel({
           {...(onInterview
             ? { onInterview: () => onInterview(openEntity.entity_ref, openEntity.entity_label) }
             : {})}
+          onDelete={() => {
+            if (!window.confirm(format(m.bible.deleteConfirm, { name: openEntity.entity_label }))) return;
+            void patchBook((current) => deleteEntity(current, openEntity.entity_ref));
+            setOverlay(null);
+          }}
           onClose={() => setOverlay(null)}
         />
       ) : null}
@@ -605,6 +611,7 @@ function EntityOverlay({
   onCommitName,
   onReplaceTexts,
   onInterview,
+  onDelete,
   onClose
 }: {
   entity: BibleEntityGroup;
@@ -628,6 +635,7 @@ function EntityOverlay({
   onCommitName: (next: string) => { from: string; to: string; hits: number } | null;
   onReplaceTexts: (from: string, to: string) => void;
   onInterview?: () => void;
+  onDelete: () => void;
   onClose: () => void;
 }) {
   const [predicate, setPredicate] = useState<CorePredicate>(entity.facts[0]?.predicate ?? "core.identity");
@@ -671,6 +679,9 @@ function EntityOverlay({
             onClick={onToggleHidden}
           >
             {hidden ? m.bible.showToDraft : m.bible.hideFromDraft}
+          </button>
+          <button type="button" className="text-button danger" onClick={onDelete}>
+            {m.bible.deleteEntity}
           </button>
         </>
       }

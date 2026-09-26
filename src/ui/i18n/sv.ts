@@ -728,6 +728,8 @@ export const sv: Messages = {
     interview: "Intervjua",
     showToDraft: "Visa för utkast",
     hiddenNote: "Modellen ser inte det här kortet förrän du visar det igen.",
+    deleteEntity: "Ta bort kortet",
+    deleteConfirm: "Ta bort “{name}” helt, med alla dess fakta, bilder och profil? Det går inte att ångra.",
     thisIsA: "Detta är en",
     pictures: "Bilder",
     picturesAside: "(För senare export. Utkast ser aldrig dessa.)",

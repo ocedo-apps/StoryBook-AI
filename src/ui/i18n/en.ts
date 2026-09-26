@@ -727,6 +727,8 @@ export const en = {
     interview: "Interview",
     showToDraft: "Show to Draft",
     hiddenNote: "The model cannot see this card until you show it again.",
+    deleteEntity: "Delete this card",
+    deleteConfirm: "Delete “{name}” entirely, along with all its facts, pictures, and profile? This cannot be undone.",
     thisIsA: "This is a",
     pictures: "Pictures",
     picturesAside: "(For later export. Draft never sees these.)",

@@ -728,6 +728,8 @@ export const nb: Messages = {
     interview: "Intervju",
     showToDraft: "Vis for utkast",
     hiddenNote: "Modellen ser ikke dette kortet før du viser det igjen.",
+    deleteEntity: "Slett dette kortet",
+    deleteConfirm: "Slette “{name}” helt, med alle fakta, bilder og profil? Dette kan ikke angres.",
     thisIsA: "Dette er en",
     pictures: "Bilder",
     picturesAside: "(Til senere eksport. Utkast ser aldri disse.)",
