@@ -44,6 +44,7 @@ inte en ensidig lista.
 | 26 | Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten | ⬜ ej påbörjad — avvaktar, se nedan |
 | 27 | Riktig mobilanpassning av redigeringsytan | ⬜ ej påbörjad — avvaktar, se nedan |
 | 28 | Import från andra skrivverktyg — adapterarkitektur | ⬜ ej påbörjad — se nedan |
+| 29 | Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -840,6 +841,44 @@ matar in i befintlig data/pipeline, ingen egen parallell databas.
 inte bara lore). Tydlig scope-utvidgning jämfört med ren lore-import,
 av samma skäl som en egen parallell Snowflake-databas avvisades
 (punkt 13): bygg inte det stora innan det mindre är bevisat värt.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat än.
+
+### 29. Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok
+Författarens förslag: kunna markera att ett manus är del av en serie och
+fortsätter från en tidigare bok, och då ta med den bokens Lore/Story
+Bible istället för att börja om från noll.
+
+Det här är i praktiken den smalare, konkreta delen av "fler-boks-/
+serie-stöd" som redan flaggades som "en helt annan arkitekturnivå" och
+medvetet lämnades utanför under Novelcrafter-jämförelsen (se ovan) — inte
+en ny idé, utan författaren som specifikt efterfrågar just den här biten
+av den större frågan.
+
+**Öppna frågor att ta ställning till den dag det byggs, inte nu:**
+1. **Kopia eller levande länk?** Varje bok är idag ett helt fristående
+   `Book`-objekt (egen Story Bible, egna kapitel, egen lagring i
+   IndexedDB via `Repository.ts`) — inget korsreferererar mellan böcker.
+   En engångs-**kopia** av bok 1:s låsta fakta in i bok 2 vid det
+   tillfälle serien kopplas (med en valfri "uppdatera från bok 1"-knapp
+   senare) matchar den befintliga arkitekturen — varje bok äger
+   fortfarande sin egen sanning. En **levande länk** (ändringar i bok 1
+   syns automatiskt i bok 2) vore kraftfullare men kopplar ihop två
+   böckers data på ett sätt hela resten av appen idag medvetet undviker.
+2. **Allt eller ett urval?** En del av bok 1:s fakta må inte längre
+   stämma i bok 2 (t.ex. "letar fortfarande efter amuletten" efter att
+   amuletten hittades). Att bara kopiera in allt som ny låst kanon utan
+   granskning bryter mot appens grundprincip — författaren, inte
+   automatiken, avgör vad som blir kanon. Troligen behöver överförda
+   fakta gå genom samma granskningskö som Extract facts/Importera lore
+   redan använder, inte hamna direkt som låsta.
+3. **Story time-kontinuitet.** `story_time_order` finns redan per bok
+   (Timeline, punkt 9) — men ingen mekanism idag för att säga "bok 2:s
+   tidslinje fortsätter där bok 1:s slutade".
+4. **Datamodell**, om/när det byggs: troligen ett par valfria fält på
+   `Book` (typ `series_title?`, `series_position?`), samma
+   "missing on older saves"-mönster som `continues_from`, `discarded_at`
+   m.fl. redan använder — ingen brytande ändring.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat än.
 
