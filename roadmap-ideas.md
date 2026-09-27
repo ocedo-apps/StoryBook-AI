@@ -842,6 +842,25 @@ inte bara lore). Tydlig scope-utvidgning jämfört med ren lore-import,
 av samma skäl som en egen parallell Snowflake-databas avvisades
 (punkt 13): bygg inte det stora innan det mindre är bevisat värt.
 
+**Författarens uppföljning (2026-09-27): flerstegsflöde med
+innehållsklassificering.** Konkretisering av byggsteg 1 ovan, i tre
+steg istället för ett:
+1. **Ladda upp.** En fil (json eller text). Alternativet att klistra
+   in text direkt (dagens enda väg) ska finnas kvar parallellt, inte
+   ersättas — filuppladdning är ett tillägg, inte en ersättning.
+2. **Analysera filen.** Innan extraktorn körs, försöka avgöra vilken
+   typ av innehåll filen faktiskt är: världsbygge/lore, karaktär(er),
+   manus/prosa, med mera. Sannolikt en enkel klassificeringsfråga till
+   modellen (samma mönster som extraktorn redan använder), inte en ny
+   pipeline.
+3. **Gren beteendet efter klassificering.** Lore/karaktärer/världsbygge
+   fortsätter genom dagens flöde (faktaplockning → granskningskö). Om
+   filen istället klassas som manus/prosa, erbjud "Convert markers to
+   formatting" (byggd v0.99.48, nu egen knapp i toppmenyn) som en del
+   av importflödet — importerat manus har ofta kvar markörer
+   (`*kursiv*` och liknande) från det andra skrivverktyget, vilket är
+   precis det verktyget redan löser.
+
 **Status: idé nedskriven, inte påbörjad.** Inget kodat än.
 
 ### 29. Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok
