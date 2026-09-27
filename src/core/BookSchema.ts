@@ -10,6 +10,7 @@ import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
 import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 import { ProseFormattingRangeSchema } from "./proseFormatting";
+import { MarkerConversionRuleSchema } from "./markerConversion";
 
 export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore", "format"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
@@ -216,6 +217,14 @@ export const BookSchema = z.object({
    * no pace UI shown. Missing on older saves.
    */
   goal: WritingGoalSchema.optional(),
+  /**
+   * Author-defined rules for "Convert markers to formatting" (Settings).
+   * Missing on older saves and on a book that's never opened the tool —
+   * the Settings panel shows the two starter examples (`*`/`**`) in that
+   * case without writing them here, so a book stays untouched until the
+   * author actually edits, adds, or removes a rule.
+   */
+  marker_conversion_rules: z.array(MarkerConversionRuleSchema).optional(),
   created_at: z.string().min(1),
   updated_at: z.string().min(1)
 });

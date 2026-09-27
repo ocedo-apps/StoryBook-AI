@@ -1,4 +1,10 @@
-import { mergeAdjacentRanges, shiftFormattingRanges, type ProseFormattingRange, type ProseFormattingStyle } from "./proseFormatting";
+import { z } from "zod";
+import {
+  FORMATTING_STYLES,
+  mergeAdjacentRanges,
+  shiftFormattingRanges,
+  type ProseFormattingRange
+} from "./proseFormatting";
 
 /**
  * One "text wrapped in `open`…`close` becomes `style`" rule, e.g. `*`…`*` →
@@ -7,11 +13,18 @@ import { mergeAdjacentRanges, shiftFormattingRanges, type ProseFormattingRange, 
  * ("“" opening, "”" closing) are two different characters, and
  * only an asymmetric pair can match them at all.
  */
-export type MarkerConversionRule = {
-  open: string;
-  close: string;
-  style: ProseFormattingStyle;
-};
+export const MarkerConversionRuleSchema = z.object({
+  open: z.string(),
+  close: z.string(),
+  style: z.enum(FORMATTING_STYLES)
+});
+export type MarkerConversionRule = z.infer<typeof MarkerConversionRuleSchema>;
+
+/** Shown the first time an author opens the tool, before they've saved any rules of their own. */
+export const DEFAULT_MARKER_CONVERSION_RULES: MarkerConversionRule[] = [
+  { open: "*", close: "*", style: "italic" },
+  { open: "**", close: "**", style: "bold" }
+];
 
 export type MarkerConversionResult = {
   prose: string;

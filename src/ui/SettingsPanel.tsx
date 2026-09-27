@@ -13,7 +13,7 @@ import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHis
 import { READER_CATEGORIES, READER_TIER_AGE, applyReaderAge, readerCategory, type ReaderCategory } from "@core/reader";
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
 import { FORMATTING_STYLES, type ProseFormattingStyle } from "@core/proseFormatting";
-import type { MarkerConversionRule } from "@core/markerConversion";
+import { DEFAULT_MARKER_CONVERSION_RULES, type MarkerConversionRule } from "@core/markerConversion";
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
 import { BlobThumbnail } from "./BlobThumbnail";
@@ -70,10 +70,13 @@ export function SettingsPanel({
   const showViewpoint = needsViewpoint(book.pov);
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
   const [editingText, setEditingText] = useState(false);
-  const [markerRules, setMarkerRules] = useState<MarkerConversionRule[]>([
-    { open: "*", close: "*", style: "italic" },
-    { open: "**", close: "**", style: "bold" }
-  ]);
+  const markerRules = book.marker_conversion_rules ?? DEFAULT_MARKER_CONVERSION_RULES;
+  const setMarkerRules = (updater: (rules: MarkerConversionRule[]) => MarkerConversionRule[]) => {
+    onPatch((current) => ({
+      ...current,
+      marker_conversion_rules: updater(current.marker_conversion_rules ?? DEFAULT_MARKER_CONVERSION_RULES)
+    }));
+  };
   const [converting, setConverting] = useState(false);
   const [convertResult, setConvertResult] = useState<{ totalConversions: number; chaptersChanged: number } | null>(null);
 

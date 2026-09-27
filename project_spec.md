@@ -1,9 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.52
+Status: living document, v0.99.53
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.52 → v0.99.53:** Buggfix: reglerna i "Convert
+markers to formatting" sparades aldrig. De låg bara i komponentens
+egna, tillfälliga state (`useState`), inte i själva boken — så varje
+gång man lämnade Inställningar och kom tillbaka (eller laddade om
+sidan) återställdes de till de två standardexemplen (`*`/`**`), och
+allt man lagt till, ändrat eller tagit bort var borta. Fixat genom att
+flytta reglerna till boken själv (`book.marker_conversion_rules`,
+tillägg-fält, saknas på äldre sparfiler — då visas standardexemplen
+istället utan att skriva dem), sparas nu på samma sätt och med samma
+debounce som alla andra inställningar (Prosaspråk, Röst, med mera).
+Verifierat live: ändra/ta bort/lägga till en regel, navigera bort och
+tillbaka, och till och med ladda om sidan helt — reglerna ligger kvar.
 
 **Ändringslogg v0.99.51 → v0.99.52:** Lade till en fråga i Guide →
 8. Hjälp & felsökning om att "Convert markers to formatting" inte
