@@ -759,6 +759,10 @@ export const sv: Messages = {
       "ai-writing-wrong-things": {
         heading: "Om AI börjar skriva fel saker",
         body: "Fundera först på vilken information modellen faktiskt har fått.\n\nKapitelbriefen är gammal\nKontrollera om briefen fortfarande beskriver kapitlet du vill skriva.\n\nSynopsis har inte följt med berättelsens utveckling\nBerättelsen kanske har förändrats sedan du planerade den.\n\nIdén finns bara i Brainstorm\nBrainstorm är ett utforskande område. En idé där ska inte automatiskt behandlas som en del av berättelsen.\n\nInformationen kommer bara från en intervju\nSamma princip gäller här. Det som sades under intervjun påverkar inte hur boken skrivs om du inte har valt att låsa informationen som fakta.\n\nViktig information saknas i Story Bible\nOm något måste vara konsekvent kan det behöva etableras och låsas som fakta.\n\nDin instruktion är för bred\nIstället för: ”Skriv om scenen så att den blir bättre.”\nprova: ”Gör dialogen mellan Nora och Elias mer reserverad. De misstänker varandra men ingen vill visa det ännu.”\n\nJu tydligare problemet är, desto lättare blir det att välja rätt verktyg."
+      },
+      "marker-conversion-no-match": {
+        heading: "”Convert markers to formatting” hittar inga markeringar",
+        body: "Oftast beror det på att tecknet du skrev in i fältet inte är exakt samma tecken som finns i manuset — lätt hänt med citattecken, eftersom \" (rakt citattecken) och ” ” (smarta/typografiska citattecken, som ordbehandlare ofta byter till automatiskt) ser nästan likadana ut men är olika tecken för datorn.\n\nSäkraste lösningen: öppna kapitlet, markera ett av de riktiga tecknen i din text, kopiera det (Ctrl/Cmd+C), och klistra in det i fältet för öppnings- eller avslutningstecken istället för att skriva om det på tangentbordet. Då är det garanterat exakt rätt tecken."
       }
     }
   },

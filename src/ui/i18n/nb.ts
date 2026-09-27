@@ -759,6 +759,10 @@ export const nb: Messages = {
       "ai-writing-wrong-things": {
         heading: "Hvis AI begynner å skrive feil ting",
         body: "Tenk først på hvilken informasjon modellen faktisk har fått.\n\nKapittelbriefen er utdatert\nSjekk om briefen fortsatt beskriver kapittelet du vil skrive.\n\nSynopsis har ikke fulgt med historiens utvikling\nHistorien har kanskje endret seg siden du planla den.\n\nIdéen finnes bare i Brainstorm\nBrainstorm er et utforskende område. En idé der skal ikke automatisk behandles som en del av historien.\n\nInformasjonen kommer bare fra et intervju\nSamme prinsipp gjelder her. Det som ble sagt under intervjuet påvirker ikke hvordan boken skrives, med mindre du har valgt å låse informasjonen som et faktum.\n\nViktig informasjon mangler i Story Bible\nHvis noe må være konsekvent, kan det trenge å bli etablert og låst som et faktum.\n\nInstruksjonen din er for bred\nI stedet for: ”Skriv om scenen så den blir bedre.”\nprøv: ”Gjør dialogen mellom Nora og Elias mer tilbakeholden. De mistenker hverandre, men ingen vil vise det ennå.”\n\nJo tydeligere problemet er, desto lettere blir det å velge riktig verktøy."
+      },
+      "marker-conversion-no-match": {
+        heading: "«Convert markers to formatting» finner ingen markeringer",
+        body: "Som regel betyr det at tegnet du skrev inn i feltet ikke er nøyaktig samme tegn som i manuskriptet — lett å oppleve med anførselstegn, siden \" (rett anførselstegn) og «smarte»/typografiske anførselstegn (som tekstbehandlere ofte bytter til automatisk) ser nesten like ut, men er ulike tegn for datamaskinen.\n\nSikreste løsning: åpne kapittelet, marker ett av de faktiske tegnene i teksten din, kopier det (Ctrl/Cmd+C), og lim det inn i feltet for åpnings- eller avslutningstegn i stedet for å skrive det på tastaturet på nytt. Da er det garantert nøyaktig riktig tegn."
       }
     }
   },

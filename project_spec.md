@@ -1,9 +1,17 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.51
+Status: living document, v0.99.52
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.51 → v0.99.52:** Lade till en fråga i Guide →
+8. Hjälp & felsökning om att "Convert markers to formatting" inte
+hittar några markeringar — samma orsak som fixen i v0.99.51 (skrivna
+raka citattecken matchar inte manusets smarta citattecken, eftersom de
+är olika tecken för datorn). Rådet: kopiera det faktiska tecknet från
+manustexten och klistra in det i fältet, istället för att skriva om
+det, så det garanterat blir exakt rätt tecken.
 
 **Ändringslogg v0.99.50 → v0.99.51:** "Convert markers to formatting"
 fungerade inte med smarta/typografiska citattecken (”…”). Orsaken var

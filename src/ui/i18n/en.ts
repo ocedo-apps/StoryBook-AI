@@ -279,6 +279,10 @@ const handbookSections: Record<HandbookSectionId, { heading: string; body: strin
   "ai-writing-wrong-things": {
     heading: "If AI starts writing the wrong things",
     body: "First, think about what information the model actually received.\n\nThe chapter brief is outdated\nCheck whether the brief still describes the chapter you want to write.\n\nSynopsis hasn't kept up with the story's development\nThe story may have changed since you planned it.\n\nThe idea only exists in Brainstorm\nBrainstorm is an exploratory space. An idea there shouldn't automatically be treated as part of the story.\n\nThe information only comes from an interview\nThe same principle applies here. What was said during the interview doesn't affect how the book is written unless you've chosen to lock the information as a fact.\n\nImportant information is missing from Story Bible\nIf something needs to stay consistent, it may need to be established and locked as a fact.\n\nYour instruction is too broad\nInstead of: \"Rewrite the scene to make it better.\"\ntry: \"Make the dialogue between Nora and Elias more guarded. They suspect each other but neither wants to show it yet.\"\n\nThe clearer the problem is, the easier it becomes to choose the right tool."
+  },
+  "marker-conversion-no-match": {
+    heading: "\"Convert markers to formatting\" says nothing was found",
+    body: "This usually means the character you typed into the field isn't quite the same character as the one in your manuscript — easy to happen with quotation marks, since \" (straight) and “ ” (smart/typographic, which word processors often switch to automatically) look almost identical but are different characters to the computer.\n\nSafest fix: open the chapter, select one of the actual marker characters in your text, copy it (Ctrl/Cmd+C), and paste it into the Opening or Closing marker field instead of retyping it on the keyboard. That guarantees an exact match."
   }
 };
 
