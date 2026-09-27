@@ -107,10 +107,19 @@ export function parseExtractorPayload(raw: string): FactDraft[] {
       (typeof rec.entity_ref === "string" && rec.entity_ref.trim()) ||
       "";
     if (!label) continue;
-    const ref =
-      (typeof rec.entity_ref === "string" && rec.entity_ref.trim()) || slugify(label);
+    // entity_ref is always derived from entity_label, never taken from the
+    // model's own entity_ref field: the model invents that value fresh on
+    // every call (it never sees which refs already exist), so two facts it
+    // states about the exact same displayed name can get different
+    // self-chosen refs — the observed bug was literally "Dr. James
+    // Mortimer" landing as two separate Story Bible cards from one
+    // extraction. Slugifying the label itself is deterministic — the same
+    // displayed name always yields the same ref, in this batch or any
+    // other. Name *variants* ("Dr. Mortimer" vs "Dr. James Mortimer") still
+    // become separate cards; that needs either grounding the extractor in
+    // the existing cast or a real merge feature, not attempted here.
     drafts.push({
-      entity_ref: slugify(ref),
+      entity_ref: slugify(label),
       entity_label: label,
       predicate: predicateRaw,
       value
@@ -120,12 +129,12 @@ export function parseExtractorPayload(raw: string): FactDraft[] {
 }
 
 export const EXTRACTOR_SYSTEM = `You extract established narrative facts from accepted prose.
-Return JSON only, shaped as: {"facts":[{"entity_label":"...","entity_ref":"slug","predicate":"core.identity","value":"..."}]}
+Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.identity","value":"..."}]}
 
 Rules:
 - Only claims the text states as true. No metaphor, mood, subtext, or guesses.
 - predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
-- entity_label is the person's, place's, object's, group's, or concept's displayed name. entity_ref is a lowercase slug.
+- entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.
 - core.identity: who this is (a single person, name, role). core.trait: a stable characteristic. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
 - Skip style, clothing-of-the-moment, and implied feelings.
 - If nothing is extractable, return {"facts":[]}.`;

@@ -1,9 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.56
+Status: living document, v0.99.57
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.56 → v0.99.57:** Buggfix: Extract facts kunde
+skapa flera Story Bible-kort för exakt samma person (testarens exempel:
+"Dr. James Mortimer" två gånger, från samma kapitelextraktion).
+Orsaken: `entity_ref` (den stabila identiteten bakom ett kort) togs
+tidigare från modellens EGET påhittade förslag per fakta-rad — men
+modellen ser aldrig vilka kort som redan finns, så två fakta om exakt
+samma namn kunde få olika egenhändigt valda `entity_ref`. Fixat genom
+att alltid räkna ut `entity_ref` deterministiskt från det visade namnet
+(`entity_label`) i kod istället för att lita på modellens gissning —
+samma exakta namn ger alltid samma kort nu, i samma extraktion eller i
+en senare. Extraktor-prompten uppdaterad att inte längre be om
+`entity_ref` alls (sparar tokens) och istället be modellen stava namnet
+konsekvent genom hela extraktionen.
+
+**Kvarstående, medvetet inte löst denna gång**: namn-VARIANTER av samma
+person ("Dr. Mortimer" vs "Dr. James Mortimer", "Henry Baskerville" vs
+"Sir Henry Baskerville") blir fortfarande separata kort — det kräver
+antingen att extraktorn känner till redan etablerade kort (den ser idag
+bara det aktuella kapitlet, inget av Story Bible) eller en riktig
+"slå ihop kort"-funktion. Ingetdera byggt än.
 
 **Ändringslogg v0.99.55 → v0.99.56:** Interview var för otydligt kopplat
 till Story Bible för icke-karaktärer (platser, objekt m.fl.) — funktionen

@@ -8,7 +8,6 @@ describe("parseExtractorPayload", () => {
         facts: [
           {
             entity_label: "Emma",
-            entity_ref: "Emma Vale",
             predicate: "core.identity",
             value: "Bartender at the Aurora Room"
           }
@@ -17,12 +16,28 @@ describe("parseExtractorPayload", () => {
     );
     expect(drafts).toEqual([
       {
-        entity_ref: "emma-vale",
+        entity_ref: "emma",
         entity_label: "Emma",
         predicate: "core.identity",
         value: "Bartender at the Aurora Room"
       }
     ]);
+  });
+
+  it("derives entity_ref from entity_label, ignoring any entity_ref the model invented", () => {
+    // Regression: the model picks a fresh entity_ref on every call (it never sees
+    // which refs already exist), so two facts about the exact same displayed name
+    // could get different self-chosen refs and land as two separate Story Bible
+    // cards. entity_ref must be a pure function of entity_label instead.
+    const drafts = parseExtractorPayload(
+      JSON.stringify({
+        facts: [
+          { entity_label: "Dr. James Mortimer", entity_ref: "dr-mortimer", predicate: "core.identity", value: "A country doctor" },
+          { entity_label: "Dr. James Mortimer", entity_ref: "james-mortimer", predicate: "core.trait", value: "Owns a spaniel" }
+        ]
+      })
+    );
+    expect(drafts.map((d) => d.entity_ref)).toEqual(["dr-james-mortimer", "dr-james-mortimer"]);
   });
 
   it("recovers JSON from fenced model output and drops unknown predicates", () => {

@@ -45,6 +45,7 @@ inte en ensidig lista.
 | 27 | Riktig mobilanpassning av redigeringsytan | ⬜ ej påbörjad — avvaktar, se nedan |
 | 28 | Import från andra skrivverktyg — adapterarkitektur | ⬜ ej påbörjad — se nedan |
 | 29 | Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok | ⬜ ej påbörjad — se nedan |
+| 30 | Extract facts känner inte igen namn-varianter av samma person | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -898,6 +899,48 @@ av den större frågan.
    `Book` (typ `series_title?`, `series_position?`), samma
    "missing on older saves"-mönster som `continues_from`, `discarded_at`
    m.fl. redan använder — ingen brytande ändring.
+
+### 30. Extract facts känner inte igen namn-varianter av samma person
+Upptäckt via faktisk testning (Baskervilles hund, v0.99.57): efter
+faktaplockning ur ett kapitel hamnade "Dr. James Mortimer" och "Dr.
+Mortimer" som två separata Story Bible-kort, likaså "Henry Baskerville"
+och "Sir Henry Baskerville" — samma person, olika sätt att skriva namnet
+på i texten.
+
+**Vad som redan fixades (v0.99.57), som en separat, snävare bugg**:
+`entity_ref` (kortets stabila identitet) togs tidigare från modellens
+egna påhittade förslag per fakta-rad, vilket kunde ge exakt samma
+skrivna namn två olika kort inom en och samma extraktion. Det är nu
+alltid en deterministisk funktion av det visade namnet — samma
+teckenföljd ger alltid samma kort.
+
+**Det här är nästa, svårare lager**: två OLIKA skrivna namn som syftar
+på samma person. Extraktorn ser idag bara det aktuella kapitlets text —
+ingenting om vilka kort som redan finns i Story Bible — så den har
+ingen chans att känna igen att "Dr. Mortimer" är samma person som redan
+etablerade "Dr. James Mortimer".
+
+**Två möjliga vägar, inte valda än:**
+1. **Ge extraktorn kontext.** Skicka med en lista över redan etablerade
+   namn (bara `entity_label`, inte hela fakta) i prompten, och be
+   modellen återanvända ett existerande namn när den känner igen samma
+   person istället för att hitta på ett nytt. Billigt i tokens, men
+   modellen kan fortfarande missa eller felaktigt slå ihop två olika
+   personer med snarlika namn.
+2. **En riktig "slå ihop kort"-funktion i Story Bible.** Författaren
+   märker duplicaten (som nu) och slår ihop dem manuellt — författaren,
+   inte automatiken, avgör vad som är samma person, i linje med appens
+   grundprincip. Kräver en ny UI-flöde: välj två kort, välj vilket namn
+   som vinner, flytta alla fakta till samma `entity_ref`.
+   `renameEntityLabel`/`replaceNameInManuscript` gör redan halva jobbet
+   (byta visat namn) men ingen av dem slår ihop TVÅ redan skilda kort
+   till ett.
+
+Troligen båda på sikt — (1) minskar hur ofta det händer, (2) ger ett sätt
+att städa upp när det ändå händer. Ingetdera byggt än.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat än (utöver
+v0.99.57-fixen ovan, som är en förutsättning, inte samma sak).
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat än.
 
