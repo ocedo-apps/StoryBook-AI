@@ -14,6 +14,7 @@ import { READER_CATEGORIES, READER_TIER_AGE, applyReaderAge, readerCategory, typ
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
+import { MIN_CONTEXT_WINDOW, MAX_CONTEXT_WINDOW } from "@llm/contextWindow";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { format, useLocale } from "./i18n";
 import { PromptInspectorCard } from "./PromptInspector";
@@ -26,6 +27,7 @@ export function SettingsPanel({
   reviewModel,
   engine,
   baseUrl,
+  contextWindow,
   writingPrimer,
   historyLimit,
   illustrationStyles,
@@ -35,6 +37,8 @@ export function SettingsPanel({
   onReviewModel,
   onEngine,
   onBaseUrl,
+  onContextWindow,
+  onSuggestContextWindow,
   onPrimer,
   onResetPrimer,
   onHistoryLimit,
@@ -46,6 +50,7 @@ export function SettingsPanel({
   reviewModel: string;
   engine: LlmEngine;
   baseUrl: string;
+  contextWindow: number;
   writingPrimer: string;
   historyLimit: number;
   illustrationStyles: IllustrationStyle[];
@@ -55,6 +60,8 @@ export function SettingsPanel({
   onReviewModel: (name: string) => void;
   onEngine: (engine: LlmEngine) => void;
   onBaseUrl: (url: string) => void;
+  onContextWindow: (n: number) => void;
+  onSuggestContextWindow: () => Promise<number | null>;
   onPrimer: (text: string) => void;
   onResetPrimer: () => void;
   onHistoryLimit: (n: number) => void;
@@ -62,6 +69,8 @@ export function SettingsPanel({
 }) {
   const { messages: m } = useLocale();
   const [contextOpen, setContextOpen] = useState(false);
+  const [suggestingContext, setSuggestingContext] = useState(false);
+  const [contextSuggestResult, setContextSuggestResult] = useState<"found" | "none" | null>(null);
   const people = peopleLabels(book.facts, book.entity_kinds);
   const showViewpoint = needsViewpoint(book.pov);
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
@@ -236,6 +245,52 @@ export function SettingsPanel({
             onChange={onReviewModel}
           />
         </div>
+        <label className="reader-field">
+          <span>{m.editor.contextWindowLabel}</span>
+          <input
+            type="number"
+            min={MIN_CONTEXT_WINDOW}
+            max={MAX_CONTEXT_WINDOW}
+            inputMode="numeric"
+            value={contextWindow}
+            title={m.editor.contextWindowLede}
+            aria-label={m.editor.contextWindowLabel}
+            onChange={(event) => {
+              const raw = event.target.value;
+              if (raw === "") return;
+              const n = Number(raw);
+              if (!Number.isFinite(n)) return;
+              onContextWindow(n);
+            }}
+          />
+        </label>
+        <p className="quiet">{m.editor.contextWindowLede}</p>
+        {engine === "ollama" ? (
+          <div className="edit-actions">
+            <button
+              type="button"
+              className="text-button"
+              disabled={suggestingContext}
+              onClick={() => {
+                setSuggestingContext(true);
+                setContextSuggestResult(null);
+                void onSuggestContextWindow().then((found) => {
+                  setSuggestingContext(false);
+                  setContextSuggestResult(found !== null ? "found" : "none");
+                });
+              }}
+            >
+              {suggestingContext ? m.editor.contextWindowSuggesting : m.editor.contextWindowSuggest}
+            </button>
+            {contextSuggestResult === "found" ? (
+              <span className="quiet">{format(m.editor.contextWindowSuggested, { value: contextWindow })}</span>
+            ) : contextSuggestResult === "none" ? (
+              <span className="quiet">{m.editor.contextWindowSuggestError}</span>
+            ) : null}
+          </div>
+        ) : (
+          <p className="quiet">{m.editor.contextWindowOpenAiNote}</p>
+        )}
         <div className="edit-actions">
           <button type="button" className="text-button" onClick={() => setContextOpen(true)}>
             {m.aiContext.trigger}

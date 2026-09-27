@@ -83,12 +83,14 @@ export class OllamaProvider implements LLMProvider {
   private readonly model: string;
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
+  private readonly contextWindow: number | undefined;
 
-  constructor(config: { model: string; baseUrl?: string; name?: string; fetchImpl?: typeof fetch }) {
+  constructor(config: { model: string; baseUrl?: string; name?: string; fetchImpl?: typeof fetch; contextWindow?: number }) {
     this.model = config.model;
     this.baseUrl = normalizeBaseUrl(config.baseUrl);
     this.name = config.name ?? `ollama:${config.model}`;
     this.fetchImpl = boundFetch(config.fetchImpl);
+    this.contextWindow = config.contextWindow;
     this.capabilities = { streaming: true, cancellation: true };
   }
 
@@ -103,7 +105,8 @@ export class OllamaProvider implements LLMProvider {
         stream: true,
         options: {
           ...(request.temperature !== undefined ? { temperature: request.temperature } : {}),
-          ...(request.maxTokens !== undefined ? { num_predict: request.maxTokens } : {})
+          ...(request.maxTokens !== undefined ? { num_predict: request.maxTokens } : {}),
+          ...(this.contextWindow !== undefined ? { num_ctx: this.contextWindow } : {})
         }
       })
     });
@@ -169,6 +172,7 @@ export async function completeOllamaChat(options: {
   messages: ChatMessage[];
   temperature?: number;
   maxTokens?: number;
+  contextWindow?: number;
   signal?: AbortSignal;
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -184,7 +188,8 @@ export async function completeOllamaChat(options: {
       stream: false,
       options: {
         ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
-        ...(options.maxTokens !== undefined ? { num_predict: options.maxTokens } : {})
+        ...(options.maxTokens !== undefined ? { num_predict: options.maxTokens } : {}),
+        ...(options.contextWindow !== undefined ? { num_ctx: options.contextWindow } : {})
       }
     })
   });
@@ -197,4 +202,41 @@ export async function completeOllamaChat(options: {
     throw new Error("Ollama returned an empty reply.");
   }
   return content;
+}
+
+/**
+ * The model's own maximum trained context length, straight from Ollama
+ * (`/api/show`) — a real ceiling, not a guess about the author's hardware
+ * (which nothing running in a browser can actually see; there is no web API
+ * for GPU memory). `model_info` keys are architecture-prefixed
+ * ("llama.context_length", "qwen2.context_length", ...), so this scans for
+ * whichever one is present rather than hard-coding a family name. Returns
+ * undefined if Ollama doesn't report one — the author's own typed value in
+ * Settings is always the fallback, never a silent app guess.
+ */
+export async function getOllamaModelContextLength(options: {
+  model: string;
+  baseUrl?: string;
+  fetchImpl?: typeof fetch;
+  signal?: AbortSignal;
+}): Promise<number | undefined> {
+  const fetchImpl = boundFetch(options.fetchImpl);
+  const response = await fetchImpl(`${normalizeBaseUrl(options.baseUrl)}/api/show`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: options.signal ?? null,
+    body: JSON.stringify({ model: options.model })
+  });
+  if (!response.ok) {
+    throw new OllamaRequestError(response.status, response.statusText);
+  }
+  const payload: unknown = await response.json();
+  const modelInfo = (payload as { model_info?: unknown })?.model_info;
+  if (!modelInfo || typeof modelInfo !== "object") return undefined;
+  for (const [key, value] of Object.entries(modelInfo as Record<string, unknown>)) {
+    if (key.endsWith(".context_length") && typeof value === "number" && Number.isFinite(value) && value > 0) {
+      return value;
+    }
+  }
+  return undefined;
 }

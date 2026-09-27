@@ -43,6 +43,7 @@ export type BookStoreValue = {
   reviewModel: string;
   engine: LlmEngine;
   baseUrl: string;
+  contextWindow: number;
   historyLimit: number;
   ollamaError: string | null;
   busy: Busy;
@@ -81,6 +82,8 @@ export type BookStoreValue = {
   setReviewModel: (name: string) => void;
   setEngine: (engine: LlmEngine) => void;
   setBaseUrl: (url: string) => void;
+  setContextWindow: (n: number) => void;
+  suggestContextWindow: () => Promise<number | null>;
   setHistoryLimit: (n: number) => void;
   draftChapter: () => Promise<void>;
   recastChapter: () => Promise<void>;

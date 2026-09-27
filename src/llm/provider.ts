@@ -91,12 +91,20 @@ export class OllamaModelProvider implements LocalModelProvider {
   private readonly model: string;
   private readonly baseUrl: string | undefined;
   private readonly fetchImpl: typeof fetch | undefined;
+  private readonly contextWindow: number | undefined;
 
-  constructor(config: { model: string; baseUrl?: string; name?: string; fetchImpl?: typeof fetch }) {
+  constructor(config: {
+    model: string;
+    baseUrl?: string;
+    name?: string;
+    fetchImpl?: typeof fetch;
+    contextWindow?: number;
+  }) {
     if (config.baseUrl) assertLocalOnlyBaseUrl(config.baseUrl, config.name ?? "Ollama");
     this.model = config.model;
     this.baseUrl = config.baseUrl;
     this.fetchImpl = config.fetchImpl;
+    this.contextWindow = config.contextWindow;
     this.name = config.name ?? `ollama:${config.model}`;
   }
 
@@ -108,7 +116,8 @@ export class OllamaModelProvider implements LocalModelProvider {
       ...(request.maxTokens !== undefined ? { maxTokens: request.maxTokens } : {}),
       ...(request.signal ? { signal: request.signal } : {}),
       ...(this.baseUrl ? { baseUrl: this.baseUrl } : {}),
-      ...(this.fetchImpl ? { fetchImpl: this.fetchImpl } : {})
+      ...(this.fetchImpl ? { fetchImpl: this.fetchImpl } : {}),
+      ...(this.contextWindow !== undefined ? { contextWindow: this.contextWindow } : {})
     });
   }
 
@@ -116,7 +125,8 @@ export class OllamaModelProvider implements LocalModelProvider {
     const provider = new OllamaProvider({
       model: this.model,
       ...(this.baseUrl ? { baseUrl: this.baseUrl } : {}),
-      ...(this.fetchImpl ? { fetchImpl: this.fetchImpl } : {})
+      ...(this.fetchImpl ? { fetchImpl: this.fetchImpl } : {}),
+      ...(this.contextWindow !== undefined ? { contextWindow: this.contextWindow } : {})
     });
     return provider.streamCompletion(request);
   }

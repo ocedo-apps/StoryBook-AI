@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.57
+Status: living document, v0.99.58
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.57 → v0.99.58:** Buggfix från testarfeedback:
+StoryBook satte aldrig ett kontextfönster (`num_ctx`) i sina anrop till
+Ollama — bara `temperature` och `num_predict` (max antal genererade
+token). Det gjorde att Ollamas eget, ofta mycket lägre, standardvärde
+alltid gällde, oavsett hur stort kontextfönster modellen och datorn
+faktiskt klarar. Ett fullt Draft-anrop (helt kapitel hittills + Story
+Bible + synopsis) kan lätt passera det standardvärdet för ett kapitel
+av normal längd, vilket tyst försämrar modellens grepp om nyss skriven
+text — exakt det mönster en testare rapporterade (en karaktär
+beskriven i strumporna, för att i nästa stycke ha "bara fötter" på
+mattan).
+
+Löst med ett nytt fält i Inställningar, **Kontextfönster**, som sätts
+en gång för hela appen (samma nivå som motor/serveradress, inte per
+bok) och skickas som `num_ctx` i varje Ollama-anrop
+(`src/llm/contextWindow.ts`, standardvärde 8192 — säkrare än Ollamas
+eget, men författaren kan höja eller sänka). En **"Föreslå från
+modellen"**-knapp frågar Ollama (`/api/show`) vilket maxvärde den
+anslutna modellen faktiskt rapporterar och föreslår det — appen kan
+inte känna av VRAM (ingen webb-API för det finns), så det här är riktig
+data om modellen istället för en gissning om hårdvaran. Gäller bara
+Ollama; för LM Studio/andra OpenAI-kompatibla servrar sätts
+kontextlängden när modellen laddas där, med en förklarande text i
+UI:t istället för knappen.
+
+**Kvarstående, medvetet inte löst denna gång**: en separat, mindre
+fråga från samma testarrapport — scen-till-scen-Draft skickar bara de
+sista tre raderna av föregående scen (`sceneTail()` i
+`generateProse.ts`), vilket kan tappa en etablerad detalj (t.ex. att en
+karaktär redan satt sig ner) om den låg tidigare än så i föregående
+scen. Ett kontextfönster löser inte det — det är ett separat lager
+(vad StoryBooks egen kod väljer att lägga i prompten, inte vad modellen
+förmår ta emot). Inte byggt än.
 
 **Ändringslogg v0.99.56 → v0.99.57:** Buggfix: Extract facts kunde
 skapa flera Story Bible-kort för exakt samma person (testarens exempel:

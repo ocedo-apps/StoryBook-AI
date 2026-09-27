@@ -76,6 +76,13 @@ export const sv: Messages = {
     baseUrlLabel: "Serveradress",
     baseUrlPlaceholder: "http://localhost:1234",
     baseUrlLede: "Den lokala adress LM Studio (eller en annan lokal server, t.ex. llama.cpp) lyssnar på — visas oftast när du startar dess lokala server.",
+    contextWindowLabel: "Kontextfönster",
+    contextWindowLede: "Hur mycket text modellen får veta att den faktiskt får titta på. Ollamas eget standardvärde är ofta mycket mindre än vad din modell och dator egentligen klarar, vilket kan göra att Draft tappar bort detaljer som skrevs bara ett stycke eller två tillbaka. Ett högre tal kräver mer minne (RAM/VRAM) — sänk det om genereringen blir mycket långsam eller misslyckas.",
+    contextWindowSuggest: "Föreslå från modellen",
+    contextWindowSuggesting: "Kontrollerar…",
+    contextWindowSuggested: "Satt till {value}, modellens egna rapporterade maxvärde.",
+    contextWindowSuggestError: "Kunde inte hämta det här från modellen — ange det för hand.",
+    contextWindowOpenAiNote: "För LM Studio och andra OpenAI-kompatibla servrar sätts kontextlängden när du laddar modellen där, inte här.",
     historyLimit: "Versioner per kapitel",
     historyLimitLede:
       "Hur många tidigare versioner av ett kapitel som sparas, från Skriv utkast, Omskriv, Förläng, Utveckla och Skriv om. Så fort gränsen nås försvinner den äldsta versionen först. Det du skriver själv för hand sparas inte som en egen version — bara de här åtgärderna gör det.",

@@ -1148,6 +1148,7 @@ export function Editor() {
             reviewModel={reviewModel}
             engine={store.engine}
             baseUrl={store.baseUrl}
+            contextWindow={store.contextWindow}
             writingPrimer={writingPrimer}
             historyLimit={store.historyLimit}
             illustrationStyles={illustrationStyles.styles}
@@ -1157,6 +1158,8 @@ export function Editor() {
             onReviewModel={store.setReviewModel}
             onEngine={store.setEngine}
             onBaseUrl={store.setBaseUrl}
+            onContextWindow={store.setContextWindow}
+            onSuggestContextWindow={store.suggestContextWindow}
             onPrimer={store.setWritingPrimer}
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}

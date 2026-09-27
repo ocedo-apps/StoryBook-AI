@@ -362,6 +362,13 @@ export const en = {
     baseUrlLabel: "Server address",
     baseUrlPlaceholder: "http://localhost:1234",
     baseUrlLede: "The local address LM Studio (or another local server, such as llama.cpp) is listening on — usually shown when you start its local server.",
+    contextWindowLabel: "Context window",
+    contextWindowLede: "How much text the model is told it may actually look at. Ollama's own default is often much smaller than what your model and computer can really handle, which can make Draft lose track of details that were just written a paragraph or two ago. A bigger number needs more memory (RAM/VRAM) — lower it if generation becomes very slow or fails.",
+    contextWindowSuggest: "Suggest from model",
+    contextWindowSuggesting: "Checking…",
+    contextWindowSuggested: "Set to {value}, the model's own reported maximum.",
+    contextWindowSuggestError: "Couldn't get this from the model — set it by hand.",
+    contextWindowOpenAiNote: "For LM Studio and other OpenAI-compatible servers, the context length is set when you load the model there, not here.",
     historyLimit: "Versions per chapter",
     historyLimitLede:
       "How many earlier versions of a chapter are kept, going back through Draft, Recast, Extend, Elaborate, and Rewrite. Once you go over the limit, the oldest version is dropped first. Typing on your own doesn't create a version — only those actions do.",

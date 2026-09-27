@@ -71,6 +71,47 @@ describe("OllamaModelProvider", () => {
     expect(capturedBody?.stream).toBe(false);
   });
 
+  it("chat() sends contextWindow through as num_ctx", async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    const provider = new OllamaModelProvider({
+      model: "m",
+      contextWindow: 16384,
+      fetchImpl: async (_url, init) => {
+        capturedBody = JSON.parse(String(init?.body));
+        return jsonResponse({ message: { content: "hi" } });
+      }
+    });
+    await provider.chat({ messages: [{ role: "user", content: "hi" }] });
+    expect((capturedBody?.options as Record<string, unknown>)?.num_ctx).toBe(16384);
+  });
+
+  it("omits num_ctx entirely when no contextWindow is configured", async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    const provider = new OllamaModelProvider({
+      model: "m",
+      fetchImpl: async (_url, init) => {
+        capturedBody = JSON.parse(String(init?.body));
+        return jsonResponse({ message: { content: "hi" } });
+      }
+    });
+    await provider.chat({ messages: [{ role: "user", content: "hi" }] });
+    expect((capturedBody?.options as Record<string, unknown>)?.num_ctx).toBeUndefined();
+  });
+
+  it("streamChat() also sends contextWindow through as num_ctx", async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    const provider = new OllamaModelProvider({
+      model: "m",
+      contextWindow: 32768,
+      fetchImpl: async (_url, init) => {
+        capturedBody = JSON.parse(String(init?.body));
+        return streamResponse([`${JSON.stringify({ done: true, done_reason: "stop" })}\n`]);
+      }
+    });
+    await collect(provider.streamChat({ messages: [{ role: "user", content: "hi" }] }));
+    expect((capturedBody?.options as Record<string, unknown>)?.num_ctx).toBe(32768);
+  });
+
   it("streamChat() yields text deltas from Ollama's NDJSON stream", async () => {
     const provider = new OllamaModelProvider({
       model: "m",

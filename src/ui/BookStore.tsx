@@ -79,6 +79,7 @@ import type { FactDraft } from "@core/NarrativeFact";
 import {
   DEFAULT_OLLAMA_MODEL,
   DEFAULT_REVIEW_MODEL,
+  getOllamaModelContextLength,
   listOllamaModels,
   pickListedOllamaModel,
   pickListedReviewModel
@@ -91,6 +92,7 @@ import {
   type LlmEngine,
   type LocalModelProvider
 } from "@llm/provider";
+import { readContextWindow, writeContextWindow } from "@llm/contextWindow";
 import { BookNotFoundError, BookRepository } from "@persistence/Repository";
 import {
   ManuscriptBackupError,
@@ -205,6 +207,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   );
   const [engine, setEngineState] = useState<LlmEngine>(readEngine);
   const [baseUrl, setBaseUrlState] = useState(() => localStorage.getItem(BASE_URL_KEY) ?? "");
+  const [contextWindow, setContextWindowState] = useState(() => readContextWindow());
   const [historyLimit, setHistoryLimitState] = useState(() => readProseHistoryLimit());
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Busy>(null);
@@ -227,6 +230,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const historyLimitRef = useRef(historyLimit);
   const engineRef = useRef(engine);
   const baseUrlRef = useRef(baseUrl);
+  const contextWindowRef = useRef(contextWindow);
 
   bookRef.current = book;
   chapterRef.current = chapterId;
@@ -235,6 +239,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   historyLimitRef.current = historyLimit;
   engineRef.current = engine;
   baseUrlRef.current = baseUrl;
+  contextWindowRef.current = contextWindow;
 
   const writingSystem = (job: string) => withWritingPrimer(job, writingPrimerRef.current);
 
@@ -246,7 +251,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         ...(name ? { name } : {})
       });
     }
-    return new OllamaModelProvider({ model: modelName, ...(name ? { name } : {}) });
+    return new OllamaModelProvider({ model: modelName, contextWindow: contextWindowRef.current, ...(name ? { name } : {}) });
   }
 
   const persist = useCallback(
@@ -542,6 +547,32 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setBaseUrlState(url);
     localStorage.setItem(BASE_URL_KEY, url);
   }, []);
+
+  const setContextWindow = useCallback((n: number) => {
+    writeContextWindow(n);
+    setContextWindowState(readContextWindow());
+  }, []);
+
+  /**
+   * Pre-fills the context-window field from the connected model's own
+   * reported maximum (Ollama only — an OpenAI-compatible server's context
+   * length is set when the author loads the model there, not per request,
+   * so there is nothing equivalent to ask it for here). Returns the value
+   * on success so Settings can show what it found; null on failure or when
+   * Ollama doesn't report one, so Settings can say so rather than silently
+   * doing nothing.
+   */
+  const suggestContextWindow = useCallback(async (): Promise<number | null> => {
+    if (engineRef.current !== "ollama") return null;
+    try {
+      const found = await getOllamaModelContextLength({ model });
+      if (found === undefined) return null;
+      setContextWindow(found);
+      return found;
+    } catch {
+      return null;
+    }
+  }, [model, setContextWindow]);
 
   const setHistoryLimit = useCallback((n: number) => {
     const next = Number.isFinite(n) ? n : readProseHistoryLimit();
@@ -1969,6 +2000,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     reviewModel,
     engine,
     baseUrl,
+    contextWindow,
     historyLimit,
     ollamaError,
     busy,
@@ -2007,6 +2039,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setReviewModel,
     setEngine,
     setBaseUrl,
+    setContextWindow,
+    suggestContextWindow,
     setHistoryLimit,
     draftChapter,
     recastChapter,
