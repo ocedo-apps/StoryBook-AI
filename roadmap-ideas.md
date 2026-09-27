@@ -936,13 +936,30 @@ etablerade "Dr. James Mortimer".
    (byta visat namn) men ingen av dem slår ihop TVÅ redan skilda kort
    till ett.
 
+   **Författarens konkretisering av UX (2026-09-27):** markera flera
+   kort i rosterlistan, välj "Slå samman", få ett förslag att justera
+   innan man låser det — inte en tyst sammanslagning direkt.
+   - Förslaget bygger vidare på mönster som redan finns i koden istället
+     för att uppfinna nya: samma "behåll båda / ersätt"-val som redan
+     visas när en ny fakta krockar med en befintlig (`addChoiceKeepBoth`
+     / `addChoiceReplace` i `BiblePanel.tsx`) återanvänds här per
+     predikat där de valda korten har olika värden — ingen tyst
+     överskrivning, författaren väljer rad för rad.
+   - Vilket namn som blir kortets nya visade namn ska gå att välja/
+     justera, inte automatiskt bli det först markerade kortets — själva
+     bytet av visat namn kan återanvända `renameEntityLabel`.
+   - Efter sammanslagning: samma fråga som redan finns vid namnbyte
+     ("byt ut namnet i själva manustexten också?", `replaceNameInManuscript`)
+     bör ställas för varje namn som förlorar, inte bara ett.
+   - Öppen fråga inte löst än: vad händer om de markerade korten har
+     olika `kind` (t.ex. en "person" och en "grupp" råkar markeras ihop)
+     — troligen varna eller blockera snarare än gissa.
+
 Troligen båda på sikt — (1) minskar hur ofta det händer, (2) ger ett sätt
 att städa upp när det ändå händer. Ingetdera byggt än.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat än (utöver
 v0.99.57-fixen ovan, som är en förutsättning, inte samma sak).
-
-**Status: idé nedskriven, inte påbörjad.** Inget kodat än.
 
 ---
 
