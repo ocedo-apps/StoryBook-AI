@@ -7,6 +7,7 @@ import {
   buildManuscriptExport,
   formatExportHtml,
   formatExportMarkdown,
+  formatExportPlainText,
   formatExportRtf,
   packEpub,
   packOdt,
@@ -102,6 +103,19 @@ describe("manuscript export formats", () => {
     expect(html).toContain(`<h2 class="chapter">`);
   });
 
+  it("writes plain text with no markup at all", () => {
+    let book = { ...createBook("Night Keys"), synopsis: "Emma leaves before winter." };
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door.\n\nShe waited." });
+    const txt = formatExportPlainText(buildManuscriptExport(book, "First pass"));
+    expect(txt).toContain("Night Keys");
+    expect(txt).toContain("The quay");
+    expect(txt).toContain("Emma locked the door.\n\nShe waited.");
+    expect(txt).toContain("First pass");
+    expect(txt).not.toContain("#");
+    expect(txt).not.toContain("**");
+    expect(txt).not.toContain("Synopsis");
+  });
+
   it("leaves the synopsis and chapter briefs out of every publish format", async () => {
     let book = { ...createBook("Night Keys"), synopsis: "Emma leaves before winter." };
     book = updateChapter(book, book.chapters[0]!.id, {
@@ -116,6 +130,12 @@ describe("manuscript export formats", () => {
     expect(md).not.toContain("Emma leaves before winter.");
     expect(md).not.toContain("Brief:");
     expect(md).not.toContain("Emma meets the stranger");
+
+    const txt = formatExportPlainText(doc);
+    expect(txt).not.toContain("Synopsis");
+    expect(txt).not.toContain("Emma leaves before winter.");
+    expect(txt).not.toContain("Brief:");
+    expect(txt).not.toContain("Emma meets the stranger");
 
     const rtf = formatExportRtf(doc);
     expect(rtf).not.toContain("Synopsis");

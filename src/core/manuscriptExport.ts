@@ -116,6 +116,41 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
+/** Same content as `formatExportMarkdown`, with no markup at all — for authors who just want the words. */
+export function formatExportPlainText(doc: ManuscriptExport): string {
+  const lines: string[] = [doc.title, "", doc.exportedLabel];
+  if (doc.note) {
+    lines.push("", doc.note);
+  }
+  if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
+    lines.push("");
+    if (doc.voice) lines.push(`Voice: ${doc.voice}`);
+    if (doc.viewpoint) lines.push(`Viewpoint: ${doc.viewpoint}`);
+    if (doc.readerAge !== undefined) lines.push(`Reader: ${doc.readerAge}`);
+  }
+  for (const chapter of doc.chapters) {
+    lines.push("", "", chapter.heading);
+    if (chapter.voice) {
+      lines.push(`Voice: ${chapter.voice}`);
+    }
+    if (chapter.prose) {
+      lines.push("", chapter.prose);
+    }
+  }
+  if (doc.bible.length > 0) {
+    lines.push("", "", "STORY BIBLE");
+    for (const section of doc.bible) {
+      lines.push("", section.heading.toUpperCase());
+      for (const entity of section.entities) {
+        lines.push("", entity.name);
+        for (const line of entity.lines) lines.push(`- ${line}`);
+      }
+    }
+  }
+  lines.push("");
+  return lines.join("\n");
+}
+
 const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}.chapter-image{max-width:100%;height:auto;display:block;margin:0.75em 0 1.25em;border-radius:4px}@media print{h2.chapter{break-before:page}}`;
 const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 

@@ -789,6 +789,7 @@ export const sv: Messages = {
     systemFont: "Standardserif (Times/Georgia)",
     action: "Publicera",
     markdown: "Markdown",
+    txt: "Ren text",
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",

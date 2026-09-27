@@ -1,9 +1,24 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.48
+Status: living document, v0.99.49
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.48 → v0.99.49:** Ny publiceringsformat "Ren text"
+(.txt) — den andra delen av samma testarfeedback som Konvertera
+markeringar (v0.99.48). Tidigare fanns bara Markdown/RTF/ODT/HTML/ePub/
+PDF; ren text utan någon markup alls saknades helt.
+
+- Ny `formatExportPlainText()` i `manuscriptExport.ts` — samma innehåll
+  och struktur som Markdown-exporten, men helt utan `#`/`##`/`**`-tecken.
+- Nytt "Ren text"-alternativ i Publicera-dialogens formatväljare,
+  bredvid Markdown. Typsnittsväljaren inaktiveras för båda (ingen av
+  dem har typsnitt att välja).
+- 3 nya/utökade tester i `manuscript-export.test.ts`, 697/697 gröna
+  totalt, typkontroll ren. Verifierat i webbläsaren: valde Ren text,
+  laddade ner filen, kontrollerade att den heter `.txt` och innehåller
+  exakt manustexten utan någon markup.
 
 **Ändringslogg v0.99.47 → v0.99.48:** Ny "Konvertera markeringar till
 formatering" i Inställningar — svar på en testares feedback: hens

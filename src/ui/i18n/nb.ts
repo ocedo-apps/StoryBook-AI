@@ -789,6 +789,7 @@ export const nb: Messages = {
     systemFont: "Standardserif (Times/Georgia)",
     action: "Publiser",
     markdown: "Markdown",
+    txt: "Ren tekst",
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",

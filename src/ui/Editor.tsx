@@ -36,7 +36,7 @@ import {
   packManuscriptBackup,
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
-import { buildManuscriptExport, formatExportHtml, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
+import { buildManuscriptExport, formatExportHtml, formatExportPlainText, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
 import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
 import {
   addChapter,
@@ -361,7 +361,7 @@ export function Editor() {
   const [backupFilename, setBackupFilename] = useState("");
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishFilename, setPublishFilename] = useState("");
-  const [publishFormat, setPublishFormat] = useState<"md" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
+  const [publishFormat, setPublishFormat] = useState<"md" | "txt" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
   const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [findOpen, setFindOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
@@ -430,16 +430,18 @@ export function Editor() {
     noteClearedContinues(cleared);
   }
 
-  async function saveExport(kind: "md" | "rtf" | "odt" | "html" | "epub" | "pdf") {
+  async function saveExport(kind: "md" | "txt" | "rtf" | "odt" | "html" | "epub" | "pdf") {
     if (!book) return;
     const packed = packManuscriptBackup(book);
     const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
     const fontOption = publishFontById(publishFontId);
-    const embed = kind === "md" ? undefined : await loadPublishFontEmbed(publishFontId);
-    const font =
-      kind === "md" ? undefined : { name: fontOption.name, stack: fontOption.stack, ...(embed ? { embed } : {}) };
+    const plain = kind === "md" || kind === "txt";
+    const embed = plain ? undefined : await loadPublishFontEmbed(publishFontId);
+    const font = plain ? undefined : { name: fontOption.name, stack: fontOption.stack, ...(embed ? { embed } : {}) };
     if (kind === "md") {
       downloadText(ensureDownloadFilename(publishFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
+    } else if (kind === "txt") {
+      downloadText(ensureDownloadFilename(publishFilename, "txt"), formatExportPlainText(doc), "text/plain");
     } else if (kind === "rtf") {
       downloadText(ensureDownloadFilename(publishFilename, "rtf"), formatExportRtf(doc, font), "application/rtf");
     } else if (kind === "odt") {
@@ -1737,6 +1739,7 @@ export function Editor() {
               onChange={(event) => setPublishFormat(event.target.value as typeof publishFormat)}
             >
               <option value="md">{m.publish.markdown}</option>
+              <option value="txt">{m.publish.txt}</option>
               <option value="rtf">{m.publish.rtf}</option>
               <option value="odt">{m.publish.odt}</option>
               <option value="html">{m.publish.html}</option>
@@ -1750,7 +1753,7 @@ export function Editor() {
               id="publish-font"
               value={publishFontId}
               onChange={(event) => setPublishFontId(event.target.value as PublishFontId)}
-              disabled={publishFormat === "md"}
+              disabled={publishFormat === "md" || publishFormat === "txt"}
             >
               {PUBLISH_FONTS.map((font) => (
                 <option key={font.id} value={font.id}>

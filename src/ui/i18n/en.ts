@@ -799,6 +799,7 @@ export const en = {
     systemFont: "System serif (Times/Georgia)",
     action: "Publish",
     markdown: "Markdown",
+    txt: "Plain text",
     rtf: "RTF",
     odt: "ODT",
     html: "HTML",
