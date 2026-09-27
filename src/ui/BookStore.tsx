@@ -1595,6 +1595,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const target = interviewEntity;
       const trimmed = question.trim();
       if (!current || !target || busy || !trimmed) return;
+
+      const priorTurns = interviewHistory;
+      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
+
       if (models.length === 0) {
         setError(ollamaError ?? STORE_ERROR.noModel);
         return;
@@ -1605,9 +1609,6 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       abortRef.current = abort;
       setBusy("interview");
       setError(null);
-
-      const priorTurns = interviewHistory;
-      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
 
       try {
         const provider = makeProvider(model);
@@ -1627,7 +1628,6 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") return;
         setError(ollamaHint(err));
-        setInterviewHistory((prev) => prev.slice(0, -1));
       } finally {
         setBusy(null);
         abortRef.current = null;

@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.49
+Status: living document, v0.99.50
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.49 → v0.99.50:** Tre buggar från testarfeedback,
+alla hittade genom att faktiskt reproducera i webbläsaren istället för
+att bara läsa kod.
+
+- **Scenanteckningar sparade ingenting alls för ett aldrig delat
+  kapitel.** `chapterScenes()` visar en underförstådd "scen 1" på flygande
+  fot för kapitel som aldrig delats upp — men `updateSceneMeta()` letade
+  bara bland *redan sparade* scener, hittade ingen, och gjorde inget.
+  Skriva i scenanteckningen för det vanliga, odelade fallet (de allra
+  flesta kapitel) sparades alltså aldrig, oavsett tecken. Fixat: samma
+  "skapa den underförstådda scen-1:an om den inte redan finns"-mönster
+  som `addScene`/`splitSceneAtParagraph` redan använde.
+- **Mellanslag "fungerade inte" i scenanteckningar** (för kapitel som
+  faktiskt var uppdelade, där ovanstående bugg inte slog till): fältet
+  trimmade bort inledande/avslutande mellanslag på *varje* tangenttryckning,
+  inte bara vid sparning. Skriver man i ett tomt fält är varje mellanslag
+  man skriver per definition sist i texten — och blev alltså bortstädat
+  innan nästa bokstav ens hann läggas till. Redigerar man i mitten av
+  redan skriven text drabbades det aldrig, vilket stämde exakt med
+  författarens iakttagelse. Fixat: trimning används nu bara för att
+  avgöra om fältet ska räknas som tomt, aldrig för att ändra det sparade
+  värdet.
+- **"Intervjua"-funktionen för Story Bible-artiklar (även för
+  icke-karaktärer) kändes obruten men gjorde "ingenting".** När frågan
+  misslyckas (t.ex. ingen modell ansluten) försvann författarens egen
+  fråga tyst ur samtalet igen, och felmeddelandet visades bara i den
+  redan existerande sidbannern — som ligger *bakom* dialogrutans egen
+  mörka bakgrund och knappt syns. Fixat: författarens fråga stannar kvar
+  i samtalet, och ett tydligt felmeddelande visas nu direkt i
+  intervju-rutan.
+- 3 nya/utökade tester i `book-scene.test.ts`, 701/701 gröna totalt,
+  typkontroll ren. Alla tre reproducerade och verifierade i webbläsaren
+  (inte bara via kodläsning) före och efter fix.
 
 **Ändringslogg v0.99.48 → v0.99.49:** Ny publiceringsformat "Ren text"
 (.txt) — den andra delen av samma testarfeedback som Konvertera

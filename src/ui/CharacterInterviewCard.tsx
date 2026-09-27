@@ -28,6 +28,7 @@ export function CharacterInterviewCard({
   history,
   busy,
   extracting,
+  error,
   personalityDraft,
   savedPersonality,
   onPersonalityDraftChange,
@@ -41,6 +42,7 @@ export function CharacterInterviewCard({
   history: InterviewMessage[];
   busy: boolean;
   extracting: boolean;
+  error?: string | null;
   personalityDraft: string;
   savedPersonality: string;
   onPersonalityDraftChange: (text: string) => void;
@@ -145,6 +147,12 @@ export function CharacterInterviewCard({
             </div>
           ) : null}
         </div>
+
+        {error ? (
+          <p className="interview-error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         <form
           className="interview-form"

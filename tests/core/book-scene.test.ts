@@ -191,10 +191,49 @@ describe("sceneIdRemovedByMerge", () => {
 });
 
 describe("updateSceneMeta", () => {
+  it("materializes the implicit scene-1 on its first edit, for a chapter never split into scenes", () => {
+    // Regression: chapter.scenes is undefined until the author explicitly splits —
+    // chapterScenes() only synthesizes a scene-1 on the fly for that case, so
+    // editing its title/brief before ever splitting silently went nowhere:
+    // updateSceneMeta mapped over an empty array and never found anything to update.
+    const chapter = threeParagraphChapter();
+    const implicitId = `${chapter.id}:scene-1`;
+    const next = updateSceneMeta(chapter, implicitId, { brief: "Keep it tense." });
+    expect(next).toEqual([{ id: implicitId, startParagraph: 0, brief: "Keep it tense." }]);
+  });
+
   it("sets a title and a brief", () => {
     const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }] };
     const next = updateSceneMeta(chapter, "s1", { title: "The quay", brief: "Keep it tense." });
     expect(next[0]).toEqual({ id: "s1", startParagraph: 0, title: "The quay", brief: "Keep it tense." });
+  });
+
+  it("keeps a trailing space while typing, instead of trimming it away on every keystroke", () => {
+    const chapter: Chapter = { ...threeParagraphChapter(), scenes: [{ id: "s1", startParagraph: 0 }] };
+    // Regression: typing into a fresh field went through updateSceneMeta on every
+    // keystroke, and trimming the value on every call meant a just-typed trailing
+    // space was silently stripped before the next character could follow it —
+    // Space felt like it did nothing at all when typing from an empty field.
+    const next = updateSceneMeta(chapter, "s1", { brief: "Keep it " });
+    expect(next[0]!.brief).toBe("Keep it ");
+  });
+
+  it("keeps a space typed in the middle of existing text", () => {
+    const chapter: Chapter = {
+      ...threeParagraphChapter(),
+      scenes: [{ id: "s1", startParagraph: 0, brief: "Keepit tense." }]
+    };
+    const next = updateSceneMeta(chapter, "s1", { brief: "Keep it tense." });
+    expect(next[0]!.brief).toBe("Keep it tense.");
+  });
+
+  it("clears a field when given only whitespace", () => {
+    const chapter: Chapter = {
+      ...threeParagraphChapter(),
+      scenes: [{ id: "s1", startParagraph: 0, title: "The quay", brief: "Keep it tense." }]
+    };
+    const next = updateSceneMeta(chapter, "s1", { brief: "   " });
+    expect(next[0]).toEqual({ id: "s1", startParagraph: 0, title: "The quay" });
   });
 
   it("clears a field when given an empty string", () => {

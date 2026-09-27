@@ -176,17 +176,23 @@ export function updateSceneMeta(
 ): SceneMeta[] {
   const paragraphs = splitFlowParagraphs(chapter.prose);
   const current = normalizeSceneMetas(chapter.scenes, paragraphs.length);
-  return current.map((meta) => {
+  // A chapter that has never been split has no persisted scene of its own yet —
+  // `chapterScenes()` only synthesizes one implicit scene-1 on the fly, with the
+  // same id, so editing its title/brief for the first time needs to materialize
+  // a real entry before there's anything to update. Same fallback `addScene` and
+  // `splitSceneAtParagraph` already use.
+  const base = current.length > 0 ? current : [{ id: `${chapter.id}:scene-1`, startParagraph: 0 }];
+  return base.map((meta) => {
     if (meta.id !== sceneId) return meta;
     const next = { ...meta };
     if ("title" in patch) {
-      const trimmed = patch.title?.trim();
-      if (trimmed) next.title = trimmed;
+      const raw = patch.title ?? "";
+      if (raw.trim()) next.title = raw;
       else delete next.title;
     }
     if ("brief" in patch) {
-      const trimmed = patch.brief?.trim();
-      if (trimmed) next.brief = trimmed;
+      const raw = patch.brief ?? "";
+      if (raw.trim()) next.brief = raw;
       else delete next.brief;
     }
     return next;
