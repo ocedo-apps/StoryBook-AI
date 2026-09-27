@@ -1,9 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.53
+Status: living document, v0.99.54
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.53 → v0.99.54:** Två UI-önskemål från testarfeedback.
+
+- **"Import lore" flyttad till bokens toppmeny.** Låg tidigare gömd
+  inne i Story Bible-panelen (bara synlig när man redan var där).
+  Ligger nu som en egen knapp bredvid Inställningar/Backup/Sök, synlig
+  oavsett vilken sida man står på — precis som de andra
+  verktygsknapparna. Funktionen är oförändrad, bara mer upptäckbar.
+- **Bokens titelfält var för smalt.** Hade inget minsta bredd satt i
+  CSS:en, så fältet kunde krympa ner mot webbläsarens standardbredd
+  för textfält istället för att faktiskt visa titeln. Satt en
+  minimibredd (20rem) så det syns ordentligt, upp till samma maxbredd
+  (40rem) som innan.
 
 **Ändringslogg v0.99.52 → v0.99.53:** Buggfix: reglerna i "Convert
 markers to formatting" sparades aldrig. De låg bara i komponentens

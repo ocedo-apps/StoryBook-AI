@@ -75,6 +75,7 @@ import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
+import { LoreImportCard } from "./LoreImportCard";
 import { CharacterInterviewCard } from "./CharacterInterviewCard";
 import { SettingsPanel } from "./SettingsPanel";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
@@ -364,6 +365,7 @@ export function Editor() {
   const [publishFormat, setPublishFormat] = useState<"md" | "txt" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
   const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [findOpen, setFindOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -599,7 +601,7 @@ export function Editor() {
   }, [book.id]);
 
   useEffect(() => {
-    if (!backupOpen && !publishOpen && !findOpen && !illustrateOpen) return;
+    if (!backupOpen && !publishOpen && !findOpen && !illustrateOpen && !importOpen) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setBackupOpen(false);
@@ -607,10 +609,11 @@ export function Editor() {
       setFindOpen(false);
       setFindHighlight(null);
       setIllustrateOpen(false);
+      setImportOpen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [backupOpen, publishOpen, findOpen, illustrateOpen]);
+  }, [backupOpen, publishOpen, findOpen, illustrateOpen, importOpen]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -672,6 +675,18 @@ export function Editor() {
             }}
           >
             {jsonBackupDue ? m.editor.backupDue : m.editor.backup}
+          </button>
+          <button
+            type="button"
+            className="text-button theme-toggle"
+            onClick={() => {
+              setPublishOpen(false);
+              setFindOpen(false);
+              setFindHighlight(null);
+              setImportOpen(true);
+            }}
+          >
+            {m.bible.importLoreNav}
           </button>
           <div className="find-anchor">
             <button
@@ -1705,6 +1720,13 @@ export function Editor() {
             </div>
           </form>
         </div>
+      ) : null}
+      {importOpen ? (
+        <LoreImportCard
+          busy={busy === "import-lore"}
+          onImport={(title, text) => void store.importLoreArticle(title, text)}
+          onClose={() => setImportOpen(false)}
+        />
       ) : null}
       {publishOpen ? (
         <div className="edit-overlay" role="presentation" onClick={() => setPublishOpen(false)}>

@@ -42,15 +42,13 @@ import { picturesFromFile, EntityImageError } from "./entityImage";
 import { downloadJson } from "./downloadJson";
 import { useBookStore } from "./useBookStore";
 import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
-import { LoreImportCard } from "./LoreImportCard";
 import { GuideHelpButton } from "./GuidePanel";
 
 type Overlay =
   | { type: "review" }
   | { type: "entity"; ref: string }
   | { type: "asOfEntity"; ref: string }
-  | { type: "new"; kind: BibleKind }
-  | { type: "importLore" };
+  | { type: "new"; kind: BibleKind };
 
 function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitled: string): string {
   const chapter = chapterId ? chapters.find((item) => item.id === chapterId) : undefined;
@@ -66,7 +64,7 @@ export function BiblePanel({
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
 }) {
-  const { book, busy, approve, reject, addFact, reviseFact, patchBook, setChapterId, importLoreArticle } = useBookStore();
+  const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
@@ -164,11 +162,6 @@ export function BiblePanel({
               title={m.bible.exportCardsTitle}
             >
               {m.bible.exportCards}
-            </button>
-          )}
-          {asOfChapter ? null : (
-            <button type="button" className="text-button" onClick={() => setOverlay({ type: "importLore" })}>
-              {m.bible.importLoreNav}
             </button>
           )}
         </div>
@@ -368,13 +361,6 @@ export function BiblePanel({
             await addFact({ label, predicate, value });
             setOverlay({ type: "entity", ref: slugify(label) });
           }}
-          onClose={() => setOverlay(null)}
-        />
-      ) : null}
-      {overlay?.type === "importLore" ? (
-        <LoreImportCard
-          busy={busy === "import-lore"}
-          onImport={(title, text) => void importLoreArticle(title, text)}
           onClose={() => setOverlay(null)}
         />
       ) : null}
