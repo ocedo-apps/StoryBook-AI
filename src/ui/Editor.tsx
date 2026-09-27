@@ -1129,6 +1129,7 @@ export function Editor() {
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}
             onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
+            onConvertMarkers={store.convertMarkersToFormatting}
           />
         ) : onBoard ? (
           <DispositionBoard

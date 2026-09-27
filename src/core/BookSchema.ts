@@ -11,7 +11,7 @@ import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 import { ProseFormattingRangeSchema } from "./proseFormatting";
 
-export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore"] as const;
+export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore", "format"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
 
 export const ProseRevisionSchema = z.object({

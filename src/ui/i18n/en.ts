@@ -1318,8 +1318,26 @@ export const en = {
       elaborate: "Elaborate",
       rewrite: "Rewrite",
       beat: "Beat",
-      restore: "Restore"
+      restore: "Restore",
+      format: "Formatting"
     }
+  },
+  markerConvert: {
+    heading: "Convert markers to formatting",
+    intro:
+      "Turn characters like *asterisks* from an imported manuscript into real bold, italic, or underline. The markers are removed from the text; only the formatting stays. Longer markers run first, so \"**\" is not mistaken for two single \"*\" — set both if your manuscript uses them for different things.",
+    markerLabel: "Marker",
+    markerPlaceholder: "e.g. *",
+    becomes: "becomes",
+    styleLabel: "Style",
+    addRule: "Add rule",
+    removeRule: "Remove",
+    convertAction: "Convert whole manuscript",
+    converting: "Converting…",
+    resultSummary: "Converted {markers} across {chapters}.",
+    resultNone: "No markers found — nothing to convert.",
+    markersCount: { one: "{count} marker", other: "{count} markers" },
+    chaptersCount: { one: "{count} chapter", other: "{count} chapters" }
   },
   errors: {
     ollamaOrigins: "The local server did not accept the browser. Using Ollama? Start it with OLLAMA_ORIGINS=http://localhost:5175. Using LM Studio or another server? Look for a setting about which web addresses are allowed to connect (often called CORS or allowed origins).",

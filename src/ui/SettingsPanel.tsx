@@ -12,10 +12,12 @@ import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
 import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
 import { READER_CATEGORIES, READER_TIER_AGE, applyReaderAge, readerCategory, type ReaderCategory } from "@core/reader";
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
+import { FORMATTING_STYLES, type ProseFormattingStyle } from "@core/proseFormatting";
+import type { MarkerConversionRule } from "@core/markerConversion";
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
 import { BlobThumbnail } from "./BlobThumbnail";
-import { format, useLocale } from "./i18n";
+import { count, format, useLocale } from "./i18n";
 import { PromptInspectorCard } from "./PromptInspector";
 import type { PromptDebugEntry } from "./promptDebug";
 
@@ -38,7 +40,8 @@ export function SettingsPanel({
   onPrimer,
   onResetPrimer,
   onHistoryLimit,
-  onBrowseIllustrationLibrary
+  onBrowseIllustrationLibrary,
+  onConvertMarkers
 }: {
   book: Book;
   models: string[];
@@ -59,6 +62,7 @@ export function SettingsPanel({
   onResetPrimer: () => void;
   onHistoryLimit: (n: number) => void;
   onBrowseIllustrationLibrary: () => void;
+  onConvertMarkers: (rules: MarkerConversionRule[]) => Promise<{ totalConversions: number; chaptersChanged: number }>;
 }) {
   const { messages: m } = useLocale();
   const [contextOpen, setContextOpen] = useState(false);
@@ -66,6 +70,12 @@ export function SettingsPanel({
   const showViewpoint = needsViewpoint(book.pov);
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
   const [editingText, setEditingText] = useState(false);
+  const [markerRules, setMarkerRules] = useState<MarkerConversionRule[]>([
+    { marker: "*", style: "italic" },
+    { marker: "**", style: "bold" }
+  ]);
+  const [converting, setConverting] = useState(false);
+  const [convertResult, setConvertResult] = useState<{ totalConversions: number; chaptersChanged: number } | null>(null);
 
   return (
     <main className="manuscript settings-page">
@@ -284,6 +294,82 @@ export function SettingsPanel({
           </button>
         </div>
         <p className="quiet">{m.editor.uiLanguageStays}</p>
+      </section>
+
+      <section className="settings-block">
+        <h2 className="settings-heading">{m.markerConvert.heading}</h2>
+        <p className="quiet">{m.markerConvert.intro}</p>
+        <div className="marker-convert-rules">
+          {markerRules.map((rule, index) => (
+            <div className="marker-convert-rule" key={index}>
+              <input
+                value={rule.marker}
+                onChange={(event) => {
+                  const marker = event.target.value;
+                  setMarkerRules((rules) => rules.map((item, i) => (i === index ? { ...item, marker } : item)));
+                }}
+                placeholder={m.markerConvert.markerPlaceholder}
+                aria-label={m.markerConvert.markerLabel}
+              />
+              <span className="quiet">{m.markerConvert.becomes}</span>
+              <select
+                value={rule.style}
+                onChange={(event) => {
+                  const style = event.target.value as ProseFormattingStyle;
+                  setMarkerRules((rules) => rules.map((item, i) => (i === index ? { ...item, style } : item)));
+                }}
+                aria-label={m.markerConvert.styleLabel}
+              >
+                {FORMATTING_STYLES.map((style) => (
+                  <option key={style} value={style}>
+                    {m.canvas[style]}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setMarkerRules((rules) => rules.filter((_, i) => i !== index))}
+              >
+                {m.markerConvert.removeRule}
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="edit-actions">
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => setMarkerRules((rules) => [...rules, { marker: "", style: "italic" }])}
+          >
+            {m.markerConvert.addRule}
+          </button>
+          <button
+            type="button"
+            className="primary"
+            disabled={converting || markerRules.every((rule) => rule.marker.trim() === "")}
+            onClick={() => {
+              setConverting(true);
+              setConvertResult(null);
+              void onConvertMarkers(markerRules).then((result) => {
+                setConvertResult(result);
+                setConverting(false);
+              });
+            }}
+          >
+            {converting ? m.markerConvert.converting : m.markerConvert.convertAction}
+          </button>
+        </div>
+        {convertResult ? (
+          <p className="quiet">
+            {convertResult.chaptersChanged === 0
+              ? m.markerConvert.resultNone
+              : format(m.markerConvert.resultSummary, {
+                  markers: count(convertResult.totalConversions, m.markerConvert.markersCount),
+                  chapters: count(convertResult.chaptersChanged, m.markerConvert.chaptersCount)
+                })}
+          </p>
+        ) : null}
       </section>
     </main>
   );

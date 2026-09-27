@@ -19,6 +19,7 @@ import {
   updateBrainstormNote
 } from "@core/brainstormNotes";
 import { applyAuthorAddition, applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
+import { applyMarkerConversion, type MarkerConversionRule } from "@core/markerConversion";
 import { withRelationshipMirrorFor } from "@core/relationshipMirror";
 import { chapterScenes, mergeSceneWithNext, replaceSceneProse, sceneIdRemovedByMerge } from "@core/bookScene";
 import {
@@ -337,6 +338,27 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         next = recordProseRevision(next, id, op, before, historyLimitRef.current);
       }
       await flushSave(updateChapter(next, id, { prose: assembled, ...(formatting ? { formatting } : {}) }));
+    },
+    [flushSave]
+  );
+
+  const convertMarkersToFormatting = useCallback(
+    async (rules: MarkerConversionRule[]) => {
+      const current = bookRef.current;
+      if (!current) return { totalConversions: 0, chaptersChanged: 0 };
+      let next = current;
+      let totalConversions = 0;
+      let chaptersChanged = 0;
+      for (const chapter of current.chapters) {
+        const result = applyMarkerConversion(chapter.prose, chapter.formatting ?? [], rules);
+        if (result.count === 0) continue;
+        totalConversions += result.count;
+        chaptersChanged += 1;
+        next = recordProseRevision(next, chapter.id, "format", chapter.prose, historyLimitRef.current);
+        next = updateChapter(next, chapter.id, { prose: result.prose, formatting: result.formatting });
+      }
+      if (chaptersChanged > 0) await flushSave(next);
+      return { totalConversions, chaptersChanged };
     },
     [flushSave]
   );
@@ -1977,6 +1999,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showMethod,
     showGuide,
     showHandbook,
+    convertMarkersToFormatting,
     dismissModelAside,
     setModel,
     setWritingPrimer,

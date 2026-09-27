@@ -1425,6 +1425,35 @@ button:disabled {
   gap: 0.85rem;
 }
 
+.marker-convert-rules {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.marker-convert-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.marker-convert-rule input {
+  width: 5rem;
+  flex: 0 0 auto;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.55rem;
+  font-family: var(--font-ui);
+}
+
+.marker-convert-rule select {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.55rem;
+}
+
 .settings-engine {
   display: grid;
   gap: 0.85rem;

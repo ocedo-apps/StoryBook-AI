@@ -1308,8 +1308,26 @@ export const nb: Messages = {
       elaborate: "Utvid",
       rewrite: "Skriv om",
       beat: "Beat",
-      restore: "Gjenopprett"
+      restore: "Gjenopprett",
+      format: "Formatering"
     }
+  },
+  markerConvert: {
+    heading: "Konverter markeringer til formatering",
+    intro:
+      "Gjør om tegn som *asterisker* fra et importert manus til ekte fet skrift, kursiv eller understreking. Markeringene fjernes fra teksten — bare formateringen blir igjen. Lengre markeringer kjøres først, slik at \"**\" ikke tolkes som to enkle \"*\" — legg til begge hvis manuset ditt bruker dem til ulike ting.",
+    markerLabel: "Markering",
+    markerPlaceholder: "f.eks. *",
+    becomes: "blir",
+    styleLabel: "Stil",
+    addRule: "Legg til rad",
+    removeRule: "Fjern",
+    convertAction: "Konverter hele manuset",
+    converting: "Konverterer…",
+    resultSummary: "Konverterte {markers} i {chapters}.",
+    resultNone: "Ingen markeringer funnet — ingenting å konvertere.",
+    markersCount: { one: "{count} markering", other: "{count} markeringer" },
+    chaptersCount: { one: "{count} kapittel", other: "{count} kapitler" }
   },
   errors: {
     ollamaOrigins: "Den lokale serveren tok ikke imot nettleseren. Kjører du Ollama? Start den med OLLAMA_ORIGINS=http://localhost:5175. Kjører du LM Studio eller en annen server? Se etter en innstilling for hvilke nettadresser som får koble til (kalles ofte CORS eller allowed origins).",

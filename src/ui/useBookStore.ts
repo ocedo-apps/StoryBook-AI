@@ -8,6 +8,7 @@ import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { ProofreadStage } from "@core/proofread";
+import type { MarkerConversionRule } from "@core/markerConversion";
 import type { TextSpan } from "@core/textSpan";
 import type { PromptDebugEntry } from "./promptDebug";
 import type { LlmEngine } from "@llm/provider";
@@ -72,6 +73,7 @@ export type BookStoreValue = {
   showMethod: () => void;
   showGuide: () => void;
   showHandbook: () => void;
+  convertMarkersToFormatting: (rules: MarkerConversionRule[]) => Promise<{ totalConversions: number; chaptersChanged: number }>;
   dismissModelAside: () => void;
   setModel: (name: string) => void;
   setWritingPrimer: (text: string) => void;

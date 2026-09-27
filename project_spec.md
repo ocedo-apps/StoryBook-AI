@@ -1,9 +1,45 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.47
+Status: living document, v0.99.48
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.47 → v0.99.48:** Ny "Konvertera markeringar till
+formatering" i Inställningar — svar på en testares feedback: hens
+importerade manus märker inre tankar med `*asterisker som det här*`,
+och StoryBook AI lämnade tecknen kvar rakt av (bara manuell
+kursivering fanns). Nu kan man definiera egna regler (tecken → Fet/
+Kursiv/Understruken), köra dem över hela manuset, och få riktig,
+synlig formatering — asterisk-tecknen tas bort ur texten helt.
+
+- Ny `applyMarkerConversion()` i `markerConversion.ts`: hittar
+  `*text*`-par, tar bort markeringstecknen ur `chapter.prose`, och
+  lägger på en riktig formateringsrad istället — återanvänder
+  `shiftFormattingRanges()` (samma primitiv varje AI-redigering redan
+  går genom) så befintlig formatering längre fram i kapitlet flyttas
+  korrekt. Längre markeringar (`**`) körs alltid före kortare (`*`) så
+  `**fet text**` inte felaktigt tolkas som kursiv-inuti-kursiv.
+- Ny sektion i Inställningar: en radlista (tecken → Fet/Kursiv/
+  Understruken-väljare), förifylld med `*` → Kursiv och `**` → Fet,
+  fritt redigerbar/utökningsbar. En knapp kör konverteringen över hela
+  manuset i ett svep och visar en sammanfattning ("Konverterade 47
+  markeringar i 12 kapitel").
+- Varje ändrat kapitel får en ny Historik-rad (märkt "Formatering")
+  med den gamla texten kvar — konverteringen är alltså reversibel per
+  kapitel precis som alla andra skrivåtgärder.
+- **Känd avgränsning**: en markering nested helt inuti en redan
+  konverterad annan markering (t.ex. `**han sa *tyst* till henne**`)
+  tappar den yttre stilen just över det inbäddade ordet — samma
+  avvägning `shiftFormattingRanges` redan gör för alla andra
+  redigeringar. Icke-nästlade markeringar (det vanliga fallet för en
+  enskild markeringskonvention) påverkas inte.
+- 7 nya tester i `marker-conversion.test.ts`, 696/696 gröna totalt,
+  typkontroll ren. Verifierat i webbläsaren: skrev text med `*kursiv*`
+  och `**fet**`, körde konverteringen, såg riktig kursiv/fetstil och
+  inga asterisker kvar i varken den redigerbara ytan eller den rena
+  texten — samt en ny "Formatering"-rad i kapitlets Historik med
+  originaltexten bevarad.
 
 **Ändringslogg v0.99.46 → v0.99.47:** Städat bort gamla exempeltexter ur
 tomma formulärfält, efter att författaren märkte att Synopsis-fältet
