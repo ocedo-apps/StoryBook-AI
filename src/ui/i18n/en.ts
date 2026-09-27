@@ -1328,6 +1328,7 @@ export const en = {
     }
   },
   markerConvert: {
+    nav: "Convert markers",
     heading: "Convert markers to formatting",
     intro:
       "Turn characters like *asterisks* — or opening/closing pairs like “smart quotes” — from an imported manuscript into real bold, italic, or underline. The markers are removed from the text; only the formatting stays. Longer markers run first, so \"**\" is not mistaken for two single \"*\" — set both if your manuscript uses them for different things.",

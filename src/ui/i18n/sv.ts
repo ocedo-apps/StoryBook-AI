@@ -1318,6 +1318,7 @@ export const sv: Messages = {
     }
   },
   markerConvert: {
+    nav: "Konvertera markeringar",
     heading: "Konvertera markeringar till formatering",
     intro:
       "Gör om tecken som *asterisker* — eller par av öppnings-/avslutningstecken som ”smarta citattecken” — från ett importerat manus till riktig fetstil, kursiv eller understrykning. Markeringarna tas bort ur texten — bara formateringen blir kvar. Längre markeringar körs först, så \"**\" inte tolkas som två enstaka \"*\" — lägg till båda om ditt manus använder dem för olika saker.",

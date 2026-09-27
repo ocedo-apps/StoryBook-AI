@@ -1,9 +1,16 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.54
+Status: living document, v0.99.55
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.54 → v0.99.55:** "Convert markers to formatting"
+flyttad från en sektion längst ner i Inställningar till en egen knapp i
+toppmenyn ("Convert markers"), bredvid Import lore — samma resonemang
+som flytten av Import lore: ett verktyg man plockar fram vid behov, oavsett
+vilken sida i boken man står på, förtjänar en egen knapp istället för att
+ligga gömt. Reglerna sparas fortfarande på boken precis som innan (v0.99.53).
 
 **Ändringslogg v0.99.53 → v0.99.54:** Två UI-önskemål från testarfeedback.
 

@@ -76,6 +76,7 @@ import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import { BiblePanel } from "./BiblePanel";
 import { LoreImportCard } from "./LoreImportCard";
+import { MarkerConversionCard } from "./MarkerConversionCard";
 import { CharacterInterviewCard } from "./CharacterInterviewCard";
 import { SettingsPanel } from "./SettingsPanel";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
@@ -366,6 +367,7 @@ export function Editor() {
   const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [findOpen, setFindOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [markerConvertOpen, setMarkerConvertOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
@@ -601,7 +603,7 @@ export function Editor() {
   }, [book.id]);
 
   useEffect(() => {
-    if (!backupOpen && !publishOpen && !findOpen && !illustrateOpen && !importOpen) return;
+    if (!backupOpen && !publishOpen && !findOpen && !illustrateOpen && !importOpen && !markerConvertOpen) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setBackupOpen(false);
@@ -610,10 +612,11 @@ export function Editor() {
       setFindHighlight(null);
       setIllustrateOpen(false);
       setImportOpen(false);
+      setMarkerConvertOpen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [backupOpen, publishOpen, findOpen, illustrateOpen, importOpen]);
+  }, [backupOpen, publishOpen, findOpen, illustrateOpen, importOpen, markerConvertOpen]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -687,6 +690,18 @@ export function Editor() {
             }}
           >
             {m.bible.importLoreNav}
+          </button>
+          <button
+            type="button"
+            className="text-button theme-toggle"
+            onClick={() => {
+              setPublishOpen(false);
+              setFindOpen(false);
+              setFindHighlight(null);
+              setMarkerConvertOpen(true);
+            }}
+          >
+            {m.markerConvert.nav}
           </button>
           <div className="find-anchor">
             <button
@@ -1146,7 +1161,6 @@ export function Editor() {
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}
             onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
-            onConvertMarkers={store.convertMarkersToFormatting}
           />
         ) : onBoard ? (
           <DispositionBoard
@@ -1726,6 +1740,14 @@ export function Editor() {
           busy={busy === "import-lore"}
           onImport={(title, text) => void store.importLoreArticle(title, text)}
           onClose={() => setImportOpen(false)}
+        />
+      ) : null}
+      {markerConvertOpen ? (
+        <MarkerConversionCard
+          book={book}
+          onPatch={store.patchBook}
+          onConvertMarkers={store.convertMarkersToFormatting}
+          onClose={() => setMarkerConvertOpen(false)}
         />
       ) : null}
       {publishOpen ? (
