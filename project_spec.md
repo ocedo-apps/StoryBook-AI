@@ -1,9 +1,39 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.46
+Status: living document, v0.99.47
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.46 → v0.99.47:** Städat bort gamla exempeltexter ur
+tomma formulärfält, efter att författaren märkte att Synopsis-fältet
+visade "Emma keeps the night keys..." — en kvarleva från appens tidiga
+testmanus (Emma/kanalen, en blind passagerare, Henrik och Elin). Bytt mot
+korta, rent instruerande texter utan påhittad handling, på alla tre språk.
+
+- **Synopsis**: "Emma har nattnycklarna..." → "Berättelsen i några
+  meningar."
+- **Brainstorm-lapp**: "En mystisk blinda passagerare..." → "En idé…"
+- **Fråga (Brainstorm)**: "Vem är blinda passageraren?..." → "Ställ en
+  fråga…"
+- **Instruera en lapp**: "Ge två slut..." → "Vad ska ändras?"
+- **Skriv om (högerklick)**: "Kortare. Mer spänning. I Emmas röst..." →
+  "Vad ska ändras?"
+- **Skriv en beat**: "Hon öppnar brevet..." → "Vad händer härnäst, i en
+  rad"
+- **Fråga manuset**: "Var träffades Henrik och Elin?" → "Ställ en fråga
+  om ditt manus…"
+- **Författarröst**: "Torr, maritim, korta meningar" → "Ton, rytm,
+  ordval"
+- **Story Bible-taggar**: "medelålders, dubbel natur" → "Kommaseparerade
+  drag"
+- **Intervju-personlighet**: "T.ex. Korthugget, ser alltid problem
+  först" → "Hur de pratar och reagerar"
+- Fält som redan var korta och rent instruerande (Titel, Namn, Sök,
+  kapitelbrief, scenbrief m.fl.) lämnade orörda — de var redan precis
+  det författaren efterfrågade.
+- 689/689 gröna, typkontroll ren. Verifierat i webbläsaren: Synopsis,
+  Brainstorm-lappen och Fråga manuset visar alla de nya, korta texterna.
 
 **Ändringslogg v0.99.45 → v0.99.46:** De 10 "?"-knapparna ute i appen
 (Story Bible, Kapitel, Brainstorm & Synopsis ×2, Utvecklingsmetod, Trådar,
