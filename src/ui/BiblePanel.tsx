@@ -43,6 +43,7 @@ import { downloadJson } from "./downloadJson";
 import { useBookStore } from "./useBookStore";
 import { exportSandboxCards, sandboxCardCount, sandboxExportFilename } from "@core/sandboxExport";
 import { LoreImportCard } from "./LoreImportCard";
+import { GuideHelpButton } from "./GuidePanel";
 
 type Overlay =
   | { type: "review" }
@@ -58,11 +59,9 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
 }
 
 export function BiblePanel({
-  onOpenGuide,
   onInterview,
   openEntitySignal
 }: {
-  onOpenGuide?: () => void;
   onInterview?: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
@@ -134,17 +133,7 @@ export function BiblePanel({
       <div className="rail-head">
         <span className="rail-head-title">
           <h2>{m.bible.title}</h2>
-          {onOpenGuide ? (
-            <button
-              type="button"
-              className="guide-help-button"
-              aria-label={format(m.guide.helpFor, { topic: m.bible.title })}
-              title={format(m.guide.helpFor, { topic: m.bible.title })}
-              onClick={onOpenGuide}
-            >
-              ?
-            </button>
-          ) : null}
+          <GuideHelpButton anchor="story-bible" ariaLabel={format(m.guide.helpFor, { topic: m.bible.title })} />
         </span>
         <div className="bible-head-tools">
           {asOfChapter ? null : pending.length > 0 ? (

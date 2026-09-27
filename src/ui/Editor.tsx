@@ -82,7 +82,7 @@ import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
 import { ScenesPanel } from "./ScenesPanel";
-import { GuidePanel, type GuideSectionId } from "./GuidePanel";
+import { GuidePanel, GuideHelpButton, type GuideSectionId } from "./GuidePanel";
 import { HandbookPanel } from "./HandbookPanel";
 import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { DevelopmentMethodPanel } from "./DevelopmentMethodPanel";
@@ -125,32 +125,6 @@ function indexAnchor(stack: HTMLElement, chapterId: string): HTMLElement | null 
   if (!(row instanceof HTMLElement)) return null;
   const index = row.querySelector(".chapter-index");
   return index instanceof HTMLElement ? index : row;
-}
-
-/** A small "?" next to a heading or nav item that jumps to that topic in the Guide. */
-function GuideHelpButton({
-  anchor,
-  ariaLabel,
-  onOpen
-}: {
-  anchor: GuideSectionId;
-  ariaLabel: string;
-  onOpen: (anchor: GuideSectionId) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className="guide-help-button"
-      aria-label={ariaLabel}
-      title={ariaLabel}
-      onClick={(event) => {
-        event.stopPropagation();
-        onOpen(anchor);
-      }}
-    >
-      ?
-    </button>
-  );
 }
 
 function ChapterStrandOverlay({
@@ -768,7 +742,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="brainstorm-synopsis"
               ariaLabel={format(m.guide.helpFor, { topic: m.editor.brainstorm })}
-              onOpen={openGuide}
             />
           </div>
           <div className="synopsis-item-row">
@@ -786,7 +759,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="brainstorm-synopsis"
               ariaLabel={format(m.guide.helpFor, { topic: m.editor.synopsis })}
-              onOpen={openGuide}
             />
           </div>
           <div className="synopsis-item-row">
@@ -804,7 +776,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="method"
               ariaLabel={format(m.guide.helpFor, { topic: m.method.nav })}
-              onOpen={openGuide}
             />
           </div>
           <button
@@ -823,7 +794,6 @@ export function Editor() {
               <GuideHelpButton
                 anchor="chapters"
                 ariaLabel={format(m.guide.helpFor, { topic: m.editor.chapters })}
-                onOpen={openGuide}
               />
             </span>
             <button type="button" className="text-button" onClick={() => void store.patchBook(addChapter)}>
@@ -1027,7 +997,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="ask-manuscript"
               ariaLabel={format(m.guide.helpFor, { topic: m.askManuscript.nav })}
-              onOpen={openGuide}
             />
           </div>
           <div className="synopsis-item-row">
@@ -1045,7 +1014,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="timeline"
               ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
-              onOpen={openGuide}
             />
           </div>
           <div className="synopsis-item-row">
@@ -1063,7 +1031,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="plotlines"
               ariaLabel={format(m.guide.helpFor, { topic: m.plotlines.nav })}
-              onOpen={openGuide}
             />
           </div>
           <div className="synopsis-item-row">
@@ -1080,7 +1047,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="proofread"
               ariaLabel={format(m.guide.helpFor, { topic: m.editor.proofread })}
-              onOpen={openGuide}
             />
           </div>
           </ChapterStrandOverlay>
@@ -1095,7 +1061,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="publish"
               ariaLabel={format(m.guide.helpFor, { topic: m.editor.publish })}
-              onOpen={openGuide}
             />
           </div>
           {discarded.length > 0 ? (
@@ -1534,7 +1499,6 @@ export function Editor() {
         )}
 
         <BiblePanel
-          onOpenGuide={() => openGuide("story-bible")}
           onInterview={(entityRef, entityLabel, kind) => store.startInterview(entityRef, entityLabel, kind)}
           openEntitySignal={openEntitySignal}
         />

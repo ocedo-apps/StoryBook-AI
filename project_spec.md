@@ -1,9 +1,36 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.45
+Status: living document, v0.99.46
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.45 → v0.99.46:** De 10 "?"-knapparna ute i appen
+(Story Bible, Kapitel, Brainstorm & Synopsis ×2, Utvecklingsmetod, Trådar,
+Timeline, Korrekturläsning, Fråga manuset, Publicera) navigerar inte
+längre bort till gamla Guiden — de visar nu gamla Guidens rubrik+text som
+en tooltip direkt vid knappen, vid hover eller tangentbordsfokus.
+Författaren testade och tyckte alla frågetecken kändes som en omväg ut ur
+det man höll på med.
+
+- Ny delad `GuideHelpButton` i `GuidePanel.tsx` (tidigare en privat kopia
+  i `Editor.tsx`, plus en egen inline-knapp i `BiblePanel.tsx` — nu en
+  enda komponent båda filerna importerar). Ingen `onOpen`-prop längre;
+  knappen sköter sig helt själv.
+- Tooltipen renderas via en React-portal rakt i `document.body`, positionerad
+  med `position: fixed` beräknad från knappens egen `getBoundingClientRect()`
+  och klämd innanför skärmens högerkant. Nödvändigt eftersom flera av
+  knapparna sitter i vänster-/högerpanelerna (`.rail`, `overflow-y: auto`)
+  — webbläsaren klipper då även horisontellt, så en vanlig
+  `position: absolute`-tooltip där blev osynligt avklippt (upptäckt och
+  fixat under verifieringen, inte något författaren behövde rapportera).
+- `store.showGuide()`/`openGuide()` och gamla `GuidePanel`-sidan finns kvar
+  oförändrade — nås fortfarande av felbannerns "Ingen lokal modell"-länk.
+  Bara "?"-knapparnas egen navigering togs bort.
+- 689/689 gröna, typkontroll ren. Verifierat i webbläsaren: hover visar
+  tooltipen med rätt rubrik/text från gamla Guiden, klick navigerar inte
+  längre bort (ingen flikbyte sker), och tooltipen stängs när musen flyttas
+  bort eller vid Escape.
 
 **Ändringslogg v0.99.44 → v0.99.45:** Guiden delas i två separata ytor —
 en ny "Handbook" ersätter den gamla Guiden som appens avsiktliga,

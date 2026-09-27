@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocale } from "./i18n";
 import { QuickstartCards } from "./QuickstartCards";
+
+const HELP_TIP_WIDTH = 280;
 
 /**
  * Stable, locale-independent anchors for the guide's reference sections —
@@ -80,6 +83,77 @@ function categoryForAnchor(id: GuideSectionId): GuideCategoryId {
 
 function guideAnchorId(id: string): string {
   return `guide-${id}`;
+}
+
+/**
+ * A small "?" next to a heading or nav item. Used to jump straight to the
+ * old Guide's page — now shows that section's text as a hover/focus tooltip
+ * instead, so a quick reminder never pulls the author out of what they're
+ * doing. The old Guide page itself (`GuidePanel`) is unreachable from here
+ * on purpose; this button is now the tooltip, not a navigation shortcut.
+ *
+ * Rendered through a portal at a `position: fixed` spot computed from the
+ * button's own bounding box: several call sites live inside `.rail`
+ * (`overflow-y: auto`, which browsers also clip horizontally), so an
+ * ordinary `position: absolute` tooltip gets silently cut off there.
+ */
+export function GuideHelpButton({ anchor, ariaLabel }: { anchor: GuideMainSectionId; ariaLabel: string }) {
+  const { messages: m } = useLocale();
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  function show() {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect) {
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - HELP_TIP_WIDTH - 12));
+      setPos({ top: rect.bottom + 6, left });
+    }
+    setOpen(true);
+  }
+  function hide() {
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", hide, true);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", hide, true);
+    };
+  }, [open]);
+
+  const entry = m.guide.sections[anchor];
+
+  return (
+    <span className="guide-help-wrap" onMouseEnter={show} onMouseLeave={hide}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="guide-help-button"
+        aria-label={ariaLabel}
+        aria-expanded={open}
+        onFocus={show}
+        onBlur={hide}
+      >
+        ?
+      </button>
+      {open && pos
+        ? createPortal(
+            <span className="guide-help-tip" role="tooltip" style={{ top: pos.top, left: pos.left }}>
+              <strong>{entry.heading}</strong>
+              <span className="handbook-body">{entry.body}</span>
+            </span>,
+            document.body
+          )
+        : null}
+    </span>
+  );
 }
 
 export function GuidePanel({ scrollTo }: { scrollTo?: GuideSectionId | null }) {
