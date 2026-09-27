@@ -46,6 +46,7 @@ inte en ensidig lista.
 | 28 | Import från andra skrivverktyg — adapterarkitektur | ⬜ ej påbörjad — se nedan |
 | 29 | Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok | ⬜ ej påbörjad — se nedan |
 | 30 | Extract facts känner inte igen namn-varianter av samma person | ⬜ ej påbörjad — se nedan |
+| 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -960,6 +961,74 @@ att städa upp när det ändå händer. Ingetdera byggt än.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat än (utöver
 v0.99.57-fixen ovan, som är en förutsättning, inte samma sak).
+
+---
+
+### 31. Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar
+**Bakgrund (författarens egen historik, 2026-09-27):** Sandbox AI
+(RPG-motorn) byggdes först. Under speltestning märktes att det som
+uppstod ofta liknade prosa mer än spelloggar, vilket ledde till att
+StoryBook AI påbörjades — ursprungstanken var nog att dela Lore mellan
+dem, men i takt med att StoryBook växte fick den appen prioritet.
+Sandbox är vilande just nu, inte nedlagt, och ska troligen startas upp
+igen. Det förklarar varför bryggan mellan apparna (`sandboxExport.ts`,
+en enkelriktad, medvetet lossy JSON-export) inte utvecklats vidare på
+över 90 versioner av StoryBook — inte för att den räckte, utan för att
+ena sidan stått stilla.
+
+**Förslaget, i korthet:** separera generell story/lore-logik
+(karaktärer, platser, objekt, grupper, relationer, kanon-fakta, stabila
+entity-id:n, på sikt Visual Identity) till en delad "Story Core" som
+flera appar bygger ovanpå — StoryBook, Sandbox, och möjliga framtida
+klienter (en Comic Creator, men också sådant som TTS eller
+video-generering nämndes som exempel på vad en riktigt frikopplad
+kärna skulle kunna möjliggöra för tredje part). Tänkt monorepo-struktur:
+`apps/{storybook,rpg,comic}` + `packages/{story-core,lore,local-ai,...}`.
+Genomgången i detalj i den här konversationen (kodgranskning mot
+`BookSchema`, `NarrativeFact`, `ConsistencyGate`, `sandboxExport.ts`,
+`Repository.ts` m.fl.).
+
+**Slutsats från granskningen, författaren instämmer:**
+- Projektet har redan **provat en mer ambitiös version** av precis den
+  här idén en gång, tidigt (v0.1 i `project_spec.md`s historik: en
+  delad `NarrativeFact`-tabell med namnrymdade `core.*/rpg.*/book.*`-
+  predikat) — och medvetet backat till något lättare (v0.2–v0.3): varje
+  app äger sin egen sanning helt, och bara en **explicit, engångs,
+  användarutlöst projektion** korsar gränsen. Det som faktiskt byggdes
+  (`sandboxExport.ts`) är ännu mindre delat än det: en enkelriktad,
+  lossy omformning till Sandbox eget kortformat, inga delade typer.
+- Redan bra separerat och inte värt att röra: Scene (v0.81-beslutet,
+  bara `title` får någonsin korsa gränsen som `SceneProjection`, ej
+  byggd), Plotlines vs Sandbox Storyboard (medvetet olika modeller,
+  "löser olika problem").
+- Genuint delningsbart redan idag, som idé snarare än kod: predikat-
+  vokabulären (`core.identity/trait/place/...`, redan app-agnostisk),
+  och själva mönstret improvisation → extrahera → granska → lås.
+- Ska inte flyttas ut: allt manus-specifikt (kapitel, prosa, scener,
+  synopsis, brainstorm, historik, publicering) och AI-pipelinerna själva
+  (redan uttryckligt principbeslut i `project_spec.md`: "narrative-core
+  ... definierar men implementerar INTE FactExtractor/ConflictReasoner/
+  Novelizer — LLM-beroende, appspecifika").
+- Monorepo/delade paket: inte nu. Sandbox-AI är ett separat repo,
+  Comic Creator finns inte alls, och den enda existerande bryggan har
+  inte rörts på 90+ versioner — inget tecken på akut delnings-smärta.
+  En liten, versionerad exportfil (samma anda som `sandboxExport.ts`,
+  generaliserad) räcker långt innan ett monorepo är motiverat.
+- Backupfiler/BookSchema: säkert så länge Story Core förblir ett
+  konceptuellt lager (en namngiven delmängd av samma `Book`-JSON), inte
+  en fysisk utflyttning av `facts`/`profiles`/`media` till en egen
+  lagringsplats — den utflyttningen skulle kräva en riktig migration
+  och är inte värd det utan bevisad nytta.
+
+**Överenskommen väg framåt:** inget kodas nu. Värt att ta upp på nytt
+**den dag Sandbox faktiskt startas upp igen** — då finns för första
+gången två samtidigt aktiva konsumenter, vilket är precis det som
+saknas idag för att motivera arbetet. Om/när det blir aktuellt: börja
+med en enda liten, ren exportfil i StoryBook (generalisera
+`sandboxExport.ts`), inte ett monorepo på dag ett.
+
+**Status: idé nedskriven, en 2.0-riktning — medvetet inte påbörjad.**
+Inget kodat.
 
 ---
 
