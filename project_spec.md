@@ -1,10 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.58
+Status: living document, v0.99.59
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
+**Ändringslogg v0.99.58 → v0.99.59:** Fynd 2 från samma testarrapport
+som v0.99.58 (kontextfönster): scen-till-scen-Draft skickade bara de
+sista tre raderna av föregående scen som kontext
+(`sceneTail()`/`draftSceneUserPrompt` i `generateProse.ts`), aldrig hela
+scenen. En etablerad detalj tidigare än så — en karaktär som redan
+satt sig ner, redan klätt av sig — nådde alltså aldrig modellen vid
+nästa scens Draft, som sedan motsade den utan att egentligen ha sett
+den.
+
+Fixat: predecessor-blocket bär nu **hela texten från alla tidigare
+scener i kapitlet**, inte bara en svans från den närmast föregående —
+samma "modellen ser allt som skrivits i det här kapitlet hittills"-
+garanti som ett odelat kapitels Draft redan hade. "Nästa scen"-förhandsvisningen (bara scenens första rader, till för att undvika
+överlapp framåt, inte bakåtkontinuitet) är oförändrad — den löste inte
+det rapporterade problemet och behövde inte samma fix.
+
+Kostnaden är fler token per generering i kapitel med flera scener,
+samma avvägning som redan gäller för ett långt odelat kapitel — därför
+byggdes kontextfönster-inställningen (v0.99.58) först.
+
+Ny regressionstest (`generate-prose.test.ts`) återskapar exakt
+mönstret: en detalj fyra stycken tillbaka i föregående scen, som det
+gamla tre-radersfönstret skulle ha tappat, finns nu med i prompten.
 **Ändringslogg v0.99.57 → v0.99.58:** Buggfix från testarfeedback:
 StoryBook satte aldrig ett kontextfönster (`num_ctx`) i sina anrop till
 Ollama — bara `temperature` och `num_predict` (max antal genererade

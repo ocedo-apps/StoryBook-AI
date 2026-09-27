@@ -517,13 +517,34 @@ describe("draftSceneUserPrompt", () => {
     expect(prompt).toContain("He cast off at last.");
   });
 
-  it("uses the previous scene's tail, not the previous chapter, for a later scene", () => {
+  it("uses the earlier scenes' full text, not the previous chapter, for a later scene", () => {
     const { book, chapterId } = splitBook();
     const prompt = draftSceneUserPrompt(book, book.chapters.find((c) => c.id === chapterId)!, "s2");
     expect(prompt).toContain("scene 2 of 2");
-    expect(prompt).toContain("End of the previous scene in this chapter");
+    expect(prompt).toContain("Earlier in this chapter");
+    expect(prompt).toContain("Henrik walked to the quay at dawn.");
     expect(prompt).toContain("A gull cried overhead.");
     expect(prompt).toContain("Existing prose for this scene (continue from the end, do not repeat):\nHe cast off at last.");
+  });
+
+  it("carries a detail established several paragraphs back, not just the previous scene's last lines", () => {
+    // Regression: the previous behaviour sent only the last 3 lines of the
+    // immediately preceding scene, so a detail established earlier than
+    // that (a character already sitting down) never reached the model at
+    // all — it would then contradict something it was simply never shown.
+    let book = createBook("The Salt Road");
+    const chapterId = book.chapters[0]!.id;
+    book = updateChapter(book, chapterId, {
+      prose:
+        "Henrik sat in the chair.\n\nHe stared at the door.\n\nMinutes passed in silence.\n\nHe still did not move.\n\nSomeone knocked.",
+      scenes: [
+        { id: "s1", startParagraph: 0 },
+        { id: "s2", startParagraph: 4 }
+      ]
+    });
+    const chapter = book.chapters.find((c) => c.id === chapterId)!;
+    const prompt = draftSceneUserPrompt(book, chapter, "s2");
+    expect(prompt).toContain("Henrik sat in the chair.");
   });
 
   it("falls back to the whole-chapter prompt for an unknown scene id", () => {

@@ -10,10 +10,6 @@ import { storyTimeRankByChapterId } from "./timeline";
 import { visibleLockedFacts, visibleLockedFactsAtPosition } from "./visibility";
 import type { NarrativeFact } from "./NarrativeFact";
 
-function sceneTail(prose: string): string {
-  return prose.trim().split(/\n+/).slice(-3).join("\n");
-}
-
 function sceneHead(prose: string): string {
   return prose.trim().split(/\n+/).slice(0, 2).join("\n");
 }
@@ -114,10 +110,18 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
 /**
  * Draft, scoped to one scene instead of the whole chapter (roadmap-ideas.md
  * #7). Same instructions and Story Bible as `draftUserPrompt`; only the
- * "existing prose to continue" and the predecessor block narrow to the
- * scene's own span, with the neighbouring scenes' edges as light context
- * so the new prose doesn't repeat or contradict what's already written
- * right before or after it.
+ * "existing prose to continue" narrows to the scene's own span. The
+ * predecessor block carries every earlier scene's full text, not just a
+ * tail snippet of the one right before it — the same "the model sees
+ * everything written so far in this chapter" guarantee `draftUserPrompt`
+ * already gives a chapter with no scene splits at all. A 3-line tail
+ * (the previous behaviour) could silently drop a physical detail
+ * established earlier in the same scene sequence — a character already
+ * sitting down, already undressed — and the model would then contradict
+ * it having never seen it. Only the *next* scene still gets a short,
+ * head-only preview (`nextSceneBlock` below): that one exists purely so
+ * the new prose doesn't overlap what's already written ahead of it, not
+ * to carry continuity backward, so it doesn't need the same fix.
  */
 export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: string): string {
   const scenes = chapterScenes(chapter);
@@ -125,10 +129,11 @@ export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: stri
   const scene = scenes[index];
   if (!scene) return draftUserPrompt(book, chapter);
 
-  const previous = scenes[index - 1];
-  const predecessorBlock = previous
-    ? `End of the previous scene in this chapter:\n${sceneTail(previous.prose)}`
-    : formatPredecessorForDraft(sortedChapters(book), chapter);
+  const earlierScenes = scenes.slice(0, index);
+  const predecessorBlock =
+    earlierScenes.length > 0
+      ? `Earlier in this chapter (for continuity — do not repeat or contradict):\n${earlierScenes.map((item) => item.prose).join("\n\n")}`
+      : formatPredecessorForDraft(sortedChapters(book), chapter);
   const next = scenes[index + 1];
   const nextSceneBlock = next
     ? `The next scene in this chapter already begins:\n${sceneHead(next.prose)}\nWrite what leads into it — do not repeat it, do not contradict it.`
