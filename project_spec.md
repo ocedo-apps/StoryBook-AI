@@ -1,9 +1,52 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.44
+Status: living document, v0.99.45
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.44 → v0.99.45:** Guiden delas i två separata ytor —
+en ny "Handbook" ersätter den gamla Guiden som appens avsiktliga,
+sammanhängande genomgång (nås via toppmenyns "Guide"-knapp, förstasidans
+"Läs snabbstarten" och ett nytt tomt manus), medan den gamla Guiden lever
+kvar oförändrad som underlag för alla "?"-knappar ute i appen (framtida
+tooltip-material). Författaren skrev hela den nya guidens innehåll: 47
+avsnitt i 8 numrerade kategorier (Kom igång, Så kan du arbeta, Planera
+berättelsen, Story Bible & världen, Skriva, Bearbeta manuset, Bilder/
+publicering/backup, Hjälp & felsökning), numrerade "kategori.avsnitt"
+(t.ex. "3.4 Berättelsemetoder") istället för en platt 1–47-lista.
+
+- Ny `EditorSurface`-variant `"handbook"` och `store.showHandbook()`,
+  helt parallell med den befintliga `"guide"`-ytan — ingen av de 10
+  befintliga "?"-knapparna (Story Bible, Kapitel, Trådar, Timeline,
+  Korrekturläsning, Fråga manuset, Publicera, Utvecklingsmetod,
+  Brainstorm & Synopsis) eller felbannerns "no-model"-länk rörda; de
+  öppnar exakt samma gamla Guide-innehåll som innan.
+- Nytt tomt manus öppnas nu på Handbook istället för gamla Guiden
+  (`openingSurface()`) — den nya guidens första tre avsnitt (Koppla en
+  lokal AI, Skapa din första bok, Ditt första kapitel) är skrivna
+  precis för det ögonblicket.
+- Ny fil `HandbookPanel.tsx`, samma tabb-mönster som `GuidePanel.tsx`
+  men enklare (inga ankare/scrollTo, ingen FAQ-lista — bara åtta
+  kategoriflikar och en löpande numrering räknad från flikens position).
+  "Koppla en lokal AI"-avsnittet får samma "Anslut en lokal AI"-knapp
+  och popup som gamla Guidens Kom igång-flik.
+- Fullt innehåll på alla tre språk (svenska efter författarens text,
+  engelska och norska översatta i samma veva) — 47 avsnitt × 3 språk.
+  Löptexten lagras som en sträng med radbrytningar (pilkedjor, korta
+  rubrikrader, punktlistor) och renderas med `white-space: pre-line`
+  (`.handbook-body`) snarare än en egen rich text-modell — enklast som
+  fungerar för hur texten faktiskt är skriven.
+- Passade på att fixa en sedan tidigare bugg upptäckt under arbetet:
+  gamla Guidens 8 första flikrubriker stod kvar på engelska i både
+  sv.ts och nb.ts (bara "Felsökning"/"Feilsøking" hade någonsin
+  översatts) — nu översatta på båda språken.
+- 689/689 gröna (en befintlig test uppdaterad för att förvänta sig
+  `"handbook"` istället för `"guide"` som ny boks öppningsyta),
+  typkontroll ren. Verifierat grundligt i webbläsaren: förstasidans
+  snabbstartslänk och ett nytt tomt manus öppnar båda den nya Handbook
+  med rätt 8 flikar och "kategori.avsnitt"-numrering; en "?"-knapp i ett
+  kapitel öppnar fortfarande oförändrat den gamla Guiden.
 
 **Ändringslogg v0.99.43 → v0.99.44:** Ny FAQ-punkt i Guidens Felsökning
 om att köra appen på en annan dator/mobil i hemnätverket — uppstod ur en

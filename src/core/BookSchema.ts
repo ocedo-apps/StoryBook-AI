@@ -283,20 +283,23 @@ export type EditorSurface =
   | "timeline"
   | "plotlines"
   | "method"
-  | "guide";
+  | "guide"
+  | "handbook";
 
 /**
- * A blank manuscript opens on the Guide — a new author has nothing to
+ * A blank manuscript opens on the Handbook — a new author has nothing to
  * configure yet, but everything to learn. Brainstorm once notes exist.
  * A book with a synopsis but no prose opens on the map. Once a chapter
- * has prose, reopen on the chapter.
+ * has prose, reopen on the chapter. The Handbook (not the old anchor-driven
+ * Guide) is the deliberate, sequential read for a newcomer — the Guide is
+ * kept as the reference material behind the in-context "?" buttons.
  */
 export function openingSurface(book: Book): EditorSurface {
   if (sortedChapters(book).some((chapter) => chapter.prose.trim().length > 0)) return "chapter";
   if (book.synopsis.trim().length > 0) return "synopsis";
   const notes = book.brainstorm_notes ?? [];
   if (book.brainstorm.trim() || notes.some((note) => note.text.trim())) return "brainstorm";
-  return "guide";
+  return "handbook";
 }
 
 export function createChapter(sequence_index: number, title = ""): Chapter {

@@ -570,6 +570,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     withViewTransition(() => setSurface("guide"), 160);
   }, []);
 
+  const showHandbook = useCallback(() => {
+    withViewTransition(() => setSurface("handbook"), 160);
+  }, []);
+
   const dismissModelAside = useCallback(() => setModelAsides([]), []);
 
   const manuscriptFromModel = (raw: string, fallback: string) => {
@@ -1972,6 +1976,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     showPlotlines,
     showMethod,
     showGuide,
+    showHandbook,
     dismissModelAside,
     setModel,
     setWritingPrimer,

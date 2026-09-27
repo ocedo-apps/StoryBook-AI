@@ -71,6 +71,7 @@ export type BookStoreValue = {
   showPlotlines: () => void;
   showMethod: () => void;
   showGuide: () => void;
+  showHandbook: () => void;
   dismissModelAside: () => void;
   setModel: (name: string) => void;
   setWritingPrimer: (text: string) => void;

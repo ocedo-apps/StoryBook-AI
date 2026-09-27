@@ -83,6 +83,7 @@ import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
 import { ScenesPanel } from "./ScenesPanel";
 import { GuidePanel, type GuideSectionId } from "./GuidePanel";
+import { HandbookPanel } from "./HandbookPanel";
 import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { DevelopmentMethodPanel } from "./DevelopmentMethodPanel";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
@@ -361,6 +362,7 @@ export function Editor() {
   const onPlotlines = surface === "plotlines";
   const onMethod = surface === "method";
   const onGuide = surface === "guide";
+  const onHandbook = surface === "handbook";
   const [guideAnchor, setGuideAnchor] = useState<GuideSectionId | null>(null);
   const openGuide = (anchor?: GuideSectionId) => {
     setGuideAnchor(anchor ?? null);
@@ -1310,6 +1312,8 @@ export function Editor() {
           />
         ) : onGuide ? (
           <GuidePanel scrollTo={guideAnchor} />
+        ) : onHandbook ? (
+          <HandbookPanel />
         ) : onSynopsis ? (
           <main className="manuscript">
             <h1 className="chapter-title">{m.editor.synopsis}</h1>

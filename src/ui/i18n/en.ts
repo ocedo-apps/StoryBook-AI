@@ -1,4 +1,5 @@
 import type { GuideCategoryId, GuideMainSectionId } from "../GuidePanel";
+import type { HandbookCategoryId, HandbookSectionId } from "../HandbookPanel";
 
 const guideCategories: Record<GuideCategoryId, string> = {
   "getting-started": "Introduction",
@@ -76,6 +77,208 @@ const guideSections: Record<GuideMainSectionId, { heading: string; body: string 
   publish: {
     heading: "Publish",
     body: "Export a clean reading copy — Markdown, RTF, ODT, HTML, ePub, or PDF. Brainstorm never leaves the book; only the manuscript itself does."
+  }
+};
+
+const handbookCategories: Record<HandbookCategoryId, string> = {
+  "getting-started": "Getting Started",
+  "how-you-work": "How You Can Work",
+  plan: "Plan the Story",
+  "story-bible-world": "Story Bible & World",
+  writing: "Writing",
+  revise: "Revise the Manuscript",
+  "images-publish-backup": "Images, Publishing & Backup",
+  help: "Help & Troubleshooting"
+};
+
+const handbookSections: Record<HandbookSectionId, { heading: string; body: string }> = {
+  "connect-local-ai": {
+    heading: "Connect a local AI",
+    body: "StoryBook AI works with a local AI model.\nThat means the AI features use the model you have connected to StoryBook AI yourself.\nTo use features like drafting, rewriting, analysis, and interviews, you first need a working local AI connection.\n\nFollow the quickstart to:\n1. Install a local AI solution.\n2. Choose a model.\n3. Connect it to StoryBook AI.\n\nOnce the connection works, you can start writing."
+  },
+  "first-book": {
+    heading: "Create your first book",
+    body: "Create a new manuscript and give it a name.\nYou don't need to create a Synopsis, Story Bible, or a detailed plan before you start.\n\nYou can go straight to:\nChapters → Chapter 1 → Start writing\n\nWrite in the editor just like in an ordinary word processor.\nWant help? Use the AI tools."
+  },
+  "first-chapter": {
+    heading: "Your first chapter",
+    body: "A chapter is, at its core, two things:\n\nChapter brief\nWhat the chapter needs to accomplish.\n\nManuscript\nThe text the reader will actually read.\n\nA brief might be, for example:\n\"Erik arrives at the old railway station. There he meets a woman who seems to know his father. She refuses to explain how, and leaves an old photograph on the table.\"\n\nThe chapter itself is then the story that grows out of that.\nYou can write the chapter yourself, or use Draft to get a first pass to work from."
+  },
+  "map-of-storybook-ai": {
+    heading: "A map of StoryBook AI",
+    body: "EXPLORE\n💡 Brainstorm · 💬 Interview the world\nHere ideas get to be uncertain.\n↓\nPLAN\n📖 Synopsis · 🗂 Chapter briefs · 🎬 Scenes · 🧵 Plotlines · 🕒 Timeline\nHere you shape the story.\n↓\nESTABLISH\n📚 Story Bible · 🔎 Extract facts · ✓ Review · 🔒 Lock\nHere you decide what counts as established.\n↓\nWRITE\n✍️ Chapters — Draft · Write a beat · Extend · Elaborate · Rewrite\n↓\nREVIEW\n🔎 Analyze · 💬 Ask Manuscript · ✓ Continuity · ✓ Proofread\n↓\nFINISH\n🖼 Images · 📤 Publish · 💾 Backup\n\nIt's a map.\nNot a required order."
+  },
+  "no-required-workflow": {
+    heading: "You don't need to use everything",
+    body: "StoryBook AI can be used in many different ways.\nThere is no required workflow.\n\nYou could, for example, work like this:\n\nI just want to start writing\nChapter → Write → Next chapter. Plan later, when you need to.\n\nI want to plan the story\nBrainstorm → Synopsis → Chapter briefs → Chapters\n\nI want to work in a very structured way\nSynopsis → Development method → Plotlines → Chapter briefs → Scenes → Timeline → Chapters\n\nI already have a manuscript\nBring in the existing text → Analyze → Story Bible → Revise → Publish\n\nI'm coming from another writing tool\nBring your manuscript and lore → Import → Review → Keep writing\n\nYou decide how much structure you need."
+  },
+  "three-workflows": {
+    heading: "Three complete workflows",
+    body: "I write intuitively\nNew manuscript → Chapter 1 → Write → Chapter 2 → Write\nAs the story grows: Extract facts → Story Bible\nLater: Analyze → Proofread → Publish\nYou never have to create a detailed plan.\n\nI want to plan first\nBrainstorm → Synopsis → Chapter briefs → Write chapters → Story Bible → Analyze → Proofread → Publish\nThis gives structure without requiring a dramatic model.\n\nI want to plan a lot\nBrainstorm → Snowflake → Synopsis → Three-Act Structure / Save the Cat / Hero's Journey → Plotlines → Chapter briefs → Scenes → Timeline → Write → Story Bible + continuity → Analyze → Proofread → Publish\nThis is a more structured way of working.\nIt is not more correct than the others."
+  },
+  "which-tool-do-i-need": {
+    heading: "Which tool do I need?",
+    body: "\"I don't know what the story is about.\" → Brainstorm\n\"I have an idea but can't pull it into a whole story.\" → Snowflake\n\"I have many ideas but no whole.\" → Synopsis\n\"I need a simple dramatic structure.\" → Three-Act Structure\n\"I want more clear beats to work with.\" → Save the Cat\n\"The story is about the protagonist's transformation.\" → Hero's Journey\n\"I don't quite know who my character is yet.\" → Interview the world\n\"I want to try ideas about the character without affecting the book.\" → Interview the world\n\"I need to remember what's actually true.\" → Story Bible\n\"I keep losing track of what the chapter should do.\" → Chapter brief\n\"The chapter has gotten too complicated.\" → Scenes\n\"I keep losing track of different plots and relationships.\" → Plotlines\n\"I keep losing track of when things happen.\" → Timeline\n\"I'm stuck in the middle of a scene.\" → Write a beat, Extend, or Elaborate\n\"I don't know if the chapter works.\" → Analyze\n\"I can't find something again in my long manuscript.\" → Ask Manuscript\n\"The story is done and I want to polish the text.\" → Proofread\n\"I want to give someone the book to read.\" → Publish"
+  },
+  "most-important-principle": {
+    heading: "The most important principle",
+    body: "StoryBook AI contains many features because different authors work in different ways.\nThat doesn't mean every feature has to be used.\n\nStart with the story.\nWhen you hit a problem, choose the tool that helps with that specific problem.\n\nExplore when you need ideas.\nPlan when you need direction.\nLock facts when something should become established.\nWrite when you know enough to continue.\nReview when you want to understand what you've written.\n\nAnd above all:\nThe tools should adapt to how you write — not the other way around."
+  },
+  "brainstorm-free": {
+    heading: "Brainstorm – think freely",
+    body: "Brainstorm is your private scratchpad.\nNothing here needs to be decided yet.\n\nWrite things like:\n\"What if the woman on the train actually knows Erik's father?\"\nor:\n\"Maybe the lighthouse isn't abandoned?\"\nor:\n\"Would the story work better if the brother were still alive?\"\n\nOne note per idea.\nMove them around and experiment.\n\nBrainstorm doesn't automatically affect the story\nThis is important. An idea in Brainstorm doesn't automatically become part of the story, and shouldn't start steering ordinary chapter drafts.\nWhen you decide an idea should move forward, drag it to Send to Synopsis.\nYou decide which ideas leave the corkboard."
+  },
+  "synopsis-short": {
+    heading: "Synopsis – the story in short form",
+    body: "Synopsis describes the story as a whole. Here you gather:\n• who matters\n• what happens\n• what the major conflicts are\n• where the story is headed\n\nExample\nBrainstorm: \"What if the woman on the train knows Erik's father?\"\nOnce you decide to use the idea, it can develop into:\n\"During the journey, Erik meets a woman who turns out to know the circumstances of his father's disappearance.\"\nThat belongs in Synopsis.\n\nThink of it as:\nBrainstorm = maybe\nSynopsis = the story's plan\nChapter brief = the chapter's job\nManuscript = the story itself"
+  },
+  "chapter-briefs": {
+    heading: "Chapter briefs",
+    body: "A chapter brief describes what a chapter needs to accomplish.\nIt doesn't need to be well written.\nIt's an instruction to yourself, and to the AI when you use the writing tools.\n\nExample\n\"Erik meets the woman in the dining car. She hints that she knew his father but refuses to say how. The chapter ends with her leaving a photograph on the table.\"\n\nThe brief is not the story itself.\nIt describes what the story should do.\n\nSynopsis = the whole story\nBrief = one chapter\nManuscript = what the reader gets"
+  },
+  "development-methods": {
+    heading: "Development methods",
+    body: "StoryBook AI includes several methods that can help you develop or structure the story.\nThey are entirely optional.\nYou can always choose:\nNo method — write freely"
+  },
+  "snowflake-method": {
+    heading: "Snowflake",
+    body: "Snowflake works well when you have an idea but not yet a whole story.\nIt helps you develop the content step by step.\n\nOne sentence\n\"A journalist returns to her home island to investigate her father's twenty-year-old disappearance.\"\n↓\nOne paragraph\nDevelop the core idea with conflict, development, and direction.\n↓\nFull synopsis\nKeep building until you have a coherent description of the story.\n↓\nSend to Synopsis\n\nYou can write it yourself or use AI as support along the way.\n\nSnowflake mainly helps answer:\n\"What is this story I'm actually writing?\""
+  },
+  "three-act": {
+    heading: "Three-Act Structure",
+    body: "Three-Act Structure works well when you want a simple dramatic backbone.\nStoryBook AI uses key turning points such as:\n• Setup\n• Inciting incident\n• Break into two\n• Midpoint\n• All is lost\n• Climax\n• Resolution\n\nThese become Plotlines you can attach to the story's chapters.\n\nExample\nInciting incident: \"Nora finds a letter from her missing father.\" (Chapter 3)\nLater — Midpoint: \"Nora discovers the letter was written after the date her father is said to have disappeared.\" (Chapter 12)\n\nThe method helps you see the story's larger movement.\nIt doesn't write the story for you."
+  },
+  "save-the-cat": {
+    heading: "Save the Cat",
+    body: "Save the Cat offers more beats than Three-Act Structure, including:\n• Opening image\n• Theme stated\n• Setup\n• Catalyst\n• Debate\n• Break into two\n• B story\n• Fun and games\n• Midpoint\n• Bad guys close in\n• All is lost\n• Dark night of the soul\n• Break into three\n• Finale\n• Final image\n\nThese are created as Plotlines.\nYou then decide how — and whether — they fit your story.\n\nAny percentage markers are landmarks, not rules for exactly where something must happen.\nUse the method as a map, not an answer key."
+  },
+  "heros-journey": {
+    heading: "Hero's Journey",
+    body: "Hero's Journey works well for stories where the protagonist's transformation is central.\nStoryBook AI uses twelve steps:\n1. Ordinary World\n2. Call to Adventure\n3. Refusal of the Call\n4. Meeting the Mentor\n5. Crossing the Threshold\n6. Tests, Allies, Enemies\n7. Approach to the Inmost Cave\n8. The Ordeal\n9. Reward\n10. The Road Back\n11. Resurrection\n12. Return with the Elixir\n\nThese, too, are created as Plotlines.\n\nThe \"journey\" doesn't have to be literal. A character can leave their safe world by moving, starting a relationship, losing their job, discovering a secret, or making a decision that changes their life."
+  },
+  "method-differences": {
+    heading: "The difference between the methods",
+    body: "Snowflake\nIdea → One sentence → One paragraph → Full synopsis → Synopsis\nSnowflake develops the story's content.\n\nThree-Act Structure / Save the Cat / Hero's Journey\nMethod → Beats and turning points → Plotlines → Chapters\nThese help you structure the story's development.\n\nYou can switch methods later. What you've already written in Synopsis, or created as Plotlines, isn't deleted just because you choose a different method or go back to writing freely."
+  },
+  scenes: {
+    heading: "Scenes",
+    body: "When a chapter gets long or complicated, it can help to split it into Scenes.\n\nChapter 8 – The Lighthouse\nScene 1: Nora arrives on the island.\nScene 2: She breaks into the lighthouse.\nScene 3: She finds the photographs.\nScene 4: Someone locks the door from outside.\n\nThink of it as:\nBrief = the chapter's job\nScenes = the path through the chapter\n\nYou don't need to use Scenes for simple chapters where you already have the overview."
+  },
+  plotlines: {
+    heading: "Plotlines",
+    body: "Plotlines help you follow things that develop through the story. It could be:\n• the main conflict\n• a relationship\n• a mystery\n• a secret\n• a rivalry\n• a character's change\n• dramatic beats\n\nExample\n🔴 The father's disappearance\n🟡 Nora and Elias\n🔵 The lighthouse's history\n\nYou can see how these run through the chapters. If an important subplot suddenly vanishes for ten chapters, it becomes easy to spot."
+  },
+  timeline: {
+    heading: "Timeline",
+    body: "Timeline answers the question: When does this happen?\nIt becomes especially useful when chapter order isn't the same as the story's chronology.\n\nChapter order\nChapter 1 – 2026: Nora returns.\nChapter 2 – 2006: The father disappears.\nChapter 3 – 2026: Nora finds the letter.\nChapter 4 – 1998: The father meets Elias.\n\nChronological order\n1998 → 2006 → 2026\n\nTimeline helps you keep track of the difference."
+  },
+  "scenes-plotlines-timeline": {
+    heading: "Scenes, Plotlines, and Timeline",
+    body: "They answer three different questions.\n\nScenes: What happens?\nPlotlines: What develops?\nTimeline: When does it happen?\n\nThe same event can therefore live in all three without the tools doing the same job."
+  },
+  "story-bible-memory": {
+    heading: "Story Bible – the story's memory",
+    body: "Story Bible gathers information the story needs to remember. It could be:\n• people\n• places\n• relationships\n• groups\n• objects\n• events\n• rules and concepts in the world\n\nSuppose the manuscript says:\n\"Nora walked up the stairs to the lighthouse. She hadn't been there since her father disappeared twenty years ago.\"\n\nStoryBook AI can identify possible facts. For example:\n\"Nora has a father.\"\n\"Nora's father disappeared twenty years ago.\"\n\"Nora has been to the lighthouse before.\"\n\nYou review the suggestions. Only once you decide something should be locked does it become established information StoryBook AI can rely on."
+  },
+  "what-is-canon": {
+    heading: "What does canon mean?",
+    body: "Canon is whatever you've decided should be treated as true in the story.\nNot all text needs to become canon.\n\nIf the AI writes:\n\"Nora pulled the red scarf tighter around her neck.\"\nyou don't need to save the scarf's color just because it happened to appear in the text.\n\nBut if the scarf later becomes important, the information may be worth locking.\n\nStory Bible should remember what needs to stay consistent. It doesn't need to become a database of every detail in every sentence."
+  },
+  "interview-world": {
+    heading: "Interview the world",
+    body: "Story Bible doesn't just have to be used to store what you already know. You can also use Interview the world to discover more.\n\nInstead of filling out long forms, you can explore a character through conversation.\n\nSuppose you know:\n\"Nora Berg. 38. Journalist. Grew up on the island. Her father disappeared when she was eighteen.\"\n\nAsk things like:\n\"Why did you become a journalist?\"\n\"What do you remember from the day your father disappeared?\"\n\"Who do you trust the least?\"\n\"What would you never admit to Elias?\"\n\"What are you most afraid of discovering?\"\n\nThe interview can help you find personality, motive, background, relationships, and conflicts."
+  },
+  "interview-sandbox": {
+    heading: "The interview is a sandbox",
+    body: "This is very important: what's said during the interview doesn't affect how the book is written. The AI is free to invent and experiment during the conversation.\n\nSuppose Nora says:\n\"My father used to take me to the lighthouse when I was little.\"\nThat doesn't mean StoryBook AI is now free to use this as established information when a chapter is written.\nYou first have to choose to turn the information into a fact.\n\nThe workflow is:\nInterview → AI says something interesting → Extract facts → Review → Lock facts → Story Bible → Now the information can affect future AI writing\n\nThink of it as:\nInterview ≠ canon\nLocked facts = canon\n\nThat lets you ask wild questions and try out ideas without risking them starting to affect the story."
+  },
+  "interview-to-story": {
+    heading: "From interview to story",
+    body: "During the interview, Nora might say:\n\"My mother always lied about what happened to Dad. I learned early that adults tell whichever version of the truth suits them.\"\n\nYou find the idea interesting. After the interview, StoryBook AI can help you identify possible facts:\n\"Nora's mother withheld information about the father's disappearance.\"\n\nNow you choose.\nLock the fact — then it becomes an established part of Story Bible.\nDon't lock it — then it stays something explored during the interview, and shouldn't be treated as established information when the book is written."
+  },
+  "brainstorm-vs-interview": {
+    heading: "Brainstorm and interview",
+    body: "They are two different ways of exploring the story.\n\nBrainstorm — you look at the story from the outside:\n\"What if Nora's mother knows more about the disappearance?\"\n\nInterview — you examine the story from within:\n\"Nora, do you think your mother knows what happened to your father?\"\n\nNeither has to automatically change the story. They're places where you get to think."
+  },
+  "three-levels-of-information": {
+    heading: "Three levels of information",
+    body: "A useful mental model:\n\nExplore\nBrainstorm and interviews. \"What if…?\" Here ideas get to be uncertain.\n↓\nPlan\nSynopsis, briefs, Scenes, and Plotlines. \"This is what I think will happen.\" Here you shape the story.\n↓\nEstablish\nLocked facts in Story Bible. \"This is true in the story's world.\" Here is information StoryBook AI can rely on when the story is written."
+  },
+  "extract-facts": {
+    heading: "Extract facts from the manuscript",
+    body: "You don't have to fill Story Bible by hand as you write. When a chapter contains information worth remembering, StoryBook AI can help you extract possible facts.\n\nThe workflow is:\nChapter → Extract facts → Suggestions → Review → Approve and lock → Story Bible\n\nAI suggests. You decide."
+  },
+  "moving-from-other-tool": {
+    heading: "Moving from another writing tool",
+    body: "If you've already worked on the story elsewhere, you don't need to start over. You might already have:\n• a manuscript\n• character descriptions\n• places\n• worldbuilding\n• lore\n• organizations\n• objects\n• history\n• rules of the world\n\nStoryBook AI can help you bring the material with you."
+  },
+  "import-lore": {
+    heading: "Import lore",
+    body: "Open: Story Bible → Import lore\n\nPaste an article or text from your existing material. It could be, for example:\n\"The lighthouse was built in 1892 on the island's northern point. It has been unmanned since 1987. The locals avoid the place after dark.\"\n\nStoryBook AI's local AI reads the text and suggests facts. You then review the suggestions.\n\nThe original text isn't saved as part of the book. It's the facts you choose to approve that carry forward.\n\nThe current lore import works with one article or text at a time."
+  },
+  "already-have-manuscript": {
+    heading: "You already have a manuscript",
+    body: "If you've already written part of, or all of, the story, you don't need to start with Brainstorm or a development method. Start with the text you have.\n\nOne possible workflow:\nExisting manuscript → Chapters → Extract facts → Story Bible → Analyze and revise → Keep writing\n\nBrainstorm, Synopsis, and development methods are aids. They aren't required steps."
+  },
+  "write-with-ai": {
+    heading: "Write together with AI",
+    body: "AI doesn't have to write whole chapters. Choose the smallest tool that solves the problem.\n\nDraft — when the chapter has no text yet.\nExtend — when you've started writing but need to move forward.\nElaborate — when a passage moves too fast or needs more content.\nRewrite — when you know what you want to change. Example: \"Make the dialogue more uncomfortable without the characters saying outright what they're angry about.\"\nWrite a beat — when you know exactly which smaller event should happen. Example: \"Nora hears footsteps on the stairs and hides the letter before the door opens.\""
+  },
+  "smallest-tool": {
+    heading: "Choose the smallest tool",
+    body: "Completely empty chapter → Draft\nA smaller event is missing → Write a beat\nThe passage is too thin → Elaborate\nI need to move forward → Extend\nI know what I want to change → Rewrite\nI want to know if the chapter works → Analyze\n\nThis gives you more control than regenerating large amounts of text."
+  },
+  "ai-not-autopilot": {
+    heading: "AI is not autopilot",
+    body: "StoryBook AI isn't built around: \"Write my book.\"\n\nThe idea is instead:\nYou decide the direction.\n↓\nAI helps where you want help.\n↓\nYou read the result.\n↓\nYou change, keep, or discard it.\n↓\nThe story develops.\n\nYou can write several chapters entirely without AI. You can use AI only when you get stuck. Or generate rough drafts that you then rewrite heavily. All of these are normal ways to use StoryBook AI."
+  },
+  "pov-tense-voice": {
+    heading: "Point of view, tense, and narrative voice",
+    body: "StoryBook AI can be given information about how the story should be told. This can include:\n• point of view\n• tense\n• viewpoint\n• narrative voice\n\nIndividual chapters can, when needed, deviate from the book's overall settings. That can be useful if most of the novel is told in third person but one particular chapter needs a different viewpoint.\n\nIf you use AI for larger rewrites after such a change, always read the result carefully.\n\nPoint of view is about more than swapping pronouns."
+  },
+  reader: {
+    heading: "Reader",
+    body: "You can specify what kind of reader the story is aimed at. This can help AI adapt, for example, word choice and sentence structure when it writes together with you.\n\nIt's writing support. It is not an automatic rating of what age the finished book is suitable for."
+  },
+  "author-voice": {
+    heading: "Author voice",
+    body: "Two authors can describe the same event in completely different ways. Author voice helps AI understand how you want the prose to feel. It can involve:\n• sentence length\n• amount of setting description\n• dialogue\n• rhythm\n• direct or restrained language\n• other stylistic traits\n\nIt's guidance for AI. Not rules for how you must write. Your own text always has the final word."
+  },
+  "analyze-chapter": {
+    heading: "Analyze a chapter",
+    body: "Analyze reviews the text without rewriting it for you. The point is to help you notice things you might want to look into yourself.\n\nThink of the analysis as an extra reader.\nNot: \"This is how you should write.\"\nBut: \"Here's something you might want to look at.\"\n\nYou decide whether the observation is relevant."
+  },
+  continuity: {
+    heading: "Continuity",
+    body: "The longer a manuscript gets, the harder it is to remember everything. A person might end up with different eye colors. A place might suddenly change. A character might seem to know information they shouldn't know yet.\n\nHere, Story Bible and the story's continuity tools help you compare what you're writing against what's already established.\n\nWho knows what?\nContinuity isn't only about physical details. It's also about information. The reader might know a secret. That doesn't mean every character does.\n\nThis becomes especially important in mysteries, thrillers, multiple viewpoints, and stories where information is revealed gradually."
+  },
+  "ask-manuscript": {
+    heading: "Ask Manuscript",
+    body: "Once the book has grown long, you can use Ask Manuscript to examine your own story.\n\nExample:\n\"When does Erik first meet the woman on the train?\"\n\"In which chapters is the lighthouse mentioned?\"\n\"What does Lena know about Erik's father?\"\n\"When does the reader learn the photograph is from 1932?\"\n\nYou can also ask:\n\"Which chapters are mostly about the relationship between Nora and Elias?\"\nor:\n\"Where is the key mentioned before it becomes important later?\"\n\nThe answer is a tool for you. It doesn't automatically become canon, and shouldn't by itself change the chapters."
+  },
+  history: {
+    heading: "History",
+    body: "AI-assisted writing often means experimenting. A rewrite might turn out better. Or you might discover the old version actually worked better.\n\nWhen earlier versions are available, History can help you compare and go back.\n\nThink: Try → Read → Keep or revert\n\nYou don't have to accept a change just because AI made it."
+  },
+  proofread: {
+    heading: "Proofread",
+    body: "Proofreading fits later in the process.\n\nEarlier, the question might have been: \"How can the scene develop?\"\nNow the question becomes: \"Is there something here that needs fixing or checking?\"\n\nIt's rarely worth polishing every sentence if you still plan to rewrite whole chapters. Work from large to small:\nThe story → Continuity → The chapters → The language → Proofreading → Your own final read\n\nAI can find things. The author decides what works."
+  },
+  "images-illustrations": {
+    heading: "Images and illustrations",
+    body: "StoryBook AI can help you work with images in two different ways.\n\nYour own images\nYou can add images to the story. Useful for illustrated stories, children's books, or projects where images are part of the reading experience.\n\nIllustration prompts\nYou can also use text from the story as the basis for an image description.\n\nExample — manuscript: \"Erik stood alone on the platform. Fog lay thick over the tracks, and the station clock had stopped at 3:17.\"\nStoryBook AI can help you turn the passage into an illustration prompt based on the subject and the project's chosen visual style. The story text itself isn't changed."
+  },
+  publish: {
+    heading: "Publish",
+    body: "When the story is ready to leave the workspace, use Publish.\n\nThink of the difference:\nThe StoryBook project = your workshop\nThe published copy = what the reader gets\n\nBrainstorm, working notes, and other planning don't need to follow into the published story. Choose the format that fits how the text will be used, and continue working with the result from there when needed."
+  },
+  backup: {
+    heading: "Backup",
+    body: "Publishing and backing up aren't the same thing.\n\nA published book is for the reader. A StoryBook backup is for restoring the project itself. It can therefore contain information that isn't in the published version.\n\nSave backups regularly, especially before major changes.\n\nImport backup is used for StoryBook AI's own backups. That's not the same as importing a manuscript or lore from another writing program."
+  },
+  "ai-writing-wrong-things": {
+    heading: "If AI starts writing the wrong things",
+    body: "First, think about what information the model actually received.\n\nThe chapter brief is outdated\nCheck whether the brief still describes the chapter you want to write.\n\nSynopsis hasn't kept up with the story's development\nThe story may have changed since you planned it.\n\nThe idea only exists in Brainstorm\nBrainstorm is an exploratory space. An idea there shouldn't automatically be treated as part of the story.\n\nThe information only comes from an interview\nThe same principle applies here. What was said during the interview doesn't affect how the book is written unless you've chosen to lock the information as a fact.\n\nImportant information is missing from Story Bible\nIf something needs to stay consistent, it may need to be established and locked as a fact.\n\nYour instruction is too broad\nInstead of: \"Rewrite the scene to make it better.\"\ntry: \"Make the dialogue between Nora and Elias more guarded. They suspect each other but neither wants to show it yet.\"\n\nThe clearer the problem is, the easier it becomes to choose the right tool."
   }
 };
 
@@ -563,6 +766,13 @@ export const en = {
         body: "No — on purpose. StoryBook AI only ever talks to a model running on your own computer or network. That is not a missing feature; it is the whole point: your manuscript never has to leave your machine."
       }
     ]
+  },
+  handbook: {
+    title: "Guide",
+    intro:
+      "StoryBook AI contains many tools, but you don't need to learn all of them before you start.\nYou can write a whole book just by creating chapters and writing in the editor. The other tools are there when you need help with ideas, structure, characters, continuity, editing, or publishing.\n\nStart simple. Add structure when the story needs it.",
+    categories: handbookCategories,
+    sections: handbookSections
   },
   scenes: {
     toggleCount: {

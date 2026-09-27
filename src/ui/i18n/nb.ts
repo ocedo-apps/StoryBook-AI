@@ -463,14 +463,14 @@ export const nb: Messages = {
       }
     ],
     categories: {
-      "getting-started": "Introduction",
-      "basic-writing": "Basic Writing",
-      "the-writer": "The Writer",
-      images: "Images",
-      "focused-workflow": "Focused Workflow",
-      "advanced-tools": "Advanced Writing Tools",
+      "getting-started": "Introduksjon",
+      "basic-writing": "Grunnleggende skriving",
+      "the-writer": "Skriveverktøyet",
+      images: "Bilder",
+      "focused-workflow": "Fokusert arbeidsflyt",
+      "advanced-tools": "Avanserte skriveverktøy",
       "world-bible": "Story Bible",
-      "polish-publish": "Polish & Publish",
+      "polish-publish": "Puss & publiser",
       troubleshooting: "Feilsøking"
     },
     sections: {
@@ -558,6 +558,211 @@ export const nb: Messages = {
         body: "Nei — med vilje. StoryBook AI snakker bare noensinne med en modell som kjører på din egen datamaskin eller nettverk. Det er ikke en manglende funksjon; det er hele poenget: manuskriptet ditt trenger aldri å forlate maskinen din."
       }
     ]
+  },
+  handbook: {
+    title: "Guide",
+    intro:
+      "StoryBook AI inneholder mange verktøy, men du trenger ikke lære deg alt før du begynner.\nDu kan skrive en hel bok bare ved å opprette kapitler og skrive i editoren. De andre verktøyene finnes der når du trenger hjelp med idéer, struktur, karakterer, kontinuitet, redigering eller publisering.\n\nBegynn enkelt. Legg til struktur når historien trenger det.",
+    categories: {
+      "getting-started": "Kom i gang",
+      "how-you-work": "Slik kan du jobbe",
+      plan: "Planlegg historien",
+      "story-bible-world": "Story Bible & verdenen",
+      writing: "Skrive",
+      revise: "Bearbeide manuset",
+      "images-publish-backup": "Bilder, publisering & sikkerhetskopi",
+      help: "Hjelp & feilsøking"
+    },
+    sections: {
+      "connect-local-ai": {
+        heading: "Koble til en lokal AI",
+        body: "StoryBook AI jobber med en lokal AI-modell.\nDet betyr at AI-funksjonene bruker modellen du selv har koblet til StoryBook AI.\nFor å bruke funksjoner som utkast, omskriving, analyse og intervjuer trenger du derfor først en fungerende lokal AI-tilkobling.\n\nFølg hurtigstarten for å:\n1. Installere en lokal AI-løsning.\n2. Velge en modell.\n3. Koble den til StoryBook AI.\n\nNår tilkoblingen fungerer kan du begynne å skrive."
+      },
+      "first-book": {
+        heading: "Opprett din første bok",
+        body: "Opprett et nytt manus og gi det et navn.\nDu trenger ikke opprette en Synopsis, Story Bible eller en detaljert plan før du begynner.\n\nDu kan gå rett til:\nKapitler → Kapittel 1 → Begynn å skrive\n\nSkriv selv i editoren akkurat som i et vanlig skriveprogram.\nVil du ha hjelp kan du bruke AI-verktøyene."
+      },
+      "first-chapter": {
+        heading: "Ditt første kapittel",
+        body: "Et kapittel består i bunn og grunn av to ting:\n\nKapittelbrief\nHva kapittelet skal oppnå.\n\nManus\nTeksten leseren faktisk kommer til å lese.\n\nEn brief kan for eksempel være:\n”Erik ankommer den gamle jernbanestasjonen. Der møter han en kvinne som virker å kjenne faren hans. Hun nekter å forklare hvordan, og legger igjen et gammelt fotografi på bordet.”\n\nSelve kapittelet er så historien som vokser frem fra dette.\nDu kan skrive kapittelet selv eller bruke Skriv utkast for å få et første utkast å jobbe videre med."
+      },
+      "map-of-storybook-ai": {
+        heading: "Et kart over StoryBook AI",
+        body: "UTFORSK\n💡 Brainstorm · 💬 Intervju verdenen\nHer får idéer være usikre.\n↓\nPLANLEGG\n📖 Synopsis · 🗂 Kapittelbriefer · 🎬 Scener · 🧵 Tråder · 🕒 Tidslinje\nHer former du historien.\n↓\nETABLER\n📚 Story Bible · 🔎 Trekk ut fakta · ✓ Gjennomgå · 🔒 Lås\nHer bestemmer du hva som skal regnes som etablert.\n↓\nSKRIV\n✍️ Kapitler — Skriv utkast · Skriv en beat · Forleng · Utdyp · Skriv om\n↓\nGJENNOMGÅ\n🔎 Analyser · 💬 Spør manuset · ✓ Kontinuitet · ✓ Korrekturles\n↓\nFERDIGSTILL\n🖼 Bilder · 📤 Publiser · 💾 Sikkerhetskopier\n\nDet er et kart.\nIkke en obligatorisk rekkefølge."
+      },
+      "no-required-workflow": {
+        heading: "Du trenger ikke bruke alt",
+        body: "StoryBook AI kan brukes på mange ulike måter.\nDet finnes ingen obligatorisk arbeidsflyt.\n\nDu kan for eksempel jobbe slik:\n\nJeg vil bare begynne å skrive\nKapittel → Skriv → Neste kapittel. Planlegg først når du trenger det.\n\nJeg vil planlegge historien\nBrainstorm → Synopsis → Kapittelbriefer → Kapitler\n\nJeg vil jobbe svært strukturert\nSynopsis → Fortellermetode → Tråder → Kapittelbriefer → Scener → Tidslinje → Kapitler\n\nJeg har allerede et manus\nLegg inn eksisterende tekst → Analyser → Story Bible → Bearbeid → Publiser\n\nJeg kommer fra et annet skriveverktøy\nTa med manus og lore → Importer → Gjennomgå → Fortsett å skrive\n\nDu velger selv hvor mye struktur du trenger."
+      },
+      "three-workflows": {
+        heading: "Tre komplette arbeidsflyter",
+        body: "Jeg skriver intuitivt\nNytt manus → Kapittel 1 → Skriv → Kapittel 2 → Skriv\nNår historien vokser: Trekk ut fakta → Story Bible\nSenere: Analyser → Korrekturles → Publiser\nDu trenger aldri lage en detaljert plan.\n\nJeg vil planlegge først\nBrainstorm → Synopsis → Kapittelbriefer → Skriv kapitler → Story Bible → Analyser → Korrekturles → Publiser\nDet gir struktur uten å kreve en dramaturgisk modell.\n\nJeg vil planlegge mye\nBrainstorm → Snowflake → Synopsis → Tre akter / Save the Cat / Heltens reise → Tråder → Kapittelbriefer → Scener → Tidslinje → Skriv → Story Bible + kontinuitet → Analyser → Korrekturles → Publiser\nDet er en mer strukturert måte å jobbe på.\nDet er ikke mer riktig enn de andre."
+      },
+      "which-tool-do-i-need": {
+        heading: "Hvilket verktøy trenger jeg?",
+        body: "”Jeg vet ikke hva historien handler om.” → Brainstorm\n”Jeg har en idé men får den ikke til en hel historie.” → Snowflake\n”Jeg har mange idéer men ingen helhet.” → Synopsis\n”Jeg trenger en enkel dramatisk struktur.” → Tre akter\n”Jeg vil jobbe med flere tydelige beats.” → Save the Cat\n”Historien handler om hovedpersonens forandringsreise.” → Heltens reise\n”Jeg vet ikke helt hvem karakteren min er ennå.” → Intervju verdenen\n”Jeg vil prøve idéer om karakteren uten å påvirke boken.” → Intervju verdenen\n”Jeg trenger å huske hva som faktisk gjelder.” → Story Bible\n”Jeg mister oversikten over hva kapittelet skal gjøre.” → Kapittelbrief\n”Kapittelet har blitt for komplisert.” → Scener\n”Jeg mister oversikten over ulike handlinger og relasjoner.” → Tråder\n”Jeg mister oversikten over når ting skjer.” → Tidslinje\n”Jeg har satt meg fast midt i en scene.” → Skriv en beat, Forleng eller Utdyp\n”Jeg vet ikke om kapittelet fungerer.” → Analyser\n”Jeg finner ikke tilbake til noe i det lange manuset mitt.” → Spør manuset\n”Historien er ferdig og jeg vil pusse på teksten.” → Korrekturles\n”Jeg vil gi noen boken å lese.” → Publiser"
+      },
+      "most-important-principle": {
+        heading: "Det viktigste prinsippet",
+        body: "StoryBook AI inneholder mange funksjoner fordi ulike forfattere jobber på ulike måter.\nDet betyr ikke at alle funksjonene må brukes.\n\nBegynn med historien.\nNår du støter på et problem, velg verktøyet som hjelper med akkurat det problemet.\n\nUtforsk når du trenger idéer.\nPlanlegg når du trenger retning.\nLås fakta når noe skal bli etablert.\nSkriv når du vet nok til å fortsette.\nGjennomgå når du vil forstå hva du har skrevet.\n\nOg fremfor alt:\nVerktøyene skal tilpasse seg måten du skriver på — ikke omvendt."
+      },
+      "brainstorm-free": {
+        heading: "Brainstorm – tenk fritt",
+        body: "Brainstorm er din private kladdeblokk.\nHer trenger ingenting være bestemt.\n\nSkriv for eksempel:\n”Tenk om kvinnen på toget egentlig kjenner Eriks far?”\neller:\n”Kanskje fyrtårnet ikke er forlatt?”\neller:\n”Ville historien fungere bedre om broren fortsatt lever?”\n\nÉn lapp per idé.\nFlytt dem rundt og eksperimenter.\n\nBrainstorm påvirker ikke automatisk historien\nDette er viktig. En idé i Brainstorm blir ikke automatisk en del av historien og skal ikke begynne å styre vanlige kapitelutkast.\nNår du bestemmer at en idé skal gå videre, drar du den til Send til synopsis.\nDu bestemmer altså hvilke idéer som forlater kladdebordet."
+      },
+      "synopsis-short": {
+        heading: "Synopsis – historien i kortform",
+        body: "Synopsis beskriver historien som helhet. Her samler du:\n• hvem som er viktige\n• hva som skjer\n• hvilke større konflikter som finnes\n• hvor historien er på vei\n\nEksempel\nBrainstorm: ”Tenk om kvinnen på toget kjenner Eriks far?”\nNår du bestemmer deg for å bruke idéen kan den utvikles til:\n”Under reisen møter Erik en kvinne som viser seg å kjenne til omstendighetene rundt farens forsvinning.”\nDet hører hjemme i Synopsis.\n\nTenk:\nBrainstorm = kanskje\nSynopsis = historiens plan\nKapittelbrief = kapittelets oppgave\nManus = selve historien"
+      },
+      "chapter-briefs": {
+        heading: "Kapittelbriefer",
+        body: "En kapittelbrief beskriver hva et kapittel skal oppnå.\nDen trenger ikke være velskrevet.\nDen er en instruksjon til deg selv og til AI når du bruker skrivehjelpen.\n\nEksempel\n”Erik møter kvinnen i spisevognen. Hun antyder at hun kjente faren hans, men nekter å si hvordan. Kapittelet slutter med at hun legger igjen et fotografi på bordet.”\n\nBriefen er ikke selve historien.\nDen beskriver hva historien skal gjøre.\n\nSynopsis = hele historien\nBrief = ett kapittel\nManus = det leseren får"
+      },
+      "development-methods": {
+        heading: "Fortellermetoder",
+        body: "StoryBook AI inneholder flere metoder som kan hjelpe deg å utvikle eller strukturere historien.\nDe er helt frivillige.\nDu kan alltid velge:\nIngen metode – skriv fritt"
+      },
+      "snowflake-method": {
+        heading: "Snowflake",
+        body: "Snowflake passer når du har en idé men ennå ikke en hel historie.\nDen hjelper deg å utvikle innholdet steg for steg.\n\nÉn setning\n”En journalist vender tilbake til hjemøya for å undersøke farens tjue år gamle forsvinning.”\n↓\nEtt avsnitt\nUtvikle grunnidéen med konflikt, utvikling og retning.\n↓\nFull synopsis\nBygg videre til du har en sammenhengende beskrivelse av historien.\n↓\nSend til Synopsis\n\nDu kan skrive selv eller bruke AI som støtte underveis.\n\nSnowflake hjelper først og fremst med å svare på:\n”Hva er dette egentlig for en historie jeg holder på å skrive?”"
+      },
+      "three-act": {
+        heading: "Tre akter",
+        body: "Tre akter passer når du vil ha en enkel dramatisk ryggrad.\nStoryBook AI bruker sentrale vendepunkter som:\n• Opptakt\n• Utløsende hendelse\n• Steget inn i andre akt\n• Midtpunkt\n• Alt er tapt\n• Klimaks\n• Oppløsning\n\nDisse blir Tråder du kan koble til historiens kapitler.\n\nEksempel\nUtløsende hendelse: ”Nora finner et brev fra sin forsvunne far.” (Kapittel 3)\nSenere — Midtpunkt: ”Nora oppdager at brevet ble skrevet etter datoen faren skal ha forsvunnet.” (Kapittel 12)\n\nMetoden hjelper deg å se historiens større bevegelse.\nDen skriver ikke historien for deg."
+      },
+      "save-the-cat": {
+        heading: "Save the Cat",
+        body: "Save the Cat gir flere holdepunkter enn Tre akter, blant annet:\n• Åpningsbilde\n• Temaet uttales\n• Opptakt\n• Katalysator\n• Nøling\n• Steget inn i andre akt\n• B-historien\n• Løftet innfris\n• Midtpunkt\n• Motstanden presser på\n• Alt er tapt\n• Sjelens mørke natt\n• Steget inn i tredje akt\n• Finale\n• Sluttbilde\n\nDisse opprettes som Tråder.\nDu bestemmer selv hvordan – og om – de passer historien din.\n\nEventuelle prosentangivelser er retningslinjer, ikke regler for nøyaktig hvor noe må skje.\nBruk metoden som et kart, ikke en fasit."
+      },
+      "heros-journey": {
+        heading: "Heltens reise",
+        body: "Heltens reise passer historier der hovedpersonens forandring står i sentrum.\nStoryBook AI bruker tolv steg:\n1. Hverdagsverdenen\n2. Kallet\n3. Å avvise kallet\n4. Å møte mentoren\n5. Å krysse terskelen\n6. Prøvelser, allierte og fiender\n7. Nærmer seg den innerste hulen\n8. Den store prøvelsen\n9. Belønningen\n10. Veien tilbake\n11. Gjenoppstandelsen\n12. Hjemkomsten med eliksiren\n\nOgså disse opprettes som Tråder.\n\n”Reisen” trenger ikke være bokstavelig. En karakter kan forlate sin trygge verden ved å flytte, starte et forhold, miste jobben, oppdage en hemmelighet eller ta en beslutning som forandrer livet."
+      },
+      "method-differences": {
+        heading: "Forskjellen mellom metodene",
+        body: "Snowflake\nIdé → Én setning → Ett avsnitt → Full synopsis → Synopsis\nSnowflake utvikler historiens innhold.\n\nTre akter / Save the Cat / Heltens reise\nMetode → Beats og vendepunkter → Tråder → Kapitler\nDisse hjelper deg å strukturere historiens utvikling.\n\nDu kan bytte metode senere. Det du allerede har skrevet i Synopsis eller opprettet som Tråder, slettes ikke bare fordi du velger en annen metode eller går tilbake til å skrive fritt."
+      },
+      scenes: {
+        heading: "Scener",
+        body: "Når et kapittel blir langt eller komplisert kan det være lettere å dele det opp i Scener.\n\nKapittel 8 – Fyrtårnet\nScene 1: Nora ankommer øya.\nScene 2: Hun bryter seg inn i fyrtårnet.\nScene 3: Hun finner fotografiene.\nScene 4: Noen låser døren utenfra.\n\nTenk:\nBrief = kapittelets oppdrag\nScener = veien gjennom kapittelet\n\nDu trenger ikke bruke Scener for enkle kapitler der du allerede har oversikten."
+      },
+      plotlines: {
+        heading: "Tråder",
+        body: "Tråder hjelper deg å følge det som utvikler seg gjennom historien. Det kan være:\n• hovedkonflikten\n• et forhold\n• et mysterium\n• en hemmelighet\n• en rivalisering\n• en karakterforandring\n• dramaturgiske beats\n\nEksempel\n🔴 Farens forsvinning\n🟡 Nora og Elias\n🔵 Fyrtårnets historie\n\nDu kan se hvordan disse forekommer gjennom kapitlene. Hvis en viktig sidehandling plutselig forsvinner i ti kapitler, blir det lettere å oppdage."
+      },
+      timeline: {
+        heading: "Tidslinje",
+        body: "Tidslinje svarer på spørsmålet: Når skjer dette?\nDen blir spesielt nyttig når kapittelrekkefølgen ikke er det samme som historiens kronologi.\n\nKapittelrekkefølge\nKapittel 1 – 2026: Nora vender tilbake.\nKapittel 2 – 2006: Faren forsvinner.\nKapittel 3 – 2026: Nora finner brevet.\nKapittel 4 – 1998: Faren møter Elias.\n\nKronologisk rekkefølge\n1998 → 2006 → 2026\n\nTidslinje hjelper deg å holde styr på forskjellen."
+      },
+      "scenes-plotlines-timeline": {
+        heading: "Scener, Tråder og Tidslinje",
+        body: "De svarer på tre ulike spørsmål.\n\nScener: Hva skjer?\nTråder: Hva utvikler seg?\nTidslinje: Når skjer det?\n\nDen samme hendelsen kan derfor finnes i alle tre uten at verktøyene gjør samme jobb."
+      },
+      "story-bible-memory": {
+        heading: "Story Bible – historiens hukommelse",
+        body: "Story Bible samler informasjon historien trenger å huske. Det kan være:\n• personer\n• steder\n• relasjoner\n• grupper\n• gjenstander\n• hendelser\n• regler og begreper i verdenen\n\nAnta at manuset sier:\n”Nora gikk opp trappen til fyrtårnet. Hun hadde ikke vært der siden faren forsvant for tjue år siden.”\n\nStoryBook AI kan identifisere mulige fakta. Eksempel:\n”Nora har en far.”\n”Noras far forsvant for tjue år siden.”\n”Nora har vært ved fyrtårnet tidligere.”\n\nDu gjennomgår forslagene. Først når du bestemmer at noe skal låses, blir det etablert informasjon StoryBook AI kan forholde seg til."
+      },
+      "what-is-canon": {
+        heading: "Hva betyr kanon?",
+        body: "Kanon er det du har bestemt skal regnes som sant i historien.\nIkke all tekst trenger å bli kanon.\n\nHvis AI skriver:\n”Nora dro det røde skjerfet tettere rundt halsen.”\ntrenger du ikke lagre fargen på skjerfet bare fordi den tilfeldigvis dukket opp i teksten.\n\nMen hvis skjerfet senere blir viktig, kan informasjonen være verdt å låse.\n\nStory Bible skal huske det som trenger å være konsekvent. Den trenger ikke bli en database over hver detalj i hver setning."
+      },
+      "interview-world": {
+        heading: "Intervju verdenen",
+        body: "Story Bible trenger ikke bare brukes til å lagre det du allerede vet. Du kan også bruke Intervju verdenen for å oppdage mer.\n\nI stedet for å fylle ut lange skjemaer kan du utforske en karakter gjennom samtale.\n\nAnta at du vet:\n”Nora Berg. 38 år. Journalist. Vokste opp på øya. Faren forsvant da hun var atten.”\n\nSpør for eksempel:\n”Hvorfor ble du journalist?”\n”Hva husker du fra dagen faren din forsvant?”\n”Hvem stoler du minst på?”\n”Hva ville du aldri innrømme for Elias?”\n”Hva er du mest redd for å oppdage?”\n\nIntervjuet kan hjelpe deg å finne personlighet, motiv, bakgrunn, relasjoner og konflikter."
+      },
+      "interview-sandbox": {
+        heading: "Intervjuet er en sandkasse",
+        body: "Dette er svært viktig: det som sies under intervjuet påvirker ikke hvordan boken skrives. AI får dikte opp og eksperimentere under samtalen.\n\nAnta at Nora sier:\n”Faren min pleide å ta meg med til fyrtårnet da jeg var liten.”\nDet betyr ikke at StoryBook AI heretter kan bruke dette som etablert informasjon når et kapittel skrives.\nDu må først velge å gjøre informasjonen til et faktum.\n\nArbeidsflyten er:\nIntervju → AI sier noe interessant → Trekk ut fakta → Gjennomgå → Lås fakta → Story Bible → Nå kan informasjonen påvirke fremtidig AI-skriving\n\nTenk:\nIntervju ≠ kanon\nLåste fakta = kanon\n\nDet gjør at du kan stille ville spørsmål og prøve idéer uten å risikere at de begynner å påvirke historien."
+      },
+      "interview-to-story": {
+        heading: "Fra intervju til historie",
+        body: "Under intervjuet sier Nora kanskje:\n”Moren min løy alltid om hva som skjedde med pappa. Jeg lærte tidlig at voksne forteller den versjonen av sannheten som passer dem.”\n\nDu synes idéen er interessant. Etter intervjuet kan StoryBook AI hjelpe deg å identifisere mulige fakta:\n”Noras mor holdt tilbake informasjon om farens forsvinning.”\n\nNå velger du.\nLås faktumet — da blir informasjonen en etablert del av Story Bible.\nIkke lås det — da forblir det bare noe som ble utforsket under intervjuet, og skal ikke behandles som etablert informasjon når boken skrives."
+      },
+      "brainstorm-vs-interview": {
+        heading: "Brainstorm og intervju",
+        body: "De er to ulike måter å utforske historien på.\n\nBrainstorm — du ser på historien utenfra:\n”Tenk om Noras mor vet mer om forsvinningen?”\n\nIntervju — du undersøker historien innenfra:\n”Nora, tror du moren din vet hva som skjedde med faren din?”\n\nIngen av dem trenger automatisk å forandre historien. De er steder der du får lov til å tenke."
+      },
+      "three-levels-of-information": {
+        heading: "Tre nivåer av informasjon",
+        body: "En nyttig mental modell er:\n\nUtforsk\nBrainstorm og intervjuer. ”Tenk om…?” Her får idéene være usikre.\n↓\nPlanlegg\nSynopsis, briefer, Scener og Tråder. ”Dette tenker jeg skal skje.” Her former du historien.\n↓\nEtabler\nLåste fakta i Story Bible. ”Dette er sant i historiens verden.” Her finnes informasjon StoryBook AI kan forholde seg til når historien skrives."
+      },
+      "extract-facts": {
+        heading: "Trekk ut fakta fra manuset",
+        body: "Du trenger ikke fylle Story Bible manuelt mens du skriver. Når et kapittel inneholder informasjon som er verdt å huske, kan StoryBook AI hjelpe deg å trekke ut mulige fakta.\n\nArbeidsflyten er:\nKapittel → Trekk ut fakta → Forslag → Gjennomgå → Godkjenn og lås → Story Bible\n\nAI foreslår. Du bestemmer."
+      },
+      "moving-from-other-tool": {
+        heading: "Flytte fra et annet skriveverktøy",
+        body: "Har du allerede jobbet med historien et annet sted, trenger du ikke begynne på nytt. Du har kanskje allerede:\n• et manus\n• karakterbeskrivelser\n• steder\n• verdensbygging\n• lore\n• organisasjoner\n• gjenstander\n• historikk\n• regler for verdenen\n\nStoryBook AI kan hjelpe deg å ta med materialet."
+      },
+      "import-lore": {
+        heading: "Importer lore",
+        body: "Åpne: Story Bible → Importer lore\n\nLim inn en artikkel eller tekst fra ditt eksisterende materiale. Det kan for eksempel være:\n”Fyrtårnet ble bygget i 1892 på øyas nordspiss. Tårnet har vært ubemannet siden 1987. Lokalbefolkningen unngår stedet etter mørkets frembrudd.”\n\nStoryBook AIs lokale AI leser teksten og foreslår fakta. Du gjennomgår deretter forslagene.\n\nOriginalteksten lagres ikke som en del av boken. Det er faktaene du velger å godkjenne som føres videre.\n\nDagens lore-import jobber med én artikkel eller tekst om gangen."
+      },
+      "already-have-manuscript": {
+        heading: "Du har allerede et manus",
+        body: "Har du allerede skrevet deler av eller hele historien, trenger du ikke begynne med Brainstorm eller en fortellermetode. Begynn med teksten du har.\n\nEn mulig arbeidsflyt er:\nEksisterende manus → Kapitler → Trekk ut fakta → Story Bible → Analyser og bearbeid → Fortsett å skrive\n\nBrainstorm, Synopsis og fortellermetoder er hjelpemidler. De er ikke obligatoriske steg."
+      },
+      "write-with-ai": {
+        heading: "Skriv sammen med AI",
+        body: "AI trenger ikke skrive hele kapitler. Velg det minste verktøyet som løser problemet.\n\nSkriv utkast — når kapittelet ennå ikke har noen tekst.\nForleng — når du har begynt å skrive men trenger å komme videre.\nUtdyp — når en passasje går for fort eller trenger mer innhold.\nSkriv om — når du vet hva du vil forandre. Eksempel: ”Gjør dialogen mer ubehagelig uten at personene sier rett ut hva de er sinte for.”\nSkriv en beat — når du vet nøyaktig hvilken mindre hendelse som skal skje. Eksempel: ”Nora hører steg i trappen og gjemmer brevet før døren åpnes.”"
+      },
+      "smallest-tool": {
+        heading: "Velg det minste verktøyet",
+        body: "Helt tomt kapittel → Skriv utkast\nEn mindre hendelse mangler → Skriv en beat\nPassasjen er for tynn → Utdyp\nJeg trenger å komme videre → Forleng\nJeg vet hva jeg vil forandre → Skriv om\nJeg vil vite om kapittelet fungerer → Analyser\n\nDet gir deg mer kontroll enn å generere om store mengder tekst."
+      },
+      "ai-not-autopilot": {
+        heading: "AI er ikke autopilot",
+        body: "StoryBook AI er ikke bygget rundt: ”Skriv boken min.”\n\nTanken er heller:\nDu bestemmer retningen.\n↓\nAI hjelper der du vil ha hjelp.\n↓\nDu leser resultatet.\n↓\nDu endrer, beholder eller forkaster det.\n↓\nHistorien utvikler seg.\n\nDu kan skrive flere kapitler helt uten AI. Du kan bruke AI bare når du sitter fast. Eller lage råutkast som du deretter skriver kraftig om. Alt dette er normale måter å bruke StoryBook AI på."
+      },
+      "pov-tense-voice": {
+        heading: "Perspektiv, tid og fortellerstemme",
+        body: "StoryBook AI kan få informasjon om hvordan historien skal fortelles. Det kan for eksempel dreie seg om:\n• perspektiv\n• tid (tempus)\n• synsvinkel\n• fortellerstemme\n\nEnkeltkapitler kan ved behov avvike fra bokens grunninnstillinger. Det kan være nyttig hvis hoveddelen av romanen fortelles i tredjeperson, men et bestemt kapittel trenger en annen synsvinkel.\n\nHvis du bruker AI til større omskrivinger etter en slik endring, bør du alltid lese resultatet nøye.\n\nPerspektiv handler om mer enn å bytte pronomen."
+      },
+      reader: {
+        heading: "Leser",
+        body: "Du kan angi hvilken type leser historien retter seg mot. Det kan hjelpe AI å tilpasse for eksempel ordvalg og setningsbygning når den skriver sammen med deg.\n\nDet er skrivestøtte. Det er ikke en automatisk vurdering av hvilken alder den ferdige boken passer for."
+      },
+      "author-voice": {
+        heading: "Forfatterstemme",
+        body: "To forfattere kan beskrive den samme hendelsen på helt ulike måter. Forfatterstemmen hjelper AI å forstå hvordan du vil at prosaen skal føles. Det kan dreie seg om:\n• setningslengde\n• mengden miljøbeskrivelse\n• dialog\n• rytme\n• direkte eller tilbakeholdent språk\n• andre stilistiske trekk\n\nDet er veiledning for AI. Ikke regler for hvordan du må skrive. Din egen tekst har alltid siste ord."
+      },
+      "analyze-chapter": {
+        heading: "Analyser et kapittel",
+        body: "Analyser gjennomgår teksten uten å skrive den om for deg. Hensikten er å hjelpe deg å oppdage ting du selv kanskje vil undersøke nærmere.\n\nTenk på analysen som en ekstra leser.\nIkke: ”Slik skal du skrive.”\nMen: ”Her er noe du kanskje vil se nærmere på.”\n\nDu bestemmer om innspillet er relevant."
+      },
+      continuity: {
+        heading: "Kontinuitet",
+        body: "Jo lengre manuset blir, desto vanskeligere blir det å huske alt. En person kan få ulik øyenfarge. Et sted kan plutselig forandre seg. En karakter kan virke å kjenne til informasjon hen ennå ikke burde kjenne til.\n\nHer hjelper Story Bible og historiens kontinuitetsverktøy deg å sammenligne det du skriver med det som allerede er etablert.\n\nHvem vet hva?\nKontinuitet handler ikke bare om fysiske detaljer. Det handler også om informasjon. Leseren kjenner kanskje til en hemmelighet. Det betyr ikke at alle karakterene gjør det.\n\nDette blir spesielt viktig i mysterier, thrillere, flere perspektiver og historier der informasjon avsløres gradvis."
+      },
+      "ask-manuscript": {
+        heading: "Spør manuset",
+        body: "Når boken har blitt lang, kan du bruke Spør manuset til å undersøke din egen historie.\n\nEksempel:\n”Når møter Erik kvinnen på toget for første gang?”\n”I hvilke kapitler nevnes fyrtårnet?”\n”Hva vet Lena om Eriks far?”\n”Når får leseren vite at fotografiet er fra 1932?”\n\nDu kan også spørre:\n”Hvilke kapitler handler mest om forholdet mellom Nora og Elias?”\neller:\n”Hvor nevnes nøkkelen før den blir viktig senere?”\n\nSvaret er et hjelpemiddel for deg. Det blir ikke automatisk kanon og skal ikke i seg selv forandre kapitlene."
+      },
+      history: {
+        heading: "Historikk",
+        body: "AI-assistert skriving innebærer ofte eksperimentering. En omskriving blir kanskje bedre. Eller du oppdager at den gamle versjonen faktisk fungerte bedre.\n\nNår tidligere versjoner er tilgjengelige, kan Historikk hjelpe deg å sammenligne og gå tilbake.\n\nTenk: Prøv → Les → Behold eller gå tilbake\n\nDu trenger ikke akseptere en endring bare fordi AI laget den."
+      },
+      proofread: {
+        heading: "Korrekturles",
+        body: "Korrekturlesing passer senere i prosessen.\n\nTidligere var kanskje spørsmålet: ”Hvordan kan scenen utvikle seg?”\nNå blir spørsmålet: ”Er det noe her som trenger å rettes eller sjekkes?”\n\nDet er sjelden meningsfullt å pusse på hver setning hvis du fortsatt planlegger å skrive om hele kapitler. Jobb gjerne fra stort til smått:\nHistorien → Kontinuiteten → Kapitlene → Språket → Korrekturlesingen → Din egen sluttlesing\n\nAI kan finne ting. Forfatteren avgjør hva som fungerer."
+      },
+      "images-illustrations": {
+        heading: "Bilder og illustrasjoner",
+        body: "StoryBook AI kan hjelpe deg å jobbe med bilder på to ulike måter.\n\nEgne bilder\nDu kan legge til bilder i historien. Nyttig for illustrerte historier, barnebøker eller prosjekter der bilder er en del av leseopplevelsen.\n\nIllustrasjonsprompter\nDu kan også bruke tekst fra historien som grunnlag for en bildebeskrivelse.\n\nEksempel — manus: ”Erik sto alene på perrongen. Tåken lå tett over sporene, og stasjonsklokken hadde stoppet på 03:17.”\nStoryBook AI kan hjelpe deg å gjøre om passasjen til en illustrasjonsprompt basert på motivet og prosjektets valgte visuelle stil. Selve historieteksten endres ikke."
+      },
+      publish: {
+        heading: "Publiser",
+        body: "Når historien er klar til å forlate arbeidsflaten, bruker du Publiser.\n\nTenk på forskjellen:\nStoryBook-prosjektet = verkstedet ditt\nPubliseringen = det leseren får\n\nBrainstorm, arbeidsnotater og annen planlegging trenger derfor ikke bli med i den publiserte historien. Velg formatet som passer hvordan teksten skal brukes, og jobb videre med resultatet der det trengs."
+      },
+      backup: {
+        heading: "Sikkerhetskopi",
+        body: "Publisering og sikkerhetskopiering er ikke det samme.\n\nEn publisert bok er for leseren. En StoryBook-sikkerhetskopi er for å kunne gjenopprette selve prosjektet. Den kan derfor inneholde informasjon som ikke finnes i den publiserte versjonen.\n\nLagre sikkerhetskopier jevnlig, spesielt før større endringer.\n\nImporter sikkerhetskopi brukes til StoryBook AIs egne sikkerhetskopier. Det er ikke det samme som å importere et manus eller lore fra et annet skriveprogram."
+      },
+      "ai-writing-wrong-things": {
+        heading: "Hvis AI begynner å skrive feil ting",
+        body: "Tenk først på hvilken informasjon modellen faktisk har fått.\n\nKapittelbriefen er utdatert\nSjekk om briefen fortsatt beskriver kapittelet du vil skrive.\n\nSynopsis har ikke fulgt med historiens utvikling\nHistorien har kanskje endret seg siden du planla den.\n\nIdéen finnes bare i Brainstorm\nBrainstorm er et utforskende område. En idé der skal ikke automatisk behandles som en del av historien.\n\nInformasjonen kommer bare fra et intervju\nSamme prinsipp gjelder her. Det som ble sagt under intervjuet påvirker ikke hvordan boken skrives, med mindre du har valgt å låse informasjonen som et faktum.\n\nViktig informasjon mangler i Story Bible\nHvis noe må være konsekvent, kan det trenge å bli etablert og låst som et faktum.\n\nInstruksjonen din er for bred\nI stedet for: ”Skriv om scenen så den blir bedre.”\nprøv: ”Gjør dialogen mellom Nora og Elias mer tilbakeholden. De mistenker hverandre, men ingen vil vise det ennå.”\n\nJo tydeligere problemet er, desto lettere blir det å velge riktig verktøy."
+      }
+    }
   },
   scenes: {
     toggleCount: {

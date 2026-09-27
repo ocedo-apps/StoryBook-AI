@@ -104,7 +104,7 @@ export function AppTopBar({ onOpenHomeGuide }: { onOpenHomeGuide: () => void }) 
         type="button"
         className="text-button"
         onClick={() => {
-          if (store.book) store.showGuide();
+          if (store.book) store.showHandbook();
           else onOpenHomeGuide();
         }}
       >

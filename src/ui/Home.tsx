@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
-import { GuidePanel } from "./GuidePanel";
+import { HandbookPanel } from "./HandbookPanel";
 import { QuickstartCards } from "./QuickstartCards";
 import { count, format, translateError, useLocale } from "./i18n";
 
@@ -149,7 +149,7 @@ export function Home({
                 {m.guide.closeAction}
               </button>
             </div>
-            <GuidePanel />
+            <HandbookPanel />
           </div>
         </div>
       ) : null}
