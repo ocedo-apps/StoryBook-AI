@@ -42,6 +42,8 @@ inte en ensidig lista.
 | 24 | Positionsmedvetna Story Bible-fakta (story-tid, inte lässordning) | ✅ byggd (v0.99.26) |
 | 25 | Textformatering (fet/kursiv/understruken) i kapiteltexten | ✅ byggd (v0.99.43) |
 | 26 | Dölj snabbstartskorten på förstasidan när en lokal AI redan är ansluten | ⬜ ej påbörjad — avvaktar, se nedan |
+| 27 | Riktig mobilanpassning av redigeringsytan | ⬜ ej påbörjad — avvaktar, se nedan |
+| 28 | Import från andra skrivverktyg — adapterarkitektur | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -790,6 +792,56 @@ kolumn under 960px bredd (`.editor-body` i `styles.css`).
 för dator. Skulle kräva en egen mobilnavigering (flikväxling istället
 för stapling) plus en tryck-och-håll-öppnad meny som ersättning för
 högerklicket för att bli en riktig lösning, inte en snabb CSS-fix.
+
+### 28. Import från andra skrivverktyg — adapterarkitektur
+Uppstod ur en idé författaren fick från ChatGPT om att bygga vidare på
+"Importera lore" till stöd för externa appar (SillyTavern, Campfire,
+Authoric AI m.fl.), inte bara fritt inklistrad text.
+
+**Nuläget bekräftat i koden innan förslaget diskuterades**: `Importera
+lore` (`LoreImportCard.tsx` + `importLoreArticle` i `BookStore.tsx`) tar
+redan en artikel i taget, kör den genom exakt samma extraktor
+(`EXTRACTOR_SYSTEM`) som kapitel och intervjuer, och förslagen hamnar i
+samma granskningskö som all annan extraktion — originaltexten sparas
+aldrig i boken, bara de fakta författaren väljer att godkänna. ChatGPTs
+beskrivning av nuläget stämde exakt.
+
+**Förslaget, i korthet**: ett adapterlager framför samma pipeline —
+`Extern fil → känn igen format → dela upp i artiklar → normalisera →
+faktaplockning → granskningskö → Story Bible` — med ett gemensamt
+internt format (`ImportedLoreArticle` / `ImportedLoreBundle`) så att
+StoryBooks kärna aldrig behöver känna till SillyTavern eller Campfires
+egna datastrukturer. UX: känn igen formatet, visa "47 poster hittades",
+låt författaren välja Importera alla/Välj poster, kör igenom
+granskningskön som vanligt — aldrig hoppa över granskningen bara för
+att källan är strukturerad.
+
+**Bedömning: arkitekturen är rätt**, och matchar redan hur
+Utvecklingsmetoder (punkt 13) är byggda — ett adapterlager som bara
+matar in i befintlig data/pipeline, ingen egen parallell databas.
+
+**Rekommenderad byggordning, något omvänd mot ChatGPTs ursprungsförslag:**
+1. **Generisk flerartikel-import** — bygg om `LoreImportCard` till en
+   batch-vy: dela upp inklistrad text/fil i flera block, förhandsgranska
+   antalet hittade block, välj vilka som ska köras genom extraktorn. Ger
+   nytta oavsett källformat och blir den gemensamma ytan varje
+   formatspecifik adapter sen matar in i — hellre än att bygga
+   SillyTavern-specifik parsning innan själva rörledningen finns.
+2. SillyTavern Lorebook / World Info (strukturerade poster med
+   nyckelord — mappar naturligt till `ImportedLoreArticle`).
+3. SillyTavern Character Cards.
+4. Campfire — när det finns en verklig export-/backupfil att bygga och
+   testa mot, inte förr.
+5. Authoric AI — samma princip, vänta på exempeldata.
+6. Övriga verktyg efter faktisk efterfrågan.
+
+**Medvetet sparat till senare, inte avvisat**: den bredare
+`ImportedWritingProject` (hela projekt — kapitel, karaktärer, trådar,
+inte bara lore). Tydlig scope-utvidgning jämfört med ren lore-import,
+av samma skäl som en egen parallell Snowflake-databas avvisades
+(punkt 13): bygg inte det stora innan det mindre är bevisat värt.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat än.
 
 ---
 
