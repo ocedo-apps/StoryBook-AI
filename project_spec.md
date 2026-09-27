@@ -3189,6 +3189,19 @@ etablerat.
 - Inte marknadsfört eller designat kring att mata in tredjepartsverk
   (se §8, Upphovsrätt).
 
+**Lärdom från projektet (2026-09-27):** tidigt drevs mycket av arbetet av
+att leta upp vad "konkurrenter" (Scrivener, Sudowrite, Novelcrafter m.fl.)
+har och lägga till det. En jämförelse mot alla tre visar att StoryBook AI
+nu har, helt eller delvis, i princip allt de har — plus flera saker de
+inte har. Men fler funktioner var aldrig automatiskt bra: ett verktyg med
+för många funktioner riskerar att kännas spretigt och tappa sitt
+huvudfokus, att skriva en bok. **Slutsats: inga fler funktioner läggs
+till proaktivt.** Nästa fas är att polera det som redan finns (UI,
+kantfall, skavanker som riktig användning avslöjar) i den takt verklig
+testarfeedback faktiskt pekar ut — inte genom att jaga fler
+konkurrentjämförelser. Ny funktionalitet vägs mot om den hjälper
+skrivandet, inte mot vad ett annat verktyg råkar erbjuda.
+
 ---
 
 ## 3. Systemöversikt
