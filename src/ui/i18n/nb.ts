@@ -959,6 +959,8 @@ export const nb: Messages = {
     reviewBody: "Foreslåtte rader i Story Bible. Gjør dem tydeligere, lås — eller avvis.",
     hideFromDraft: "Skjul for utkast",
     interview: "Intervju",
+    interviewPickerTitle: "Hvem eller hva vil du intervjue?",
+    interviewPickerLede: "Hvilket som helst kort i Story Bible — ikke bare karakterer. Et sted eller en gjenstand kan også intervjues, i tredje person, som en måte å bygge ut verdenen din på.",
     showToDraft: "Vis for utkast",
     hiddenNote: "Modellen ser ikke dette kortet før du viser det igjen.",
     deleteEntity: "Slett dette kortet",

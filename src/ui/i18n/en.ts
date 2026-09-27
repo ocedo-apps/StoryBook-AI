@@ -969,6 +969,8 @@ export const en = {
     reviewBody: "Proposed Story Bible rows. Thicken them, then lock — or reject.",
     hideFromDraft: "Hide from Draft",
     interview: "Interview",
+    interviewPickerTitle: "Who do you want to interview?",
+    interviewPickerLede: "Any Story Bible card — not just characters. A place or an object can be interviewed too, in the third person, as a way to build out your world.",
     showToDraft: "Show to Draft",
     hiddenNote: "The model cannot see this card until you show it again.",
     deleteEntity: "Delete this card",

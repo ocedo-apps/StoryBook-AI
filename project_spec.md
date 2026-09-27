@@ -1,10 +1,20 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.55
+Status: living document, v0.99.56
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
+**Ändringslogg v0.99.55 → v0.99.56:** Interview var för otydligt kopplat
+till Story Bible för icke-karaktärer (platser, objekt m.fl.) — funktionen
+fanns redan men syntes bara om man råkade öppna ett sådant korts egen
+vy. Lade till en egen "Interview"-knapp uppe till höger i Story
+Bible-panelen, bredvid rubriken. Den öppnar en väljare ("Vem eller vad
+vill du intervjua?") grupperad efter typ (karaktärer, platser, objekt
+osv.) — man väljer en artikel och intervjun startar direkt, samma flöde
+som innan. För att göra plats flyttades "X låsta / Exportera kort" ner
+till under "Visa Story Bible som av"-raden istället för att dela
+utrymme högst upp.
 **Ändringslogg v0.99.54 → v0.99.55:** "Convert markers to formatting"
 flyttad från en sektion längst ner i Inställningar till en egen knapp i
 toppmenyn ("Convert markers"), bredvid Import lore — samma resonemang

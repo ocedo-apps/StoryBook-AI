@@ -48,7 +48,8 @@ type Overlay =
   | { type: "review" }
   | { type: "entity"; ref: string }
   | { type: "asOfEntity"; ref: string }
-  | { type: "new"; kind: BibleKind };
+  | { type: "new"; kind: BibleKind }
+  | { type: "interviewPicker" };
 
 function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitled: string): string {
   const chapter = chapterId ? chapters.find((item) => item.id === chapterId) : undefined;
@@ -93,6 +94,7 @@ export function BiblePanel({
       (section.kind === "characters" || section.kind === "locations" || section.kind === "objects") &&
       section.entities.length > 0
   );
+  const hasAnyEntities = sections.some((section) => section.entities.length > 0);
 
   useEffect(() => {
     if (pending.length > pendingSeen.current) setOverlay({ type: "review" });
@@ -134,34 +136,9 @@ export function BiblePanel({
           <GuideHelpButton anchor="story-bible" ariaLabel={format(m.guide.helpFor, { topic: m.bible.title })} />
         </span>
         <div className="bible-head-tools">
-          {asOfChapter ? null : pending.length > 0 ? (
-            <button
-              type="button"
-              className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
-              onClick={() => setOverlay({ type: "review" })}
-            >
-              {format(m.bible.reviewCount, { count: pending.length })}
-            </button>
-          ) : (
-            <span className="quiet">
-              {format(m.bible.lockedCount, {
-                count: book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length
-              })}
-            </span>
-          )}
-          {asOfChapter ? null : (
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => {
-                const payload = exportSandboxCards(book);
-                if (sandboxCardCount(payload) === 0) return;
-                downloadJson(sandboxExportFilename(book), payload);
-              }}
-              disabled={!canExportCards}
-              title={m.bible.exportCardsTitle}
-            >
-              {m.bible.exportCards}
+          {asOfChapter || !hasAnyEntities || !onInterview ? null : (
+            <button type="button" className="text-button" onClick={() => setOverlay({ type: "interviewPicker" })}>
+              {m.bible.interview}
             </button>
           )}
         </div>
@@ -182,6 +159,39 @@ export function BiblePanel({
           ))}
         </select>
       </label>
+
+      <div className="bible-head-tools bible-head-tools-secondary">
+        {asOfChapter ? null : pending.length > 0 ? (
+          <button
+            type="button"
+            className={flagged ? "text-button bible-review-btn is-flagged" : "text-button bible-review-btn"}
+            onClick={() => setOverlay({ type: "review" })}
+          >
+            {format(m.bible.reviewCount, { count: pending.length })}
+          </button>
+        ) : (
+          <span className="quiet">
+            {format(m.bible.lockedCount, {
+              count: book.facts.filter((fact) => fact.status === "locked" && fact.superseded_by === undefined).length
+            })}
+          </span>
+        )}
+        {asOfChapter ? null : (
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => {
+              const payload = exportSandboxCards(book);
+              if (sandboxCardCount(payload) === 0) return;
+              downloadJson(sandboxExportFilename(book), payload);
+            }}
+            disabled={!canExportCards}
+            title={m.bible.exportCardsTitle}
+          >
+            {m.bible.exportCards}
+          </button>
+        )}
+      </div>
       {asOfChapter ? (
         <p className="banner bible-asof-banner" role="status">
           {format(m.bible.asOfBanner, { chapter: chapterLabel(asOfChapter.id, liveChapters, m.editor.untitled) })}
@@ -363,6 +373,46 @@ export function BiblePanel({
           }}
           onClose={() => setOverlay(null)}
         />
+      ) : null}
+
+      {overlay?.type === "interviewPicker" && onInterview ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setOverlay(null);
+          }}
+        >
+          <div className="edit-card bible-card" role="dialog" aria-modal="true" aria-labelledby="interview-picker-title">
+            <div className="bible-card-head">
+              <h2 id="interview-picker-title">{m.bible.interviewPickerTitle}</h2>
+              <div className="bible-card-head-actions">
+                <button type="button" className="text-button" onClick={() => setOverlay(null)}>
+                  {m.bible.close}
+                </button>
+              </div>
+            </div>
+            <p className="quiet">{m.bible.interviewPickerLede}</p>
+            {sections
+              .filter((section) => section.entities.length > 0)
+              .map((section) => (
+                <div key={section.kind} className="bible-kind">
+                  <h3>{m.bible.kinds[section.kind]}</h3>
+                  <RosterList
+                    entities={section.entities}
+                    thumbs={book.media}
+                    hiddenEntities={book.hidden_entities}
+                    onOpen={(ref) => {
+                      const entity = section.entities.find((item) => item.entity_ref === ref);
+                      if (!entity) return;
+                      onInterview(entity.entity_ref, entity.entity_label, section.kind);
+                      setOverlay(null);
+                    }}
+                  />
+                </div>
+              ))}
+          </div>
+        </div>
       ) : null}
     </aside>
   );
