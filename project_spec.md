@@ -1,9 +1,21 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.50
+Status: living document, v0.99.51
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.50 → v0.99.51:** "Convert markers to formatting"
+fungerade inte med smarta/typografiska citattecken (”…”). Orsaken var
+strukturell: verktyget antog att öppnings- och avslutningstecknet alltid
+var exakt samma tecken (fungerar fint för `*`/`**`), men smarta
+citattecken är två OLIKA tecken (U+201C öppnande, U+201D avslutande) —
+en symmetrisk regel kunde aldrig matcha dem. Fixat genom att låta varje
+regel ha ett separat öppnings- och avslutningstecken (`open`/`close`
+istället för ett gemensamt `marker`); UI:t har nu två fält per rad
+istället för ett. Verifierat live: kursivering av hela dialogreplikser
+avgränsade med smarta citattecken fungerar nu korrekt, och raka
+citattecken (`"…"`) fungerar precis som innan.
 
 **Ändringslogg v0.99.49 → v0.99.50:** Tre buggar från testarfeedback,
 alla hittade genom att faktiskt reproducera i webbläsaren istället för

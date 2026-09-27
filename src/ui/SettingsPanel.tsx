@@ -71,8 +71,8 @@ export function SettingsPanel({
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
   const [editingText, setEditingText] = useState(false);
   const [markerRules, setMarkerRules] = useState<MarkerConversionRule[]>([
-    { marker: "*", style: "italic" },
-    { marker: "**", style: "bold" }
+    { open: "*", close: "*", style: "italic" },
+    { open: "**", close: "**", style: "bold" }
   ]);
   const [converting, setConverting] = useState(false);
   const [convertResult, setConvertResult] = useState<{ totalConversions: number; chaptersChanged: number } | null>(null);
@@ -303,13 +303,22 @@ export function SettingsPanel({
           {markerRules.map((rule, index) => (
             <div className="marker-convert-rule" key={index}>
               <input
-                value={rule.marker}
+                value={rule.open}
                 onChange={(event) => {
-                  const marker = event.target.value;
-                  setMarkerRules((rules) => rules.map((item, i) => (i === index ? { ...item, marker } : item)));
+                  const open = event.target.value;
+                  setMarkerRules((rules) => rules.map((item, i) => (i === index ? { ...item, open } : item)));
                 }}
-                placeholder={m.markerConvert.markerPlaceholder}
-                aria-label={m.markerConvert.markerLabel}
+                placeholder={m.markerConvert.openPlaceholder}
+                aria-label={m.markerConvert.openLabel}
+              />
+              <input
+                value={rule.close}
+                onChange={(event) => {
+                  const close = event.target.value;
+                  setMarkerRules((rules) => rules.map((item, i) => (i === index ? { ...item, close } : item)));
+                }}
+                placeholder={m.markerConvert.closePlaceholder}
+                aria-label={m.markerConvert.closeLabel}
               />
               <span className="quiet">{m.markerConvert.becomes}</span>
               <select
@@ -340,14 +349,14 @@ export function SettingsPanel({
           <button
             type="button"
             className="text-button"
-            onClick={() => setMarkerRules((rules) => [...rules, { marker: "", style: "italic" }])}
+            onClick={() => setMarkerRules((rules) => [...rules, { open: "", close: "", style: "italic" }])}
           >
             {m.markerConvert.addRule}
           </button>
           <button
             type="button"
             className="primary"
-            disabled={converting || markerRules.every((rule) => rule.marker.trim() === "")}
+            disabled={converting || markerRules.every((rule) => rule.open.trim() === "" || rule.close.trim() === "")}
             onClick={() => {
               setConverting(true);
               setConvertResult(null);

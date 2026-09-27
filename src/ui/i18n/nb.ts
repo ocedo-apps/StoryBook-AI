@@ -1316,9 +1316,11 @@ export const nb: Messages = {
   markerConvert: {
     heading: "Konverter markeringer til formatering",
     intro:
-      "Gjør om tegn som *asterisker* fra et importert manus til ekte fet skrift, kursiv eller understreking. Markeringene fjernes fra teksten — bare formateringen blir igjen. Lengre markeringer kjøres først, slik at \"**\" ikke tolkes som to enkle \"*\" — legg til begge hvis manuset ditt bruker dem til ulike ting.",
-    markerLabel: "Markering",
-    markerPlaceholder: "f.eks. *",
+      "Gjør om tegn som *asterisker* — eller par av åpnings-/avslutningstegn som «smarte anførselstegn» — fra et importert manus til ekte fet skrift, kursiv eller understreking. Markeringene fjernes fra teksten — bare formateringen blir igjen. Lengre markeringer kjøres først, slik at \"**\" ikke tolkes som to enkle \"*\" — legg til begge hvis manuset ditt bruker dem til ulike ting.",
+    openLabel: "Åpningstegn",
+    openPlaceholder: "f.eks. * eller «",
+    closeLabel: "Avslutningstegn",
+    closePlaceholder: "f.eks. * eller »",
     becomes: "blir",
     styleLabel: "Stil",
     addRule: "Legg til rad",

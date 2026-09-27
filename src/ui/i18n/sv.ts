@@ -1316,9 +1316,11 @@ export const sv: Messages = {
   markerConvert: {
     heading: "Konvertera markeringar till formatering",
     intro:
-      "Gör om tecken som *asterisker* från ett importerat manus till riktig fetstil, kursiv eller understrykning. Markeringarna tas bort ur texten — bara formateringen blir kvar. Längre markeringar körs först, så \"**\" inte tolkas som två enstaka \"*\" — lägg till båda om ditt manus använder dem för olika saker.",
-    markerLabel: "Markering",
-    markerPlaceholder: "t.ex. *",
+      "Gör om tecken som *asterisker* — eller par av öppnings-/avslutningstecken som ”smarta citattecken” — från ett importerat manus till riktig fetstil, kursiv eller understrykning. Markeringarna tas bort ur texten — bara formateringen blir kvar. Längre markeringar körs först, så \"**\" inte tolkas som två enstaka \"*\" — lägg till båda om ditt manus använder dem för olika saker.",
+    openLabel: "Öppningstecken",
+    openPlaceholder: "t.ex. * eller ”",
+    closeLabel: "Avslutningstecken",
+    closePlaceholder: "t.ex. * eller ”",
     becomes: "blir",
     styleLabel: "Stil",
     addRule: "Lägg till rad",

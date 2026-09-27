@@ -1,8 +1,15 @@
 import { mergeAdjacentRanges, shiftFormattingRanges, type ProseFormattingRange, type ProseFormattingStyle } from "./proseFormatting";
 
-/** One "text wrapped in `marker` becomes `style`" rule, e.g. `*` → italic, `**` → bold. */
+/**
+ * One "text wrapped in `open`…`close` becomes `style`" rule, e.g. `*`…`*` →
+ * italic, `**`…`**` → bold. `open` and `close` are almost always the same
+ * string (a symmetric marker), but don't have to be — smart/curly quotes
+ * ("“" opening, "”" closing) are two different characters, and
+ * only an asymmetric pair can match them at all.
+ */
 export type MarkerConversionRule = {
-  marker: string;
+  open: string;
+  close: string;
   style: ProseFormattingStyle;
 };
 
@@ -18,11 +25,12 @@ function escapeRegExp(text: string): string {
 
 /**
  * Converts marker-delimited spans (imported from another writing tool's
- * plain-text convention, e.g. `*italic*` or `**bold**`) into real formatting
- * ranges, stripping the marker characters out of the plain text itself.
+ * plain-text convention, e.g. `*italic*`, `**bold**`, or “curly quoted
+ * dialogue”) into real formatting ranges, stripping the marker characters
+ * out of the plain text itself.
  *
- * Longer markers run first — `**` before `*` — so `**bold**` is never
- * mistaken for an unmatched `*` by a shorter rule. Each match is applied
+ * Longer/combined markers run first — `**` before `*` — so `**bold**` is
+ * never mistaken for an unmatched `*` by a shorter rule. Each match is applied
  * through `shiftFormattingRanges`, the same "replace this span with N
  * unformatted characters" primitive every AI edit already goes through, so
  * any formatting already present elsewhere in the chapter stays aligned.
@@ -41,14 +49,17 @@ export function applyMarkerConversion(
   formatting: ProseFormattingRange[],
   rules: MarkerConversionRule[]
 ): MarkerConversionResult {
-  const ordered = rules.filter((rule) => rule.marker.trim().length > 0).sort((a, b) => b.marker.length - a.marker.length);
+  const ordered = rules
+    .filter((rule) => rule.open.trim().length > 0 && rule.close.trim().length > 0)
+    .sort((a, b) => b.open.length + b.close.length - (a.open.length + a.close.length));
   let text = prose;
   let ranges = [...formatting];
   let count = 0;
 
   for (const rule of ordered) {
-    const escaped = escapeRegExp(rule.marker);
-    const pattern = new RegExp(`${escaped}([^\\n]+?)${escaped}`, "g");
+    const escapedOpen = escapeRegExp(rule.open);
+    const escapedClose = escapeRegExp(rule.close);
+    const pattern = new RegExp(`${escapedOpen}([^\\n]+?)${escapedClose}`, "g");
     const matches: { start: number; end: number; inner: string }[] = [];
     let match: RegExpExecArray | null;
     while ((match = pattern.exec(text)) !== null) {
