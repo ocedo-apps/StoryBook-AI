@@ -48,6 +48,7 @@ inte en ensidig lista.
 | 30 | Extract facts känner inte igen namn-varianter av samma person | ⬜ ej påbörjad — se nedan |
 | 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
 | 32 | Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text | ⬜ ej påbörjad — se nedan |
+| 33 | Timeline som gantschema, ihopslaget med Plotlines | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -1072,6 +1073,40 @@ ingen fakta, är bara ett svar att läsa.
 båda, som Analyze redan kan välja); om svaret ska kunna citera exakta
 rader ur prosan (som Analyze gör) eller bara resonera fritt; om det ska
 vara en helt ny yta eller en frivillig fri fråga ovanpå Analyze.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat.
+
+---
+
+### 33. Timeline som gantschema, ihopslaget med Plotlines
+Uppstod ur arbetet med webbsidans mockup (2026-09-28): skärmdumparna på
+sajten är påhittade, men "Timeline som ett gantschema" var en idé värd
+att spara på riktigt.
+
+**Nuläget:** Timeline (`src/ui/Timeline.tsx`, `src/core/timeline.ts`) är
+idag bara en omdragbar lista — ett kapitel per rad, i story-ordning, med
+ett **fritextfält** för "story time" (t.ex. "Dag 3, morgon") och
+upp/ner-knappar för att flytta ett kapitel i story-tidsordning. Ingen
+visuell axel, ingen längd, ingen överlappsvy. Plotlines
+(`src/core/plotlines.ts`, byggd v0.79) är en helt separat yta: en
+matris av kapitel × namngivna trådar, uttryckligen byggd som "bara en
+tabell", medvetet INTE en nodgraf (se v0.79-beslutet ovan).
+
+**Förslaget:** slå ihop de två till en gantschema-vy — varje kapitel
+blir en stapel på en tidsaxel, färgkodad efter vilken Plotline den
+tillhör. Man skulle direkt se om två trådar rör sig parallellt eller om
+en tråd har ett glapp, istället för att läsa en lista och en matris var
+för sig.
+
+**Den egentliga byggkostnaden är inte visualiseringen, det är
+datamodellen.** `story_time` är idag medvetet fri text — ett gantschema
+kräver däremot ett jämförbart värde att positionera och sortera staplar
+efter (relativ dag/vecka, eller start+längd), inte en textrad ett
+författare kan skriva vad som helst i. Det är en riktig
+schemautvidgning, inte en ren UI-ombyggnad — och rör troligen samma typ
+av avvägning som redan gjordes för `story_time_order` (punkt 9): hålla
+det på kapitelnivå i v1 eftersom ett kapitel fortfarande är en enda
+scen, tills en verklig anledning finns att gå ner på scennivå.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat.
 
