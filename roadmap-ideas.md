@@ -47,6 +47,7 @@ inte en ensidig lista.
 | 29 | Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok | ⬜ ej påbörjad — se nedan |
 | 30 | Extract facts känner inte igen namn-varianter av samma person | ⬜ ej påbörjad — se nedan |
 | 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
+| 32 | Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -1029,6 +1030,50 @@ med en enda liten, ren exportfil i StoryBook (generalisera
 
 **Status: idé nedskriven, en 2.0-riktning — medvetet inte påbörjad.**
 Inget kodat.
+
+---
+
+### 32. Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text
+Författarens exempel: kunna skriva en egen, fri instruktion om det man
+just skrivit, t.ex. "kolla om kapitlet är välskrivet och med en
+intensitet som slutar med en cliffhanger. Var kritisk." — och få ett
+öppet, ärligt, gärna kritiskt svar, inte en fast mall.
+
+**Skiljer sig från två befintliga funktioner som kan se ut som samma
+sak vid en snabb titt:**
+- **Analyze** (`chapterFeedback.ts`, `ANALYZE_SYSTEM`) är redan en
+  hantverkskritik av kapitlet — men med **fasta kategorier** (show vs
+  tell, dialogpurposelöshet, röstglidning, karaktärstrohet, plus två
+  barnsäkerhetskategorier), strukturerat JSON-svar, ingen fri fråga.
+  Kan inte svara på "är slutet en stark cliffhanger?" om den frågan
+  inte är en av de inbyggda kategorierna.
+- **Ask Manuscript** (`askManuscript.ts`, `ASK_MANUSCRIPT_SYSTEM`)
+  tillåter fri text, men är byggd för **faktafrågor mot hela manuset**
+  via semantiskt sökta utdrag ("vilken färg har Emmas ögon?") — prompten
+  förbjuder uttryckligen modellen att tycka eller gissa: "Never invent
+  ... say so plainly instead of guessing." Fel ton och fel omfång för
+  en kritisk hantverksbedömning av just det aktuella kapitlet.
+
+Den riktiga luckan: fri fråga + kritiskt/tyckande svar + skopat till
+det man just skrivit (kapitlet eller scenen), inte hela manuset och
+inte en fast mall.
+
+**Tänkbar form, inte bestämd:** ett textfält (liknande Ask Manuscripts
+frågefält) i kapitel-/scenvyn, bredvid eller som ett nytt läge på
+Analyze — skickar kapitlets (eller scenens) prosa plus författarens fria
+fråga till Review-modellen (samma spår som Analyze/Extract/
+Korrekturläsning, inte skrivmodellen), med en systemprompt som
+uttryckligen UPPMUNTRAR ärlig, gärna hård kritik — motsatt ton mot
+Ask Manuscripts försiktiga "säg hellre att du inte vet". Svaret är
+efemärt precis som Ask Manuscripts svar — sparas inte i boken, ändrar
+ingen fakta, är bara ett svar att läsa.
+
+**Öppna frågor inte lösta än:** kapitel eller scen som skopa (troligen
+båda, som Analyze redan kan välja); om svaret ska kunna citera exakta
+rader ur prosan (som Analyze gör) eller bara resonera fritt; om det ska
+vara en helt ny yta eller en frivillig fri fråga ovanpå Analyze.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat.
 
 ---
 
