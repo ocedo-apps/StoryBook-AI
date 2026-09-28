@@ -1,10 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.59
+Status: living document, v0.99.60
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
+**Ändringslogg v0.99.59 → v0.99.60:** Buggfix från testarfeedback:
+gick inte att skriva in ett eget värde i det nya Kontextfönster-fältet
+(v0.99.58). Fältet klämde ihop (clampade) värdet mot minimigränsen
+(1024) på **varje tangenttryckning**, inte bara när man lämnade
+fältet. Skrev man t.ex. "32000" genom att markera allt och skriva om,
+fångade `onChange` upp mellansteg som bara "3" — under minimum 1024 —
+och klämde tyst upp det till 1024 mitt i skrivandet, som sedan bara
+gick att bygga vidare på siffra för siffra i slutet (exakt det
+testaren beskrev). Samma bugg fanns latent i det äldre
+"Versioner per kapitel"-fältet också (samma kopierade mönster), fixad
+samtidigt.
+
+Löst genom att skilja på vad fältet **visar** medan man skriver och vad
+som faktiskt **sparas**: ett obundet utkastvärde uppdateras fritt vid
+varje tangenttryckning utan att klämmas, och klämningen (min/max) sker
+först när man lämnar fältet (`onBlur`) — samma mönster som redan
+används för att döpa om ett Story Bible-kort. Verifierat live: skriva
+"32000" håller sig hela vägen till "32000" nu, ett för lågt eller för
+högt värde kläms fortfarande korrekt vid blur, och "Föreslå från
+modellen" fungerar oförändrat.
 **Ändringslogg v0.99.58 → v0.99.59:** Fynd 2 från samma testarrapport
 som v0.99.58 (kontextfönster): scen-till-scen-Draft skickade bara de
 sista tre raderna av föregående scen som kontext

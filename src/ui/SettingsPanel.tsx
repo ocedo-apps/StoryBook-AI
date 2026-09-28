@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { peopleLabels } from "@core/bibleGroups";
 import {
   ADVANCED_POV_MODES,
@@ -71,6 +71,20 @@ export function SettingsPanel({
   const [contextOpen, setContextOpen] = useState(false);
   const [suggestingContext, setSuggestingContext] = useState(false);
   const [contextSuggestResult, setContextSuggestResult] = useState<"found" | "none" | null>(null);
+  // Kept as a separate, uncommitted draft while typing — committing (and
+  // therefore clamping to MIN_CONTEXT_WINDOW) on every keystroke meant a
+  // single digit typed partway through a bigger number (e.g. the "3" in
+  // "32000") was below the minimum and got silently snapped up to it,
+  // wiping out whatever was typed next. Only commit, and let the min/max
+  // clamp apply, once the author leaves the field.
+  const [contextWindowDraft, setContextWindowDraft] = useState(String(contextWindow));
+  useEffect(() => {
+    setContextWindowDraft(String(contextWindow));
+  }, [contextWindow]);
+  const [historyLimitDraft, setHistoryLimitDraft] = useState(String(historyLimit));
+  useEffect(() => {
+    setHistoryLimitDraft(String(historyLimit));
+  }, [historyLimit]);
   const people = peopleLabels(book.facts, book.entity_kinds);
   const showViewpoint = needsViewpoint(book.pov);
   const selectedStyle = findStyleByPromptText(illustrationStyles, book.illustration_style);
@@ -252,15 +266,14 @@ export function SettingsPanel({
             min={MIN_CONTEXT_WINDOW}
             max={MAX_CONTEXT_WINDOW}
             inputMode="numeric"
-            value={contextWindow}
+            value={contextWindowDraft}
             title={m.editor.contextWindowLede}
             aria-label={m.editor.contextWindowLabel}
-            onChange={(event) => {
-              const raw = event.target.value;
-              if (raw === "") return;
-              const n = Number(raw);
-              if (!Number.isFinite(n)) return;
-              onContextWindow(n);
+            onChange={(event) => setContextWindowDraft(event.target.value)}
+            onBlur={() => {
+              const n = Number(contextWindowDraft);
+              if (Number.isFinite(n)) onContextWindow(n);
+              else setContextWindowDraft(String(contextWindow));
             }}
           />
         </label>
@@ -304,15 +317,14 @@ export function SettingsPanel({
             min={MIN_PROSE_HISTORY_LIMIT}
             max={MAX_PROSE_HISTORY_LIMIT}
             inputMode="numeric"
-            value={historyLimit}
+            value={historyLimitDraft}
             title={m.editor.historyLimitLede}
             aria-label={m.editor.historyLimit}
-            onChange={(event) => {
-              const raw = event.target.value;
-              if (raw === "") return;
-              const n = Number(raw);
-              if (!Number.isFinite(n)) return;
-              onHistoryLimit(n);
+            onChange={(event) => setHistoryLimitDraft(event.target.value)}
+            onBlur={() => {
+              const n = Number(historyLimitDraft);
+              if (Number.isFinite(n)) onHistoryLimit(n);
+              else setHistoryLimitDraft(String(historyLimit));
             }}
           />
         </label>
