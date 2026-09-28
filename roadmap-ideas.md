@@ -49,6 +49,7 @@ inte en ensidig lista.
 | 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
 | 32 | Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text | ⬜ ej påbörjad — se nedan |
 | 33 | Timeline som gantschema, ihopslaget med Plotlines | ⬜ ej påbörjad — se nedan |
+| 34 | Startskript för Mac och Linux (som `starta.bat`) | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -1107,6 +1108,39 @@ schemautvidgning, inte en ren UI-ombyggnad — och rör troligen samma typ
 av avvägning som redan gjordes för `story_time_order` (punkt 9): hålla
 det på kapitelnivå i v1 eftersom ett kapitel fortfarande är en enda
 scen, tills en verklig anledning finns att gå ner på scennivå.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat.
+
+---
+
+### 34. Startskript för Mac och Linux (som `starta.bat`)
+Uppstod ur diskussionen om webbsidans "Download"-knapp (2026-09-28):
+istället för en riktig paketerad installerare (Electron/Tauri — stor,
+löpande kostnad: kodsignering, macOS-notarisering, separata byggen per
+OS, ~100-200MB för Chromium-runtimen), gör samma jobb som
+`starta.bat` redan gör för Windows, fast för de andra två plattformarna.
+
+**Vad `starta.bat` redan gör (för referens den dag detta byggs):**
+kollar att Node.js finns (`where node`, ber användaren installera det
+från nodejs.org annars), kör `npm install` första gången
+(`node_modules` saknas), kör sedan `npm start`, med felmeddelanden om
+något går fel. Rakt fram att spegla i ett `.command`-skript (macOS,
+dubbelklickbart från Finder) och ett `.sh`-skript (Linux) med samma
+tre steg (kolla Node, `npm install` vid behov, `npm start`).
+
+**Känd, oundviklig friktion:** macOS Gatekeeper varnar ändå första
+gången ("okänd utvecklare") för ett osignerat skript — användaren
+måste högerklicka → Öppna en gång. Engångsirritation, inget som kräver
+certifikat eller notarisering för det här (billigare) alternativet.
+
+**Författarens tillägg, medvetet uppskjutet till om/när en riktig
+installerare någon gång byggs (idé, inte plan):** kunna installera
+Ollama automatiskt som en del av installationen, inte bara StoryBook
+själv. Det adresserar det som redan konstaterades vara den större
+tröskeln för en icke-teknisk författare (Ollama + modellnedladdning +
+`OLLAMA_ORIGINS`-inställningen), inte bara `npm install`-steget. Hör
+ihop med, men är ett separat, större steg än, det här skriptet —
+loggat här som en anteckning för den dagen, inte som ett eget mål nu.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat.
 
