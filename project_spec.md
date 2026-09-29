@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.13
+Status: living document, v1.0.14
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.13 → v1.0.14 (2026-09-29):** Rent utseende-polish
+på anslutningsrutan, tre önskemål: samma ljusa färg som
+manuskript-korten, full bredd som texten ovanför, större mellanrum
+till "Start a new manuscript".
+
+**Hittade en egen bugg under tiden:** `.home-connect` hade redan satt
+`max-width: none` sedan v1.0.12, men rutan renderade ändå ut vid
+~36rem — en cascade-krock jag inte märkte då. Elementet hade BÅDA
+klasserna `settings-block home-connect`, och `.settings-block {
+max-width: 36rem; }` ligger längre ner i `styles.css` än
+`.home-connect` — vid lika specificitet (båda enkla klass-selektorer)
+vinner den som deklareras sist i filen, oavsett klassordning i JSX.
+Så `.settings-block`s 36rem vann hela tiden över mitt eget
+`max-width: none`.
+
+**Fix:** Tog bort `settings-block` från `Home.tsx`s
+`<section>`-element helt — `.home-connect` behövde ingen av
+`.settings-block`s regler (max-width, margin-top), bara sina egna.
+Ny `.home-connect`: `margin: 1.4rem 0 2.2rem` (större gap nedåt till
+nästa rubrik), `background: var(--panel)` (samma token som
+`.book-card` använder — tidigare `var(--wash)`, en tonad
+accent-färg, inte samma som manuskript-korten). Ingen `max-width`
+alls nu, så rutan fyller samma bredd som resten av sidans
+innehållskolumn (`new-book-row`, header-raden).
+
+Verifierat live i både mörkt och ljust tema (Playwright, klickade
+temaväxlaren för att tvinga fram `data-theme="light"` eftersom
+`colorScheme` i Playwright bara styr `prefers-color-scheme`, inte
+appens egen lagrade tema-inställning) — ljust tema matchar nu exakt
+Mats skärmdump.
 
 **Ändringslogg v1.0.12 → v1.0.13 (2026-09-29):** Mats testade
 v1.0.12 live (skärmdump: Ollama ansluten, 10 modeller hittade,

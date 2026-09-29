@@ -91,7 +91,7 @@ export function Home({
         the real controls belong right here too, with nothing to create
         first.
       */}
-      <section className="settings-block home-connect" aria-label={m.guide.connectAiButton}>
+      <section className="home-connect" aria-label={m.guide.connectAiButton}>
         <h2 className="settings-heading home-heading-lg">{m.guide.connectAiButton}</h2>
         <div className="settings-engine">
           <label className="craft-field">

@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.14] - 2026-09-29
+
+### Changed
+- Styled the Home page's "Connect a local AI" box to match the rest of the page: same card background as a manuscript's shelf card (it was using a tinted accent color instead), and full-width instead of an oddly narrow fixed measure it had accidentally inherited from Settings' own styling. Also widened the gap before "Start a new manuscript" now that there's a full card sitting above it.
+
 ## [1.0.13] - 2026-09-29
 
 ### Changed
