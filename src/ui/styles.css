@@ -2715,9 +2715,15 @@ button:disabled {
 }
 
 .edit-card.interview-card {
-  width: min(34rem, 100%);
   /*
-   * A definite height, not max-height. .interview-transcript below relies on
+   * Wide enough for a two-column layout: the info column (title, personality)
+   * stays a fixed, readable width on the left, and the chat column — where the
+   * actual value of this feature lives — gets the rest of the space on the
+   * right, so replies get real room instead of a cramped single-column strip.
+   */
+  width: min(64rem, 100%);
+  /*
+   * A definite height, not max-height. .interview-chat below relies on
    * `flex: 1 1 auto; min-height: 0;` to fill whatever space the rest of the
    * card doesn't use — but a flex container sized by `max-height` alone has
    * no definite height for the browser to compute "leftover space" from, so
@@ -2731,6 +2737,41 @@ button:disabled {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.interview-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.interview-info {
+  flex: 0 0 16rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.interview-chat {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .interview-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .interview-info {
+    flex: 0 0 auto;
+    overflow-y: visible;
+  }
 }
 
 .interview-personality {
@@ -2754,7 +2795,7 @@ button:disabled {
 .interview-transcript {
   flex: 1 1 auto;
   overflow-y: auto;
-  margin: 0.7rem 0;
+  margin: 0 0 0.7rem;
   padding: 0.2rem 0.1rem;
   display: flex;
   flex-direction: column;

@@ -97,94 +97,100 @@ export function CharacterInterviewCard({
             </button>
           </div>
         </div>
-        <h2 id="interview-title">{format(isCharacter ? m.interview.title : m.interview.titleWorld, { name: entity.label })}</h2>
-        <p className="quiet">{format(isCharacter ? m.interview.lede : m.interview.ledeWorld, { name: entity.label })}</p>
+        <div className="interview-body">
+          <div className="interview-info">
+            <h2 id="interview-title">{format(isCharacter ? m.interview.title : m.interview.titleWorld, { name: entity.label })}</h2>
+            <p className="quiet">{format(isCharacter ? m.interview.lede : m.interview.ledeWorld, { name: entity.label })}</p>
 
-        {isCharacter ? (
-          <div className="interview-personality">
-            <label htmlFor="interview-personality-field" className="field-label">
-              {m.interview.personalityLabel}
-            </label>
-            <textarea
-              id="interview-personality-field"
-              value={personalityDraft}
-              onChange={(event) => onPersonalityDraftChange(event.target.value)}
-              placeholder={m.interview.personalityPlaceholder}
-              rows={2}
-            />
-            <button
-              type="button"
-              className="text-button"
-              disabled={personalityDraft === savedPersonality}
-              onClick={onSavePersonality}
-            >
-              {m.interview.personalitySave}
-            </button>
-          </div>
-        ) : null}
-
-        <div className="interview-transcript" ref={transcriptRef}>
-          {history.length === 0 ? (
-            <p className="quiet interview-empty">
-              {format(isCharacter ? m.interview.empty : m.interview.emptyWorld, { name: entity.label })}
-            </p>
-          ) : null}
-          {history.map((turn, index) => {
-            const isAuthor = turn.role === "user";
-            return (
-              <div key={index} className={isAuthor ? "interview-row is-author" : "interview-row is-character"}>
-                {isAuthor ? <AuthorAvatar /> : <CharacterAvatar thumb={characterThumb} label={entity.label} />}
-                <p className="interview-turn">
-                  <span className="interview-turn-label">{isAuthor ? m.interview.you : entity.label}</span>
-                  {turn.content}
-                </p>
+            {isCharacter ? (
+              <div className="interview-personality">
+                <label htmlFor="interview-personality-field" className="field-label">
+                  {m.interview.personalityLabel}
+                </label>
+                <textarea
+                  id="interview-personality-field"
+                  value={personalityDraft}
+                  onChange={(event) => onPersonalityDraftChange(event.target.value)}
+                  placeholder={m.interview.personalityPlaceholder}
+                  rows={2}
+                />
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={personalityDraft === savedPersonality}
+                  onClick={onSavePersonality}
+                >
+                  {m.interview.personalitySave}
+                </button>
               </div>
-            );
-          })}
-          {busy && history[history.length - 1]?.role !== "assistant" ? (
-            <div className="interview-row is-character">
-              <CharacterAvatar thumb={characterThumb} label={entity.label} />
-              <p className="quiet interview-pending">
-                {format(isCharacter ? m.interview.thinking : m.interview.thinkingWorld, { name: entity.label })}
-              </p>
-            </div>
-          ) : null}
-        </div>
-
-        {error ? (
-          <p className="interview-error" role="alert">
-            {error}
-          </p>
-        ) : blocked ? (
-          <p className="interview-error" role="status">
-            {m.errors.busy}
-          </p>
-        ) : null}
-
-        <form
-          className="interview-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const trimmed = question.trim();
-            if (!trimmed || busy || blocked) return;
-            onAsk(trimmed);
-            setQuestion("");
-          }}
-        >
-          <textarea
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            placeholder={format(isCharacter ? m.interview.placeholder : m.interview.placeholderWorld, { name: entity.label })}
-            rows={2}
-            disabled={busy || blocked}
-            aria-label={m.interview.action}
-          />
-          <div className="edit-actions">
-            <button type="submit" className="primary" disabled={busy || blocked || !question.trim()}>
-              {busy ? m.interview.asking : m.interview.ask}
-            </button>
+            ) : null}
           </div>
-        </form>
+
+          <div className="interview-chat">
+            <div className="interview-transcript" ref={transcriptRef}>
+              {history.length === 0 ? (
+                <p className="quiet interview-empty">
+                  {format(isCharacter ? m.interview.empty : m.interview.emptyWorld, { name: entity.label })}
+                </p>
+              ) : null}
+              {history.map((turn, index) => {
+                const isAuthor = turn.role === "user";
+                return (
+                  <div key={index} className={isAuthor ? "interview-row is-author" : "interview-row is-character"}>
+                    {isAuthor ? <AuthorAvatar /> : <CharacterAvatar thumb={characterThumb} label={entity.label} />}
+                    <p className="interview-turn">
+                      <span className="interview-turn-label">{isAuthor ? m.interview.you : entity.label}</span>
+                      {turn.content}
+                    </p>
+                  </div>
+                );
+              })}
+              {busy && history[history.length - 1]?.role !== "assistant" ? (
+                <div className="interview-row is-character">
+                  <CharacterAvatar thumb={characterThumb} label={entity.label} />
+                  <p className="quiet interview-pending">
+                    {format(isCharacter ? m.interview.thinking : m.interview.thinkingWorld, { name: entity.label })}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            {error ? (
+              <p className="interview-error" role="alert">
+                {error}
+              </p>
+            ) : blocked ? (
+              <p className="interview-error" role="status">
+                {m.errors.busy}
+              </p>
+            ) : null}
+
+            <form
+              className="interview-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const trimmed = question.trim();
+                if (!trimmed || busy || blocked) return;
+                onAsk(trimmed);
+                setQuestion("");
+              }}
+            >
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder={format(isCharacter ? m.interview.placeholder : m.interview.placeholderWorld, { name: entity.label })}
+                rows={2}
+                disabled={busy || blocked}
+                aria-label={m.interview.action}
+              />
+              <div className="edit-actions">
+                <button type="submit" className="primary" disabled={busy || blocked || !question.trim()}>
+                  {busy ? m.interview.asking : m.interview.ask}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

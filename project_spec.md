@@ -1,9 +1,29 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.4
+Status: living document, v1.0.5
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.4 → v1.0.5 (2026-09-29):** Rutan syntes fortfarande
+inte tillräckligt bra för testaren efter v1.0.4:s CSS-fix (svaret
+kom fram, men allt — titel, personlighetsfält, hela samtalet och
+skrivfältet — låg fortfarande i en enda smal kolumn, `min(34rem,
+100%)` bred). Önskemål: gör rutan bredare, lägg fråga/svar till
+höger om "den andra texten", och låt svaret få bli en stor yta.
+
+**Ändring:** `.edit-card.interview-card` breddad från `min(34rem,
+100%)` till `min(64rem, 100%)`. Innehållet delades i två kolumner
+via en ny `.interview-body`-container (`display: flex; gap: 1rem`):
+`.interview-info` (fast bredd, `flex: 0 0 16rem`) med rubrik,
+inledningstext och personlighetsfältet till vänster,
+`.interview-chat` (`flex: 1 1 auto`) med transkriptet, felmeddelandet
+och skrivformuläret till höger — det senare får nu större delen av
+den nya bredden, så själva samtalet är det som växer. Under 640px
+går layouten tillbaka till en enda kolumn (info ovanför chatten)
+så det fortfarande fungerar på smala skärmar. Ingen ändring i
+`askCharacter`-logiken eller CSS-höjdfixen från v1.0.4 — ren
+layout ovanpå den.
 
 **Ändringslogg v1.0.3 → v1.0.4 (2026-09-29):** Sista biten av samma
 buggtråd — och den bekräftar att v1.0.3 faktiskt fungerade. Testaren:
