@@ -48,7 +48,7 @@ inte en ensidig lista.
 | 30 | Extract facts känner inte igen namn-varianter av samma person | ⬜ ej påbörjad — se nedan |
 | 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
 | 32 | Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text | ⬜ ej påbörjad — se nedan |
-| 33 | Timeline som gantschema, ihopslaget med Plotlines | ⬜ ej påbörjad — se nedan |
+| 33 | Timeline som gantschema, ihopslaget med Plotlines | ✅ byggd som punktbaserad vy (v0.99.62) — se nedan |
 | 34 | Startskript för Mac och Linux (som `starta.bat`) | ⬜ ej påbörjad — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
@@ -1116,6 +1116,19 @@ schemautvidgning, inte en ren UI-ombyggnad — och rör troligen samma typ
 av avvägning som redan gjordes för `story_time_order` (punkt 9): hålla
 det på kapitelnivå i v1 eftersom ett kapitel fortfarande är en enda
 scen, tills en verklig anledning finns att gå ner på scennivå.
+
+**Beslut (2026-09-29): bygg punktvarianten, inte den riktiga
+Gantt-varianten.** Författarens bedömning: att dra/ändra
+stapellängder i ett gantschema är inte intressant för författare —
+värdet ligger i att se ordning och glapp, inte i exakt tidslängd.
+Byggd som en tabell: kapitel som kolumner i story-tidsordning, trådar
+som rader, en prick per kapitel×tråd — se `TimelineBoard.tsx` och
+`timelineBoard.ts` (v0.99.62). Ersätter både Timeline-listan och
+Trådmatrisen (samma nav-knapp, samma handlingar, bara ihopslagna).
+Ingen schemautvidgning gjordes — `story_time` är fortsatt fri text,
+kolumnernas bredd är rangordning, inte verklig tidsdistans. Den
+riktiga stapel/längd-varianten (start + längd, en faktisk
+schemautvidgning) är avfärdad, inte bara uppskjuten.
 
 **Status: idé nedskriven, inte påbörjad.** Inget kodat.
 

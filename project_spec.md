@@ -1,9 +1,30 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.61
+Status: living document, v0.99.62
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.61 → v0.99.62:** Idé #33 (`roadmap-ideas.md`) —
+Timeline och Trådar (Plotlines) slagna ihop till en enda vy. Tidigare
+var det två separata sidor: Timeline en omdragbar lista (ett kapitel
+per rad, fritextfält för story time) och Trådar en matris (kapitel ×
+tråd). Nu är det en tabell: kapitel som kolumner i story-tidsordning
+(`timelineBoardColumns()`, ny fil `timelineBoard.ts` — bygger vidare
+på befintliga `timelineEntries()` och `chapter.plotline_ids`, inget
+nytt sparat fält), trådar som rader. En ifylld prick i en rad visar
+att kapitlet hör till den tråden — glapp i en tråd syns direkt som ett
+uppehåll i raden istället för att man ska läsa en lista och en matris
+var för sig. Alla handlingar från de gamla sidorna finns kvar på
+samma ställe: klicka en tom ruta för att tagga ett kapitel mot en
+tråd, klicka en prick för att hoppa till kapitlet, redigera story
+time-texten i kolumnrubriken, flytta ett kapitel tidigare/senare i
+story-tidsordning, lägg till/döp om/ta bort trådar. Kolumnernas
+inbördes avstånd är fortfarande bara rangordning, inte verklig
+tidsdistans — `story_time` är medvetet kvar som fri text (se idé
+#33:s avvägning), ingen ny schemautvidgning. De gamla filerna
+`Timeline.tsx` och `PlotlineMatrix.tsx` är borttagna, ersatta av
+`TimelineBoard.tsx`.
 
 **Ändringslogg v0.99.60 → v0.99.61:** Första steget av idé #28
 (`roadmap-ideas.md`) — generisk flerartikel-import för "Import lore".

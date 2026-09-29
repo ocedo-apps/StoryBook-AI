@@ -53,9 +53,10 @@ import {
   type WritingGoal
 } from "@core/BookSchema";
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
-import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
+import { moveStoryTimeOrder } from "@core/timeline";
+import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
-import { addPlotline, plotlineMatrixRows, removePlotline, renamePlotline, toggleChapterPlotline } from "@core/plotlines";
+import { addPlotline, removePlotline, renamePlotline, toggleChapterPlotline } from "@core/plotlines";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import {
   READER_CATEGORIES,
@@ -70,7 +71,7 @@ import { picturesFor } from "@core/entityMedia";
 import { useIllustrationStyles } from "./useIllustrationStyles";
 import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
 import { AskManuscriptPanel } from "./AskManuscript";
-import { TimelinePanel } from "./Timeline";
+import { TimelineBoardPanel } from "./TimelineBoard";
 import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
 import { readLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
@@ -86,7 +87,6 @@ import { ContinuityWarning } from "./ContinuityWarning";
 import { ScenesPanel } from "./ScenesPanel";
 import { GuidePanel, GuideHelpButton, type GuideSectionId } from "./GuidePanel";
 import { HandbookPanel } from "./HandbookPanel";
-import { PlotlineMatrixPanel } from "./PlotlineMatrix";
 import { DevelopmentMethodPanel } from "./DevelopmentMethodPanel";
 import { ChapterBriefCopy } from "./ChapterBriefCopy";
 import { DispositionBoard } from "./DispositionBoard";
@@ -1034,7 +1034,7 @@ export function Editor() {
           <div className="synopsis-item-row">
             <button
               type="button"
-              className={onTimeline && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
+              className={(onTimeline || onPlotlines) && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
               onClick={() => {
                 dismissProofread();
                 setBoardOpen(false);
@@ -1046,23 +1046,6 @@ export function Editor() {
             <GuideHelpButton
               anchor="timeline"
               ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onPlotlines && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showPlotlines();
-              }}
-            >
-              {m.plotlines.nav}
-            </button>
-            <GuideHelpButton
-              anchor="plotlines"
-              ariaLabel={format(m.guide.helpFor, { topic: m.plotlines.nav })}
             />
           </div>
           <div className="synopsis-item-row">
@@ -1268,9 +1251,10 @@ export function Editor() {
             onAsk={(question) => void store.askManuscript(question)}
             onJumpToChapter={store.setChapterId}
           />
-        ) : onTimeline ? (
-          <TimelinePanel
-            entries={timelineEntries(book)}
+        ) : onTimeline || onPlotlines ? (
+          <TimelineBoardPanel
+            columns={timelineBoardColumns(book)}
+            plotlines={book.plotlines}
             onSetStoryTime={(chapterIdToPatch, text) =>
               void store.patchBook((current) =>
                 updateChapter(current, chapterIdToPatch, { story_time: text.trim() === "" ? undefined : text })
@@ -1279,12 +1263,6 @@ export function Editor() {
             onMove={(chapterIdToMove, direction) =>
               void store.patchBook((current) => moveStoryTimeOrder(current, chapterIdToMove, direction))
             }
-            onJumpToChapter={store.setChapterId}
-          />
-        ) : onPlotlines ? (
-          <PlotlineMatrixPanel
-            rows={plotlineMatrixRows(book)}
-            plotlines={book.plotlines}
             onToggle={(chapterIdToMark, plotlineId) =>
               void store.patchBook((current) => toggleChapterPlotline(current, chapterIdToMark, plotlineId))
             }
