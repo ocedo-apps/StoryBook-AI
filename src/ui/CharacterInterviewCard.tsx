@@ -28,6 +28,7 @@ export function CharacterInterviewCard({
   history,
   busy,
   extracting,
+  blocked,
   error,
   personalityDraft,
   savedPersonality,
@@ -42,6 +43,8 @@ export function CharacterInterviewCard({
   history: InterviewMessage[];
   busy: boolean;
   extracting: boolean;
+  /** True while some unrelated AI action elsewhere in the app is running — Ask/Extract would otherwise look clickable but silently do nothing. */
+  blocked: boolean;
   error?: string | null;
   personalityDraft: string;
   savedPersonality: string;
@@ -84,7 +87,7 @@ export function CharacterInterviewCard({
             <button
               type="button"
               className="text-button"
-              disabled={history.length === 0 || busy || extracting}
+              disabled={history.length === 0 || busy || extracting || blocked}
               onClick={onExtractFacts}
             >
               {extracting ? m.interview.extracting : m.interview.extractAction}
@@ -152,6 +155,10 @@ export function CharacterInterviewCard({
           <p className="interview-error" role="alert">
             {error}
           </p>
+        ) : blocked ? (
+          <p className="interview-error" role="status">
+            {m.errors.busy}
+          </p>
         ) : null}
 
         <form
@@ -159,7 +166,7 @@ export function CharacterInterviewCard({
           onSubmit={(event) => {
             event.preventDefault();
             const trimmed = question.trim();
-            if (!trimmed || busy) return;
+            if (!trimmed || busy || blocked) return;
             onAsk(trimmed);
             setQuestion("");
           }}
@@ -169,11 +176,11 @@ export function CharacterInterviewCard({
             onChange={(event) => setQuestion(event.target.value)}
             placeholder={format(isCharacter ? m.interview.placeholder : m.interview.placeholderWorld, { name: entity.label })}
             rows={2}
-            disabled={busy}
+            disabled={busy || blocked}
             aria-label={m.interview.action}
           />
           <div className="edit-actions">
-            <button type="submit" className="primary" disabled={busy || !question.trim()}>
+            <button type="submit" className="primary" disabled={busy || blocked || !question.trim()}>
               {busy ? m.interview.asking : m.interview.ask}
             </button>
           </div>

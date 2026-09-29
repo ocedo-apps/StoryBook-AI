@@ -1394,6 +1394,7 @@ export const nb: Messages = {
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",
     serverUrlMissing: "Skriv inn den lokale serverens adresse i Innstillinger.",
+    busy: "En annen handling pågår allerede. Vent til den er ferdig, og prøv igjen.",
     imageChoose: "Velg en bildefil.",
     imageRead: "Kunne ikke lese det bildet.",
     imageAdd: "Kunne ikke legge til det bildet."

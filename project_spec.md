@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0
+Status: living document, v1.0.1
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0 → v1.0.1 (2026-09-29):** Buggfix från
+testarfeedback: "jag försöker intervjua en karaktär men det händer
+inget när jag skickar frågan." Ingen felmeddelande, ingen ny rad i
+transkriptet, ingen "tänker"-indikator — frågan bara försvann ur
+fältet.
+
+**Grundorsak:** `askCharacter`/`extractInterview` i `BookStore.tsx`
+avbröt tyst (`if (... || busy || ...) return;`) närhelst appens
+globala `busy`-flagga var satt av *vilken som helst* pågående
+AI-åtgärd — men `CharacterInterviewCard`s egna knappar
+inaktiverades bara när `busy === "interview"` specifikt. Var
+`busy` satt till något annat (t.ex. en Draft som fortfarande
+genererade i en annan flik av appen) såg Ask-knappen fortsatt
+klickbar ut, men klick gav bokstavligen ingenting — exakt
+symptombilden som rapporterades.
+
+**Fix, två delar:** (1) `askCharacter`/`extractInterview` avbryter
+aldrig längre tyst — ny `STORE_ERROR.busy` ("Another action is
+already running...") visas alltid om gränsen träffas. (2) Ny
+`blocked`-prop på `CharacterInterviewCard`, satt till sant när
+global `busy` är något ANNAT än interview/extract-interview —
+inaktiverar Ask-fältet, Extract facts-knappen och visar samma
+meddelande proaktivt, innan man ens hinner klicka och undra varför
+inget händer.
+
+Ingen browser/Ollama tillgänglig i den här sessionen för att
+återskapa buggen live — grundorsaken bekräftad genom noggrann
+kodläsning (den tydliga diskrepansen mellan väktarens råa `busy`-
+koll och UI-lagrets smalare `busy === "interview"`-koll), inte
+genom att faktiskt trigga felet i appen.
 
 **Ändringslogg v0.99.71 → v1.0 (2026-09-29):** StoryBook AI kallas nu
 1.0. `package.json` bumpad från `0.1.0` till `1.0.0` — matchar nu

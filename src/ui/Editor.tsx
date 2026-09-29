@@ -1591,6 +1591,7 @@ export function Editor() {
           history={store.interviewHistory}
           busy={busy === "interview"}
           extracting={busy === "extract-interview"}
+          blocked={busy !== null && busy !== "interview" && busy !== "extract-interview"}
           error={busy === "interview" ? null : error ? translateError(error, m) : ollamaError ? translateError(ollamaError, m) : null}
           personalityDraft={store.interviewPersonalityDraft}
           savedPersonality={profileFor(book.profiles, store.interviewEntity.ref).personality}

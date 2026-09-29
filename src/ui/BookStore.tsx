@@ -1635,15 +1635,25 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const current = bookRef.current;
       const target = interviewEntity;
       const trimmed = question.trim();
-      if (!current || !target || busy || !trimmed) return;
-
-      const priorTurns = interviewHistory;
-      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
-
+      if (!current || !target || !trimmed) return;
+      // Interview shares the app's single global `busy` flag with every other
+      // AI action, but this card only disables its own controls for its own
+      // in-flight call — so a question asked while something unrelated is
+      // still running (a Draft left going in another tab of the app, say)
+      // used to hit this guard and return with no feedback at all: the
+      // question vanished from the field, nothing was ever added to the
+      // transcript, and nothing told the author why. Surface it instead.
+      if (busy) {
+        setError(STORE_ERROR.busy);
+        return;
+      }
       if (models.length === 0) {
         setError(ollamaError ?? STORE_ERROR.noModel);
         return;
       }
+
+      const priorTurns = interviewHistory;
+      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
 
       abortRef.current?.abort();
       const abort = new AbortController();
@@ -1680,7 +1690,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const extractInterview = useCallback(async () => {
     const current = bookRef.current;
     const target = interviewEntity;
-    if (!current || !target || busy || interviewHistory.length === 0) return;
+    if (!current || !target || interviewHistory.length === 0) return;
+    // Same reasoning as askCharacter above: the global busy flag can be set
+    // by an unrelated action while this card's own controls stay enabled,
+    // so refusing silently here would look identical to nothing happening.
+    if (busy) {
+      setError(STORE_ERROR.busy);
+      return;
+    }
     if (models.length === 0) {
       setError(ollamaError ?? STORE_ERROR.noModel);
       return;

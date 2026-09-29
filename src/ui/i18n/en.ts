@@ -1404,6 +1404,7 @@ export const en = {
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",
     serverUrlMissing: "Enter your local server's address in Settings.",
+    busy: "Another action is already running. Wait for it to finish, then try again.",
     imageChoose: "Choose an image file.",
     imageRead: "Could not read that image.",
     imageAdd: "Could not add that image."

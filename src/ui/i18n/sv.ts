@@ -1394,6 +1394,7 @@ export const sv: Messages = {
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",
     askManuscriptNoMatch: "Inget i manuset matchar den frågan.",
     serverUrlMissing: "Ange din lokala servers adress i Inställningar.",
+    busy: "En annan åtgärd pågår redan. Vänta tills den är klar och försök igen.",
     imageChoose: "Välj en bildfil.",
     imageRead: "Kunde inte läsa den bilden.",
     imageAdd: "Kunde inte lägga till den bilden."
