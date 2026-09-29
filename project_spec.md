@@ -1,9 +1,45 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.7
+Status: living document, v1.0.8
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.7 → v1.0.8 (2026-09-29):** Efter v1.0.7 kom det
+vänliga meddelandet ("Extractor found no stated facts in this
+conversation") istället för det rå felet — så den delen av fixen
+fungerade. Men testaren: "Det fanns fakta som inte fångades upp."
+Skärmdumpen: Henrik hade precis sagt "I'm in my mid-thirties, let's
+say 35" och "No, I don't have a girlfriend... it's been a while
+since my last relationship ended." Två tydliga, konkreta fakta —
+ålder och relationsstatus — och extraktorn returnerade fortfarande
+`{"facts":[]}`. Inte längre ett formatfel (giltig JSON, bara tom),
+alltså ett rent kategoriserings-/tolkningsproblem.
+
+**Trolig grundorsak, två separata luckor i prompten:**
+1. `core.trait` beskrevs bara som "a stable characteristic" — ingen
+   av exemplen i prompten nämnde ålder eller relationsstatus, så en
+   svagare modell hade inget att luta sig mot när den skulle avgöra
+   om det passade in någonstans i taxonomin alls.
+2. Henrik hedgar sitt eget svar ("let's say 35", "in my
+   mid-thirties") — vardagligt och naturligt, men regeln "No
+   metaphor, mood, subtext, or guesses" kan mycket väl ha fått
+   modellen att tolka hans egen hedge som en osäkerhet den själv
+   inte fick "gissa" på, istället för att inse att det är Henriks
+   egen formulering av ett fakta han faktiskt påstår.
+
+**Fix:**
+- Bröt ut en delad `PREDICATE_GUIDE`-konstant i
+  `src/core/extractFacts.ts` som både `EXTRACTOR_SYSTEM` (kapitel/
+  lore) och `INTERVIEW_EXTRACTOR_SYSTEM` nu bygger sin
+  predikatbeskrivning från — enda källan, så de inte glider isär
+  igen. `core.trait` nämner nu uttryckligen "an age, a relationship
+  status, an occupation, a physical trait" som exempel.
+- `INTERVIEW_EXTRACTOR_SYSTEM` fick en ny mening som säger rakt ut
+  att en hedgad/ungefärlig egen-beskrivning fortfarande ska
+  extraheras, i den intervjuades egna ord.
+- Nya tester i `tests/core/extract-facts.test.ts` för båda
+  tilläggen.
 
 **Ändringslogg v1.0.6 → v1.0.7 (2026-09-29):** Testaren körde om direkt
 efter v1.0.6 (ny fråga: "what is your favourite food?", nytt svar från

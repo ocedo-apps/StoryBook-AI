@@ -128,14 +128,27 @@ export function parseExtractorPayload(raw: string): FactDraft[] {
   return drafts;
 }
 
+/**
+ * Shared between EXTRACTOR_SYSTEM and INTERVIEW_EXTRACTOR_SYSTEM so the two
+ * never drift apart on what each predicate covers. Explicitly calls out age
+ * and relationship status under core.trait — a tester's interview answers
+ * plainly stated both ("I'm in my mid-thirties, let's say 35" / "I don't
+ * have a girlfriend... it's been a while since my last relationship
+ * ended") and the extractor found nothing, most likely because neither
+ * reads as an obvious fit for any predicate's original one-line
+ * description: "a stable characteristic" doesn't obviously cover an age or
+ * a relationship status unless it says so.
+ */
+const PREDICATE_GUIDE = `- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
+- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic — an age, a relationship status, an occupation, a physical trait, a stated preference, or a habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
+- entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.`;
+
 export const EXTRACTOR_SYSTEM = `You extract established narrative facts from accepted prose.
 Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.identity","value":"..."}]}
 
 Rules:
 - Only claims the text states as true. No metaphor, mood, subtext, or guesses.
-- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
-- entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.
-- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
+${PREDICATE_GUIDE}
 - Skip style, clothing-of-the-moment, and implied feelings.
 - If nothing is extractable, return {"facts":[]}.`;
 
@@ -160,11 +173,9 @@ Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.i
 
 Rules:
 - The interviewee's turns are in the first person ("I", "me", "my"). Every first-person statement they make about themselves is a fact about the interviewee — use the interviewee's own name (given below) as entity_label, never "I" or "the interviewee".
-- Only claims the interviewee actually states as true — about themselves or anyone/anything else they mention. No metaphor, mood, subtext, or guesses.
+- Only claims the interviewee actually states as true — about themselves or anyone/anything else they mention. No metaphor, mood, subtext, or invented details. This does NOT rule out a hedged or approximate answer ("let's say 35", "I'm in my mid-thirties", "it's been a while") — that hedging is how the interviewee themselves chose to state it, still extract it, using their own wording for the value.
 - The Author's own questions are never a source of facts, only what the interviewee answers.
-- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
-- entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.
-- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic, a stated preference, or a habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
+${PREDICATE_GUIDE}
 - If nothing is extractable, return {"facts":[]}.
 - Respond with the JSON object and nothing else: no explanation, no markdown fences, no text before or after it — even when the answer is {"facts":[]}.`;
 

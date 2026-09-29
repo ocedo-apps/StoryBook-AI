@@ -110,4 +110,20 @@ describe("INTERVIEW_EXTRACTOR_SYSTEM", () => {
     expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("first person");
     expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain('never "I" or "the interviewee"');
   });
+
+  it("names age and relationship status as core.trait examples", () => {
+    // Regression: a tester's interview answers plainly stated an age
+    // ("I'm in my mid-thirties, let's say 35") and a relationship status
+    // ("I don't have a girlfriend... last relationship ended") and the
+    // extractor found neither, most likely because "a stable
+    // characteristic" alone didn't read as covering either one.
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("an age, a relationship status");
+  });
+
+  it("tells the model a hedged or approximate answer is still extractable", () => {
+    // Regression: "let's say 35" is the interviewee's own hedge, not the
+    // model's guess — the "no guesses" rule must not be read as excluding it.
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("let's say 35");
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("still extract it");
+  });
 });
