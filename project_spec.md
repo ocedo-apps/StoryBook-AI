@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.3
+Status: living document, v1.0.4
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.3 → v1.0.4 (2026-09-29):** Sista biten av samma
+buggtråd — och den bekräftar att v1.0.3 faktiskt fungerade. Testaren:
+"Jag tror att det kom ett svar men jag ser det inte" — rutan där
+Henriks svar skulle synas var i det närmaste osynlig, hoppressad
+till några pixlar. Ren CSS-bugg, inget fel i själva AI-anropet
+längre.
+
+**Grundorsak:** `.edit-card.interview-card` satte `max-height`, inte
+`height`. `.interview-transcript` (mittsektionen med samtalet) är
+`flex: 1 1 auto; min-height: 0;` — tänkt att fylla det utrymme som
+blir över när rubrik, personlighetsfält och skrivfält tagit sitt.
+Men en flex-container som bara har `max-height` (inte en definitiv
+`height`) ger webbläsaren inget konkret tal att räkna "utrymme över"
+utifrån — resultatet blev att mittsektionen kollapsade mot noll
+istället för att expandera, även när den innehöll riktigt textinnehåll.
+Detta var för övrigt exakt det jag misstänkte allra först i den här
+buggtråden (en kommentar om en gåtfull "▼"-glyf i den första
+skärmdumpen), men kunde inte bekräfta utan en riktig körning då.
+
+**Fix:** `max-height` → `height` (fortfarande `min(90vh, 44rem)`,
+samma gräns som förut). Ger `.interview-transcript` ett konkret
+utrymme att fylla, som en vanlig chattruta — samma storlek oavsett
+hur mycket eller lite historik den innehåller, istället för att krympa
+ihop sig när det blir tomt.
+
+**Kort avvägning, inte gjord:** samma `max-height`-mönster finns på
+fler ställen i `styles.css`, men bara `.interview-card` har den
+specifika kombinationen (flex-kolumn + `flex:1 1 auto; min-height:0`-
+barn) som orsakar buggen. Gjorde ingen bredare genomsökning av alla
+`max-height`-regler — inget annat ställe visade tecken på samma
+problem vid en snabb koll.
 
 **Ändringslogg v1.0.2 → v1.0.3 (2026-09-29):** Fortfarande samma
 buggtråd. Testaren bekräftade: `git pull` gjort, servern omstartad,

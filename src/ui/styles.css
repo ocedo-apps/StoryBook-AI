@@ -2716,7 +2716,18 @@ button:disabled {
 
 .edit-card.interview-card {
   width: min(34rem, 100%);
-  max-height: min(90vh, 44rem);
+  /*
+   * A definite height, not max-height. .interview-transcript below relies on
+   * `flex: 1 1 auto; min-height: 0;` to fill whatever space the rest of the
+   * card doesn't use — but a flex container sized by `max-height` alone has
+   * no definite height for the browser to compute "leftover space" from, so
+   * that child's flexible sizing collapses toward zero instead: the reply
+   * was there in the transcript, just squeezed into a sliver a couple of
+   * pixels tall. A fixed height gives the layout something real to work
+   * with, matching how any chat window behaves regardless of how much (or
+   * little) history it holds.
+   */
+  height: min(90vh, 44rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
