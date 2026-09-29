@@ -51,7 +51,13 @@ import {
   type ChapterFeedback
 } from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
-import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
+import {
+  EXTRACTOR_SYSTEM,
+  extractorUserPrompt,
+  INTERVIEW_EXTRACTOR_SYSTEM,
+  interviewExtractorUserPrompt,
+  parseExtractorPayload
+} from "@core/extractFacts";
 import type { LoreArticleCandidate } from "@core/loreImport";
 import { proseChapters, startProofreadJob, touchProofread, type ProofreadStage } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
@@ -1756,8 +1762,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         .join("\n\n");
       const provider = makeProvider(reviewModel);
       const extractMessages: PromptDebugMessage[] = [
-        { role: "system", content: EXTRACTOR_SYSTEM },
-        { role: "user", content: extractorUserPrompt(transcript, `Interview: ${target.label}`) }
+        { role: "system", content: INTERVIEW_EXTRACTOR_SYSTEM },
+        { role: "user", content: interviewExtractorUserPrompt(transcript, target.label) }
       ];
       recordPrompt("extract-interview", reviewModel, extractMessages);
       const raw = await provider.chat({

@@ -142,3 +142,32 @@ Rules:
 export function extractorUserPrompt(prose: string, chapterTitle: string): string {
   return `Chapter: ${chapterTitle.trim() || "Untitled"}\n\nProse:\n${prose.trim()}`;
 }
+
+/**
+ * A separate system prompt for Interview transcripts (roadmap-ideas.md #18),
+ * not a reuse of EXTRACTOR_SYSTEM. That one is written for third-person
+ * narrative prose ("accepted prose") and gave the extractor nothing to go
+ * on when the interviewee's turns are first-person ("my favorite food is
+ * meatballs") — a tester's local model found zero facts in an answer that
+ * plainly stated some, because nothing told it "I"/"my" in those turns
+ * means the interviewee (characterInterviewSystem always has them answer
+ * in the first person). This version names the interviewee explicitly and
+ * says outright what their pronouns resolve to, so a small local model
+ * doesn't have to infer it from the "Henrik: ..." turn labels alone.
+ */
+export const INTERVIEW_EXTRACTOR_SYSTEM = `You extract established narrative facts from a private interview transcript between "Author" (asking questions) and a character or entity from the author's manuscript (answering).
+Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.identity","value":"..."}]}
+
+Rules:
+- The interviewee's turns are in the first person ("I", "me", "my"). Every first-person statement they make about themselves is a fact about the interviewee — use the interviewee's own name (given below) as entity_label, never "I" or "the interviewee".
+- Only claims the interviewee actually states as true — about themselves or anyone/anything else they mention. No metaphor, mood, subtext, or guesses.
+- The Author's own questions are never a source of facts, only what the interviewee answers.
+- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
+- entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.
+- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic, including a stated preference or habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
+- Skip small talk and implied feelings — but a concrete stated preference, habit, or memory is a fact, not small talk.
+- If nothing is extractable, return {"facts":[]}.`;
+
+export function interviewExtractorUserPrompt(transcript: string, interviewee: string): string {
+  return `Interviewee: ${interviewee.trim()} (this is who "I"/"me"/"my" refers to in their answers below)\n\nTranscript:\n${transcript.trim()}`;
+}

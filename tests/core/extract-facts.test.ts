@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseExtractorPayload } from "@core/extractFacts";
+import { INTERVIEW_EXTRACTOR_SYSTEM, interviewExtractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
 
 describe("parseExtractorPayload", () => {
   it("reads a clean facts array", () => {
@@ -88,5 +88,26 @@ describe("parseExtractorPayload", () => {
 
   it("still throws when truncation cuts off before even one fact object closes", () => {
     expect(() => parseExtractorPayload('{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.id')).toThrow();
+  });
+});
+
+describe("interviewExtractorUserPrompt", () => {
+  it("names the interviewee so first-person turns can be resolved to them", () => {
+    // Regression: a generic extractor prompt found zero facts in an
+    // interviewee's first-person answer ("my favorite food is meatballs")
+    // because nothing told it "my" resolves to the interviewee. The prompt
+    // must say so explicitly, not rely on the model inferring it from
+    // "Henrik: ..." turn labels in the transcript alone.
+    const prompt = interviewExtractorUserPrompt("Author: Hi\n\nHenrik: My favorite food is meatballs.", "Henrik");
+    expect(prompt).toContain("Interviewee: Henrik");
+    expect(prompt).toContain('"I"/"me"/"my"');
+    expect(prompt).toContain("My favorite food is meatballs.");
+  });
+});
+
+describe("INTERVIEW_EXTRACTOR_SYSTEM", () => {
+  it("instructs first-person statements to resolve to the interviewee, not the pronoun", () => {
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("first person");
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain('never "I" or "the interviewee"');
   });
 });

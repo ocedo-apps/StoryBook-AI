@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.5
+Status: living document, v1.0.6
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.5 → v1.0.6 (2026-09-29):** Ny buggtråd, inte samma
+som Interview-visningsbuggen. Testaren: "Extract facts gick inte så
+bra... Trots att texten inte var så lång och det fanns fakta i
+Henriks svar" — och sen konkret: "Jag fick inga fakta". Skärmdumpen
+visade Henriks svar på "what is you favourite food": "As a Swedish
+guy, I gotta say my favorite food is definitely meatballs with
+lingonberry jam... My mom used to make the best, just like my
+grandmother taught her." Tydliga fakta (favoritmat, mammans/farmors
+tradition) — men noll extraherades.
+
+**Grundorsak:** `extractInterview` återanvände samma `EXTRACTOR_SYSTEM`
+som kapitel-extraktion och lore-import — en prompt skriven för
+tredjepersons berättartext ("accepted prose"). Men
+`characterInterviewSystem` instruerar alltid karaktären att svara i
+jag-form ("Answer every question in the first person, as yourself").
+Transkriptet som skickades till extraktorn var alltså rader som
+"Henrik: My favorite food is..." — och ingenstans stod det att "my"
+i en sådan rad ska tolkas som en fakta om Henrik. En mindre lokal
+modell (som testarens) har svårare att dra den kopplingen själv än
+en stor molnmodell skulle haft, och missade därför fakta som
+bokstavligen stod där.
+
+**Fix:** Ny, separat systemprompt `INTERVIEW_EXTRACTOR_SYSTEM` i
+`src/core/extractFacts.ts`, enbart för Intervju-extraktion — namnger
+personen som intervjuas direkt i användarpromptet
+("Interviewee: Henrik (this is who "I"/"me"/"my" refers to...)") och
+säger uttryckligen i systempromptet att förstapersonspåståenden ska
+tolkas som fakta om den intervjuade, aldrig om "jag" eller "den
+intervjuade" som etikett. Kapitel-extraktion och lore-import
+rörs inte — de är fortfarande genuint tredjepersonstext och
+`EXTRACTOR_SYSTEM` passar dem. Nya tester i
+`tests/core/extract-facts.test.ts` för både systempromptens
+innehåll och att användarpromptet faktiskt namnger den intervjuade.
 
 **Ändringslogg v1.0.4 → v1.0.5 (2026-09-29):** Rutan syntes fortfarande
 inte tillräckligt bra för testaren efter v1.0.4:s CSS-fix (svaret
