@@ -47,7 +47,8 @@ export const nb: Messages = {
     chapters: { one: "{count} kapittel", other: "{count} kapitler" },
     facts: { one: "{count} låst faktum", other: "{count} låste fakta" },
     connectFound: { one: "Tilkoblet — {count} modell funnet.", other: "Tilkoblet — {count} modeller funnet." },
-    connectNotFound: "Ikke tilkoblet ennå — installer en lokal AI-server, så dukker den opp her."
+    connectNotFound:
+      "Ikke tilkoblet ennå. Har du ingen lokal AI-server? Vi anbefaler Ollama — gratis, fra ollama.com. Installer en modell (søk på «stheno» for en tilpasset skjønnlitteratur, eller en hvilken som helst vanlig chattmodell, f.eks. llama3), så dukker den opp her automatisk."
   },
   editor: {
     manuscriptTitle: "Manuskripttittel",

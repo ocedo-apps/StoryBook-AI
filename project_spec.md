@@ -1,9 +1,32 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.12
+Status: living document, v1.0.13
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.12 → v1.0.13 (2026-09-29):** Mats testade
+v1.0.12 live (skärmdump: Ollama ansluten, 10 modeller hittade,
+Writing/Review ifyllda) och påpekade det uppenbara: nu när
+anslutningsrutan faktiskt fungerar är de tre gamla förklarande
+korten under den ("Install a local AI server" / "Choose your AI
+model" / "Connect it to StoryBook AI") bara dubbelarbete.
+
+**Ändring:** Tog bort `<section className="home-quickstart
+guide-quickstart-block"><QuickstartCards .../></section>` från
+`Home.tsx` helt (inklusive den nu döda `.home-quickstart`-CSS-regeln).
+`QuickstartCards`-komponenten själv rörs inte — den används
+fortfarande av samma "Connect a local AI"-knapp i Guide/Handbook
+(inte omgjord den här omgången, se v1.0.12:s anteckning om det).
+
+Kortens enda unika information — var man hittar Ollama om man inte
+redan har en lokal server (gratis, ollama.com, sök "stheno" för en
+skönlitteratur-anpassad modell) — flyttades in i anslutningsrutans
+egen "inte ansluten"-text istället för att bara försvinna, i alla
+tre språk.
+
+Verifierat live i webbläsare igen (samma Playwright-uppsättning):
+sidan är nu tydligt renare, ingen dubblering, inga nya konsolfel.
 
 **Ändringslogg v1.0.11 → v1.0.12 (2026-09-29):** Uppföljning på de
 två IA-frågorna som flaggades i v1.0.11 istället för att gissas på.

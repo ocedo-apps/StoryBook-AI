@@ -333,7 +333,8 @@ export const en = {
     chapters: { one: "{count} chapter", other: "{count} chapters" },
     facts: { one: "{count} locked fact", other: "{count} locked facts" },
     connectFound: { one: "Connected — {count} model found.", other: "Connected — {count} models found." },
-    connectNotFound: "Not connected yet — install a local AI server and it will show up here."
+    connectNotFound:
+      "Not connected yet. Don't have a local AI server? We recommend Ollama — free, from ollama.com. Install a model (search for “stheno” for one tuned for fiction, or any general chat model like llama3), and it will show up here automatically."
   },
   editor: {
     manuscriptTitle: "Manuscript title",

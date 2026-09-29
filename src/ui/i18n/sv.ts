@@ -47,7 +47,8 @@ export const sv: Messages = {
     chapters: { one: "{count} kapitel", other: "{count} kapitel" },
     facts: { one: "{count} låst faktum", other: "{count} låsta fakta" },
     connectFound: { one: "Ansluten — {count} modell hittad.", other: "Ansluten — {count} modeller hittade." },
-    connectNotFound: "Inte ansluten än — installera en lokal AI-server så dyker den upp här."
+    connectNotFound:
+      "Inte ansluten än. Har du ingen lokal AI-server? Vi rekommenderar Ollama — gratis, från ollama.com. Installera en modell (sök på ”stheno” för en anpassad för skönlitteratur, eller vilken vanlig chattmodell som helst, t.ex. llama3), så dyker den upp här automatiskt."
   },
   editor: {
     manuscriptTitle: "Manustitel",

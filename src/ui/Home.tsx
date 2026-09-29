@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { HandbookPanel } from "./HandbookPanel";
-import { QuickstartCards } from "./QuickstartCards";
 import { ModelSelect } from "./SettingsPanel";
 import { count, format, translateError, useLocale } from "./i18n";
 
@@ -153,10 +152,6 @@ export function Home({
           </button>
         </div>
       </form>
-
-      <section className="home-quickstart guide-quickstart-block">
-        <QuickstartCards headingClassName="settings-heading home-heading-lg" />
-      </section>
 
       <section className="book-shelf" aria-label={m.home.shelf}>
         <h2 className="settings-heading home-heading-lg">{m.home.shelfHeading}</h2>

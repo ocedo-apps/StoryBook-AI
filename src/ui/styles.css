@@ -476,10 +476,6 @@ button:disabled {
   display: none;
 }
 
-.home-quickstart {
-  margin-top: 2.5rem;
-}
-
 .home-banner {
   margin: 0 0 1.5rem;
   border: 1px solid var(--border);
