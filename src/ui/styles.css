@@ -2025,6 +2025,7 @@ button:disabled {
 .plotline-matrix {
   border-collapse: collapse;
   font-size: 0.85rem;
+  background: var(--paper);
 }
 
 .plotline-matrix th {
@@ -2138,8 +2139,10 @@ button:disabled {
 /*
  * An active cell fills its whole column instead of staying a small dot, so
  * consecutive active chapters in the same thread read as one unbroken bar.
- * Rounded only where the run starts or ends (is-run-start/-end); a cell in
- * the middle of a run stays square so it touches its neighbors flush.
+ * A cell in the middle of a run stays flush (full width, no inset) so nothing
+ * breaks the run visually; only the two true ends of a run (is-run-start/
+ * -end) get rounded and inset with a little padding, so the bar as a whole
+ * reads as a pill with breathing room instead of butting against the grid.
  */
 .plotline-cell.is-active {
   width: 100%;
@@ -2149,13 +2152,22 @@ button:disabled {
 }
 
 .plotline-cell.is-active.is-run-start {
+  margin-left: 0.25rem;
+  width: calc(100% - 0.25rem);
   border-top-left-radius: 999px;
   border-bottom-left-radius: 999px;
 }
 
 .plotline-cell.is-active.is-run-end {
+  margin-right: 0.25rem;
+  width: calc(100% - 0.25rem);
   border-top-right-radius: 999px;
   border-bottom-right-radius: 999px;
+}
+
+.plotline-cell.is-active.is-run-start.is-run-end {
+  margin: 0 0.25rem;
+  width: calc(100% - 0.5rem);
 }
 
 .plotline-cell.is-active.is-lime {

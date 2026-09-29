@@ -1,9 +1,19 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.66
+Status: living document, v0.99.67
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.66 → v0.99.67:** Två små visuella justeringar av
+Timeline/Trådar-tabellen. Tabellens cellbakgrund är nu `var(--paper)`
+(samma "vit"-ton som appens övriga kort) istället för att visa
+sidbakgrunden rakt igenom. Och staplarna har fått lite andrum: en
+sammanhängande körnings mittenceller ligger fortfarande helt ihop
+(inget glapp mitt i en tråd), men själva körningens två yttersta
+ändar är nu indragna ~0.25rem med rundade hörn, så stapeln som helhet
+läses som en pill med luft runt om istället för att gå ända ut i
+rutnätets kant. Ren CSS, ingen logik- eller dataändring.
 
 **Ändringslogg v0.99.65 → v0.99.66:** Uppföljning på gårdagens
 färgväljare, efter feedback: det klickbara 10-färgsrutnätet satt
