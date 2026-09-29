@@ -63,6 +63,7 @@ export const nb: Messages = {
     backupTitle: "Sikkerhetskopi",
     publish: "Publiser",
     settings: "Innstillinger",
+    backToManuscript: "← Tilbake til manuskriptet",
     settingsLede:
       "Hvordan dette manuskriptet skrives. Ikke Story Bible. Kapitlene kan fortsatt overstyre kamera, stemme og Leser.",
     proseLanguage: "Prosaens språk",
@@ -164,7 +165,7 @@ export const nb: Messages = {
     maximizeTitle: "Skjul paneler og skriv",
     restoreTitle: "Vis paneler (Esc)",
     brainstormLede:
-      "Privat kladd. En lapp per idé. Dra dem fritt — det finnes ingen rekkefølge ennå. Dra en lapp til kolonnen til høyre når den skal bli handling.",
+      "Privat kladd. En lapp per idé. Dra dem fritt — det finnes ingen rekkefølge ennå. Når en lapp er klar, dra den til kolonnen Til synopsis til høyre.",
     brainstormPlaceholder: "En idé…",
     synopsisLede:
       "Historien i kortform: hvem som er med, hva som skjer og hvordan den ender. Utkastene tar alltid utgangspunkt i denne oppsummeringen – men ingenting blir bindende før du fastslår det som fakta.",

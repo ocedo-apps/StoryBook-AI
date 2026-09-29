@@ -1,9 +1,59 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.10
+Status: living document, v1.0.11
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.10 → v1.0.11 (2026-09-29):** En extern testares
+UX-feedback (nio punkter, relayerad av Mats) — verifierade var och
+en mot koden via en Explore-agent innan något fixades. Tre av de sex
+konkreta punkterna åtgärdade direkt (rena, avgränsade fixar); två
+(global åtkomst till Settings innan ett manus finns, "Connect a
+local AI"-knappens navigering) flaggade tillbaka till Mats som en
+IA-fråga som förtjänar ett beslut snarare än en gissning.
+
+**1. Terminologi-krock i Brainstorm (åtgärdad):** `brainstormLede`
+sa "Drag a note into the send column when it should become plot" —
+men ingen kolumn heter "send" (den heter "To synopsis"), och appen
+har dessutom en helt separat funktion som faktiskt heter
+"Plotlines". "become plot" pekade alltså mot fel funktion, inte
+bara en synonym-otydlighet. Omskriven i alla tre språk (en/sv/nb)
+för att namnge den faktiska kolumnen istället.
+
+**2. Långa Brainstorm-lappar bröt layouten (åtgärdad):** en ~400
+ord lång lapp i "Till synopsis"-kolumnen hade inget tak på höjden
+någonstans i kedjan (`.idea-send-note`, `.idea-note-copy`,
+`.chapter-brief-text` — alla bara `min-height`), så den växte och
+fyllde hela den smala 17.5rem-kolumnen, och alla andra lappar sköts
+utanför synligt område; kolumnens egen `overflow:auto` blev den
+enda scrollytan. Ny regel `.idea-send-note .idea-note-copy {
+max-height: 10rem; overflow-y: auto; }` — bara textytan i just
+"Till synopsis"-kolumnen får sin egen scroll, resten av appens
+lappar (fria brädet) opåverkade.
+
+**3. Ingen "tillbaka"-knapp från Settings (åtgärdad):** enda vägen
+ut var logotypen i headern, som stänger hela manuset och tar en
+till hyllan — inte bara Settings-panelen. En osynlig alternativ väg
+fanns (klicka ett kapitel i sidopanelen, som förblir synlig och
+klickbar), men testaren hittade den aldrig på egen hand. Ny explicit
+"← Back to manuscript"-länk högst upp i `SettingsPanel.tsx`, kopplad
+till `store.setChapterId(chapter.id)` — samma mekanism som att
+klicka ett kapitel i sidopanelen, fast synlig och namngiven.
+
+**4–5. "Connect a local AI" öppnar bara text, tar inte till
+Settings — och Settings går inte att nå innan ett manus finns
+(inte åtgärdade, flaggade till Mats):** dessa två hänger ihop.
+Knappen på startsidan öppnar bara ett textmodal (tre steg-kort) som
+i sista steget SÄGER åt användaren att gå till Settings → Models
+manuellt, men länkar aldrig dit — för att den destinationen inte
+existerar än. `SettingsPanel` renderas bara inuti `Editor`, som i
+sin tur bara monteras när ett bok-objekt finns (`App.tsx`: `book ?
+<Editor/> : <Home/>`). Att fixa knappen på riktigt kräver alltså
+ett arkitekturbeslut (global Settings-yta oberoende av manus? eller
+auto-skapa ett tomt manus vid "Connect a local AI"?) — inte en
+gissning, så frågan gick tillbaka till Mats istället för en snabb
+patch som bara flyttar problemet.
 
 **Ändringslogg v1.0.9 → v1.0.10 (2026-09-29):** Första gången det
 faktiska råa modellsvaret var synligt (tack vare v1.0.9:s

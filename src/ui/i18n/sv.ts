@@ -63,6 +63,7 @@ export const sv: Messages = {
     backupTitle: "Säkerhetskopia",
     publish: "Publicera",
     settings: "Inställningar",
+    backToManuscript: "← Tillbaka till manuset",
     settingsLede:
       "Hur det här manuset skrivs. Inte Story Bible. Kapitlen kan fortfarande överstyra kamera, röst och Läsare.",
     proseLanguage: "Prosans språk",
@@ -164,7 +165,7 @@ export const sv: Messages = {
     maximizeTitle: "Dölj paneler och skriv",
     restoreTitle: "Visa paneler (Esc)",
     brainstormLede:
-      "Privat kladd. En lapp per idé. Dra dem fritt — det finns ingen ordning än. Dra en lapp till kolumnen till höger när den ska bli handling.",
+      "Privat kladd. En lapp per idé. Dra dem fritt — det finns ingen ordning än. När en lapp är redo drar du den till kolumnen Till synopsis till höger.",
     brainstormPlaceholder: "En idé…",
     synopsisLede:
       "Berättelsen i kortform: vem som är med, vad som händer, och var den landar. Utkast utgår alltid från den här sammanfattningen — men inget blir bindande förrän du låser det som fakta.",

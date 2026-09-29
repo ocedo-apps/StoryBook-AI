@@ -349,6 +349,7 @@ export const en = {
     backupTitle: "Backup",
     publish: "Publish",
     settings: "Settings",
+    backToManuscript: "← Back to manuscript",
     settingsLede:
       "How this manuscript is written. Not Story Bible. Chapters can still override camera, Voice, and Reader.",
     proseLanguage: "Prose language",
@@ -450,7 +451,7 @@ export const en = {
     maximizeTitle: "Hide panels and write",
     restoreTitle: "Restore panels (Esc)",
     brainstormLede:
-      "Private scratch. One note per idea. Drag them anywhere — there is no order yet. Drag a note into the send column when it should become plot.",
+      "Private scratch. One note per idea. Drag them anywhere — there is no order yet. When a note is ready, drag it into the To synopsis column on the right.",
     brainstormPlaceholder: "An idea…",
     synopsisLede:
       "The story in a nutshell: who’s involved, what happens, and how it ends. Drafts are always based on this summary — but nothing becomes set in stone until you finalise it as fact.",

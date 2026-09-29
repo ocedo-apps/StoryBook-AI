@@ -42,7 +42,8 @@ export function SettingsPanel({
   onPrimer,
   onResetPrimer,
   onHistoryLimit,
-  onBrowseIllustrationLibrary
+  onBrowseIllustrationLibrary,
+  onBack
 }: {
   book: Book;
   models: string[];
@@ -66,6 +67,14 @@ export function SettingsPanel({
   onResetPrimer: () => void;
   onHistoryLimit: (n: number) => void;
   onBrowseIllustrationLibrary: () => void;
+  /**
+   * A tester found no way out of Settings other than the header logo,
+   * which exits the manuscript entirely (back to the shelf) rather than
+   * just closing this panel — the chapter rail underneath stays clickable
+   * as an unlabeled alternate route, but nobody found it on their own.
+   * This gives Settings its own explicit, labeled way back to writing.
+   */
+  onBack: () => void;
 }) {
   const { messages: m } = useLocale();
   const [contextOpen, setContextOpen] = useState(false);
@@ -92,6 +101,9 @@ export function SettingsPanel({
 
   return (
     <main className="manuscript settings-page">
+      <button type="button" className="text-button settings-back" onClick={onBack}>
+        {m.editor.backToManuscript}
+      </button>
       <h1 className="chapter-title">{m.editor.settings}</h1>
       <p className="synopsis-lede">{m.editor.settingsLede}</p>
 

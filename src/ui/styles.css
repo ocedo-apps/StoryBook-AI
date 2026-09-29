@@ -1431,6 +1431,11 @@ button:disabled {
   padding-bottom: 2.5rem;
 }
 
+.settings-back {
+  display: block;
+  margin: 0 0 0.9rem -0.4rem;
+}
+
 .settings-block {
   margin-top: 1.4rem;
   max-width: 36rem;
@@ -1860,6 +1865,20 @@ button:disabled {
   width: 100%;
   min-height: 8rem;
   box-shadow: none;
+}
+
+/*
+ * A long note (a tester's ~400-word one, say) had nothing capping its
+ * height here, so it grew to fill the entire narrow column on its own —
+ * every other note pushed out of view, and .idea-send-list's own
+ * overflow:auto turned the whole column into one cramped, tall scroll
+ * strip. Capping just the text region and giving it its own scrollbar
+ * keeps a long note's card a normal, bounded size, so several notes stay
+ * visible and reorderable in the column at once.
+ */
+.idea-send-note .idea-note-copy {
+  max-height: 10rem;
+  overflow-y: auto;
 }
 
 .idea-send-foot {

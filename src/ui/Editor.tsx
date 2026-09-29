@@ -1147,6 +1147,7 @@ export function Editor() {
             onResetPrimer={store.resetWritingPrimer}
             onHistoryLimit={store.setHistoryLimit}
             onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
+            onBack={() => store.setChapterId(chapter.id)}
           />
         ) : onBoard ? (
           <DispositionBoard
