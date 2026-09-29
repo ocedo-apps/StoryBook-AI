@@ -178,6 +178,28 @@ function ollamaHint(error: unknown): string {
   return message;
 }
 
+/**
+ * No call into `LocalModelProvider` ever had a client-side timeout — a
+ * request just waits on `fetch` forever. Most of the time that's fine (a
+ * slow local model is still working), but if the server hangs (still
+ * loading a model, a stalled connection, a wrong port that accepts TCP but
+ * never answers) the UI has no way to tell "still thinking" from "will
+ * never respond," and — since nothing ever settles — no `finally` block
+ * ever runs to clear `busy` either, so the calling control stays dimmed
+ * forever with no error. Two minutes is generous for a slow machine or a
+ * cold model load, short of "may as well be broken."
+ */
+const LOCAL_MODEL_TIMEOUT_MS = 120_000;
+
+function withRequestTimeout(abort: AbortController): { timedOut: () => boolean; clear: () => void } {
+  let timedOut = false;
+  const id = window.setTimeout(() => {
+    timedOut = true;
+    abort.abort();
+  }, LOCAL_MODEL_TIMEOUT_MS);
+  return { timedOut: () => timedOut, clear: () => window.clearTimeout(id) };
+}
+
 /** Lists models from whichever engine is configured — Ollama's own API, or the OpenAI-compatible one LM Studio and llama.cpp-server share. */
 function listEngineModels(engine: LlmEngine, baseUrl: string): Promise<string[]> {
   if (engine === "openai-compatible") {
@@ -1660,6 +1682,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       abortRef.current = abort;
       setBusy("interview");
       setError(null);
+      const requestTimeout = withRequestTimeout(abort);
 
       try {
         const provider = makeProvider(model);
@@ -1677,9 +1700,13 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         });
         setInterviewHistory((prev) => [...prev, { role: "assistant", content: raw.trim() }]);
       } catch (err) {
-        if ((err as { name?: string }).name === "AbortError") return;
+        if ((err as { name?: string }).name === "AbortError") {
+          if (requestTimeout.timedOut()) setError(STORE_ERROR.timeout);
+          return;
+        }
         setError(ollamaHint(err));
       } finally {
+        requestTimeout.clear();
         setBusy(null);
         abortRef.current = null;
       }
@@ -1702,8 +1729,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setError(ollamaError ?? STORE_ERROR.noModel);
       return;
     }
+    abortRef.current?.abort();
+    const abort = new AbortController();
+    abortRef.current = abort;
     setBusy("extract-interview");
     setError(null);
+    const requestTimeout = withRequestTimeout(abort);
     try {
       const transcript = interviewHistory
         .map((turn) => `${turn.role === "user" ? "Author" : target.label}: ${turn.content}`)
@@ -1717,7 +1748,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const raw = await provider.chat({
         messages: extractMessages,
         temperature: 0.1,
-        maxTokens: EXTRACTOR_MAX_TOKENS
+        maxTokens: EXTRACTOR_MAX_TOKENS,
+        signal: abort.signal
       });
       const drafts = parseExtractorPayload(raw);
       if (drafts.length === 0) {
@@ -1729,9 +1761,15 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id);
       await flushSave(touch(current, { facts: nextFacts }));
     } catch (err) {
+      if ((err as { name?: string }).name === "AbortError") {
+        if (requestTimeout.timedOut()) setError(STORE_ERROR.timeout);
+        return;
+      }
       setError(ollamaHint(err));
     } finally {
+      requestTimeout.clear();
       setBusy(null);
+      abortRef.current = null;
     }
   }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, reviewModel]);
 

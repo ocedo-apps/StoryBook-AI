@@ -1395,6 +1395,7 @@ export const nb: Messages = {
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",
     serverUrlMissing: "Skriv inn den lokale serverens adresse i Innstillinger.",
     busy: "En annen handling pågår allerede. Vent til den er ferdig, og prøv igjen.",
+    timeout: "Den lokale modellen svarte ikke i tide. Den kan fortsatt laste, eller datamaskinen din kan trenge lengre tid enn vanlig — sjekk at den kjører, prøv så igjen.",
     imageChoose: "Velg en bildefil.",
     imageRead: "Kunne ikke lese det bildet.",
     imageAdd: "Kunne ikke legge til det bildet."

@@ -1395,6 +1395,7 @@ export const sv: Messages = {
     askManuscriptNoMatch: "Inget i manuset matchar den frågan.",
     serverUrlMissing: "Ange din lokala servers adress i Inställningar.",
     busy: "En annan åtgärd pågår redan. Vänta tills den är klar och försök igen.",
+    timeout: "Den lokala modellen svarade inte i tid. Den kanske fortfarande laddas, eller så behöver din dator längre tid än vanligt — kolla att den kör, försök sedan igen.",
     imageChoose: "Välj en bildfil.",
     imageRead: "Kunde inte läsa den bilden.",
     imageAdd: "Kunde inte lägga till den bilden."

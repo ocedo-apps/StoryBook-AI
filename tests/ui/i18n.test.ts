@@ -70,6 +70,7 @@ describe("translateError", () => {
   it("maps store codes through the active catalog", () => {
     expect(translateError(STORE_ERROR.noModel, en)).toBe(en.errors.noModel);
     expect(translateError(STORE_ERROR.busy, en)).toBe(en.errors.busy);
+    expect(translateError(STORE_ERROR.timeout, en)).toBe(en.errors.timeout);
     expect(translateError("not-backup", en)).toBe(en.backup.errors["not-backup"]);
     expect(translateError("raw ollama", en)).toBe("raw ollama");
   });

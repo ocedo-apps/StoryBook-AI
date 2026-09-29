@@ -1,9 +1,44 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.1
+Status: living document, v1.0.2
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.1 → v1.0.2 (2026-09-29):** v1.0.1 löste inte
+buggen — samma testare rapporterade tillbaka: "verkar inte fungera
+ändå... jag ställer frågan, knappen Ask blir dimmad och sedan händer
+inget." Viktig skillnad från förra rapporten: att knappen faktiskt
+BLIR dimmad bevisar att förra fixens väktare passerades korrekt —
+förfrågan startade på riktigt den här gången. Så felet satt inte
+där v1.0.1 tittade, utan längre in.
+
+**Grundorsak, den här gången:** genomsökte hela `src/llm/`-lagret
+(alla `fetch()`-anrop mot Ollama/OpenAI-kompatibel server) och
+hittade att INGENSTANS i hela kedjan finns någon timeout — varken
+för Interview, Draft, Extract facts eller något annat AI-anrop.
+Om servern hänger (modellen laddas fortfarande, en avbruten
+anslutning, fel port som tar emot TCP men aldrig svarar) väntar
+`fetch` i praktiken för evigt. Eftersom `finally`-blocket som
+nollställer `busy` bara körs när löftet faktiskt avgörs (löst eller
+avvisat), och ett hängande `fetch` aldrig gör vare sig — förblir
+knappen dimmad i all evighet, helt utan felmeddelande. Matchar
+rapporten exakt.
+
+**Fix:** ny `withRequestTimeout()`-hjälpfunktion i `BookStore.tsx` —
+avbryter förfrågan efter 2 minuter (generöst för en långsam dator
+eller en modell som laddas kallt första gången) och visar ett nytt
+`STORE_ERROR.timeout`-felmeddelande istället för att vänta i all
+oändlighet. Kopplad till både `askCharacter` och `extractInterview`
+(den senare saknade dessutom avbrytningsstöd helt tidigare — nu
+delar den samma `abortRef` som resten av Interview, så att stänga
+panelen faktiskt avbryter en pågående förfrågan).
+
+**Medvetet inte gjort än:** samma timeout-lucka finns i alla andra
+AI-anrop i appen (Draft, Recast, Extract facts på kapitel, Ask
+Manuscript, m.fl.) — bara Interview är fixad denna gång, eftersom
+det är den enda som rapporterats. Bredda till resten är en
+uppföljning värd att göra, inte gjord tyst i den här commiten.
 
 **Ändringslogg v1.0 → v1.0.1 (2026-09-29):** Buggfix från
 testarfeedback: "jag försöker intervjua en karaktär men det händer

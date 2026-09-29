@@ -1405,6 +1405,7 @@ export const en = {
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",
     serverUrlMissing: "Enter your local server's address in Settings.",
     busy: "Another action is already running. Wait for it to finish, then try again.",
+    timeout: "The local model didn't respond in time. It may still be loading, or your hardware may need longer than usual — check that it's running, then try again.",
     imageChoose: "Choose an image file.",
     imageRead: "Could not read that image.",
     imageAdd: "Could not add that image."
