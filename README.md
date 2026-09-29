@@ -29,28 +29,31 @@ In the header, **Progress** shows the manuscript's word count and, once you set 
 
 ## Models
 
-Two dropdowns under **Settings**:
+Two dropdowns under **Settings**, plus a **Context window** field (how much text the model can hold at once — a "Suggest from model" button reads the right value straight from Ollama):
 
-- **Writing** (default `stheno-custom:latest`) — Draft, Recast, Extend, Elaborate, Rewrite, Brainstorm Ask.
-- **Review** (default `qwen2.5-coder:7b`) — Extract facts, word swap, sentence split, paragraph break, Analyze, Proofread.
+- **Writing** (default `stheno-custom:latest`) — Draft, Recast, Extend, Elaborate, Rewrite, Brainstorm Ask, Interview, Development method suggestions.
+- **Review** (default `qwen2.5-coder:7b`) — Extract facts, Import lore, Interview fact-extraction, Ask Manuscript, word swap, sentence split, paragraph break, illustration prompts, Analyze, Proofread.
 
 ## Loop
 
-1. Title a manuscript. **Settings** is first in the left rail: camera, Voice, Reader, prose language, Illustration style, and which Writing and Review models to use. The page language stays in the header. A blank book opens here. **Browse library…** opens the app-wide illustration style library (searchable, grouped by genre tag) — selecting a style fills the field, it is never applied silently and stays editable after.
+1. Title a manuscript. A blank book opens on the **Handbook** — a short guided read on what the tools do; you don't need any of them to start, a book can be written with nothing but chapters and the editor. **Settings** is first in the left rail: camera, Voice, Reader, prose language, Context window, Illustration style, and which Writing and Review models to use. The page language stays in the header. **Browse library…** opens the app-wide illustration style library (searchable, grouped by genre tag) — selecting a style fills the field, it is never applied silently and stays editable after.
 2. **Brainstorm** is private scratch: one note per idea, drag them, colour them. **Ask** writes onto a new note. Draft never reads this board.
-3. Drag a note into the **send** column when it should become plot. Order in that column is paragraph order. **Send to synopsis** appends them to the map, removes those notes, and opens Synopsis. Notes left on the board stay secret.
+3. Drag a note into the **send** column when it should become plot. Order in that column is paragraph order. **Send to synopsis** appends them to the map, removes those notes, and opens Synopsis. Notes left on the board stay secret. **Development method** offers a guided structure instead (Snowflake, three-act, Save the Cat, Hero's Journey) — every step just writes into Synopsis or Plotlines, nothing of its own; skip it entirely to write freeform.
 4. Open **Briefs** to see every chapter brief as a card. Moving a card moves the chapter. The brief is a writing instruction, not canon.
-5. Open a chapter. The chapter can inherit the manuscript camera, Voice, and Reader, or override them. **Continues from** picks the strand. **Primer** on Settings is the start prompt for the Writing model.
-6. **Draft** fills or continues the chapter from the synopsis, the Story Bible, the brief, the camera, Reader, and prose language.
+5. Open a chapter. The chapter can inherit the manuscript camera, Voice, and Reader, or override them. **Continues from** picks the strand. **Primer** on Settings is the start prompt for the Writing model. A long chapter can be split into **Scenes** — Draft, Recast, and Analyze can then each target just one.
+6. **Draft** fills or continues the chapter from the synopsis, the Story Bible, the brief, any Plotlines the chapter is tagged with, the camera, Reader, and prose language.
 7. Select a passage and right-click: **Extend** continues it, **Elaborate** expands it, **Rewrite…** opens chips that fill your instruction (POV leak, stronger verbs, active voice, show don’t tell, long sentence) — you still press **Rewrite**. **Illustration prompt…** asks the Review model for one image-generation prompt from the passage, any locked Story Bible facts for entities named in it, and the manuscript's Illustration style — Copy it, nothing is sent anywhere. **Manual Edit** rewrites the span by hand. **Find** searches and replaces across the manuscript, with quick searches for repeated words and phrases on this page.
 8. **Recast prose** rewrites the open chapter to the current camera. Same events and order; no new plot. Dropdowns do not recast on their own.
 9. **History** snapshots the chapter's prose from before every Draft, Recast, Extend, Elaborate, Rewrite, or Restore — newest first, up to **Versions per chapter** on Settings (3–50, default 12). Compare any two versions (or a version against now) with a word-level diff. **Restore** jumps the chapter to that version — but never silently: if the current text differs from the target, it is saved as a new row first, so nothing is lost without its own row to jump back to.
 10. **Stats** shows how it reads (directness, pacing, vocabulary, echo, repeated phrase, POV leak, mixed-focus paragraphs). Click an echo or repeated phrase to find it. **Rare on** marks uncommon words; right-click one for Review alternatives.
 11. **Analyze** is an opt-in Review pass. It flags quotes; it does not rewrite. **Notes** reopens the last result.
 12. **Proofread** sits under Chapters in the left rail, after the Settings → Brainstorm → Synopsis → Briefs → Chapters line, and not a locked step. It is a slower last Review pass over the whole manuscript (grammar, repeated scenes, style between chapters, age report). Progress is saved as it goes. It does not rewrite. **Publish** is the last item in the rail, right after Proofread — the workflow ends there.
-13. **Extract facts** proposes Story Bible rows. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person. **Export cards** sends locked people, places, and objects to Sandbox shelves.
-14. Remove a chapter with **×**. It sits under Discarded chapters until you restore it or throw it away for good.
-15. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.
+13. **Extract facts** proposes Story Bible rows from the open chapter. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person. **Import lore** (top bar) runs the same extractor over pasted or uploaded text instead of a chapter — paste a whole lorebook and it splits on headers into candidate articles you can pick from. **Interview** (top right of the Story Bible) lets you ask a locked entity questions in character — a place or object answers as a third-person worldbuilding collaborator instead — and turns the conversation into more proposed facts. **Export cards** sends locked people, places, and objects to Sandbox shelves.
+14. **Timeline** merges reading order with story-time order and Plotlines into one board: chapters as columns in the order things actually happen (not the order they're written), threads as rows, a coloured bar wherever a thread runs through a chapter — a gap in the bar is a gap in the thread. **Edit** a thread to rename it, pick one of ten colours, add a short description (shown as a tooltip over its name and bars), or mark it **Hide from AI** so it stays visible to you while writing but never reaches a prompt. A chapter's tagged threads also show as a small reminder above its title while you write, and — unless hidden — as guidance in the Draft/Extend/Elaborate prompt.
+15. **Ask Manuscript** answers questions about what's already written, sourced only from existing chapter prose (never the synopsis or brief), with a jump-to-chapter link on every answer.
+16. Importing a manuscript written elsewhere often carries leftover markers (`*italic*` and similar) from the other tool — **Convert markers to formatting** (top bar) turns them into real formatting across the whole manuscript in one pass.
+17. Remove a chapter with **×**. It sits under Discarded chapters until you restore it or throw it away for good.
+18. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.
 
 ## Analyze
 
@@ -65,4 +68,4 @@ npm test
 npm run typecheck
 ```
 
-`npm test` covers the Story Bible schema, ConsistencyGate, extractor JSON recovery, craft/recast prompts, Analyze parsing, word-swap sense checks, IndexedDB round-trip, locales, find/replace, Reader, Continues from, brainstorm notes, prose history (revisions, restore, the no-silent-overwrite rule), and the word-level diff.
+`npm test` covers the Story Bible schema, ConsistencyGate, extractor JSON recovery, craft/recast prompts, Analyze parsing, word-swap sense checks, IndexedDB round-trip, locales, find/replace, Reader, Continues from, brainstorm notes, prose history (revisions, restore, the no-silent-overwrite rule), the word-level diff, Timeline/Plotlines, and Development method.
