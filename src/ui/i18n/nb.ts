@@ -45,7 +45,9 @@ export const nb: Messages = {
     deleteConfirm: "Slett “{title}”? Dette kan ikke angres.",
     replaceConfirm: "Erstatt “{title}” med denne sikkerhetskopien? Alt som er skrevet siden den filen går tapt.",
     chapters: { one: "{count} kapittel", other: "{count} kapitler" },
-    facts: { one: "{count} låst faktum", other: "{count} låste fakta" }
+    facts: { one: "{count} låst faktum", other: "{count} låste fakta" },
+    connectFound: { one: "Tilkoblet — {count} modell funnet.", other: "Tilkoblet — {count} modeller funnet." },
+    connectNotFound: "Ikke tilkoblet ennå — installer en lokal AI-server, så dukker den opp her."
   },
   editor: {
     manuscriptTitle: "Manuskripttittel",

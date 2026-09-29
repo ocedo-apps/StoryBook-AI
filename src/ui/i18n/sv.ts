@@ -45,7 +45,9 @@ export const sv: Messages = {
     deleteConfirm: "Radera “{title}”? Det går inte att ångra.",
     replaceConfirm: "Ersätt “{title}” med den här säkerhetskopian? Allt som skrivits sedan den filen går förlorat.",
     chapters: { one: "{count} kapitel", other: "{count} kapitel" },
-    facts: { one: "{count} låst faktum", other: "{count} låsta fakta" }
+    facts: { one: "{count} låst faktum", other: "{count} låsta fakta" },
+    connectFound: { one: "Ansluten — {count} modell hittad.", other: "Ansluten — {count} modeller hittade." },
+    connectNotFound: "Inte ansluten än — installera en lokal AI-server så dyker den upp här."
   },
   editor: {
     manuscriptTitle: "Manustitel",

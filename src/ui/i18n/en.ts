@@ -331,7 +331,9 @@ export const en = {
     deleteConfirm: "Delete “{title}”? This cannot be undone.",
     replaceConfirm: "Replace “{title}” with this backup? Anything written since that backup will be lost.",
     chapters: { one: "{count} chapter", other: "{count} chapters" },
-    facts: { one: "{count} locked fact", other: "{count} locked facts" }
+    facts: { one: "{count} locked fact", other: "{count} locked facts" },
+    connectFound: { one: "Connected — {count} model found.", other: "Connected — {count} models found." },
+    connectNotFound: "Not connected yet — install a local AI server and it will show up here."
   },
   editor: {
     manuscriptTitle: "Manuscript title",

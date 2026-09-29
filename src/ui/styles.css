@@ -365,6 +365,14 @@ button:disabled {
   display: block;
 }
 
+.home-connect {
+  max-width: none;
+  padding: 1rem 1.2rem 1.3rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--wash);
+}
+
 .home-heading-row {
   display: flex;
   align-items: center;

@@ -368,7 +368,7 @@ export function SettingsPanel({
   );
 }
 
-function ModelSelect({
+export function ModelSelect({
   label,
   value,
   models,

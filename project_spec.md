@@ -1,9 +1,51 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.11
+Status: living document, v1.0.12
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.11 → v1.0.12 (2026-09-29):** Uppföljning på de
+två IA-frågorna som flaggades i v1.0.11 istället för att gissas på.
+Mats fick två alternativ (lätt anslutningsruta direkt på startsidan,
+eller auto-skapa ett tomt manus och hoppa till Settings) och valde
+det förra uttryckligen som "Rekommenderas".
+
+**Nyckelinsikt som gjorde detta enkelt:** `engine`, `baseUrl`,
+`model`, `reviewModel` och `models` är redan GLOBALA — lagrade i
+`localStorage` (`readEngine()` m.fl. i `BookStore.tsx`), inte kopplade
+till något specifikt bokobjekt. Modellpolling
+(`listEngineModels(engine, baseUrl)`, `BookStore.tsx:329-358`) körs
+redan oberoende av om en bok är öppen, eftersom `useBookStore()` är
+en enda context-hook som `Home` och `Editor` båda läser från. Ingen
+arkitekturändring behövdes alls — bara UI på rätt ställe.
+
+**Byggt:**
+- Ny sektion "Connect a local AI" direkt på `Home.tsx`, mellan
+  ledetexten och "Start a new manuscript" — Engine-väljare,
+  serveradress-fält (när LM Studio/annan server är vald), en
+  statusrad (återanvänder befintlig `ollamaHint`/`translateError`
+  för fel, annars "Ansluten — N modeller hittade" eller "Inte
+  ansluten än"), och Writing/Review-modellväljare när modeller
+  hittats.
+- `ModelSelect` (tidigare en privat funktion i `SettingsPanel.tsx`)
+  exporterad och återanvänd på Home istället för att dupliceras.
+- Nya i18n-nycklar `home.connectFound`/`home.connectNotFound` i
+  alla tre språk.
+- Verifierat live i webbläsare (Playwright, headless Chromium från
+  `/opt/pw-browsers`) mot en riktig `npm run dev`-körning: sektionen
+  renderar rätt under headern, Engine-växling till "LM Studio / other
+  local server" visar serveradress-fältet korrekt, och utan en
+  körande lokal server visas det befintliga CORS-felmeddelandet som
+  förväntat — inga konsolfel utöver de väntade anslutningsfelen mot
+  en server som inte finns i den här sandlådan.
+- Den gamla "Connect a local AI"-knappen i Guide/Handbook (som bara
+  öppnar textkorten) rördes INTE den här omgången — medvetet
+  avgränsat, eftersom Mats fråga specifikt gällde att lägga
+  kontrollerna på startsidan, inte att skriva om den knappens eget
+  beteende (den är dessutom delad mellan Home- och
+  Editor-kontexten, vilket gör en context-medveten omskrivning till
+  en separat, större fråga).
 
 **Ändringslogg v1.0.10 → v1.0.11 (2026-09-29):** En extern testares
 UX-feedback (nio punkter, relayerad av Mats) — verifierade var och

@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { HandbookPanel } from "./HandbookPanel";
 import { QuickstartCards } from "./QuickstartCards";
+import { ModelSelect } from "./SettingsPanel";
 import { count, format, translateError, useLocale } from "./i18n";
 
 export function Home({
@@ -13,7 +14,24 @@ export function Home({
   onOpenGuide: () => void;
   onCloseGuide: () => void;
 }) {
-  const { summaries, newBook, openBook, deleteBook, importManuscript, error } = useBookStore();
+  const {
+    summaries,
+    newBook,
+    openBook,
+    deleteBook,
+    importManuscript,
+    error,
+    engine,
+    baseUrl,
+    models,
+    model,
+    reviewModel,
+    ollamaError,
+    setEngine,
+    setBaseUrl,
+    setModel,
+    setReviewModel
+  } = useBookStore();
   const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
   const [search, setSearch] = useState("");
@@ -64,6 +82,59 @@ export function Home({
           {translateError(error, m)}
         </p>
       ) : null}
+
+      {/*
+        A tester's feedback: "Connect a local AI" (in the Guide/Handbook)
+        only ever opened more explanatory text, never actual connection
+        setup — and Settings, where the real Engine/model controls live,
+        was only reachable after creating a manuscript. Engine/baseUrl/
+        model are already global (localStorage-backed, not per-book), so
+        the real controls belong right here too, with nothing to create
+        first.
+      */}
+      <section className="settings-block home-connect" aria-label={m.guide.connectAiButton}>
+        <h2 className="settings-heading home-heading-lg">{m.guide.connectAiButton}</h2>
+        <div className="settings-engine">
+          <label className="craft-field">
+            <span>{m.editor.engineLabel}</span>
+            <select
+              value={engine}
+              onChange={(event) => setEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
+              aria-label={m.editor.engineLabel}
+            >
+              <option value="ollama">{m.editor.engineOllama}</option>
+              <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
+            </select>
+          </label>
+          {engine === "openai-compatible" ? (
+            <label className="voice-field">
+              <span>{m.editor.baseUrlLabel}</span>
+              <input
+                value={baseUrl}
+                onChange={(event) => setBaseUrl(event.target.value)}
+                placeholder={m.editor.baseUrlPlaceholder}
+                title={m.editor.baseUrlLede}
+                aria-label={m.editor.baseUrlLabel}
+              />
+            </label>
+          ) : null}
+        </div>
+        <p className={ollamaError ? "banner home-banner" : "quiet"} role={ollamaError ? "status" : undefined}>
+          {ollamaError ? translateError(ollamaError, m) : models.length > 0 ? count(models.length, m.home.connectFound) : m.home.connectNotFound}
+        </p>
+        {models.length > 0 ? (
+          <div className="settings-models">
+            <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={setModel} />
+            <ModelSelect
+              label={m.editor.review}
+              value={reviewModel}
+              models={models}
+              emptyLabel={m.editor.noModels}
+              onChange={setReviewModel}
+            />
+          </div>
+        ) : null}
+      </section>
 
       <form className="new-book" action="#" onSubmit={submitNew}>
         <label className="field-label home-heading-lg" htmlFor="new-title">
