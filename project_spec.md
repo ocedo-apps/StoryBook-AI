@@ -1,9 +1,28 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.60
+Status: living document, v0.99.61
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.60 → v0.99.61:** Första steget av idé #28
+(`roadmap-ideas.md`) — generisk flerartikel-import för "Import lore".
+Tidigare gick det bara att klistra in *en* artikel åt gången med en
+egen titel. Nu tolkar `splitLoreArticles()` (ny fil `loreImport.ts`)
+den inklistrade eller uppladdade texten: hittar den Markdown-rubriker
+(`# Rubrik`, alla nivåer 1–6) delas texten upp i flera kandidatartiklar
+med rubriken som titel; hittas inga rubriker beter sig kortet exakt
+som förut (fritt textfält + eget titelfält). Vid flera hittade artiklar
+visas en bockningslista där alla är ivalda som standard — författaren
+kan välja bort de som inte hör dit innan körningen. Körningen går
+sekventiellt genom extraktorn (samma extraktor som kapitel- och
+intervjuextraktion) med "X av Y"-förloppstext, och ett enskilt
+artikelfel avbryter inte resten av batchen. Lade även till en
+filuppladdningsknapp (samma dolda-input-mönster som bilduppladdning i
+Story Bible) som en enklare väg in än att klistra in, för den som har
+lore som textfil. Inget sparas i boken förutom de fakta som extraktorn
+hittar — precis som tidigare landar allt i granskningskön, inget låses
+direkt.
 
 **Ändringslogg v0.99.59 → v0.99.60:** Buggfix från testarfeedback:
 gick inte att skriva in ett eget värde i det nya Kontextfönster-fältet

@@ -4010,6 +4010,39 @@ button:disabled {
   margin: 0;
 }
 
+.lore-import-articles {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.lore-import-article-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 12rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.lore-import-article-row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.lore-import-article-row:last-child {
+  border-bottom: none;
+}
+
+.lore-import-article-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
 .bible-pronoun-age {
   display: flex;
   flex-wrap: wrap;

@@ -44,6 +44,7 @@ import {
 } from "@core/chapterFeedback";
 import { applyOrientationHint, enforceNoTextConstraint, illustrationPromptMessages, relevantEntitiesForPassage } from "@core/illustrationPrompt";
 import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
+import type { LoreArticleCandidate } from "@core/loreImport";
 import { proseChapters, startProofreadJob, touchProofread, type ProofreadStage } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
 import {
@@ -220,6 +221,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
   const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
+  const [importLoreProgress, setImportLoreProgress] = useState<{ current: number; total: number } | null>(null);
   const bookRef = useRef<Book | null>(null);
   const chapterRef = useRef<string | null>(null);
   const surfaceRef = useRef<EditorSurface>("brainstorm");
@@ -1709,48 +1711,71 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, reviewModel]);
 
   /**
-   * A porting aid for an author's existing lorebook (roadmap: rich-lore
-   * import) — paste one article's text and run it through the same
-   * extractor a chapter or interview uses. Not tied to any chapter (no
-   * chapter_id/scene_id): the article isn't manuscript prose, so nothing
-   * here is "as of" a story-time position. Lands in the same review queue
-   * as any other extraction, never locked directly.
+   * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,
+   * step 1: source-agnostic, before any format-specific adapter exists) —
+   * run one or more pasted/uploaded articles through the same extractor a
+   * chapter or interview uses. Not tied to any chapter (no
+   * chapter_id/scene_id): an article isn't manuscript prose, so nothing
+   * here is "as of" a story-time position. Every article lands in the same
+   * review queue as any other extraction, never locked directly.
+   *
+   * Runs sequentially, not in parallel — a local model server generally
+   * only processes one generation at a time anyway, and sequential keeps
+   * "article 3 of 7" progress reporting simple and correct. One article
+   * failing (a bad response, a dropped connection) is reported but doesn't
+   * abort the rest of the batch; the single-article case (the common one,
+   * still just a one-element array) behaves exactly as before.
    */
-  const importLoreArticle = useCallback(
-    async (title: string, text: string) => {
+  const importLoreArticles = useCallback(
+    async (
+      articles: LoreArticleCandidate[]
+    ): Promise<{ articlesProcessed: number; articlesWithFacts: number; totalFacts: number }> => {
+      const trimmed = articles
+        .map((article) => ({ title: article.title.trim(), text: article.text.trim() }))
+        .filter((article) => article.text);
       const current = bookRef.current;
-      const trimmedText = text.trim();
-      if (!current || busy || !trimmedText) return;
+      const empty = { articlesProcessed: 0, articlesWithFacts: 0, totalFacts: 0 };
+      if (!current || busy || trimmed.length === 0) return empty;
       if (models.length === 0) {
         setError(ollamaError ?? STORE_ERROR.noModel);
-        return;
+        return empty;
       }
       setBusy("import-lore");
       setError(null);
+      let articlesWithFacts = 0;
+      let totalFacts = 0;
       try {
-        const provider = makeProvider(reviewModel);
-        const extractMessages: PromptDebugMessage[] = [
-          { role: "system", content: EXTRACTOR_SYSTEM },
-          { role: "user", content: extractorUserPrompt(trimmedText, title.trim() || "Imported lore article") }
-        ];
-        recordPrompt("import-lore", reviewModel, extractMessages);
-        const raw = await provider.chat({
-          messages: extractMessages,
-          temperature: 0.1,
-          maxTokens: EXTRACTOR_MAX_TOKENS
-        });
-        const drafts = parseExtractorPayload(raw);
-        if (drafts.length === 0) {
-          setError(STORE_ERROR.importLoreNone);
-          return;
+        for (let i = 0; i < trimmed.length; i++) {
+          const article = trimmed[i]!;
+          setImportLoreProgress({ current: i + 1, total: trimmed.length });
+          try {
+            const provider = makeProvider(reviewModel);
+            const extractMessages: PromptDebugMessage[] = [
+              { role: "system", content: EXTRACTOR_SYSTEM },
+              { role: "user", content: extractorUserPrompt(article.text, article.title || "Imported lore article") }
+            ];
+            recordPrompt("import-lore", reviewModel, extractMessages);
+            const raw = await provider.chat({
+              messages: extractMessages,
+              temperature: 0.1,
+              maxTokens: EXTRACTOR_MAX_TOKENS
+            });
+            const drafts = parseExtractorPayload(raw);
+            if (drafts.length === 0) continue;
+            const latest = bookRef.current ?? current;
+            const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length);
+            await flushSave(touch(latest, { facts: nextFacts }));
+            articlesWithFacts += 1;
+            totalFacts += drafts.length;
+          } catch (err) {
+            setError(ollamaHint(err));
+          }
         }
-        const latest = bookRef.current ?? current;
-        const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length);
-        await flushSave(touch(latest, { facts: nextFacts }));
-      } catch (err) {
-        setError(ollamaHint(err));
+        if (articlesWithFacts === 0) setError(STORE_ERROR.importLoreNone);
+        return { articlesProcessed: trimmed.length, articlesWithFacts, totalFacts };
       } finally {
         setBusy(null);
+        setImportLoreProgress(null);
       }
     },
     [busy, flushSave, models.length, ollamaError, recordPrompt, reviewModel]
@@ -2013,6 +2038,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     interviewHistory,
     interviewPersonalityDraft,
     developSuggestion,
+    importLoreProgress,
     refresh,
     openBook,
     closeBook,
@@ -2065,7 +2091,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startInterview,
     askCharacter,
     extractInterview,
-    importLoreArticle,
+    importLoreArticles,
     closeInterview,
     setInterviewPersonalityDraft,
     saveInterviewPersonality,

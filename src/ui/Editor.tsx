@@ -1741,7 +1741,8 @@ export function Editor() {
       {importOpen ? (
         <LoreImportCard
           busy={busy === "import-lore"}
-          onImport={(title, text) => void store.importLoreArticle(title, text)}
+          progress={store.importLoreProgress}
+          onImport={(articles) => void store.importLoreArticles(articles)}
           onClose={() => setImportOpen(false)}
         />
       ) : null}

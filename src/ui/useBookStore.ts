@@ -9,6 +9,7 @@ import type { FactDraft } from "@core/NarrativeFact";
 import type { CorePredicate } from "@core/predicates";
 import type { ProofreadStage } from "@core/proofread";
 import type { MarkerConversionRule } from "@core/markerConversion";
+import type { LoreArticleCandidate } from "@core/loreImport";
 import type { TextSpan } from "@core/textSpan";
 import type { PromptDebugEntry } from "./promptDebug";
 import type { LlmEngine } from "@llm/provider";
@@ -56,6 +57,7 @@ export type BookStoreValue = {
   interviewHistory: InterviewMessage[];
   interviewPersonalityDraft: string;
   developSuggestion: string | null;
+  importLoreProgress: { current: number; total: number } | null;
   refresh: () => Promise<void>;
   openBook: (id: string) => Promise<void>;
   closeBook: () => void;
@@ -122,7 +124,9 @@ export type BookStoreValue = {
   startInterview: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
-  importLoreArticle: (title: string, text: string) => Promise<void>;
+  importLoreArticles: (
+    articles: LoreArticleCandidate[]
+  ) => Promise<{ articlesProcessed: number; articlesWithFacts: number; totalFacts: number }>;
   closeInterview: () => void;
   setInterviewPersonalityDraft: (text: string) => void;
   saveInterviewPersonality: () => void;

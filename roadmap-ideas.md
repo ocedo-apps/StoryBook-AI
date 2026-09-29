@@ -866,7 +866,15 @@ steg istället för ett:
    (`*kursiv*` och liknande) från det andra skrivverktyget, vilket är
    precis det verktyget redan löser.
 
-**Status: idé nedskriven, inte påbörjad.** Inget kodat än.
+**Status: byggsteg 1 skeppat (v0.99.61).** `LoreImportCard` är nu en
+batch-vy: `splitLoreArticles()` delar inklistrad/uppladdad text på
+Markdown-rubriker till kandidatartiklar, visar en bockningslista med
+alla ivalda som standard, kör dem sekventiellt genom extraktorn med
+"X av Y"-förlopp. En filuppladdningsknapp finns också (steg 1 i
+författarens 3-stegsuppföljning ovan), men **utan** innehålls-
+klassificering eller gren efter typ — det är fortfarande steg 2 och 3,
+inte påbörjade. Byggsteg 2–6 (SillyTavern m.fl. formatadaptrar) inte
+påbörjade.
 
 ### 29. Serier — flagga att en bok tillhör en serie, ärv Story Bible från föregående bok
 Författarens förslag: kunna markera att ett manus är del av en serie och
