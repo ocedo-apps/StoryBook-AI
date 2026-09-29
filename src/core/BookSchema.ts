@@ -109,7 +109,9 @@ export const PlotlineSchema = z.object({
   title: z.string().min(1),
   color: z.preprocess((value) => parsePlotlineColor(value), z.enum(PLOTLINE_COLORS)),
   /** Optional, shown as a tooltip over the thread's name and its bars in the Timeline/Plotlines board — never required, missing on every save before this field existed. */
-  description: z.string().optional()
+  description: z.string().optional(),
+  /** When true, this thread is left out of the Draft/Extend/Elaborate/Beat prompts (generateProse.ts's formatPlotlinesForPrompt) even for a chapter tagged against it. Missing/false = included, the default for every thread until the author opts one out. */
+  hide_from_ai: z.boolean().optional()
 });
 export type Plotline = z.infer<typeof PlotlineSchema>;
 

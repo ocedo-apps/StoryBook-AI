@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, updateChapter, type Book } from "@core/BookSchema";
+import { addPlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
 import {
   DRAFT_SYSTEM,
   PASSAGE_SYSTEM,
   RECAST_SYSTEM,
   draftSceneUserPrompt,
   draftUserPrompt,
+  formatPlotlinesForPrompt,
   formatVoiceForPrompt,
   passageUserPrompt,
   recastSceneUserPrompt,
@@ -25,6 +27,33 @@ function splitBook() {
   });
   return { book, chapterId };
 }
+
+describe("formatPlotlinesForPrompt", () => {
+  it("is empty when the chapter has no tagged threads", () => {
+    const book = createBook("The Salt Road");
+    expect(formatPlotlinesForPrompt(book, book.chapters[0]!)).toBe("");
+  });
+
+  it("lists a tagged thread's title, with its description when set", () => {
+    let book = addPlotline(createBook("The Salt Road"), "The mystery");
+    const id = book.plotlines[0]!.id;
+    book = updatePlotline(book, id, { title: "The mystery", color: "blue", description: "Who sank the boat.", hideFromAi: false });
+    book = toggleChapterPlotline(book, book.chapters[0]!.id, id);
+
+    const text = formatPlotlinesForPrompt(book, book.chapters[0]!);
+    expect(text).toContain("Threads this chapter should advance");
+    expect(text).toContain("The mystery: Who sank the boat.");
+  });
+
+  it("leaves out a thread the author marked Hide from AI", () => {
+    let book = addPlotline(createBook("The Salt Road"), "The mystery");
+    const id = book.plotlines[0]!.id;
+    book = updatePlotline(book, id, { title: "The mystery", color: "blue", description: "", hideFromAi: true });
+    book = toggleChapterPlotline(book, book.chapters[0]!.id, id);
+
+    expect(formatPlotlinesForPrompt(book, book.chapters[0]!)).toBe("");
+  });
+});
 
 describe("draftUserPrompt", () => {
   it("includes the synopsis as the story map", () => {
@@ -50,6 +79,14 @@ describe("draftUserPrompt", () => {
     const book = createBook("The Salt Road");
     const prompt = draftUserPrompt(book, book.chapters[0]!);
     expect(prompt).not.toContain("Prose language:");
+  });
+
+  it("includes the chapter's tagged threads", () => {
+    let book = addPlotline(createBook("The Salt Road"), "The mystery");
+    book = toggleChapterPlotline(book, book.chapters[0]!.id, book.plotlines[0]!.id);
+    const prompt = draftUserPrompt(book, book.chapters[0]!);
+    expect(prompt).toContain("Threads this chapter should advance");
+    expect(prompt).toContain("The mystery");
   });
 
   it("never feeds earlier chapter versions to the draft", () => {

@@ -29,7 +29,10 @@ export function TimelineBoardPanel({
   onMove: (chapterId: string, direction: "up" | "down") => void;
   onToggle: (chapterId: string, plotlineId: string) => void;
   onAddPlotline: (title: string) => void;
-  onUpdatePlotline: (plotlineId: string, patch: { title: string; color: PlotlineColor; description: string }) => void;
+  onUpdatePlotline: (
+    plotlineId: string,
+    patch: { title: string; color: PlotlineColor; description: string; hideFromAi: boolean }
+  ) => void;
   onRemovePlotline: (plotlineId: string) => void;
   onJumpToChapter: (chapterId: string) => void;
 }) {

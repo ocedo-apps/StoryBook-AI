@@ -368,7 +368,10 @@ export const sv: Messages = {
     editTitle: "Redigera tråd",
     colorFieldLabel: "Färg",
     descriptionLabel: "Beskrivning (frivillig)",
-    descriptionPlaceholder: "Visas som en tooltip över trådens namn och dess staplar"
+    descriptionPlaceholder: "Visas som en tooltip över trådens namn och dess staplar",
+    hideFromAiLabel: "Dölj för AI",
+    hideFromAiHint: "Skickas inte med i Skriv/Fortsätt/Utveckla-prompten för kapitel taggade med den här tråden. Visas fortfarande för dig medan du skriver.",
+    chapterThreadsLabel: "Trådar:"
   },
   method: {
     nav: "Utvecklingsmetod",

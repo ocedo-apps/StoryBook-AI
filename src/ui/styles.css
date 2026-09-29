@@ -1891,6 +1891,66 @@ button:disabled {
   min-width: 0;
 }
 
+.chapter-threads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.3rem 0 0;
+}
+
+.chapter-threads-label {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.chapter-thread-chip {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--on-ink);
+}
+
+.chapter-thread-chip.is-lime {
+  background: var(--plotline-lime);
+}
+
+.chapter-thread-chip.is-green {
+  background: var(--plotline-green);
+}
+
+.chapter-thread-chip.is-cyan {
+  background: var(--plotline-cyan);
+}
+
+.chapter-thread-chip.is-blue {
+  background: var(--plotline-blue);
+}
+
+.chapter-thread-chip.is-violet {
+  background: var(--plotline-violet);
+}
+
+.chapter-thread-chip.is-magenta {
+  background: var(--plotline-magenta);
+}
+
+.chapter-thread-chip.is-orange {
+  background: var(--plotline-orange);
+}
+
+.chapter-thread-chip.is-coral {
+  background: var(--plotline-coral);
+}
+
+.chapter-thread-chip.is-grey {
+  background: var(--plotline-grey);
+}
+
+.chapter-thread-chip.is-charcoal {
+  background: var(--plotline-charcoal);
+}
+
 .chapter-head-top {
   display: flex;
   flex-wrap: wrap;
@@ -2269,6 +2329,13 @@ button:disabled {
 
 .plotline-color-swatch.is-charcoal {
   background: var(--plotline-charcoal);
+}
+
+.plotline-hide-from-ai {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
 }
 
 .plotline-add-form {

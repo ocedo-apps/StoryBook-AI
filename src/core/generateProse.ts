@@ -5,6 +5,7 @@ import type { Book, Chapter } from "./BookSchema";
 import { sortedChapters } from "./BookSchema";
 import { chapterScenes } from "./bookScene";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
+import { plotlinesForChapter } from "./plotlines";
 import { formatReaderForPrompt, resolveReader } from "./reader";
 import { storyTimeRankByChapterId } from "./timeline";
 import { visibleLockedFacts, visibleLockedFactsAtPosition } from "./visibility";
@@ -32,6 +33,22 @@ export function formatLanguageForPrompt(language: string): string {
   const name = language.trim();
   if (!name) return "";
   return `Prose language: ${name}. Write in this language. Do not switch because a fact, a name, or the interface is in another.`;
+}
+
+/**
+ * The chapter's tagged Plotlines (Timeline/Trådar matrix), minus any the
+ * author marked "Hide from AI" in the thread's Edit card — a writing nudge
+ * ("advance this"), not established fact, so it reads like a brief rather
+ * than the Story Bible. Empty when the chapter has no tagged threads, same
+ * silent-when-unset pattern as chapter.brief.
+ */
+export function formatPlotlinesForPrompt(book: Book, chapter: Chapter): string {
+  const active = plotlinesForChapter(book, chapter).filter((plotline) => !plotline.hide_from_ai);
+  if (active.length === 0) return "";
+  const lines = active.map((plotline) =>
+    plotline.description ? `- ${plotline.title}: ${plotline.description}` : `- ${plotline.title}`
+  );
+  return `Threads this chapter should advance (writing guidance, not locked fact):\n${lines.join("\n")}`;
 }
 
 const DEFAULT_EMPTY_BIBLE =
@@ -99,6 +116,7 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
     `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "No brief. Continue the story naturally.",
+    formatPlotlinesForPrompt(book, chapter),
     predecessorBlock,
     chapter.prose.trim()
       ? `Existing prose for this chapter (continue from the end, do not repeat):\n${chapter.prose.trim()}`
@@ -151,6 +169,7 @@ export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: stri
     `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
+    formatPlotlinesForPrompt(book, chapter),
     `You are drafting scene ${index + 1} of ${scenes.length} in this chapter.`,
     scene.title ? `Scene title: ${scene.title}` : "",
     scene.brief ? `Scene brief (writing instruction for this scene only):\n${scene.brief}` : "",
@@ -270,6 +289,7 @@ Author instruction:\n${(args.instruction ?? "").trim()}`;
       ? `Chapter ${args.chapter.sequence_index + 1}: ${args.chapter.title.trim() || "Untitled"}`
       : "This is the synopsis, not a chapter.",
     args.chapter?.brief.trim() ? `Chapter brief:\n${args.chapter.brief.trim()}` : "",
+    args.chapter ? formatPlotlinesForPrompt(args.book, args.chapter) : "",
     args.before.trim() ? `Text immediately before the mark:\n${args.before}` : "This is the very start of the scene.",
     args.mode === "beat" ? "" : `Marked passage:\n${args.selected}`,
     args.after.trim() ? `Text immediately after the mark:\n${args.after}` : "",

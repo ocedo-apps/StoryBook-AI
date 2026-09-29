@@ -56,7 +56,7 @@ import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { moveStoryTimeOrder } from "@core/timeline";
 import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
-import { addPlotline, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
+import { addPlotline, plotlinesForChapter, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import {
   READER_CATEGORIES,
@@ -1377,6 +1377,20 @@ export function Editor() {
                 }
                 aria-label={m.editor.chapterTitle}
               />
+              {plotlinesForChapter(book, chapter).length > 0 ? (
+                <div className="chapter-threads">
+                  <span className="chapter-threads-label">{m.plotlines.chapterThreadsLabel}</span>
+                  {plotlinesForChapter(book, chapter).map((plotline) => (
+                    <span
+                      key={plotline.id}
+                      className={`chapter-thread-chip is-${plotline.color}`}
+                      title={plotline.description || undefined}
+                    >
+                      {plotline.title}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <ScenesPanel
               chapter={chapter}

@@ -654,7 +654,10 @@ export const en = {
     editTitle: "Edit thread",
     colorFieldLabel: "Color",
     descriptionLabel: "Description (optional)",
-    descriptionPlaceholder: "Shown as a tooltip over the thread's name and its bars"
+    descriptionPlaceholder: "Shown as a tooltip over the thread's name and its bars",
+    hideFromAiLabel: "Hide from AI",
+    hideFromAiHint: "Left out of the Draft/Extend/Elaborate prompt for chapters tagged with this thread. Still shown to you while writing.",
+    chapterThreadsLabel: "Threads:"
   },
   method: {
     nav: "Development method",

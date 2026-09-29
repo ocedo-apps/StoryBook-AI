@@ -19,7 +19,7 @@ export function PlotlineEditCard({
   onClose
 }: {
   plotline: Plotline;
-  onSave: (patch: { title: string; color: PlotlineColor; description: string }) => void;
+  onSave: (patch: { title: string; color: PlotlineColor; description: string; hideFromAi: boolean }) => void;
   onRemove: () => void;
   onClose: () => void;
 }) {
@@ -27,6 +27,7 @@ export function PlotlineEditCard({
   const [title, setTitle] = useState(plotline.title);
   const [color, setColor] = useState<PlotlineColor>(plotline.color);
   const [description, setDescription] = useState(plotline.description ?? "");
+  const [hideFromAi, setHideFromAi] = useState(plotline.hide_from_ai ?? false);
 
   return (
     <div
@@ -80,6 +81,11 @@ export function PlotlineEditCard({
             rows={3}
           />
         </label>
+        <label className="plotline-hide-from-ai">
+          <input type="checkbox" checked={hideFromAi} onChange={(event) => setHideFromAi(event.target.checked)} />
+          {m.plotlines.hideFromAiLabel}
+        </label>
+        <p className="quiet">{m.plotlines.hideFromAiHint}</p>
         <div className="edit-actions">
           <button type="button" className="text-button danger" onClick={onRemove}>
             {format(m.plotlines.removeThread, { title: plotline.title })}
@@ -90,7 +96,7 @@ export function PlotlineEditCard({
           <button
             type="button"
             className="primary"
-            onClick={() => onSave({ title, color, description })}
+            onClick={() => onSave({ title, color, description, hideFromAi })}
           >
             {m.common.save}
           </button>

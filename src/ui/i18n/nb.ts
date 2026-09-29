@@ -368,7 +368,10 @@ export const nb: Messages = {
     editTitle: "Rediger tråd",
     colorFieldLabel: "Farge",
     descriptionLabel: "Beskrivelse (valgfritt)",
-    descriptionPlaceholder: "Vises som en tooltip over trådens navn og dens stolper"
+    descriptionPlaceholder: "Vises som en tooltip over trådens navn og dens stolper",
+    hideFromAiLabel: "Skjul for AI",
+    hideFromAiHint: "Sendes ikke med i Skriv/Fortsett/Utdyp-prompten for kapitler merket med denne tråden. Vises fortsatt for deg mens du skriver.",
+    chapterThreadsLabel: "Tråder:"
   },
   method: {
     nav: "Utviklingsmetode",

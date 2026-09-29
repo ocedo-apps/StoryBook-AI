@@ -1,9 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.69
+Status: living document, v0.99.70
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.69 → v0.99.70:** Kopplar ihop trådar (Plotlines)
+med själva skrivytan, efter en diskussion om huruvida Scenes eller
+Timeline/Trådar borde synas när man skriver. Landade på: trådarna,
+inte scenerna (de är fortfarande medvetet frikopplade från kapitlet,
+se v0.81-beslutet).
+
+1. **Påminnelse i skrivytan.** Kapitelrubriken visar nu vilka trådar
+   kapitlet är taggat mot (färgade chips, samma färger som i
+   Timeline/Trådar), tyst när kapitlet inte har några. Ny
+   `plotlinesForChapter()` i `plotlines.ts` — ren visning, ingen ny
+   data.
+2. **Del av AI-prompten.** `formatPlotlinesForPrompt()`
+   (`generateProse.ts`) lägger till en "Threads this chapter should
+   advance"-rad i Draft/Draft scen/Extend/Elaborate/Beat-prompterna,
+   med samma tysta-om-tomt-mönster som Chapter brief redan har.
+   Recast rörs inte — den lovar uttryckligen att inte lägga till
+   händelser, så trådvägledning hade bara varit brus där.
+3. **"Hide from AI"-kryssruta i Edit thread.** Ny `hide_from_ai`
+   (optional, standard av) på Plotline — en tråd med den ikryssad
+   skickas fortfarande med i skrivytans påminnelse (den är ju för
+   författaren) men utelämnas ur AI-prompten. Låter författaren ha
+   privata/meta-trådar (t.ex. "research att göra") som aldrig ska
+   styra vad modellen skriver.
 
 **Ändringslogg v0.99.68 → v0.99.69:** Två layoutjusteringar i
 Timeline/Trådar-kolumnrubriken, på författarens begäran. ←/→-pilarna
