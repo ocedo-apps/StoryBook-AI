@@ -258,6 +258,7 @@ export const sv: Messages = {
     tokensEstimate: "~{n} tokens (grov uppskattning)",
     systemInstructions: "Systeminstruktion",
     whatWasSent: "Det som skickades",
+    whatCameBack: "Vad modellen svarade (rått, oredigerat)",
     target: {
       prose: "kapitel",
       synopsis: "synopsis",

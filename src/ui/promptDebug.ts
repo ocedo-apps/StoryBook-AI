@@ -29,6 +29,13 @@ export type PromptDebugEntry = {
   model: string;
   messages: PromptDebugMessage[];
   at: string;
+  /**
+   * The model's raw reply, for operations that record it (currently just
+   * fact extraction — see recordPromptResponse in BookStore.tsx). Optional
+   * and set after recordPrompt, once the request settles: most operations
+   * never set it, and the Inspector simply omits that section for them.
+   */
+  response?: string;
 };
 
 /**

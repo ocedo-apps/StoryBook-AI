@@ -685,6 +685,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  /**
+   * Attaches the model's raw reply to whichever entry recordPrompt most
+   * recently opened, so the AI Context Inspector can show not just what was
+   * sent but what actually came back. Currently wired only into fact
+   * extraction (Interview and chapter) — the one place a tester needed to
+   * see the raw response to tell a formatting failure from a genuine "found
+   * nothing," rather than guessing blind from a symptom relayed in chat.
+   */
+  const recordPromptResponse = useCallback((response: string) => {
+    setLastPrompt((prev) => (prev ? { ...prev, response } : prev));
+  }, []);
+
   const draftChapter = useCallback(async () => {
     const current = bookRef.current;
     const id = chapterRef.current;
@@ -1459,6 +1471,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           temperature: 0.1,
           maxTokens: EXTRACTOR_MAX_TOKENS
         });
+        recordPromptResponse(raw);
         // See the matching comment in extractInterview: a parse failure
         // (no JSON at all in the response) means the same thing to the
         // author as an empty result, so it's treated the same way rather
@@ -1781,6 +1794,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         maxTokens: EXTRACTOR_MAX_TOKENS,
         signal: abort.signal
       });
+      recordPromptResponse(raw);
       // A weak local model can fail to produce any JSON at all (rambling
       // prose instead of the required object) rather than the well-formed
       // {"facts":[]} that means "found nothing" — parseExtractorPayload
@@ -1812,7 +1826,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       abortRef.current = null;
     }
-  }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, reviewModel]);
+  }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]);
 
   /**
    * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,

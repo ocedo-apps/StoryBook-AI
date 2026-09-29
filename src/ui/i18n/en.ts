@@ -544,6 +544,7 @@ export const en = {
     tokensEstimate: "~{n} tokens (rough estimate)",
     systemInstructions: "System instructions",
     whatWasSent: "What was sent",
+    whatCameBack: "What the model replied (raw, unedited)",
     target: {
       prose: "chapter",
       synopsis: "synopsis",

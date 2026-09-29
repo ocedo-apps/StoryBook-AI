@@ -34,4 +34,15 @@ describe("totalEstimatedTokens", () => {
     const entry: PromptDebugEntry = { operation: "ask", model: "m", messages: [], at: "2026-09-24T00:00:00.000Z" };
     expect(totalEstimatedTokens(entry)).toBe(0);
   });
+
+  it("ignores response when estimating tokens — only the sent messages count", () => {
+    const entry: PromptDebugEntry = {
+      operation: "extract-interview",
+      model: "m",
+      messages: [{ role: "user", content: "a".repeat(40) }],
+      at: "2026-09-24T00:00:00.000Z",
+      response: "b".repeat(4000)
+    };
+    expect(totalEstimatedTokens(entry)).toBe(10);
+  });
 });

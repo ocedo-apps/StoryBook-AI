@@ -258,6 +258,7 @@ export const nb: Messages = {
     tokensEstimate: "~{n} tokens (grovt estimat)",
     systemInstructions: "Systeminstruks",
     whatWasSent: "Det som ble sendt",
+    whatCameBack: "Hva modellen svarte (rått, uredigert)",
     target: {
       prose: "kapittel",
       synopsis: "synopsis",

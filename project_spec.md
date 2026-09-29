@@ -1,9 +1,33 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.8
+Status: living document, v1.0.9
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.8 → v1.0.9 (2026-09-29):** Tre rundor in i samma
+extraktions-tråd blev det uppenbart att jag gissade blint på
+prompt-formuleringar utan att någonsin se vad den lokala modellen
+faktiskt svarade — bara symtom relaterade via chatten (skärmdumpar
+av UI:t, aldrig den råa modelltexten). Mats frågade var "Prompt
+debug"-panelen fanns. Vid närmare koll (`PromptInspector.tsx`) visade
+det sig att den panelen ("Visa AI-kontext…" i Settings) bara någonsin
+visat vad som **skickades** till modellen — system- och
+användarprompten — aldrig vad som kom tillbaka. Den hade alltså inte
+hjälpt även om Mats hittat den; ett löfte jag gav som inte stämde.
+
+**Fix:** `PromptDebugEntry` (`src/ui/promptDebug.ts`) fick ett nytt,
+valfritt `response`-fält. Ny `recordPromptResponse(raw)`-funktion i
+`BookStore.tsx`, kopplad in enbart i `extractInterview` och
+`extractChapter` (fakta-extraktion, tråden vi faktiskt felsöker) —
+sparar modellens råa svar direkt efter att det kommit tillbaka.
+Övriga ~20 anropsställen som använder `recordPrompt` rörs inte alls;
+de saknar helt enkelt `response` och panelen visar bara inget extra
+för dem, precis som innan. `PromptInspectorCard` visar nu en ny
+sektion "Vad modellen svarade (rått, oredigerat)" när fältet finns.
+Medvetet scope-begränsat till just extraktion — inte ett
+generellt "spela in alla svar"-system, bara den enda funktionen där
+blind gissning just nu faktiskt stoppar upp felsökningen.
 
 **Ändringslogg v1.0.7 → v1.0.8 (2026-09-29):** Efter v1.0.7 kom det
 vänliga meddelandet ("Extractor found no stated facts in this

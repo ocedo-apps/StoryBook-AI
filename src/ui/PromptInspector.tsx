@@ -47,6 +47,12 @@ export function PromptInspectorCard({ entry, onClose }: { entry: PromptDebugEntr
                 <pre className="prompt-inspector-block">{user.content}</pre>
               </>
             ) : null}
+            {entry.response ? (
+              <>
+                <h3 className="prompt-inspector-heading">{m.aiContext.whatCameBack}</h3>
+                <pre className="prompt-inspector-block">{entry.response}</pre>
+              </>
+            ) : null}
           </>
         )}
         <div className="edit-actions">
