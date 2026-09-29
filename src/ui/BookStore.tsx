@@ -1675,7 +1675,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       }
 
       const priorTurns = interviewHistory;
-      setInterviewHistory([...priorTurns, { role: "user", content: trimmed }]);
+      const userTurn: InterviewMessage = { role: "user", content: trimmed };
+      setInterviewHistory([...priorTurns, userTurn]);
 
       abortRef.current?.abort();
       const abort = new AbortController();
@@ -1689,16 +1690,30 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         const askMessages: PromptDebugMessage[] = [
           { role: "system", content: characterInterviewSystem(current, target.ref, target.label, target.kind, interviewPersonalityDraft) },
           ...priorTurns,
-          { role: "user", content: trimmed }
+          userTurn
         ];
         recordPrompt("interview", model, askMessages);
-        const raw = await provider.chat({
+        // Streamed, like Draft/Extend/Elaborate — not because the reply needs
+        // to look typed out (though it's a nice side effect), but because a
+        // single non-streaming call sits with zero visible feedback until the
+        // whole reply is generated, which on a slower model reads as "hung"
+        // even when it's still working. Every other Writing-model call in the
+        // app already streams; this was the one exception.
+        let raw = "";
+        for await (const chunk of provider.streamChat({
           messages: askMessages,
           temperature: 0.9,
           maxTokens: 400,
           signal: abort.signal
-        });
-        setInterviewHistory((prev) => [...prev, { role: "assistant", content: raw.trim() }]);
+        })) {
+          if (chunk.type === "text_delta") {
+            raw += chunk.text;
+            setInterviewHistory([...priorTurns, userTurn, { role: "assistant", content: raw }]);
+          } else if (chunk.type === "error") {
+            throw new Error(chunk.message);
+          }
+        }
+        setInterviewHistory([...priorTurns, userTurn, { role: "assistant", content: raw.trim() }]);
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") {
           if (requestTimeout.timedOut()) setError(STORE_ERROR.timeout);

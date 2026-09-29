@@ -1,9 +1,45 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.2
+Status: living document, v1.0.3
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.2 → v1.0.3 (2026-09-29):** Fortfarande samma
+buggtråd. Testaren bekräftade: `git pull` gjort, servern omstartad,
+felet kvarstod ändå — knappen blev dimmad, "Asking..." stod kvar,
+inget svar kom, inte ens efter att ha lämnat och kommit tillbaka
+till fönstret. **Den avgörande nya informationen:** "Jag kunde
+utveckla text i manuset med AI" — Extend/Elaborate fungerade fint,
+med samma Writing-modell. Det pekade bort från "modellen/Ollama är
+trasig" och rakt mot något Interview-specifikt.
+
+**Grundorsak:** jämförde `askCharacter` mot alla andra anrop som
+använder Writing-modellen (Draft, Recast, Extend, Elaborate —
+`draftChapter`, `rewriteSpan` m.fl.) och hittade skillnaden:
+samtliga andra använder `provider.streamChat()` (strömmande, text
+visas löpande allteftersom modellen genererar den) — `askCharacter`
+var det enda stället som använde `provider.chat()` (icke-strömmande,
+väntar in HELA svaret i ett enda svep innan något visas alls). På en
+långsammare modell eller dator är det skillnaden mellan "syns
+arbeta" och "ser ut att ha dött" — även om båda i teorin till slut
+skulle svara, ger den strömmande varianten kontinuerlig, synlig
+feedback hela vägen, medan den icke-strömmande ger noll feedback
+tills (eller om) hela svaret kommer på en gång. 2-minutersgränsen
+från v1.0.2 skulle förstås ha slagit till till slut — men om
+generering av 400 tokens i ett enda svep tog längre än så på
+testarens dator, hade upplevelsen ändå varit "hänger sig" långt
+innan timeouten hann lösa ut.
+
+**Fix:** `askCharacter` strömmar nu på samma sätt som resten av
+appens Writing-modell-anrop — svaret skrivs fram löpande i
+transkriptet istället för att dyka upp i ett enda stycke. Samma
+`abortRef`/timeout-infrastruktur från v1.0.2 återanvänds oförändrad.
+Städade också bort en liten kosmetisk krock min egen ändring annars
+skulle introducerat: "tänker"-indikatorn i `CharacterInterviewCard`
+visade sig tidigare hela tiden `busy` var sant — nu bara innan
+första textbiten kommit, annars skulle den stått kvar under ett
+redan synligt, växande svar.
 
 **Ändringslogg v1.0.1 → v1.0.2 (2026-09-29):** v1.0.1 löste inte
 buggen — samma testare rapporterade tillbaka: "verkar inte fungera

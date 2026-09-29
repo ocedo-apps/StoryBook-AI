@@ -141,7 +141,7 @@ export function CharacterInterviewCard({
               </div>
             );
           })}
-          {busy ? (
+          {busy && history[history.length - 1]?.role !== "assistant" ? (
             <div className="interview-row is-character">
               <CharacterAvatar thumb={characterThumb} label={entity.label} />
               <p className="quiet interview-pending">
