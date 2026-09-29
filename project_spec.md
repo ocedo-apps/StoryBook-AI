@@ -1,9 +1,20 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.67
+Status: living document, v0.99.68
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.67 → v0.99.68:** Story time-fältet i
+Timeline/Trådar hade bara en lång placeholder-text ("When does this
+happen? E.g. …") som förklaring — för lång för att rymmas i den
+smala kolumnen, och den försvinner så fort man börjar skriva. Lade
+till en kort, alltid synlig rubrik ovanför fältet — "Chronological
+position" — parat med "Manuscript position N" som redan fanns, så de
+två olika ordningarna (var kapitlet ligger i manuset vs. var det
+ligger i berättelsens kronologi) syns bredvid varandra även efter man
+skrivit något. Placeholder-texten förkortades till bara exemplet
+("E.g. "Three years earlier""). Ren text-/i18n-ändring.
 
 **Ändringslogg v0.99.66 → v0.99.67:** Två små visuella justeringar av
 Timeline/Trådar-tabellen. Tabellens cellbakgrund är nu `var(--paper)`

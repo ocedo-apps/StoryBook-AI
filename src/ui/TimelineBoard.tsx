@@ -71,6 +71,7 @@ export function TimelineBoardPanel({
                           {format(m.timeline.readingPosition, { n: column.sequenceIndex + 1 })}
                         </span>
                         {column.outOfOrder ? <span className="timeline-flag">{m.timeline.outOfOrder}</span> : null}
+                        <span className="timeline-position">{m.timeline.storyTimeCaption}</span>
                         <input
                           type="text"
                           className="timeline-story-time"
