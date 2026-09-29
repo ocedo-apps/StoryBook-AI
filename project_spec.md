@@ -1,9 +1,27 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.71
+Status: living document, v1.0
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.71 → v1.0 (2026-09-29):** StoryBook AI kallas nu
+1.0. `package.json` bumpad från `0.1.0` till `1.0.0` — matchar nu
+webbens och dokumentens språkbruk istället för att motsäga det.
+
+Bedömningen som ledde hit: funktionsmässigt var projektet redan där
+(§2 ovan — jämfört mot Scrivener/Sudowrite/Novelcrafter finns i
+princip allt de har, plus flera saker de inte har; 27 av 34 spårade
+roadmap-idéer byggda, resten medvetet "inte nu" eller 2.0-riktning).
+Det enda konkreta som stod i vägen var leveranssättet för den
+icke-tekniska författare produkten är byggd för: ingen enkel start på
+Mac/Linux (bara Windows hade `starta.bat`) och `OLLAMA_ORIGINS`-
+CORS-fällan var odokumenterad. Båda lösta samma dag (idé #34,
+v0.99.71, plus webbens Getting Started-guide uppdaterad separat på
+webbsidan, inte i det här repot).
+
+Inget kodat i den här specifika commiten utöver versionsnumret —
+detta är ett statusbeslut, inte en funktionsleverans.
 
 **Ändringslogg v0.99.70 → v0.99.71:** Idé #34 — startskript för Mac
 och Linux, samma jobb som `starta.bat` redan gjorde för Windows. Nya
