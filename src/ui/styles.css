@@ -373,6 +373,24 @@ button:disabled {
   background: var(--panel);
 }
 
+.home-connect-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+}
+
+.home-connect-toggle .settings-heading {
+  margin: 0;
+}
+
+.home-connect-toggle .chevron {
+  display: inline-block;
+  width: 0.8em;
+  font-size: 0.85em;
+  color: var(--text-dim);
+}
+
 .home-heading-row {
   display: flex;
   align-items: center;

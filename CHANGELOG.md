@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.15] - 2026-09-29
+
+### Added
+- The Home page's "Connect a local AI" section now collapses — Engine and model rarely change once set up, so there's no reason for the controls to take up space on every visit. It opens by default whenever there's nothing connected yet or something's wrong, and collapses once it's working; a status line stays visible either way, and a manual toggle always overrides the default.
+
 ## [1.0.14] - 2026-09-29
 
 ### Changed

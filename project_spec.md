@@ -1,9 +1,41 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.14
+Status: living document, v1.0.15
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.14 → v1.0.15 (2026-09-29):** Mats: "ska man kunna
+öppna och stänga rutan? Det är väl inte så ofta man byter Engine och
+modeller... Då är det dumt att de tar upp plats i onödan." Rimlig
+poäng — helt rätt att kontrollerna inte behöver synas varje besök
+när allt redan fungerar.
+
+**Byggt:** Följde samma mönster som `ScenesPanel.tsx` redan
+etablerat i kodbasen (en `<button>` med en `▾`/`▸`-chevron,
+`aria-expanded`, `useState`) istället för att uppfinna ett nytt.
+`connectOpen` är `boolean | null` — `null` betyder "inget explicit
+val gjort än" och då styr ett smart default: öppen så länge inget är
+anslutet eller något är fel (`!connected`), ihopfälld så fort det
+fungerar (`connected = models.length > 0 && !ollamaError`). En
+manuell klick sätter `connectOpen` till ett riktigt booleskt värde
+som sedan alltid vinner över defaultet, resten av sessionen (ingen
+localStorage-persistens — bedömde det som onödigt för en så liten,
+session-lokal preferens).
+
+Statusraden (felmeddelande eller "Ansluten — N modeller hittade" /
+"Inte ansluten än") ligger UTANFÖR den infällbara delen och syns
+alltid, ihopfälld eller inte — bara själva Engine/serveradress/
+modellväljarna göms undan. Så man ser alltid läget på en snabb blick
+utan att behöva fälla ut något.
+
+Ny CSS: `.home-connect-toggle` + återanvänd `.chevron`-klassen
+(redan använd i `ScenesPanel.tsx`, `Editor.tsx` på två ställen — ny
+scopad regel `.home-connect-toggle .chevron` följer samma mönster
+som `.scenes-panel-toggle .chevron`).
+
+Verifierat live i webbläsare: default-läget öppet när inget är
+anslutet, kollapsar korrekt vid klick, öppnar igen vid nytt klick.
 
 **Ändringslogg v1.0.13 → v1.0.14 (2026-09-29):** Rent utseende-polish
 på anslutningsrutan, tre önskemål: samma ljusa färg som

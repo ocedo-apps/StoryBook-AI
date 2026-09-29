@@ -37,6 +37,16 @@ export function Home({
   const fileRef = useRef<HTMLInputElement>(null);
   const filteredSummaries = summaries.filter((item) => item.title.toLowerCase().includes(search.trim().toLowerCase()));
 
+  // Engine/model rarely changes once it works — no reason for the controls
+  // to sit open and take up space every visit. null means "no explicit
+  // choice yet": default to open while there's nothing connected or
+  // something's wrong, collapsed once it's working, same as any other
+  // status the author doesn't need to keep looking at. A manual toggle
+  // always wins over that default for the rest of the session.
+  const [connectOpen, setConnectOpen] = useState<boolean | null>(null);
+  const connected = models.length > 0 && !ollamaError;
+  const isConnectOpen = connectOpen ?? !connected;
+
   function submitNew(event?: React.SyntheticEvent) {
     event?.preventDefault();
     void newBook(title).then(() => setTitle(""));
@@ -92,46 +102,60 @@ export function Home({
         first.
       */}
       <section className="home-connect" aria-label={m.guide.connectAiButton}>
-        <h2 className="settings-heading home-heading-lg">{m.guide.connectAiButton}</h2>
-        <div className="settings-engine">
-          <label className="craft-field">
-            <span>{m.editor.engineLabel}</span>
-            <select
-              value={engine}
-              onChange={(event) => setEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
-              aria-label={m.editor.engineLabel}
-            >
-              <option value="ollama">{m.editor.engineOllama}</option>
-              <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
-            </select>
-          </label>
-          {engine === "openai-compatible" ? (
-            <label className="voice-field">
-              <span>{m.editor.baseUrlLabel}</span>
-              <input
-                value={baseUrl}
-                onChange={(event) => setBaseUrl(event.target.value)}
-                placeholder={m.editor.baseUrlPlaceholder}
-                title={m.editor.baseUrlLede}
-                aria-label={m.editor.baseUrlLabel}
-              />
-            </label>
-          ) : null}
-        </div>
+        <button
+          type="button"
+          className="home-connect-toggle"
+          aria-expanded={isConnectOpen}
+          onClick={() => setConnectOpen(!isConnectOpen)}
+        >
+          <span className="chevron" aria-hidden="true">
+            {isConnectOpen ? "▾" : "▸"}
+          </span>
+          <h2 className="settings-heading home-heading-lg">{m.guide.connectAiButton}</h2>
+        </button>
         <p className={ollamaError ? "banner home-banner" : "quiet"} role={ollamaError ? "status" : undefined}>
           {ollamaError ? translateError(ollamaError, m) : models.length > 0 ? count(models.length, m.home.connectFound) : m.home.connectNotFound}
         </p>
-        {models.length > 0 ? (
-          <div className="settings-models">
-            <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={setModel} />
-            <ModelSelect
-              label={m.editor.review}
-              value={reviewModel}
-              models={models}
-              emptyLabel={m.editor.noModels}
-              onChange={setReviewModel}
-            />
-          </div>
+        {isConnectOpen ? (
+          <>
+            <div className="settings-engine">
+              <label className="craft-field">
+                <span>{m.editor.engineLabel}</span>
+                <select
+                  value={engine}
+                  onChange={(event) => setEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
+                  aria-label={m.editor.engineLabel}
+                >
+                  <option value="ollama">{m.editor.engineOllama}</option>
+                  <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
+                </select>
+              </label>
+              {engine === "openai-compatible" ? (
+                <label className="voice-field">
+                  <span>{m.editor.baseUrlLabel}</span>
+                  <input
+                    value={baseUrl}
+                    onChange={(event) => setBaseUrl(event.target.value)}
+                    placeholder={m.editor.baseUrlPlaceholder}
+                    title={m.editor.baseUrlLede}
+                    aria-label={m.editor.baseUrlLabel}
+                  />
+                </label>
+              ) : null}
+            </div>
+            {models.length > 0 ? (
+              <div className="settings-models">
+                <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={setModel} />
+                <ModelSelect
+                  label={m.editor.review}
+                  value={reviewModel}
+                  models={models}
+                  emptyLabel={m.editor.noModels}
+                  onChange={setReviewModel}
+                />
+              </div>
+            ) : null}
+          </>
         ) : null}
       </section>
 
