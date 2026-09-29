@@ -56,7 +56,7 @@ import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { moveStoryTimeOrder } from "@core/timeline";
 import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
-import { addPlotline, removePlotline, renamePlotline, setPlotlineColor, toggleChapterPlotline } from "@core/plotlines";
+import { addPlotline, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
 import { replaceInBrainstormNotes } from "@core/brainstormNotes";
 import {
   READER_CATEGORIES,
@@ -1267,13 +1267,10 @@ export function Editor() {
               void store.patchBook((current) => toggleChapterPlotline(current, chapterIdToMark, plotlineId))
             }
             onAddPlotline={(title) => void store.patchBook((current) => addPlotline(current, title))}
-            onRenamePlotline={(plotlineId, title) =>
-              void store.patchBook((current) => renamePlotline(current, plotlineId, title))
+            onUpdatePlotline={(plotlineId, patch) =>
+              void store.patchBook((current) => updatePlotline(current, plotlineId, patch))
             }
             onRemovePlotline={(plotlineId) => void store.patchBook((current) => removePlotline(current, plotlineId))}
-            onSetPlotlineColor={(plotlineId, color) =>
-              void store.patchBook((current) => setPlotlineColor(current, plotlineId, color))
-            }
             onJumpToChapter={store.setChapterId}
           />
         ) : onMethod ? (

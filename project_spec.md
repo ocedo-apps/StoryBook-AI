@@ -1,9 +1,25 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.65
+Status: living document, v0.99.66
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.65 → v0.99.66:** Uppföljning på gårdagens
+färgväljare, efter feedback: det klickbara 10-färgsrutnätet satt
+tidigare alltid synligt i varje trådrad och tog både plats och
+uppmärksamhet. Ersatt med en "Redigera tråd"-vy — radrubriken visar
+nu bara trådens namn plus en liten "Redigera"-knapp; klick öppnar ett
+kort (`PlotlineEditCard.tsx`, samma överlagsmönster som
+Import lore/Convert markers) med namn, färgrutnät och ett nytt
+frivilligt beskrivningsfält, sparas samlat via en ny
+`updatePlotline()` (ersätter de tidigare separata
+`renamePlotline`/`setPlotlineColor`). Beskrivningen visas som en
+tooltip (webbläsarens vanliga `title`-attribut) när man hovrar
+trådens namn eller någon av dess staplar — inget UI-bygge för det,
+bara en `title`-attribut på rätt element. `Plotline.description` är
+ett nytt, frivilligt fält i schemat (`.optional()`), så äldre
+sparfiler läses in precis som förut, bara utan beskrivning.
 
 **Ändringslogg v0.99.64 → v0.99.65:** Fri färgväljare för trådar i
 Timeline/Trådar-vyn — författaren bad om att kunna välja bland 8

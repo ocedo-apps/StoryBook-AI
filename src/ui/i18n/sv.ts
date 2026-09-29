@@ -361,7 +361,13 @@ export const sv: Messages = {
       coral: "Korall",
       grey: "Grå",
       charcoal: "Mörkgrå"
-    }
+    },
+    editAction: "Redigera",
+    editLabel: "Redigera tråden ”{title}”",
+    editTitle: "Redigera tråd",
+    colorFieldLabel: "Färg",
+    descriptionLabel: "Beskrivning (frivillig)",
+    descriptionPlaceholder: "Visas som en tooltip över trådens namn och dess staplar"
   },
   method: {
     nav: "Utvecklingsmetod",

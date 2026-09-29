@@ -107,7 +107,9 @@ export type Chapter = z.infer<typeof ChapterSchema>;
 export const PlotlineSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
-  color: z.preprocess((value) => parsePlotlineColor(value), z.enum(PLOTLINE_COLORS))
+  color: z.preprocess((value) => parsePlotlineColor(value), z.enum(PLOTLINE_COLORS)),
+  /** Optional, shown as a tooltip over the thread's name and its bars in the Timeline/Plotlines board — never required, missing on every save before this field existed. */
+  description: z.string().optional()
 });
 export type Plotline = z.infer<typeof PlotlineSchema>;
 

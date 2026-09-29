@@ -647,7 +647,13 @@ export const en = {
       coral: "Coral",
       grey: "Grey",
       charcoal: "Charcoal"
-    }
+    },
+    editAction: "Edit",
+    editLabel: "Edit thread “{title}”",
+    editTitle: "Edit thread",
+    colorFieldLabel: "Color",
+    descriptionLabel: "Description (optional)",
+    descriptionPlaceholder: "Shown as a tooltip over the thread's name and its bars"
   },
   method: {
     nav: "Development method",

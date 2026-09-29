@@ -2095,21 +2095,27 @@ button:disabled {
   border-left-color: var(--plotline-charcoal);
 }
 
-.plotline-column-title {
-  width: 100%;
-  background: transparent;
-  border: 0;
-  font: inherit;
-  font-weight: 650;
-  text-align: center;
-  color: var(--ink);
+.plotline-row-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
 }
 
-.plotline-remove {
+.plotline-row-title-text {
+  min-width: 0;
+  font-weight: 650;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plotline-edit {
+  flex: 0 0 auto;
   font-size: 0.75rem;
   color: var(--text-faint);
   padding: 0;
-  margin-top: 0.1rem;
 }
 
 .plotline-cell {

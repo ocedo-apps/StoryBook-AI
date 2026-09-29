@@ -1,8 +1,9 @@
 import { useState } from "react";
 import type { TimelineBoardColumn } from "@core/timelineBoard";
 import type { Plotline } from "@core/BookSchema";
-import { PLOTLINE_COLORS, type PlotlineColor } from "@core/plotlineColors";
+import type { PlotlineColor } from "@core/plotlineColors";
 import { format, useLocale } from "./i18n";
+import { PlotlineEditCard } from "./PlotlineEditCard";
 
 /**
  * Timeline and Plotlines answer different questions ("when" vs. "what
@@ -18,9 +19,8 @@ export function TimelineBoardPanel({
   onMove,
   onToggle,
   onAddPlotline,
-  onRenamePlotline,
+  onUpdatePlotline,
   onRemovePlotline,
-  onSetPlotlineColor,
   onJumpToChapter
 }: {
   columns: TimelineBoardColumn[];
@@ -29,13 +29,14 @@ export function TimelineBoardPanel({
   onMove: (chapterId: string, direction: "up" | "down") => void;
   onToggle: (chapterId: string, plotlineId: string) => void;
   onAddPlotline: (title: string) => void;
-  onRenamePlotline: (plotlineId: string, title: string) => void;
+  onUpdatePlotline: (plotlineId: string, patch: { title: string; color: PlotlineColor; description: string }) => void;
   onRemovePlotline: (plotlineId: string) => void;
-  onSetPlotlineColor: (plotlineId: string, color: PlotlineColor) => void;
   onJumpToChapter: (chapterId: string) => void;
 }) {
   const { messages: m } = useLocale();
   const [draft, setDraft] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = plotlines.find((plotline) => plotline.id === editingId) ?? null;
 
   return (
     <main className="manuscript plotline-matrix-page">
@@ -107,38 +108,18 @@ export function TimelineBoardPanel({
                 {plotlines.map((plotline) => (
                   <tr key={plotline.id}>
                     <th scope="row" className={`plotline-row-head plotline-column-head is-${plotline.color}`}>
-                      <input
-                        className="plotline-column-title"
-                        value={plotline.title}
-                        onChange={(event) => onRenamePlotline(plotline.id, event.target.value)}
-                        aria-label={m.plotlines.renameLabel}
-                      />
-                      <button
-                        type="button"
-                        className="text-button plotline-remove"
-                        onClick={() => onRemovePlotline(plotline.id)}
-                        aria-label={format(m.plotlines.removeThread, { title: plotline.title })}
-                      >
-                        ×
-                      </button>
-                      <div className="plotline-color-picker">
-                        {PLOTLINE_COLORS.map((color) => (
-                          <button
-                            key={color}
-                            type="button"
-                            className={
-                              color === plotline.color
-                                ? `plotline-color-swatch is-${color} is-selected`
-                                : `plotline-color-swatch is-${color}`
-                            }
-                            aria-pressed={color === plotline.color}
-                            aria-label={format(m.plotlines.colorSwatchLabel, {
-                              thread: plotline.title,
-                              color: m.plotlines.colorNames[color]
-                            })}
-                            onClick={() => onSetPlotlineColor(plotline.id, color)}
-                          />
-                        ))}
+                      <div className="plotline-row-title">
+                        <span className="plotline-row-title-text" title={plotline.description || undefined}>
+                          {plotline.title}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-button plotline-edit"
+                          onClick={() => setEditingId(plotline.id)}
+                          aria-label={format(m.plotlines.editLabel, { title: plotline.title })}
+                        >
+                          {m.plotlines.editAction}
+                        </button>
                       </div>
                     </th>
                     {columns.map((column, index) => {
@@ -163,6 +144,7 @@ export function TimelineBoardPanel({
                             type="button"
                             className={cellClass}
                             aria-pressed={active}
+                            title={active ? plotline.description || undefined : undefined}
                             aria-label={format(m.plotlines.cellLabel, { chapter: column.chapterTitle, thread: plotline.title })}
                             onClick={() => onToggle(column.chapterId, plotline.id)}
                           />
@@ -199,6 +181,21 @@ export function TimelineBoardPanel({
           {m.plotlines.addAction}
         </button>
       </form>
+
+      {editing ? (
+        <PlotlineEditCard
+          plotline={editing}
+          onSave={(patch) => {
+            onUpdatePlotline(editing.id, patch);
+            setEditingId(null);
+          }}
+          onRemove={() => {
+            onRemovePlotline(editing.id);
+            setEditingId(null);
+          }}
+          onClose={() => setEditingId(null)}
+        />
+      ) : null}
     </main>
   );
 }

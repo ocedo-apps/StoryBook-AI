@@ -6,7 +6,7 @@ export function createPlotline(title: string, color: PlotlineColor = DEFAULT_PLO
   return { id: newId(), title: title.trim() || "Untitled thread", color };
 }
 
-/** Cycles through the full palette so newly added threads read distinctly at a glance; the author can still repaint any of them afterward with setPlotlineColor. */
+/** Cycles through the full palette so newly added threads read distinctly at a glance; the author can still repaint any of them afterward via updatePlotline. */
 export function addPlotline(book: Book, title: string): Book {
   const trimmed = title.trim();
   if (!trimmed) return book;
@@ -14,17 +14,30 @@ export function addPlotline(book: Book, title: string): Book {
   return touch(book, { plotlines: [...book.plotlines, createPlotline(trimmed, color)] });
 }
 
-export function renamePlotline(book: Book, plotlineId: string, title: string): Book {
-  const trimmed = title.trim();
-  if (!trimmed) return book;
+/**
+ * The single save path for the "Edit thread" card (name, color, and the
+ * optional description shown as a tooltip over the thread's name and bars).
+ * A blank title is ignored (keeps the existing one); an empty description
+ * clears it back to undefined rather than storing an empty string.
+ */
+export function updatePlotline(
+  book: Book,
+  plotlineId: string,
+  patch: { title: string; color: PlotlineColor; description: string }
+): Book {
+  const trimmedTitle = patch.title.trim();
+  const trimmedDescription = patch.description.trim();
   return touch(book, {
-    plotlines: book.plotlines.map((plotline) => (plotline.id === plotlineId ? { ...plotline, title: trimmed } : plotline))
-  });
-}
-
-export function setPlotlineColor(book: Book, plotlineId: string, color: PlotlineColor): Book {
-  return touch(book, {
-    plotlines: book.plotlines.map((plotline) => (plotline.id === plotlineId ? { ...plotline, color } : plotline))
+    plotlines: book.plotlines.map((plotline) =>
+      plotline.id === plotlineId
+        ? {
+            ...plotline,
+            title: trimmedTitle || plotline.title,
+            color: patch.color,
+            description: trimmedDescription || undefined
+          }
+        : plotline
+    )
   });
 }
 

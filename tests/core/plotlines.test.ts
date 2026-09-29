@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook, createChapter, type Book } from "@core/BookSchema";
-import { addPlotline, removePlotline, renamePlotline, setPlotlineColor, toggleChapterPlotline } from "@core/plotlines";
+import { addPlotline, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
 
 function bookWithChapters(titles: string[]): Book {
   const base = createBook("Test");
@@ -25,17 +25,32 @@ describe("addPlotline", () => {
   });
 });
 
-describe("renamePlotline", () => {
-  it("renames a thread by id", () => {
-    const book = addPlotline(bookWithChapters(["One"]), "Main plot");
-    const id = book.plotlines[0]!.id;
-    const renamed = renamePlotline(book, id, "The A plot");
-    expect(renamed.plotlines[0]?.title).toBe("The A plot");
+describe("updatePlotline", () => {
+  it("saves title, color, and description together, leaving other threads untouched", () => {
+    let book = addPlotline(bookWithChapters(["One"]), "Main plot");
+    book = addPlotline(book, "Romance");
+    const [main, romance] = book.plotlines;
+
+    const saved = updatePlotline(book, main!.id, { title: "The A plot", color: "charcoal", description: "The core conflict." });
+    expect(saved.plotlines[0]).toMatchObject({ title: "The A plot", color: "charcoal", description: "The core conflict." });
+    expect(saved.plotlines[1]?.color).toBe(romance!.color);
   });
 
-  it("ignores a blank rename", () => {
+  it("keeps the existing title when the given one is blank", () => {
     const book = addPlotline(bookWithChapters(["One"]), "Main plot");
-    expect(renamePlotline(book, book.plotlines[0]!.id, "  ")).toBe(book);
+    const id = book.plotlines[0]!.id;
+    const saved = updatePlotline(book, id, { title: "   ", color: "grey", description: "" });
+    expect(saved.plotlines[0]?.title).toBe("Main plot");
+  });
+
+  it("clears the description back to undefined when saved blank", () => {
+    let book = addPlotline(bookWithChapters(["One"]), "Main plot");
+    const id = book.plotlines[0]!.id;
+    book = updatePlotline(book, id, { title: "Main plot", color: "grey", description: "A note." });
+    expect(book.plotlines[0]?.description).toBe("A note.");
+
+    const cleared = updatePlotline(book, id, { title: "Main plot", color: "grey", description: "   " });
+    expect(cleared.plotlines[0]?.description).toBeUndefined();
   });
 });
 
@@ -78,17 +93,5 @@ describe("toggleChapterPlotline", () => {
   it("is a no-op for an unknown chapter", () => {
     const book = addPlotline(bookWithChapters(["One"]), "Main plot");
     expect(toggleChapterPlotline(book, "missing", book.plotlines[0]!.id)).toBe(book);
-  });
-});
-
-describe("setPlotlineColor", () => {
-  it("repaints a thread by id, leaving others untouched", () => {
-    let book = addPlotline(bookWithChapters(["One"]), "Main plot");
-    book = addPlotline(book, "Romance");
-    const [main, romance] = book.plotlines;
-
-    const repainted = setPlotlineColor(book, main!.id, "charcoal");
-    expect(repainted.plotlines[0]?.color).toBe("charcoal");
-    expect(repainted.plotlines[1]?.color).toBe(romance!.color);
   });
 });

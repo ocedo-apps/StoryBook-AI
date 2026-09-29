@@ -361,7 +361,13 @@ export const nb: Messages = {
       coral: "Korall",
       grey: "Grå",
       charcoal: "Mørkegrå"
-    }
+    },
+    editAction: "Rediger",
+    editLabel: "Rediger tråden «{title}»",
+    editTitle: "Rediger tråd",
+    colorFieldLabel: "Farge",
+    descriptionLabel: "Beskrivelse (valgfritt)",
+    descriptionPlaceholder: "Vises som en tooltip over trådens navn og dens stolper"
   },
   method: {
     nav: "Utviklingsmetode",
