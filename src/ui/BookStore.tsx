@@ -1459,7 +1459,16 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           temperature: 0.1,
           maxTokens: EXTRACTOR_MAX_TOKENS
         });
-        const drafts = parseExtractorPayload(raw);
+        // See the matching comment in extractInterview: a parse failure
+        // (no JSON at all in the response) means the same thing to the
+        // author as an empty result, so it's treated the same way rather
+        // than surfacing the raw parser exception.
+        let drafts: FactDraft[];
+        try {
+          drafts = parseExtractorPayload(raw);
+        } catch {
+          drafts = [];
+        }
         totalDrafts += drafts.length;
         const latest = bookRef.current ?? current;
         const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, scene.id);
@@ -1772,7 +1781,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         maxTokens: EXTRACTOR_MAX_TOKENS,
         signal: abort.signal
       });
-      const drafts = parseExtractorPayload(raw);
+      // A weak local model can fail to produce any JSON at all (rambling
+      // prose instead of the required object) rather than the well-formed
+      // {"facts":[]} that means "found nothing" — parseExtractorPayload
+      // throws in that case. To the author both look identical: no facts
+      // came out of this pass. Treat a parse failure the same as an empty
+      // result instead of leaking the raw parser exception as the error.
+      let drafts: FactDraft[];
+      try {
+        drafts = parseExtractorPayload(raw);
+      } catch {
+        drafts = [];
+      }
       if (drafts.length === 0) {
         setError(STORE_ERROR.interviewExtractorNone);
         return;

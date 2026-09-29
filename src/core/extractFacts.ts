@@ -164,9 +164,9 @@ Rules:
 - The Author's own questions are never a source of facts, only what the interviewee answers.
 - predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
 - entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.
-- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic, including a stated preference or habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
-- Skip small talk and implied feelings — but a concrete stated preference, habit, or memory is a fact, not small talk.
-- If nothing is extractable, return {"facts":[]}.`;
+- core.identity: who this is (a single person, name, role). core.trait: a stable characteristic, a stated preference, or a habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
+- If nothing is extractable, return {"facts":[]}.
+- Respond with the JSON object and nothing else: no explanation, no markdown fences, no text before or after it — even when the answer is {"facts":[]}.`;
 
 export function interviewExtractorUserPrompt(transcript: string, interviewee: string): string {
   return `Interviewee: ${interviewee.trim()} (this is who "I"/"me"/"my" refers to in their answers below)\n\nTranscript:\n${transcript.trim()}`;

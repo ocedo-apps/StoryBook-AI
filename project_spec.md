@@ -1,9 +1,50 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.6
+Status: living document, v1.0.7
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.6 → v1.0.7 (2026-09-29):** Testaren körde om direkt
+efter v1.0.6 (ny fråga: "what is your favourite food?", nytt svar från
+Henrik, tydligt fortfarande i jag-form och med samma sorts konkreta
+fakta). Den här gången kom inte det tidigare "hittade inga fakta"-
+meddelandet, utan en helt annan, teknisk text direkt i UI:t:
+"Extractor returned no JSON object."
+
+**Grundorsak, två delar:**
+1. Det är en rå, oöversatt JS-felsträng — `recoverJsonObject` i
+   `src/core/extractFacts.ts` kastar det felet när modellens svar inte
+   innehåller någon `{`/`}` alls att tolka som JSON, och `extractInterview`
+   (liksom `extractChapter`) lät felet studsa vidare genom `ollamaHint`
+   rakt ut till författaren istället för att visa samma vänliga
+   "hittade inga fakta"-text som det tomma-facts-fallet redan har.
+   Ur författarens perspektiv är de identiska händelser (inga
+   användbara fakta kom ut), men bara den ena vägen gav en begriplig
+   text.
+2. Trolig bidragande orsak till att modellen inte producerade JSON
+   alls: v1.0.6:s nya prompt hade en regel med ett undantag ("Skip
+   small talk... but a concrete stated preference... is a fact, not
+   small talk") — just den sortens nyanserade "men inte om"-regel är
+   känd för att få svagare lokala modeller att börja resonera i
+   klartext istället för att committa till det strikta JSON-formatet.
+   En rimlig, inte helt säker, bidragande faktor.
+
+**Fix:**
+- `extractInterview` och `extractChapter` fångar nu ett
+  parse-fel från `parseExtractorPayload` och behandlar det som en tom
+  träfflista (`drafts = []`) istället för att låta felet studsa vidare
+  — samma vänliga meddelande som tidigare för "hittade inget".
+- `INTERVIEW_EXTRACTOR_SYSTEM` förenklad: tog bort undantagsregeln,
+  la istället till en sista, explicit rad: "Respond with the JSON
+  object and nothing else... even when the answer is {"facts":[]}."
+  — placerad sist eftersom modeller generellt följer instruktioner
+  närmast själva genereringen mer pålitligt än sådana som bara står
+  först i prompten.
+- `import-lore`-vägen (samma bakomliggande risk) rördes inte den här
+  omgången — dess felhantering är redan strukturerad kring delvis
+  lyckade batchar artikel för artikel, och en motsvarande fix där
+  förtjänar egen eftertanke snarare än att buntas in här.
 
 **Ändringslogg v1.0.5 → v1.0.6 (2026-09-29):** Ny buggtråd, inte samma
 som Interview-visningsbuggen. Testaren: "Extract facts gick inte så
