@@ -655,6 +655,10 @@ export const en = {
     useSuggestionAction: "Use this text",
     sendToSynopsisAction: "Send to Synopsis",
     sentToSynopsis: "Added to Synopsis.",
+    removeOldBeatsConfirm: {
+      one: "Remove the {count} leftover thread from {method} — {titles}?",
+      other: "Remove the {count} leftover threads from {method} — {titles}?"
+    },
     methods: {
       snowflake: {
         name: "Snowflake Method",

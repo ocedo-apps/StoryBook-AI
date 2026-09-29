@@ -369,6 +369,10 @@ export const sv: Messages = {
     useSuggestionAction: "Använd den här texten",
     sendToSynopsisAction: "Skicka till Synopsis",
     sentToSynopsis: "Tillagd i Synopsis.",
+    removeOldBeatsConfirm: {
+      one: "Ta bort den {count} kvarglömda tråden från {method} — {titles}?",
+      other: "Ta bort de {count} kvarglömda trådarna från {method} — {titles}?"
+    },
     methods: {
       snowflake: {
         name: "Snowflake Method",

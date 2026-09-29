@@ -369,6 +369,10 @@ export const nb: Messages = {
     useSuggestionAction: "Bruk denne teksten",
     sendToSynopsisAction: "Send til Synopsis",
     sentToSynopsis: "Lagt til i Synopsis.",
+    removeOldBeatsConfirm: {
+      one: "Fjerne den {count} gjenglemte tråden fra {method} — {titles}?",
+      other: "Fjerne de {count} gjenglemte trådene fra {method} — {titles}?"
+    },
     methods: {
       snowflake: {
         name: "Snowflake Method",

@@ -1,9 +1,27 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.62
+Status: living document, v0.99.63
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.62 → v0.99.63:** Uppföljning på den ihopslagna
+Timeline/Trådar-vyn: när man byter Utvecklingsmetod (eller går till
+"Ingen metod") frågar appen nu om den ska ta bort förra metodens
+kvarglömda trådar, om några av dem fortfarande finns kvar orörda.
+Bakgrund: `materializeBeats()` lägger till en tråd per "beat" i en
+vald metod (t.ex. Save the Cats 15 punkter), men själva metodbytet har
+aldrig tagit bort den gamla metodens trådar — medvetet, för att aldrig
+radera något automatiskt (se kommentaren i `developmentMethod.ts`).
+I praktiken blev det istället tyst skräp: byter man metod en gång
+till får man båda metodernas beat-trådar liggande i Trådmatrisen för
+alltid, om man inte städar för hand. Ny funktion `beatPlotlines()`
+hittar de trådar vars titel exakt matchar en beat-etikett från den
+metod man lämnar; om några hittas frågar `window.confirm()` (samma
+mönster som radering på andra ställen i appen) om de ska tas bort,
+med namnen utskrivna så man ser exakt vad som försvinner innan man
+svarar. Svarar man nej ligger de kvar precis som förut — inget
+raderas utan att frågas.
 
 **Ändringslogg v0.99.61 → v0.99.62:** Idé #33 (`roadmap-ideas.md`) —
 Timeline och Trådar (Plotlines) slagna ihop till en enda vy. Tidigare

@@ -34,7 +34,15 @@ import {
 import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
 import type { BibleKind } from "@core/bibleGroups";
 import { profileFor, upsertCharacterProfile } from "@core/characterProfile";
-import { developExpandUserPrompt, developmentMethodById, materializeBeats, DEVELOP_EXPAND_SYSTEM, type DevelopmentStep } from "@core/developmentMethod";
+import {
+  beatPlotlines,
+  developExpandUserPrompt,
+  developmentMethodById,
+  materializeBeats,
+  DEVELOP_EXPAND_SYSTEM,
+  type DevelopmentStep
+} from "@core/developmentMethod";
+import { removePlotline } from "@core/plotlines";
 import {
   ANALYZE_SYSTEM,
   analyzeSceneUserPrompt,
@@ -102,7 +110,7 @@ import {
 import { forgetLastJsonBackup, recordLastJsonBackup } from "./jsonBackupStamp";
 import type { PromptDebugEntry, PromptDebugMessage, PromptOperation, PromptDebugTarget } from "./promptDebug";
 import { BookStoreContext, type BookStoreValue, type Busy } from "./useBookStore";
-import { format, getMessages, STORE_ERROR } from "./i18n";
+import { count, format, getMessages, STORE_ERROR } from "./i18n";
 
 const MODEL_KEY = "storybook-ai.model";
 const REVIEW_MODEL_KEY = "storybook-ai.review-model";
@@ -1784,10 +1792,46 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const setDevelopmentMethod = useCallback(
     async (id: string | null) => {
       setDevelopSuggestion(null);
+      const current = bookRef.current;
+      if (!current) return;
+
+      // Switching away from a method never deletes its beats automatically
+      // (materializeBeats' own contract) — but offer to, so a leftover beat
+      // sheet from a method the author no longer uses doesn't just pile up
+      // as unused Plotline rows (see roadmap-ideas.md #33 follow-up).
+      let removeIds: string[] = [];
+      const previousId = current.development_method;
+      if (previousId && previousId !== id) {
+        const previousMethod = developmentMethodById(previousId);
+        const previousMessages =
+          getMessages().method.methods[previousId as keyof ReturnType<typeof getMessages>["method"]["methods"]];
+        if (previousMethod && previousMessages) {
+          const previousLabels: Record<string, string> = {};
+          for (const step of previousMethod.steps) {
+            if (step.kind !== "beat") continue;
+            const stepMessages = (previousMessages.steps as Record<string, { label: string }>)[step.id];
+            if (stepMessages) previousLabels[step.id] = stepMessages.label;
+          }
+          const leftover = beatPlotlines(current, previousMethod, previousLabels);
+          if (
+            leftover.length > 0 &&
+            window.confirm(
+              format(count(leftover.length, getMessages().method.removeOldBeatsConfirm), {
+                method: previousMessages.name,
+                titles: leftover.map((plotline) => plotline.title).join(", ")
+              })
+            )
+          ) {
+            removeIds = leftover.map((plotline) => plotline.id);
+          }
+        }
+      }
+
       const method = id ? developmentMethodById(id) : undefined;
       const methodMessages = id ? getMessages().method.methods[id as keyof ReturnType<typeof getMessages>["method"]["methods"]] : undefined;
-      await patchBook((current) => {
-        const withMethod = touch(current, { development_method: id ?? undefined });
+      await patchBook((currentForPatch) => {
+        const withoutOldBeats = removeIds.reduce((book, plotlineId) => removePlotline(book, plotlineId), currentForPatch);
+        const withMethod = touch(withoutOldBeats, { development_method: id ?? undefined });
         if (!method || !methodMessages) return withMethod;
         const labelsByStepId: Record<string, string> = {};
         for (const step of method.steps) {

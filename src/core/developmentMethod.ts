@@ -1,5 +1,5 @@
 import { addPlotline } from "./plotlines";
-import type { Book } from "./BookSchema";
+import type { Book, Plotline } from "./BookSchema";
 import { formatCraftForBrainstorm } from "./craft";
 import { formatLanguageForPrompt } from "./generateProse";
 
@@ -135,4 +135,21 @@ export function materializeBeats(book: Book, method: DevelopmentMethod, labelsBy
     existing.add(label.trim().toLowerCase());
   }
   return next;
+}
+
+/**
+ * The book's plotlines whose title exactly matches one of `method`'s beat
+ * labels — the ones `materializeBeats` would have created for it. Used to
+ * offer removing a method's leftover threads when the author switches away
+ * from it (never automatic, per the module note above: this only powers a
+ * confirmation prompt the author can decline).
+ */
+export function beatPlotlines(book: Book, method: DevelopmentMethod, labelsByStepId: Record<string, string>): Plotline[] {
+  const labels = new Set(
+    method.steps
+      .filter((step): step is Extract<DevelopmentStep, { kind: "beat" }> => step.kind === "beat")
+      .map((step) => labelsByStepId[step.id]?.trim().toLowerCase())
+      .filter((label): label is string => Boolean(label))
+  );
+  return book.plotlines.filter((plotline) => labels.has(plotline.title.trim().toLowerCase()));
 }

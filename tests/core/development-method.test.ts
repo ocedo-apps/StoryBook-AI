@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createBook } from "@core/BookSchema";
+import { addPlotline } from "@core/plotlines";
 import {
   DEVELOPMENT_METHODS,
+  beatPlotlines,
   developExpandUserPrompt,
   developmentMethodById,
   materializeBeats
@@ -67,6 +69,33 @@ describe("materializeBeats", () => {
     const method = developmentMethodById("three-act")!;
     const next = materializeBeats(book, method, {});
     expect(next.plotlines).toHaveLength(0);
+  });
+});
+
+describe("beatPlotlines", () => {
+  it("finds only the plotlines whose title matches one of the method's beat labels", () => {
+    const method = developmentMethodById("three-act")!;
+    const labels = Object.fromEntries(method.steps.map((step) => [step.id, `Beat: ${step.id}`]));
+    let book = materializeBeats(createBook("Test"), method, labels);
+    book = addPlotline(book, "A hand-written thread, unrelated");
+
+    const found = beatPlotlines(book, method, labels);
+    expect(found).toHaveLength(method.steps.length);
+    expect(found.map((p) => p.title)).not.toContain("A hand-written thread, unrelated");
+  });
+
+  it("returns nothing once none of the method's beats exist as plotlines", () => {
+    const method = developmentMethodById("three-act")!;
+    const labels = Object.fromEntries(method.steps.map((step) => [step.id, `Beat: ${step.id}`]));
+    expect(beatPlotlines(createBook("Test"), method, labels)).toEqual([]);
+  });
+
+  it("matches case- and whitespace-insensitively, same as materializeBeats' own dedupe", () => {
+    const method = developmentMethodById("three-act")!;
+    const labels = Object.fromEntries(method.steps.map((step) => [step.id, `Beat: ${step.id}`]));
+    let book = createBook("Test");
+    book = addPlotline(book, "  beat: setup  ");
+    expect(beatPlotlines(book, method, labels).map((p) => p.title)).toEqual(["beat: setup"]);
   });
 });
 
