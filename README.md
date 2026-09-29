@@ -2,7 +2,7 @@
 
 A local-first prose tool. The Story Bible holds truth. The model drafts. You decide.
 
-This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export (this app → Sandbox campaigns) comes later. The other direction has a first piece: Sandbox's Storyboard can group campaign scenes into chapters and export chapter shells (title + brief, no prose) as JSON — this app does not read that file back in yet. No cloud API keys: both apps talk to a local [Ollama](https://ollama.com) server.
+This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export (this app → Sandbox campaigns) comes later. The other direction has a first piece: Sandbox's Storyboard can group campaign scenes into chapters and export chapter shells (title + brief, no prose) as JSON — this app does not read that file back in yet. No cloud API keys: StoryBook AI talks to a local model server on your own computer or network — [Ollama](https://ollama.com), or any OpenAI-compatible server such as LM Studio, llama.cpp, or vLLM (see Models below). Cloud providers (OpenAI, Anthropic, Google, and others) are deliberately excluded — the provider layer refuses to resolve to their hostnames, not just undocumented.
 
 The UI is English, Swedish, or Norwegian Bokmål. **Prose language** on Settings is the language of the sentences. Export files and model prompts follow that field when it is set, otherwise the language of the manuscript.
 
@@ -29,7 +29,9 @@ In the header, **Progress** shows the manuscript's word count and, once you set 
 
 ## Models
 
-Two dropdowns under **Settings**, plus a **Context window** field (how much text the model can hold at once — a "Suggest from model" button reads the right value straight from Ollama):
+**Engine**, under Settings, picks the local backend: **Ollama**, or **LM Studio / other local server** — any server speaking the OpenAI-compatible `/v1/chat/completions` API (LM Studio, llama.cpp, vLLM, text-generation-webui, LocalAI, and similar). The second option just needs a **Server address** (defaults to LM Studio's own port, `http://localhost:1234`); with Ollama there's nothing to configure, StoryBook finds it automatically. No cloud provider is offered — see above.
+
+Two model dropdowns under **Settings**, plus a **Context window** field (how much text the model can hold at once — with Ollama, a "Suggest from model" button reads the right value straight from it):
 
 - **Writing** (default `stheno-custom:latest`) — Draft, Recast, Extend, Elaborate, Rewrite, Brainstorm Ask, Interview, Development method suggestions.
 - **Review** (default `qwen2.5-coder:7b`) — Extract facts, Import lore, Interview fact-extraction, Ask Manuscript, word swap, sentence split, paragraph break, illustration prompts, Analyze, Proofread.
