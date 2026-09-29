@@ -1,9 +1,24 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.70
+Status: living document, v0.99.71
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.70 → v0.99.71:** Idé #34 — startskript för Mac
+och Linux, samma jobb som `starta.bat` redan gjorde för Windows. Nya
+`starta.command` (macOS, dubbelklickbart från Finder — precis som
+`.bat`-filer fungerar på Windows) och `starta.sh` (Linux, körs med
+`./starta.sh` i en terminal). Båda gör samma tre steg som
+`starta.bat`: kollar att Node.js finns och pekar till nodejs.org om
+inte, kör `npm install` bara första gången (`node_modules` saknas),
+startar sedan appen med `npm start`. `starta.command` är bara en tunn
+wrapper (`bash starta.sh`) så själva logiken finns på ett ställe,
+inte duplicerad mellan de två filerna. README:s Run-avsnitt uppdaterat
+att nämna alla tre plattformar. Känd, oundviklig friktion (inget nytt
+att åtgärda, bara att veta om): macOS Gatekeeper varnar första gången
+för ett osignerat skript ("okänd utvecklare") — användaren
+högerklickar → Öppna en gång, sedan är det löst.
 
 **Ändringslogg v0.99.69 → v0.99.70:** Kopplar ihop trådar (Plotlines)
 med själva skrivytan, efter en diskussion om huruvida Scenes eller

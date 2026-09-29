@@ -49,7 +49,7 @@ inte en ensidig lista.
 | 31 | Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar | ⬜ 2.0-riktning, medvetet inte nu — se nedan |
 | 32 | Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text | ⬜ ej påbörjad — se nedan |
 | 33 | Timeline som gantschema, ihopslaget med Plotlines | ✅ byggd som punktbaserad vy (v0.99.62) — se nedan |
-| 34 | Startskript för Mac och Linux (som `starta.bat`) | ⬜ ej påbörjad — se nedan |
+| 34 | Startskript för Mac och Linux (som `starta.bat`) | ✅ byggd (v0.99.71) — se nedan |
 
 Plus det egna designspåret ("Det enda stora arkitekturbeslutet" nedan,
 Scene/BookScene/NarrativeFact-gränsen) — ett öppet samtal, inte en
@@ -1163,7 +1163,15 @@ tröskeln för en icke-teknisk författare (Ollama + modellnedladdning +
 ihop med, men är ett separat, större steg än, det här skriptet —
 loggat här som en anteckning för den dagen, inte som ett eget mål nu.
 
-**Status: idé nedskriven, inte påbörjad.** Inget kodat.
+**Status: byggd (v0.99.71).** `starta.command` (macOS, dubbelklickbart
+från Finder) och `starta.sh` (Linux, körs med `./starta.sh` i en
+terminal) — samma tre steg som `starta.bat`: kollar Node, kör
+`npm install` bara om `node_modules` saknas, kör sedan `npm start`.
+`starta.command` är bara en tunn wrapper som anropar `starta.sh`, så
+logiken finns på ett ställe. Gatekeeper-varningen (se ovan) gäller
+fortfarande första gången på macOS — inget sätt att undvika den utan
+kodsignering/notarisering, oförändrat från analysen ovan.
+Ollama-auto-install-tillägget är fortfarande medvetet uppskjutet.
 
 ---
 

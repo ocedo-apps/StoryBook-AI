@@ -8,7 +8,7 @@ The UI is English, Swedish, or Norwegian Bokmål. **Prose language** on Settings
 
 ## Run
 
-On Windows, double-click **`starta.bat`**. Or:
+On Windows, double-click **`starta.bat`**. On macOS, double-click **`starta.command`**. On Linux, run **`./starta.sh`** from a terminal (or double-click it, if your file manager runs executable scripts). Each installs dependencies on first run and then starts the app. Or, on any platform:
 
 ```bash
 npm install
