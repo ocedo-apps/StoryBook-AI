@@ -1,9 +1,22 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.68
+Status: living document, v0.99.69
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.68 → v0.99.69:** Två layoutjusteringar i
+Timeline/Trådar-kolumnrubriken, på författarens begäran. ←/→-pilarna
+för att flytta ett kapitels kronologiska position satt tidigare på
+en egen rad längst ner — nu flankerar de istället "Manuscript
+position N"-texten direkt ("← Manuscript position 1 →"), så
+pilarna syns bredvid det de faktiskt flyttar. Och "ur ordning"-
+flaggan (⚠ som visas för ett kapitel vars kronologiska position
+skiljer sig från dess plats i manuset) har nu alltid en reserverad
+tom rad under positionstexten, tom när kapitlet inte är ur ordning —
+så kolumnerna håller samma höjd oavsett om flaggan visas eller inte,
+istället för att hoppa till när den dyker upp. Ren layout, ingen
+logikändring.
 
 **Ändringslogg v0.99.67 → v0.99.68:** Story time-fältet i
 Timeline/Trådar hade bara en lång placeholder-text ("When does this

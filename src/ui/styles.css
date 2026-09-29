@@ -4077,6 +4077,8 @@ button:disabled {
 }
 
 .timeline-flag {
+  display: block;
+  min-height: 1em;
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4094,7 +4096,8 @@ button:disabled {
 
 .timeline-move {
   display: flex;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .bible-pictures {

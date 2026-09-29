@@ -67,19 +67,6 @@ export function TimelineBoardPanel({
                         >
                           {column.chapterTitle}
                         </button>
-                        <span className="timeline-position">
-                          {format(m.timeline.readingPosition, { n: column.sequenceIndex + 1 })}
-                        </span>
-                        {column.outOfOrder ? <span className="timeline-flag">{m.timeline.outOfOrder}</span> : null}
-                        <span className="timeline-position">{m.timeline.storyTimeCaption}</span>
-                        <input
-                          type="text"
-                          className="timeline-story-time"
-                          value={column.storyTime}
-                          placeholder={m.timeline.storyTimePlaceholder}
-                          onChange={(event) => onSetStoryTime(column.chapterId, event.target.value)}
-                          aria-label={format(m.timeline.storyTimeLabel, { chapter: column.chapterTitle })}
-                        />
                         <div className="timeline-move">
                           <button
                             type="button"
@@ -90,6 +77,9 @@ export function TimelineBoardPanel({
                           >
                             ←
                           </button>
+                          <span className="timeline-position">
+                            {format(m.timeline.readingPosition, { n: column.sequenceIndex + 1 })}
+                          </span>
                           <button
                             type="button"
                             className="text-button"
@@ -100,6 +90,16 @@ export function TimelineBoardPanel({
                             →
                           </button>
                         </div>
+                        <span className="timeline-flag">{column.outOfOrder ? m.timeline.outOfOrder : null}</span>
+                        <span className="timeline-position">{m.timeline.storyTimeCaption}</span>
+                        <input
+                          type="text"
+                          className="timeline-story-time"
+                          value={column.storyTime}
+                          placeholder={m.timeline.storyTimePlaceholder}
+                          onChange={(event) => onSetStoryTime(column.chapterId, event.target.value)}
+                          aria-label={format(m.timeline.storyTimeLabel, { chapter: column.chapterTitle })}
+                        />
                       </div>
                     </th>
                   ))}
