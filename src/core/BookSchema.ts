@@ -7,6 +7,7 @@ import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
+import { parsePlotlineColor, PLOTLINE_COLORS } from "./plotlineColors";
 import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 import { ProseFormattingRangeSchema } from "./proseFormatting";
@@ -106,7 +107,7 @@ export type Chapter = z.infer<typeof ChapterSchema>;
 export const PlotlineSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
-  color: z.enum(NOTE_COLORS).default("paper")
+  color: z.preprocess((value) => parsePlotlineColor(value), z.enum(PLOTLINE_COLORS))
 });
 export type Plotline = z.infer<typeof PlotlineSchema>;
 

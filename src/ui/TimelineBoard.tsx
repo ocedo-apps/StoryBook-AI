@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { TimelineBoardColumn } from "@core/timelineBoard";
 import type { Plotline } from "@core/BookSchema";
+import { PLOTLINE_COLORS, type PlotlineColor } from "@core/plotlineColors";
 import { format, useLocale } from "./i18n";
 
 /**
@@ -19,6 +20,7 @@ export function TimelineBoardPanel({
   onAddPlotline,
   onRenamePlotline,
   onRemovePlotline,
+  onSetPlotlineColor,
   onJumpToChapter
 }: {
   columns: TimelineBoardColumn[];
@@ -29,6 +31,7 @@ export function TimelineBoardPanel({
   onAddPlotline: (title: string) => void;
   onRenamePlotline: (plotlineId: string, title: string) => void;
   onRemovePlotline: (plotlineId: string) => void;
+  onSetPlotlineColor: (plotlineId: string, color: PlotlineColor) => void;
   onJumpToChapter: (chapterId: string) => void;
 }) {
   const { messages: m } = useLocale();
@@ -118,6 +121,25 @@ export function TimelineBoardPanel({
                       >
                         ×
                       </button>
+                      <div className="plotline-color-picker">
+                        {PLOTLINE_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            className={
+                              color === plotline.color
+                                ? `plotline-color-swatch is-${color} is-selected`
+                                : `plotline-color-swatch is-${color}`
+                            }
+                            aria-pressed={color === plotline.color}
+                            aria-label={format(m.plotlines.colorSwatchLabel, {
+                              thread: plotline.title,
+                              color: m.plotlines.colorNames[color]
+                            })}
+                            onClick={() => onSetPlotlineColor(plotline.id, color)}
+                          />
+                        ))}
+                      </div>
                     </th>
                     {columns.map((column, index) => {
                       const active = column.activePlotlineIds.includes(plotline.id);

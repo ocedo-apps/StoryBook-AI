@@ -348,7 +348,20 @@ export const nb: Messages = {
     renameLabel: "Trådens navn",
     cellLabel: "{chapter} — {thread}",
     emptyPlotlines: "Ingen tråder ennå. Legg til en under for å starte matrisen.",
-    emptyChapters: "Skriv et kapittel først — matrisen trenger noe å vise."
+    emptyChapters: "Skriv et kapittel først — matrisen trenger noe å vise.",
+    colorSwatchLabel: "Sett «{thread}» til fargen {color}",
+    colorNames: {
+      lime: "Limegrønn",
+      green: "Grønn",
+      cyan: "Cyan",
+      blue: "Blå",
+      violet: "Fiolett",
+      magenta: "Magenta",
+      orange: "Oransje",
+      coral: "Korall",
+      grey: "Grå",
+      charcoal: "Mørkegrå"
+    }
   },
   method: {
     nav: "Utviklingsmetode",

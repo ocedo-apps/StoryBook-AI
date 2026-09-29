@@ -1,18 +1,16 @@
-import { DEFAULT_NOTE_COLOR, type NoteColor } from "./brainstormNotes";
+import { DEFAULT_PLOTLINE_COLOR, PLOTLINE_COLORS, type PlotlineColor } from "./plotlineColors";
 import { newId } from "./ids";
-import { sortedChapters, touch, updateChapter, type Book, type Plotline } from "./BookSchema";
+import { touch, updateChapter, type Book, type Plotline } from "./BookSchema";
 
-export function createPlotline(title: string, color: NoteColor = DEFAULT_NOTE_COLOR): Plotline {
+export function createPlotline(title: string, color: PlotlineColor = DEFAULT_PLOTLINE_COLOR): Plotline {
   return { id: newId(), title: title.trim() || "Untitled thread", color };
 }
 
-/** Cycles through the note palette so newly added threads read distinctly at a glance. */
-const PLOTLINE_PALETTE: NoteColor[] = ["rust", "sage", "gold", "lilac", "paper"];
-
+/** Cycles through the full palette so newly added threads read distinctly at a glance; the author can still repaint any of them afterward with setPlotlineColor. */
 export function addPlotline(book: Book, title: string): Book {
   const trimmed = title.trim();
   if (!trimmed) return book;
-  const color = PLOTLINE_PALETTE[book.plotlines.length % PLOTLINE_PALETTE.length]!;
+  const color = PLOTLINE_COLORS[book.plotlines.length % PLOTLINE_COLORS.length]!;
   return touch(book, { plotlines: [...book.plotlines, createPlotline(trimmed, color)] });
 }
 
@@ -21,6 +19,12 @@ export function renamePlotline(book: Book, plotlineId: string, title: string): B
   if (!trimmed) return book;
   return touch(book, {
     plotlines: book.plotlines.map((plotline) => (plotline.id === plotlineId ? { ...plotline, title: trimmed } : plotline))
+  });
+}
+
+export function setPlotlineColor(book: Book, plotlineId: string, color: PlotlineColor): Book {
+  return touch(book, {
+    plotlines: book.plotlines.map((plotline) => (plotline.id === plotlineId ? { ...plotline, color } : plotline))
   });
 }
 
@@ -42,21 +46,4 @@ export function toggleChapterPlotline(book: Book, chapterId: string, plotlineId:
   const current = chapter.plotline_ids ?? [];
   const next = current.includes(plotlineId) ? current.filter((id) => id !== plotlineId) : [...current, plotlineId];
   return updateChapter(book, chapterId, { plotline_ids: next.length > 0 ? next : undefined });
-}
-
-export type PlotlineMatrixRow = {
-  chapterId: string;
-  chapterTitle: string;
-  sequenceIndex: number;
-  activePlotlineIds: string[];
-};
-
-/** One row per live chapter, in reading order — the matrix's left column. */
-export function plotlineMatrixRows(book: Book): PlotlineMatrixRow[] {
-  return sortedChapters(book).map((chapter) => ({
-    chapterId: chapter.id,
-    chapterTitle: chapter.title,
-    sequenceIndex: chapter.sequence_index,
-    activePlotlineIds: chapter.plotline_ids ?? []
-  }));
 }

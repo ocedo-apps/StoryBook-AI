@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook, createChapter, type Book } from "@core/BookSchema";
-import { addPlotline, plotlineMatrixRows, removePlotline, renamePlotline, toggleChapterPlotline } from "@core/plotlines";
+import { addPlotline, removePlotline, renamePlotline, setPlotlineColor, toggleChapterPlotline } from "@core/plotlines";
 
 function bookWithChapters(titles: string[]): Book {
   const base = createBook("Test");
@@ -13,10 +13,10 @@ describe("addPlotline", () => {
     const book = addPlotline(bookWithChapters(["One"]), "Main plot");
     expect(book.plotlines).toHaveLength(1);
     expect(book.plotlines[0]?.title).toBe("Main plot");
-    expect(book.plotlines[0]?.color).toBe("rust");
+    expect(book.plotlines[0]?.color).toBe("lime");
 
     const withSecond = addPlotline(book, "Romance");
-    expect(withSecond.plotlines[1]?.color).toBe("sage");
+    expect(withSecond.plotlines[1]?.color).toBe("green");
   });
 
   it("ignores a blank title", () => {
@@ -81,16 +81,14 @@ describe("toggleChapterPlotline", () => {
   });
 });
 
-describe("plotlineMatrixRows", () => {
-  it("returns one row per live chapter, in reading order, with its active threads", () => {
-    let book = addPlotline(bookWithChapters(["One", "Two", "Three"]), "Main plot");
-    const id = book.plotlines[0]!.id;
-    book = toggleChapterPlotline(book, "ch2", id);
-    book.chapters[2] = { ...book.chapters[2]!, discarded_at: "2026-09-20T00:00:00.000Z" };
+describe("setPlotlineColor", () => {
+  it("repaints a thread by id, leaving others untouched", () => {
+    let book = addPlotline(bookWithChapters(["One"]), "Main plot");
+    book = addPlotline(book, "Romance");
+    const [main, romance] = book.plotlines;
 
-    const rows = plotlineMatrixRows(book);
-    expect(rows.map((row) => row.chapterTitle)).toEqual(["One", "Two"]);
-    expect(rows[0]?.activePlotlineIds).toEqual([]);
-    expect(rows[1]?.activePlotlineIds).toEqual([id]);
+    const repainted = setPlotlineColor(book, main!.id, "charcoal");
+    expect(repainted.plotlines[0]?.color).toBe("charcoal");
+    expect(repainted.plotlines[1]?.color).toBe(romance!.color);
   });
 });

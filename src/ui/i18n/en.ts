@@ -634,7 +634,20 @@ export const en = {
     renameLabel: "Thread name",
     cellLabel: "{chapter} — {thread}",
     emptyPlotlines: "No threads yet. Add one below to start the matrix.",
-    emptyChapters: "Write a chapter first — the matrix needs something to show."
+    emptyChapters: "Write a chapter first — the matrix needs something to show.",
+    colorSwatchLabel: "Set “{thread}”'s color to {color}",
+    colorNames: {
+      lime: "Lime",
+      green: "Green",
+      cyan: "Cyan",
+      blue: "Blue",
+      violet: "Violet",
+      magenta: "Magenta",
+      orange: "Orange",
+      coral: "Coral",
+      grey: "Grey",
+      charcoal: "Charcoal"
+    }
   },
   method: {
     nav: "Development method",

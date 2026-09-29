@@ -1,9 +1,35 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.64
+Status: living document, v0.99.65
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.64 → v0.99.65:** Fri färgväljare för trådar i
+Timeline/Trådar-vyn — författaren bad om att kunna välja bland 8
+klara/tydliga färger plus grå och mörkgrå, istället för att bara
+låta appen tilldela en färg automatiskt. Plotlines delade tidigare
+palett med Brainstorm-lapparna (`NoteColor` — fem dämpade,
+temaanpassade pastellfärger tänkta som bakgrund bakom mörk text på
+ett kort), vilket är fel princip för en stapel utan text ovanpå.
+Ny, egen `PlotlineColor`-palett (`plotlineColors.ts`), tio klara
+kulörer (lime, grön, cyan, blå, violett, magenta, orange, korall,
+grå, mörkgrå), helt frikopplad från Brainstorm — att bredda den ena
+paletten rör aldrig den andra. Varje tråds radrubrik har nu ett
+litet färgrutnät (10 klickbara prickar) för att välja om färgen; vald
+färg visas som en vänsterkant-accent på radrubriken (inte som
+bakgrund bakom texten — undviker kontrastproblem mellan mörk text
+och en ljus/mörk slumpvis vald bakgrund) och som stapelns fyllnad i
+tabellen, precis som tidigare men nu klarare.
+
+Migrering: gamla sparfiler har trådar med de gamla notis-färgnamnen
+("rust", "sage", "gold", "lilac", "paper") — `parsePlotlineColor()`
+mappar varje gammalt namn till närmaste nya kulör (t.ex. rust→korall,
+sage→grön) via `z.preprocess` i schemat, så en äldre bok laddar utan
+fel och får bara en annan, klarare kulör på sina befintliga trådar.
+Städade samtidigt bort `plotlineMatrixRows()`/`PlotlineMatrixRow` i
+`plotlines.ts` — dött kvarglömt kod från förra veckans
+Timeline/Trådar-sammanslagning (v0.99.62), aldrig upptäckt förrän nu.
 
 **Ändringslogg v0.99.63 → v0.99.64:** Visuell uppföljning på den
 ihopslagna Timeline/Trådar-vyn, efter en skiss från författaren: en
