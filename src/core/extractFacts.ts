@@ -62,24 +62,48 @@ function recoverTruncatedFacts(fromArrayStart: string): unknown[] {
  * truncated response still yields whatever facts the model got out before
  * running out of room, instead of the whole extraction failing on one
  * unparseable blob.
+ *
+ * Also tolerates a model that skips the `{"facts": [...]}` wrapper the
+ * prompt's shape example nests the array in, and returns the bare `[...]`
+ * array of fact objects directly — observed live from a tester's local
+ * model, valid JSON in its own right, just one layer flatter than asked
+ * for. Detected by whichever opening bracket, `{` or `[`, appears first in
+ * the response: if `[` comes first, that's the top-level container.
  */
 export function recoverJsonObject(raw: string): unknown {
   const trimmed = raw.trim();
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   const body = (fenced?.[1] ?? trimmed).trim();
-  const start = body.indexOf("{");
-  if (start < 0) {
+  const braceStart = body.indexOf("{");
+  const bracketStart = body.indexOf("[");
+  const isBareArray = bracketStart >= 0 && (braceStart < 0 || bracketStart < braceStart);
+
+  if (isBareArray) {
+    const bracketEnd = body.lastIndexOf("]");
+    if (bracketEnd > bracketStart) {
+      try {
+        return { facts: JSON.parse(body.slice(bracketStart, bracketEnd + 1)) };
+      } catch {
+        // Falls through to salvage whatever complete fact objects it can.
+      }
+    }
+  } else if (braceStart >= 0) {
+    const braceEnd = body.lastIndexOf("}");
+    if (braceEnd > braceStart) {
+      try {
+        return JSON.parse(body.slice(braceStart, braceEnd + 1));
+      } catch {
+        // Falls through to salvage whatever complete fact objects it can.
+      }
+    }
+  } else {
     throw new Error("Extractor returned no JSON object.");
   }
-  const end = body.lastIndexOf("}");
-  if (end > start) {
-    try {
-      return JSON.parse(body.slice(start, end + 1));
-    } catch {
-      // Falls through to salvage whatever complete fact objects it can.
-    }
-  }
-  const facts = recoverTruncatedFacts(body.slice(start));
+
+  // recoverTruncatedFacts finds its own `[` (the facts array, whether or
+  // not it's wrapped in an outer object), so the full body works as the
+  // salvage input for either shape above.
+  const facts = recoverTruncatedFacts(body);
   if (facts.length === 0) {
     throw new Error("Extractor returned no JSON object.");
   }
@@ -163,22 +187,27 @@ export function extractorUserPrompt(prose: string, chapterTitle: string): string
  * on when the interviewee's turns are first-person ("my favorite food is
  * meatballs") — a tester's local model found zero facts in an answer that
  * plainly stated some, because nothing told it "I"/"my" in those turns
- * means the interviewee (characterInterviewSystem always has them answer
- * in the first person). This version names the interviewee explicitly and
- * says outright what their pronouns resolve to, so a small local model
- * doesn't have to infer it from the "Henrik: ..." turn labels alone.
+ * means the interviewee. This version names the interviewee explicitly.
+ *
+ * characterInterviewSystem only answers in the first person for an actual
+ * character — a place, object, group, event, or concept is answered about
+ * in the third person, by a narrator who names the subject directly (e.g.
+ * "Henrik's apartment is generally tidy..."). An earlier version of this
+ * prompt flatly asserted "the interviewee's turns are in the first
+ * person," which was simply false for that second case — worded below to
+ * cover both without assuming one.
  */
 export const INTERVIEW_EXTRACTOR_SYSTEM = `You extract established narrative facts from a private interview transcript between "Author" (asking questions) and a character or entity from the author's manuscript (answering).
 Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.identity","value":"..."}]}
 
 Rules:
-- The interviewee's turns are in the first person ("I", "me", "my"). Every first-person statement they make about themselves is a fact about the interviewee — use the interviewee's own name (given below) as entity_label, never "I" or "the interviewee".
-- Only claims the interviewee actually states as true — about themselves or anyone/anything else they mention. No metaphor, mood, subtext, or invented details. This does NOT rule out a hedged or approximate answer ("let's say 35", "I'm in my mid-thirties", "it's been a while") — that hedging is how the interviewee themselves chose to state it, still extract it, using their own wording for the value.
+- The interviewee's turns may be answered in the first person ("I", "me", "my") if the interviewee is a character, or in the third person, naming the subject directly, if it is a place, object, group, event, or concept. Either way, every stated claim belongs to the interviewee named below unless it is plainly about someone or something else they name instead — use the interviewee's own name as entity_label for claims about them, never "I", "me", "the interviewee", or "the narrator".
+- Only claims the interviewee actually states as true — about themselves or anyone/anything else they mention. No metaphor, mood, subtext, or invented details. This does NOT rule out a hedged or approximate answer ("let's say 35", "probably a few years old", "it's been a while") — that hedging is how the interviewee themselves chose to state it, still extract it, using their own wording for the value.
 - The Author's own questions are never a source of facts, only what the interviewee answers.
 ${PREDICATE_GUIDE}
 - If nothing is extractable, return {"facts":[]}.
 - Respond with the JSON object and nothing else: no explanation, no markdown fences, no text before or after it — even when the answer is {"facts":[]}.`;
 
 export function interviewExtractorUserPrompt(transcript: string, interviewee: string): string {
-  return `Interviewee: ${interviewee.trim()} (this is who "I"/"me"/"my" refers to in their answers below)\n\nTranscript:\n${transcript.trim()}`;
+  return `Interviewee: ${interviewee.trim()} (whether their answers below use "I"/"me"/"my" or name them directly in the third person, facts about them belong to this name)\n\nTranscript:\n${transcript.trim()}`;
 }

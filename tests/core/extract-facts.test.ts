@@ -89,6 +89,30 @@ describe("parseExtractorPayload", () => {
   it("still throws when truncation cuts off before even one fact object closes", () => {
     expect(() => parseExtractorPayload('{"facts":[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.id')).toThrow();
   });
+
+  it("reads a bare facts array with no {\"facts\": [...]} wrapper", () => {
+    // Regression, from a live tester response (fenced, no wrapper object):
+    // ```json
+    // [{"entity_label":"Henrik's apartment","predicate":"core.trait","value":"tidy"}, ...]
+    // ```
+    // The model skipped the object the prompt's shape example nests the
+    // array in and returned the bare array directly — valid JSON on its
+    // own, but the old parser assumed the response always opened with `{`
+    // and sliced from the first `{` it found (inside the first array
+    // element) to the last `}`, producing several comma-joined top-level
+    // objects with no enclosing bracket: not valid JSON, and the resulting
+    // parse failure lost the leading `[` that truncation-salvage needed
+    // too, so nothing came back at all.
+    const raw = '```json\n[{"entity_label":"Henrik\'s apartment","predicate":"core.trait","value":"tidy"}]\n```';
+    const drafts = parseExtractorPayload(raw);
+    expect(drafts).toEqual([{ entity_ref: "henrik-s-apartment", entity_label: "Henrik's apartment", predicate: "core.trait", value: "tidy" }]);
+  });
+
+  it("salvages a truncated bare facts array the same way as a truncated wrapped one", () => {
+    const raw = '[{"entity_label":"Emma","entity_ref":"emma","predicate":"core.identity","value":"Bartender"},{"entity_label":"Emma","predicate":"core.tr';
+    const drafts = parseExtractorPayload(raw);
+    expect(drafts).toEqual([{ entity_ref: "emma", entity_label: "Emma", predicate: "core.identity", value: "Bartender" }]);
+  });
 });
 
 describe("interviewExtractorUserPrompt", () => {
@@ -108,7 +132,19 @@ describe("interviewExtractorUserPrompt", () => {
 describe("INTERVIEW_EXTRACTOR_SYSTEM", () => {
   it("instructs first-person statements to resolve to the interviewee, not the pronoun", () => {
     expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("first person");
-    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain('never "I" or "the interviewee"');
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain('never "I", "me", "the interviewee", or "the narrator"');
+  });
+
+  it("also covers third-person answers, for a place/object/group/event/concept interview", () => {
+    // Regression: characterInterviewSystem only answers in the first
+    // person for an actual character — a place ("Henrik's apartment is
+    // generally tidy...") is answered about in the third person, naming
+    // the subject directly. An earlier version of this prompt flatly
+    // claimed "the interviewee's turns are in the first person," which
+    // was simply false for that case (it happened to still work here only
+    // because the narration named the subject explicitly every time).
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("third person");
+    expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("place, object, group, event, or concept");
   });
 
   it("names age and relationship status as core.trait examples", () => {

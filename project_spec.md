@@ -1,9 +1,64 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.9
+Status: living document, v1.0.10
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.9 → v1.0.10 (2026-09-29):** Första gången det
+faktiska råa modellsvaret var synligt (tack vare v1.0.9:s
+AI-kontext-utökning) — och det löste gåtan på riktigt, ingen mer
+gissning.
+
+**Vad Mats klistrade in:** Interviju-objektet var den här gången
+"Henrik's apartment" (en plats, inte en karaktär!) och modellen
+svarade i tredje person: "Henrik's apartment is generally tidy,
+though perhaps not spotless..." — helt korrekt enligt
+`characterInterviewSystem`, som bara svarar i jag-form för
+`kind === "characters"`; platser/objekt/grupper/händelser/koncept
+får tredjepersons-narration istället. Extraktorns råa svar var:
+```json
+[
+    {"entity_label": "Henrik's apartment", "predicate": "core.trait", "value": "tidy"},
+    ... 4 rader till ...
+]
+```
+— en giltig JSON-array, bara utan `{"facts": [...]}`-omslaget som
+promptens formatexempel visar.
+
+**Två separata buggar hittade:**
+1. **Den faktiska orsaken till tomma resultat:** `recoverJsonObject`
+   antog alltid att svaret börjar med `{` och letade `start =
+   body.indexOf("{")` — men i en bar array är det FÖRSTA `{`-tecknet
+   inne i första array-elementet, inte array-öppningen `[` (som kom
+   före). Resultatet: `body.slice(start, end+1)` skar ut flera
+   kommaseparerade objekt utan omslutande hakparentes — ogiltig JSON,
+   `JSON.parse` kastade. Och eftersom `recoverTruncatedFacts` fick
+   samma `body.slice(start)` (som redan klippt bort den ledande `[`),
+   kunde inte ens räddningslogiken hitta något att rädda — noll fakta,
+   trots att svaret innehöll fem giltiga.
+2. **En rent felaktig instruktion, hittad i samma genomläsning:**
+   `INTERVIEW_EXTRACTOR_SYSTEM` påstod rakt ut "The interviewee's
+   turns are in the first person" — sant bara för karaktärer, falskt
+   för platser/objekt/etc. Skadade inte i det här fallet (narrationen
+   namngav "Henrik's apartment" varje gång ändå), men var en tickande
+   bomb för ett mindre tydligt tredjepersons-svar.
+
+**Fix:**
+- `recoverJsonObject` (`src/core/extractFacts.ts`) hittar nu vilken
+  hakparentes — `{` eller `[` — som kommer FÖRST i svaret och
+  tolkar det som toppnivåbehållaren. En bar array parsas direkt och
+  wrappas i `{facts: [...]}`. Förenklade samtidigt räddningsvägen:
+  `recoverTruncatedFacts` letar redan själv upp sin egen `[`, så hela
+  `body` skickas dit oavsett form — ingen `.slice(start)` behövs
+  längre, vilket också var roten till att räddningen misslyckades.
+- `INTERVIEW_EXTRACTOR_SYSTEM` och `interviewExtractorUserPrompt`
+  omskrivna för att täcka BÅDA fallen (jag-form för karaktärer,
+  tredje person för platser/objekt/grupper/händelser/koncept) istället
+  för att bara anta det förra.
+- Nya tester i `tests/core/extract-facts.test.ts`: bar array (hela
+  och trunkerad), samt att prompten nämner "third person" och
+  "place, object, group, event, or concept".
 
 **Ändringslogg v1.0.8 → v1.0.9 (2026-09-29):** Tre rundor in i samma
 extraktions-tråd blev det uppenbart att jag gissade blint på
