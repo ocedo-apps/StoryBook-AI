@@ -2007,12 +2007,16 @@ button:disabled {
   font-size: 0.85rem;
 }
 
-.plotline-matrix th,
-.plotline-matrix td {
+.plotline-matrix th {
   border: 1px solid var(--border-soft);
   padding: 0.4rem 0.5rem;
   text-align: center;
   white-space: nowrap;
+}
+
+.plotline-matrix tbody td {
+  padding: 0.3rem 0;
+  text-align: center;
 }
 
 .plotline-matrix-corner {
@@ -2064,38 +2068,63 @@ button:disabled {
 }
 
 .plotline-cell {
-  width: 1.6rem;
+  display: block;
+  width: 1.5rem;
   height: 1.6rem;
+  margin: 0 auto;
   padding: 0;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--bg);
+  border: 1px solid transparent;
+  background: transparent;
   cursor: pointer;
+}
+
+.plotline-cell:hover,
+.plotline-cell:focus-visible {
+  border-color: var(--border);
+}
+
+/*
+ * An active cell fills its whole column instead of staying a small dot, so
+ * consecutive active chapters in the same thread read as one unbroken bar.
+ * Rounded only where the run starts or ends (is-run-start/-end); a cell in
+ * the middle of a run stays square so it touches its neighbors flush.
+ */
+.plotline-cell.is-active {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  border-color: transparent;
+}
+
+.plotline-cell.is-active.is-run-start {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+}
+
+.plotline-cell.is-active.is-run-end {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
 }
 
 .plotline-cell.is-active.is-paper {
   background: var(--paper);
-  border-color: var(--ink);
 }
 
 .plotline-cell.is-active.is-rust {
   background: var(--note-rust);
-  border-color: var(--ink);
 }
 
 .plotline-cell.is-active.is-sage {
   background: var(--note-sage);
-  border-color: var(--ink);
 }
 
 .plotline-cell.is-active.is-gold {
   background: var(--note-gold);
-  border-color: var(--ink);
 }
 
 .plotline-cell.is-active.is-lilac {
   background: var(--note-lilac);
-  border-color: var(--ink);
 }
 
 .plotline-add-form {

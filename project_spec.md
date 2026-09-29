@@ -1,9 +1,26 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v0.99.63
+Status: living document, v0.99.64
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v0.99.63 → v0.99.64:** Visuell uppföljning på den
+ihopslagna Timeline/Trådar-vyn, efter en skiss från författaren: en
+tråds ifyllda celler i en rad visas nu som en sammanhängande stapel
+istället för separata prickar, när kapitlen ligger i följd. En lucka
+i tråden (kapitel utan den tråden) bryter stapeln, så glappet syns
+direkt. Ren rendering, ingen ny data — `TimelineBoard.tsx` räknar ut
+var en sammanhängande körning börjar/slutar (`is-run-start`/
+`is-run-end`) utifrån samma `activePlotlineIds` som redan fanns, och
+CSS:en rundar bara hörnen i respektive ände av en körning. Varje
+kapitels ruta går fortfarande att klicka för sig — att klicka mitt i
+en stapel tar bort just det kapitlet ur tråden och delar stapeln i
+två, precis som förut. Tomma rutor (kapitel som inte hör till tråden)
+är nu osynliga tills man för musen över dem eller tabbar dit, istället
+för att alltid visa en liten grå cirkel — en medveten avvägning för
+att matcha skissen (rena, tomma luckor) utan att tappa möjligheten
+att klicka i en tom ruta för att lägga till kapitlet i tråden.
 
 **Ändringslogg v0.99.62 → v0.99.63:** Uppföljning på den ihopslagna
 Timeline/Trådar-vyn: när man byter Utvecklingsmetod (eller går till

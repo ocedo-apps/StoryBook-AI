@@ -119,13 +119,27 @@ export function TimelineBoardPanel({
                         ×
                       </button>
                     </th>
-                    {columns.map((column) => {
+                    {columns.map((column, index) => {
                       const active = column.activePlotlineIds.includes(plotline.id);
+                      // Consecutive active cells in a row read as one unbroken bar
+                      // instead of separate dots — run-start/run-end decide which
+                      // corners round, so only the ends of a stretch are capped.
+                      const isRunStart = active && (index === 0 || !columns[index - 1]!.activePlotlineIds.includes(plotline.id));
+                      const isRunEnd =
+                        active && (index === columns.length - 1 || !columns[index + 1]!.activePlotlineIds.includes(plotline.id));
+                      const cellClass = [
+                        "plotline-cell",
+                        active ? `is-active is-${plotline.color}` : "",
+                        isRunStart ? "is-run-start" : "",
+                        isRunEnd ? "is-run-end" : ""
+                      ]
+                        .filter(Boolean)
+                        .join(" ");
                       return (
                         <td key={column.chapterId}>
                           <button
                             type="button"
-                            className={active ? `plotline-cell is-active is-${plotline.color}` : "plotline-cell"}
+                            className={cellClass}
                             aria-pressed={active}
                             aria-label={format(m.plotlines.cellLabel, { chapter: column.chapterTitle, thread: plotline.title })}
                             onClick={() => onToggle(column.chapterId, plotline.id)}
