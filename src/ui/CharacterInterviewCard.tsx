@@ -190,6 +190,13 @@ export function CharacterInterviewCard({
               <textarea
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
+                onKeyDown={(event) => {
+                  // Enter sends the question, like any chat box — Shift+Enter
+                  // still inserts a newline for a multi-part question.
+                  if (event.key !== "Enter" || event.shiftKey) return;
+                  event.preventDefault();
+                  event.currentTarget.form?.requestSubmit();
+                }}
                 placeholder={format(isCharacter ? m.interview.placeholder : m.interview.placeholderWorld, { name: entity.label })}
                 rows={2}
                 disabled={busy || blocked}

@@ -2774,7 +2774,18 @@ button:disabled {
    * with, matching how any chat window behaves regardless of how much (or
    * little) history it holds.
    */
-  height: min(90vh, 44rem);
+  /*
+   * Grown from 44rem: the portrait added roughly a column-width's worth of
+   * height to .interview-info's own content (title, portrait, lede,
+   * personality), which started needing more room than the card had —
+   * .interview-info's own overflow-y:auto silently turned that into an
+   * always-visible scrollbar on the left column alone, never intended as
+   * a permanent fixture. 50rem covers a full info column (portrait
+   * included) without scrolling on an ordinary desktop screen; still
+   * capped by vh so it never exceeds a short viewport, where internal
+   * scroll remains the fallback.
+   */
+  height: min(92vh, 50rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;

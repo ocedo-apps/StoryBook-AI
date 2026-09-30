@@ -1,9 +1,39 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.17
+Status: living document, v1.0.18
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.17 → v1.0.18 (2026-09-30):** Mats skickade en
+skärmdump: vänsterkolumnen (titel, porträtt, personlighet) hade fått
+en egen scrollbar. Två önskemål till: gör hela rutan högre istället,
+och låt Enter skicka frågan (radbyte ska vara Shift+Enter).
+
+**Grundorsak till scrollbaren:** porträttet (v1.0.16) la till
+ungefär en kolumnbreddss höjd (`aspect-ratio: 1` i en 16rem bred
+kolumn ≈ 256px) till `.interview-info`s innehåll, men
+`.interview-card`s höjd var fortfarande kvar på `min(90vh, 44rem)`
+från v1.0.4. Uppmätte exakt via en Playwright-körning mot en riktig
+karaktär med uppladdad bild: `.interview-info` behövde 700px men
+hade bara 627px tillgängligt — 73px för lite.
+
+**Fix:** `height: min(90vh, 44rem)` → `min(92vh, 50rem)` (+96px,
+med marginal). Verifierade efteråt med samma mätmetod:
+`infoScrollHeight === infoClientHeight` (723 === 723,
+`needsScroll: false`) — vänsterkolumnen behöver inte längre scrolla
+alls, med porträtt inkluderat.
+
+**Enter-att-skicka:** `onKeyDown` på fråge-textarean i
+`CharacterInterviewCard.tsx` — Enter (utan Shift) avbryter
+standardbeteendet (radbyte) och anropar
+`event.currentTarget.form?.requestSubmit()` istället, vilket kör
+exakt samma `onSubmit`-logik som redan fanns (trimning,
+busy/blocked-koll) snarare än att duplicera den. Shift+Enter
+lämnas orört (radbyte som vanligt). Verifierat programmatiskt: text
+skriven, Shift+Enter behöll båda raderna i fältet, vanlig Enter
+tömde fältet (dvs. submit kördes) utan att lägga till ett tredje
+radbyte.
 
 **Ändringslogg v1.0.16 → v1.0.17 (2026-09-30):** Två önskemål: gör
 "Extract facts"-knappen orange/tydligare, och ett verkligt fel —

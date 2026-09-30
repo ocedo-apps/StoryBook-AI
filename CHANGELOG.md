@@ -9,6 +9,14 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.18] - 2026-09-30
+
+### Fixed
+- The Interview card's info column (title, portrait, personality) needed its own scrollbar once the portrait was added — the card's fixed height hadn't grown to match. Made the whole card taller instead, so nothing on the left needs to scroll.
+
+### Changed
+- The question field now sends on Enter, like an ordinary chat box, instead of only inserting a line break. Shift+Enter still adds a line break for a multi-part question.
+
 ## [1.0.17] - 2026-09-30
 
 ### Fixed
