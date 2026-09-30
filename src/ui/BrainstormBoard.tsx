@@ -61,7 +61,7 @@ function liveNoteText(note: BrainstormNote): string {
   const nodes = [...document.querySelectorAll<HTMLElement>(`[id="idea-note-${note.id}"]`)];
   const visible = nodes.find((node) => {
     const card = node.closest("article");
-    return Boolean(card) && !card.classList.contains("is-slot") && !card.classList.contains("is-ghost");
+    return card !== null && !card.classList.contains("is-slot") && !card.classList.contains("is-ghost");
   });
   const pick = visible ?? nodes[0];
   return pick ? (pick.innerText ?? "") : note.text;
