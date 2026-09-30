@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.24] - 2026-09-30
+
+### Changed
+- Reworked the Handbook's "From interview to story" section for readability: shorter paragraphs, and the two techniques (a chapter-locked fact applying from the chapter's first page vs. linking a fact to a specific scene) are now each under their own short lead-in line instead of running together as one long explanation.
+
 ## [1.0.23] - 2026-09-30
 
 ### Added

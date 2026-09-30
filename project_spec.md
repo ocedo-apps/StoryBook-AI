@@ -1,9 +1,36 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.23
+Status: living document, v1.0.24
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.23 → v1.0.24 (2026-09-30):** Mats bad mig ge
+honom Guide-texten som ren text (satt vid en annan dator utan appen
+installerad). Jag klistrade in den. Han föreslog sedan en omskriven
+version med Markdown-formatering (`###` underrubriker, `**fet
+stil**`, `>`-citat) för bättre struktur och skanningsbarhet, och
+frågade vad jag tyckte.
+
+**Ändring:** upptäckte och flaggade att `HandbookPanel.tsx` inte
+renderar Markdown alls — `entry.body` läggs rakt in i en `<p
+className="handbook-body">` med bara CSS `white-space: pre-line`
+(bevarar radbrytningar, inget annat). Markdown-syntax skulle synas
+som bokstavliga tecken i appen. Föreslog en anpassad version som
+behåller Mats förbättrade struktur (korta "vägmärkes-rader" som
+signalerar nya underavsnitt) men uttryckt i vanlig text, samma
+mönster som redan används i texten ("Nu väljer du." följt av korta
+rader). Mats godkände förslaget ("Ja gör det").
+
+**Genomfört:** skrev om `handbookSections["interview-to-story"]`
+(alla tre språk) med den godkända strukturen — fyra tydliga delar:
+grundscenariot (lås/lås inte), "När en fakta blir sann senare i
+kapitlet" (kapitel-nivå-problemet, samma Marcus-exempel), "Lås
+faktan till en specifik scen istället" (den nya lösningen,
+konkret steg-för-steg), och "Viktigt: det fungerar bara vid
+scenvis Draft" (begränsningen, tydligt avgränsad som egen sista
+del istället för en bisats i slutet). Innehållsmässigt oförändrat
+mot v1.0.23 — bara omstrukturerat för läsbarhet.
 
 **Ändringslogg v1.0.22 → v1.0.23 (2026-09-30):** Mats läste
 förklaringen av kapitel-vs-punkt-nyansen och frågade om man kunde
