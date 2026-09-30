@@ -46,6 +46,9 @@ export function CharacterInterviewCard({
   onSavePersonality,
   onAsk,
   onExtractFacts,
+  extractChapters,
+  extractChapterId,
+  onExtractChapterIdChange,
   onClose
 }: {
   entity: { ref: string; label: string; kind: BibleKind };
@@ -63,6 +66,10 @@ export function CharacterInterviewCard({
   onSavePersonality: () => void;
   onAsk: (question: string) => void;
   onExtractFacts: () => void;
+  /** In story-time order, so picking top-to-bottom follows the plot's own chronology, not the manuscript's page order. */
+  extractChapters: { id: string; title: string }[];
+  extractChapterId: string | null;
+  onExtractChapterIdChange: (chapterId: string) => void;
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
@@ -95,6 +102,23 @@ export function CharacterInterviewCard({
         <div className="stats-card-head">
           <p className="chapter-craft-label">{m.interview.action}</p>
           <div className="bible-card-head-actions">
+            {extractChapters.length > 0 ? (
+              <label className="interview-extract-chapter" title={m.interview.extractAsOfHint}>
+                <span>{m.interview.extractAsOf}</span>
+                <select
+                  value={extractChapterId ?? ""}
+                  onChange={(event) => onExtractChapterIdChange(event.target.value)}
+                  disabled={busy || extracting || blocked}
+                  aria-label={m.interview.extractAsOf}
+                >
+                  {extractChapters.map((chapter) => (
+                    <option key={chapter.id} value={chapter.id}>
+                      {chapter.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
             <button
               type="button"
               className="primary"

@@ -53,7 +53,7 @@ import {
   type WritingGoal
 } from "@core/BookSchema";
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
-import { moveStoryTimeOrder } from "@core/timeline";
+import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
 import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
 import { addPlotline, plotlinesForChapter, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
@@ -390,6 +390,12 @@ export function Editor() {
   const interviewPicture = store.interviewEntity ? picturesFor(book.media, store.interviewEntity.ref)[0] : undefined;
   const interviewThumb = interviewPicture?.thumbDataUrl;
   const interviewImage = interviewPicture?.imageDataUrl;
+  // Story-time order, not manuscript order, so picking top-to-bottom follows
+  // the plot's own chronology — matters for choosing where a fact from an
+  // Interview actually becomes true (see extractChapterId in BookStore).
+  const interviewExtractChapters = store.interviewEntity
+    ? timelineEntries(book).map((entry) => ({ id: entry.chapterId, title: entry.chapterTitle.trim() || m.editor.untitled }))
+    : [];
   const pageText =
     onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? ""
@@ -1603,6 +1609,9 @@ export function Editor() {
           onSavePersonality={store.saveInterviewPersonality}
           onAsk={(question) => void store.askCharacter(question)}
           onExtractFacts={() => void store.extractInterview()}
+          extractChapters={interviewExtractChapters}
+          extractChapterId={store.interviewExtractChapterId}
+          onExtractChapterIdChange={store.setInterviewExtractChapterId}
           onClose={store.closeInterview}
         />
       ) : null}

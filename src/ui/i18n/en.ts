@@ -605,6 +605,8 @@ export const en = {
     emptyWorld: "Nothing asked yet. Start exploring {name} below.",
     extractAction: "Extract facts",
     extracting: "Extracting…",
+    extractAsOf: "As of chapter",
+    extractAsOfHint: "Which chapter these facts belong to in story time — not the manuscript's page order. Draft only sees a fact from this point in the story onward, so pick the chapter where this actually becomes true (e.g. when two characters first meet), not just whichever chapter you happen to have open.",
     personalityLabel: "Personality for this conversation — try it out, save to the profile once the tone feels right",
     personalityPlaceholder: "How they talk and react",
     personalitySave: "Save to profile"

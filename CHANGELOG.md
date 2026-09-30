@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.21] - 2026-09-30
+
+### Added
+- Interview's "Extract facts" now shows "As of chapter" — a dropdown, in story-time order, for which chapter these facts belong to in the plot's own chronology. Draft only sees a fact from that point in the story onward, so this matters for anything that could only become true partway through (e.g. a character's feelings about someone he hasn't met yet). Previously this was decided silently by whichever chapter happened to be open in the editor, with no way to see or correct it before locking a fact into the wrong point in the story.
+
 ## [1.0.20] - 2026-09-30
 
 ### Added

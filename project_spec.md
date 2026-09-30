@@ -1,9 +1,51 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.20
+Status: living document, v1.0.21
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.20 → v1.0.21 (2026-09-30):** Uppföljning på
+förra svaret om story-time. Mats konkreta exempel: han frågar Henrik
+vem han gillar mest av Maja och Lena — men Henrik träffar dem först
+i kapitel 4. Om Mats råkar ha fel kapitel öppet när han extraherar
+fakta blir den faktan felaktigt "sann" redan från det öppna
+kapitlet, enligt Draft. "Vet inte hur vi löser det."
+
+**Grundproblemet:** till skillnad från kapitel-extraktion (där
+käll-kapitlet ÄR den naturliga story-time-positionen, eftersom
+faktan bokstavligen kom från den textens prosa) har en
+Intervju-extraktion inget naturligt kapitel att höra till — den
+kommer från ett fristående samtal. Koden gissade tyst: "vilket
+kapitel råkar vara öppet i redigeraren just nu" (`chapterRef.current`
+i `extractInterview`, `BookStore.tsx`), med kapitel 1 som reservval.
+Helt osynligt för författaren, och kan bli fel exakt på det sätt
+Mats beskriver.
+
+**Fix:** gjorde det tysta gissandet till ett synligt, ändringsbart
+val istället för att gissa bättre (det finns inget sätt att gissa
+rätt här — bara författaren vet när i berättelsen en sådan fakta
+faktiskt blir sann).
+
+- Ny `<select>` "As of chapter" i Intervju-fönstrets header, före
+  "Extract facts"-knappen — lista kapitlen i STORY TIME-ordning
+  (inte manusets sidordning, via `timelineEntries(book)` från
+  `@core/timeline`, som redan användes av Timeline-funktionen) så
+  att man kan välja "kapitlet där de faktiskt möts" oavsett var det
+  ligger i manuset.
+- Nytt state `interviewExtractChapterId` i `BookStore.tsx` —
+  initieras till samma default som förut (öppet kapitel, annars
+  första kapitlet) när Intervjun startar, men är nu en explicit,
+  synlig, ändringsbar variabel istället för att läsas direkt ur
+  `chapterRef.current` vid extraktionstillfället.
+- `extractInterview` använder `interviewExtractChapterId` (med
+  samma gamla fallback-kedja kvar som skyddsnät).
+- Ny CSS `.interview-extract-chapter` — kompakt etikett + select
+  som får plats i header-raden utan att tränga undan
+  Extract facts/Close-knapparna.
+- Verifierat live i webbläsare: två kapitel skapade, dropdown visar
+  båda med rätt titlar i rätt ordning, default matchar det öppna
+  kapitlet, byte av val fungerar (`inputValue()` ändras korrekt).
 
 **Ändringslogg v1.0.19 → v1.0.20 (2026-09-30):** Mats fråga: varför
 flaggade extraktorn "prefers being with one special person at a

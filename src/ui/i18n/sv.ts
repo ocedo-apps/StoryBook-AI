@@ -319,6 +319,8 @@ export const sv: Messages = {
     emptyWorld: "Inget frågat än. Börja utforska {name} nedan.",
     extractAction: "Plocka ut fakta",
     extracting: "Plockar ut…",
+    extractAsOf: "Från och med kapitel",
+    extractAsOfHint: "Vilket kapitel den här faktan hör till i berättelsens egen tidsordning — inte manusets sidordning. Draft ser bara en fakta från och med den här punkten i berättelsen, så välj kapitlet där den faktiskt blir sann (t.ex. när två karaktärer möts första gången), inte bara vilket kapitel du råkar ha öppet.",
     personalityLabel: "Personlighet för det här samtalet — testa dig fram, spara till profilen när tonen känns rätt",
     personalityPlaceholder: "Hur de pratar och reagerar",
     personalitySave: "Spara till profilen"

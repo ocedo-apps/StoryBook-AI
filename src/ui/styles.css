@@ -4024,6 +4024,24 @@ button:disabled {
   flex: 0 0 auto;
 }
 
+.interview-extract-chapter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.interview-extract-chapter select {
+  max-width: 11rem;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
 .bible-hidden-note {
   margin: 0 0 0.7rem;
 }

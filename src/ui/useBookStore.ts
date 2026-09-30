@@ -56,6 +56,8 @@ export type BookStoreValue = {
   interviewEntity: { ref: string; label: string; kind: BibleKind } | null;
   interviewHistory: InterviewMessage[];
   interviewPersonalityDraft: string;
+  interviewExtractChapterId: string | null;
+  setInterviewExtractChapterId: (chapterId: string) => void;
   developSuggestion: string | null;
   importLoreProgress: { current: number; total: number } | null;
   refresh: () => Promise<void>;

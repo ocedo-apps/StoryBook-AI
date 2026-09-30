@@ -319,6 +319,8 @@ export const nb: Messages = {
     emptyWorld: "Ingenting spurt om ennå. Start med å utforske {name} nedenfor.",
     extractAction: "Hent ut fakta",
     extracting: "Henter ut…",
+    extractAsOf: "Fra og med kapittel",
+    extractAsOfHint: "Hvilket kapittel denne fakta hører til i historiens egen tidsrekkefølge — ikke manuskriptets sideorden. Draft ser bare en fakta fra og med dette punktet i historien, så velg kapittelet der den faktisk blir sann (f.eks. når to karakterer møtes for første gang), ikke bare det kapittelet du tilfeldigvis har åpent.",
     personalityLabel: "Personlighet for denne samtalen — prøv deg fram, lagre til profilen når tonen føles riktig",
     personalityPlaceholder: "Hvordan de snakker og reagerer",
     personalitySave: "Lagre til profilen"

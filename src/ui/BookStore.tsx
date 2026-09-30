@@ -256,6 +256,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string; kind: BibleKind } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
+  /**
+   * Which chapter Extract facts attributes new facts to, in story time — not
+   * always the chapter open in the editor. An interview isn't extracted
+   * from that chapter's own prose (unlike chapter extraction, where the
+   * source chapter IS the natural story-time position), so guessing "the
+   * chapter you happen to have open" can silently misdate a fact that only
+   * becomes true later — e.g. a character's preference between two people
+   * he hasn't met yet. Defaults to the open chapter when the interview
+   * starts (today's old behavior), but now as a visible, changeable choice
+   * rather than a silent one.
+   */
+  const [interviewExtractChapterId, setInterviewExtractChapterId] = useState<string | null>(null);
   const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
   const [importLoreProgress, setImportLoreProgress] = useState<{ current: number; total: number } | null>(null);
   const bookRef = useRef<Book | null>(null);
@@ -1660,6 +1672,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setInterviewEntity({ ref: entityRef, label: entityLabel, kind });
     setInterviewHistory([]);
     setInterviewPersonalityDraft(profileFor(bookRef.current?.profiles ?? [], entityRef).personality);
+    const current = bookRef.current;
+    const opened = current?.chapters.find((item) => item.id === chapterRef.current);
+    setInterviewExtractChapterId(opened?.id ?? (current ? sortedChapters(current)[0]?.id ?? null : null));
   }, []);
 
   const closeInterview = useCallback(() => {
@@ -1667,6 +1682,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setInterviewEntity(null);
     setInterviewHistory([]);
     setInterviewPersonalityDraft("");
+    setInterviewExtractChapterId(null);
   }, []);
 
   const saveInterviewPersonality = useCallback(() => {
@@ -1811,7 +1827,10 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         setError(STORE_ERROR.interviewExtractorNone);
         return;
       }
-      const chapter = current.chapters.find((item) => item.id === chapterRef.current) ?? sortedChapters(current)[0];
+      const chapter =
+        current.chapters.find((item) => item.id === interviewExtractChapterId) ??
+        current.chapters.find((item) => item.id === chapterRef.current) ??
+        sortedChapters(current)[0];
       if (!chapter) return;
       const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id);
       await flushSave(touch(current, { facts: nextFacts }));
@@ -1826,7 +1845,18 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       setBusy(null);
       abortRef.current = null;
     }
-  }, [busy, flushSave, interviewEntity, interviewHistory, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]);
+  }, [
+    busy,
+    flushSave,
+    interviewEntity,
+    interviewExtractChapterId,
+    interviewHistory,
+    models.length,
+    ollamaError,
+    recordPrompt,
+    recordPromptResponse,
+    reviewModel
+  ]);
 
   /**
    * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,
@@ -2201,6 +2231,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     interviewEntity,
     interviewHistory,
     interviewPersonalityDraft,
+    interviewExtractChapterId,
+    setInterviewExtractChapterId,
     developSuggestion,
     importLoreProgress,
     refresh,
