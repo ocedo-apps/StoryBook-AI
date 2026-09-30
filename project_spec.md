@@ -1,9 +1,52 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.19
+Status: living document, v1.0.20
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.19 → v1.0.20 (2026-09-30):** Mats fråga: varför
+flaggade extraktorn "prefers being with one special person at a
+time" (Henrik, Trait) som en konflikt mot den redan låsta faktan
+"heterosexual" — och borde man kunna välja "merge" eller "Add to
+fact" och själv justera om det visar sig att de faktiskt inte
+krockar?
+
+**Grundorsak:** `evaluateCandidate` (`ConsistencyGate.ts`) kan bara
+konstatera "samma entitet + samma predikat + olika värde" — den har
+ingen semantisk förståelse. `core.trait` är en bred samlingskategori
+(ålder, relationsstatus, sexuell läggning, vana, preferens — vi
+breddade själva den beskrivningen tidigare i den här sessionen!) som
+avsiktligt ska kunna hålla MÅNGA oberoende sanna påståenden samtidigt
+för samma karaktär. Men gaten antar att en ny avvikande fakta under
+samma entitet+predikat måste vara en rivaliserande beskrivning av
+SAMMA sak — antingen en omskrivning (≥60% delade ord,
+`isPossibleEnrichment`) eller en riktig konflikt. "heterosexual" och
+"prefers being with one special person" delar noll ord, så den föll
+igenom till `flagged_conflict` — trots att det är två fullkomligt
+orelaterade, icke-motstridiga fakta.
+
+**Fix, matchar exakt Mats eget förslag:** ny funktion
+`keepFactSeparate(facts, factId)` i `ConsistencyGate.ts` — låser den
+flaggade faktan UTAN att supersede:a faktan den flaggades mot, och
+rensar `conflict_with`/`is_merge_suggestion`. Detta är samma
+"flera samtidiga rader under ett predikat"-mekanism som
+`applyAuthorAddition` redan stödjer för manuell inmatning
+(dokumenterat i dess egen kommentar sedan tidigare) — nu nåbar från
+granskningskön också. Ny knapp "Keep both" i `PendingFact`, mellan
+Lock/Merge och Reject, synlig när faktan har en `against`-konflikt
+(både riktiga konflikter och feltända merge-förslag). Respekterar
+en redigerad textarea precis som Lock/Merge redan gör (kör
+`reviseFact` först om värdet ändrats).
+
+Ny store-action `keepSeparate(factId, value?)` i `BookStore.tsx`,
+tillagd i `BookStoreValue`-typen i `useBookStore.ts`. Tre nya tester
+i `tests/core/consistency-gate.test.ts`: låser utan att röra
+motparten, rensar konflikt-fälten, no-op på en icke-flaggad fakta.
+Verifierat visuellt mot Mats exakta exempel (Henrik/Trait/
+"prefers being with..."/"Conflicts with: heterosexual") via en
+DOM-injektion mot den byggda CSS-filen — layouten Lock / Keep both /
+Reject ser ut precis som tänkt.
 
 **Ändringslogg v1.0.18 → v1.0.19 (2026-09-30):** Mats skickade en
 skärmdump av granskningskön (fungerade nu, tack vare v1.0.17:s

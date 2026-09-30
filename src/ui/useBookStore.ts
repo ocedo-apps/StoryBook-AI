@@ -134,6 +134,7 @@ export type BookStoreValue = {
   reviseFact: (factId: string, value: string) => Promise<void>;
   approve: (factId: string, value?: string) => Promise<void>;
   reject: (factId: string) => Promise<void>;
+  keepSeparate: (factId: string, value?: string) => Promise<void>;
 };
 
 export const BookStoreContext = createContext<BookStoreValue | null>(null);

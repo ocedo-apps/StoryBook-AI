@@ -1061,6 +1061,7 @@ export const en = {
     similarTo: "Similar to: {value} — looks like the same fact, more detailed",
     lock: "Lock",
     merge: "Merge",
+    keepSeparate: "Keep both",
     reject: "Reject",
     show: "Show",
     hide: "Hide",

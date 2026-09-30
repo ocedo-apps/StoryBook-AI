@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.20] - 2026-09-30
+
+### Added
+- A "Keep both" option next to Lock/Merge and Reject when a proposed fact conflicts with an existing one. The conflict check only knows "same entity, same predicate, different wording" — it has no way to tell a genuine contradiction from two independent facts that happen to share a broad predicate like Trait (a sexual orientation and a monogamy preference, say, share zero words and get flagged as if they contradicted each other). "Keep both" locks the new fact without retiring the one it was checked against, for exactly that case.
+
 ## [1.0.19] - 2026-09-30
 
 ### Fixed

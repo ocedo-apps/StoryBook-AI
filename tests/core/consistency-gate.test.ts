@@ -6,6 +6,7 @@ import {
   approveFact,
   evaluateCandidate,
   isPossibleEnrichment,
+  keepFactSeparate,
   rejectFact,
   reviseFact
 } from "@core/ConsistencyGate";
@@ -154,6 +155,55 @@ describe("approveFact / rejectFact", () => {
     const approved = approveFact(flagged, flag!.id);
     expect(approved.find((fact) => fact.id === "locked-1")?.superseded_by).toBe(flag!.id);
     expect(approved.find((fact) => fact.id === flag!.id)?.status).toBe("locked");
+  });
+});
+
+describe("keepFactSeparate", () => {
+  // Regression: evaluateCandidate only checks "same entity + same predicate
+  // + differing value" — it can't tell a genuine contradiction from two
+  // independent facts that just happen to share a broad bucket predicate
+  // like core.trait (a sexual orientation and a monogamy preference, say).
+  // The author needs a way to say "these aren't actually rivals" without
+  // picking a side.
+  it("locks the flagged fact without touching the one it was flagged against", () => {
+    const flagged = applyExtractorDrafts(
+      [lockedEmma()],
+      [{ ...emmaIdentity, value: "A visiting scholar" }],
+      0,
+      "ch1"
+    );
+    const flag = flagged.find((fact) => fact.status === "flagged");
+    const kept = keepFactSeparate(flagged, flag!.id);
+    const original = kept.find((fact) => fact.id === "locked-1");
+    const separated = kept.find((fact) => fact.id === flag!.id);
+    expect(original?.status).toBe("locked");
+    expect(original?.superseded_by).toBeUndefined();
+    expect(separated?.status).toBe("locked");
+  });
+
+  it("clears conflict_with and is_merge_suggestion once kept separate", () => {
+    const flagged = applyExtractorDrafts(
+      [lockedEmma()],
+      [{ ...emmaIdentity, value: "A visiting scholar" }],
+      0,
+      "ch1"
+    );
+    const flag = flagged.find((fact) => fact.status === "flagged");
+    const separated = keepFactSeparate(flagged, flag!.id).find((fact) => fact.id === flag!.id);
+    expect(separated?.conflict_with).toBeUndefined();
+    expect(separated?.is_merge_suggestion).toBeUndefined();
+  });
+
+  it("is a no-op on a fact that isn't flagged", () => {
+    const withProposal = applyExtractorDrafts(
+      [],
+      [{ ...emmaIdentity, predicate: "core.event", value: "The quay flooded last winter" }],
+      0,
+      "ch1"
+    );
+    const proposed = withProposal.find((fact) => fact.status === "ai_proposed")!;
+    expect(keepFactSeparate(withProposal, proposed.id)).toEqual(withProposal);
+    expect(keepFactSeparate([lockedEmma()], "locked-1")).toEqual([lockedEmma()]);
   });
 });
 

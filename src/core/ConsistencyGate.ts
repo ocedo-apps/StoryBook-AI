@@ -272,6 +272,30 @@ export function applyExtractorDrafts(
   return next;
 }
 
+/**
+ * Author decides a flagged row isn't actually contesting the fact it was
+ * flagged against — just another, independent claim the gate's word-overlap
+ * heuristic couldn't tell apart from a rewording, because `evaluateCandidate`
+ * treats any two differing values under the same entity+predicate as
+ * competing for one slot. A broad bucket predicate like core.trait
+ * legitimately holds many unrelated facts at once (an age, a relationship
+ * style, a sexual orientation, a habit) — none of which contradict each
+ * other just for sharing a predicate. Locks the flagged row in place
+ * without retiring the fact it was checked against, so both stand as
+ * separate locked rows: the same "several concurrent rows under one
+ * predicate" applyAuthorAddition already supports for manual entry, now
+ * reachable from the review queue too.
+ */
+export function keepFactSeparate(facts: NarrativeFact[], factId: string): NarrativeFact[] {
+  const target = facts.find((fact) => fact.id === factId);
+  if (!target || target.status !== "flagged" || target.superseded_by) return facts;
+  return facts.map((fact) => {
+    if (fact.id !== factId) return fact;
+    const { conflict_with, is_merge_suggestion, ...rest } = fact;
+    return { ...rest, status: "locked" };
+  });
+}
+
 /** Author accepts a proposal: it becomes locked truth. */
 export function approveFact(facts: NarrativeFact[], factId: string): NarrativeFact[] {
   const target = facts.find((fact) => fact.id === factId);

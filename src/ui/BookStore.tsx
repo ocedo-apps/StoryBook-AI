@@ -18,7 +18,7 @@ import {
   nextNotePosition,
   updateBrainstormNote
 } from "@core/brainstormNotes";
-import { applyAuthorAddition, applyAuthorDraft, applyExtractorDrafts, approveFact, rejectFact, reviseFact } from "@core/ConsistencyGate";
+import { applyAuthorAddition, applyAuthorDraft, applyExtractorDrafts, approveFact, keepFactSeparate, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { applyMarkerConversion, type MarkerConversionRule } from "@core/markerConversion";
 import { withRelationshipMirrorFor } from "@core/relationshipMirror";
 import { chapterScenes, mergeSceneWithNext, replaceSceneProse, sceneIdRemovedByMerge } from "@core/bookScene";
@@ -2168,6 +2168,16 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [flushSave]
   );
 
+  const keepSeparate = useCallback(
+    async (factId: string, value?: string) => {
+      const current = bookRef.current;
+      if (!current) return;
+      const next = value ? reviseFact(current.facts, factId, value) : current.facts;
+      await flushSave(touch(current, { facts: keepFactSeparate(next, factId) }));
+    },
+    [flushSave]
+  );
+
   const value: BookStoreValue = {
     summaries,
     book,
@@ -2255,7 +2265,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     addFact,
     reviseFact: revise,
     approve,
-    reject
+    reject,
+    keepSeparate
   };
 
   return <BookStoreContext.Provider value={value}>{children}</BookStoreContext.Provider>;

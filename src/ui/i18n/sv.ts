@@ -1051,6 +1051,7 @@ export const sv: Messages = {
     similarTo: "Liknar: {value} — verkar vara samma fakta, fast mer detaljerad",
     lock: "Lås",
     merge: "Slå ihop",
+    keepSeparate: "Behåll båda",
     reject: "Förkasta",
     show: "Visa",
     hide: "Dölj",

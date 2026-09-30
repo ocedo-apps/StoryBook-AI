@@ -65,7 +65,7 @@ export function BiblePanel({
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
 }) {
-  const { book, approve, reject, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
+  const { book, approve, reject, keepSeparate, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
   const [query, setQuery] = useState("");
@@ -272,6 +272,7 @@ export function BiblePanel({
           against={(id) => book.facts.find((row) => row.id === id)}
           onLock={(id, value) => void approve(id, value)}
           onReject={(id) => void reject(id)}
+          onKeepSeparate={(id, value) => void keepSeparate(id, value)}
           onClose={() => setOverlay(null)}
         />
       ) : null}
@@ -584,12 +585,14 @@ function ReviewOverlay({
   against,
   onLock,
   onReject,
+  onKeepSeparate,
   onClose
 }: {
   pending: NarrativeFact[];
   against: (id: string) => { value: string } | undefined;
   onLock: (id: string, value: string) => void;
   onReject: (id: string) => void;
+  onKeepSeparate: (id: string, value: string) => void;
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
@@ -607,6 +610,7 @@ function ReviewOverlay({
                 {...(conflict ? { against: conflict } : {})}
                 onLock={(value) => onLock(fact.id, value)}
                 onReject={() => onReject(fact.id)}
+                onKeepSeparate={(value) => onKeepSeparate(fact.id, value)}
               />
             );
           })}
@@ -1161,7 +1165,8 @@ function PendingFact({
   fact,
   against,
   onLock,
-  onReject
+  onReject,
+  onKeepSeparate
 }: {
   fact: {
     id: string;
@@ -1174,6 +1179,7 @@ function PendingFact({
   against?: { value: string };
   onLock: (value: string) => void;
   onReject: () => void;
+  onKeepSeparate: (value: string) => void;
 }) {
   const [draft, setDraft] = useState(fact.value);
   const { messages: m } = useLocale();
@@ -1196,6 +1202,11 @@ function PendingFact({
         <button type="button" className="primary" onClick={() => onLock(draft)} disabled={!draft.trim()}>
           {isMergeSuggestion ? m.bible.merge : m.bible.lock}
         </button>
+        {against ? (
+          <button type="button" className="text-button" onClick={() => onKeepSeparate(draft)} disabled={!draft.trim()}>
+            {m.bible.keepSeparate}
+          </button>
+        ) : null}
         <button type="button" className="text-button" onClick={onReject}>
           {m.bible.reject}
         </button>

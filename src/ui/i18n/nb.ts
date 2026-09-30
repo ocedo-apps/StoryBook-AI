@@ -1051,6 +1051,7 @@ export const nb: Messages = {
     similarTo: "Ligner: {value} — ser ut som samme fakta, bare mer detaljert",
     lock: "Lås",
     merge: "Slå sammen",
+    keepSeparate: "Behold begge",
     reject: "Avvis",
     show: "Vis",
     hide: "Skjul",
