@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.23] - 2026-09-30
+
+### Added
+- Facts extracted from an Interview can now be linked to a specific scene within a chapter, not just the chapter as a whole. For a chapter split into scenes, the "As of" picker lists its scenes alongside "Whole chapter"; a fact linked to a scene stays invisible to Draft until that scene's own pass, rather than from the whole chapter's first page — solving the mid-chapter-reveal problem the Handbook already described (a friend turning out to be the antagonist partway through a chapter, say), provided the author drafts scene by scene rather than the whole chapter in one pass. The Handbook's "From interview to story" section now walks through this with that exact example.
+
 ## [1.0.22] - 2026-09-30
 
 ### Changed

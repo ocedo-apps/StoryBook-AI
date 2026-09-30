@@ -82,6 +82,11 @@ export function chapterScenes(chapter: Chapter): BookScene[] {
   });
 }
 
+/** A chapter's own scenes, id -> position within it — for comparing a fact's `scene_id` against a scene-targeted Draft/Recast pass (see `ScenePosition` in `visibility.ts`). */
+export function sceneIndexById(chapter: Chapter): Map<string, number> {
+  return new Map(chapterScenes(chapter).map((scene) => [scene.id, scene.sequence_index]));
+}
+
 /**
  * Splits the scene that owns `paragraphIndex` so a new scene begins there.
  * No-ops at the chapter's first paragraph, past its last paragraph, or on

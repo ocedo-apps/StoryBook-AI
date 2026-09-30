@@ -48,7 +48,8 @@ export function CharacterInterviewCard({
   onExtractFacts,
   extractChapters,
   extractChapterId,
-  onExtractChapterIdChange,
+  extractSceneId,
+  onExtractPositionChange,
   onClose
 }: {
   entity: { ref: string; label: string; kind: BibleKind };
@@ -66,10 +67,16 @@ export function CharacterInterviewCard({
   onSavePersonality: () => void;
   onAsk: (question: string) => void;
   onExtractFacts: () => void;
-  /** In story-time order, so picking top-to-bottom follows the plot's own chronology, not the manuscript's page order. */
-  extractChapters: { id: string; title: string }[];
+  /**
+   * In story-time order, so picking top-to-bottom follows the plot's own
+   * chronology, not the manuscript's page order. `scenes` is only non-empty
+   * for a chapter the author has actually split into 2+ scenes — a plain
+   * chapter renders as one flat option, same as before scenes existed here.
+   */
+  extractChapters: { id: string; title: string; scenes: { id: string; title: string }[] }[];
   extractChapterId: string | null;
-  onExtractChapterIdChange: (chapterId: string) => void;
+  extractSceneId: string | null;
+  onExtractPositionChange: (chapterId: string, sceneId: string | null) => void;
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
@@ -106,16 +113,32 @@ export function CharacterInterviewCard({
               <label className="interview-extract-chapter" title={m.interview.extractAsOfHint}>
                 <span>{m.interview.extractAsOf}</span>
                 <select
-                  value={extractChapterId ?? ""}
-                  onChange={(event) => onExtractChapterIdChange(event.target.value)}
+                  value={extractSceneId ? `${extractChapterId}::${extractSceneId}` : extractChapterId ?? ""}
+                  onChange={(event) => {
+                    const raw = event.target.value;
+                    const sep = raw.indexOf("::");
+                    if (sep < 0) onExtractPositionChange(raw, null);
+                    else onExtractPositionChange(raw.slice(0, sep), raw.slice(sep + 2));
+                  }}
                   disabled={busy || extracting || blocked}
                   aria-label={m.interview.extractAsOf}
                 >
-                  {extractChapters.map((chapter) => (
-                    <option key={chapter.id} value={chapter.id}>
-                      {chapter.title}
-                    </option>
-                  ))}
+                  {extractChapters.map((chapter) =>
+                    chapter.scenes.length > 1 ? (
+                      <optgroup key={chapter.id} label={chapter.title}>
+                        <option value={chapter.id}>{m.interview.extractWholeChapter}</option>
+                        {chapter.scenes.map((scene) => (
+                          <option key={scene.id} value={`${chapter.id}::${scene.id}`}>
+                            {scene.title}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ) : (
+                      <option key={chapter.id} value={chapter.id}>
+                        {chapter.title}
+                      </option>
+                    )
+                  )}
                 </select>
               </label>
             ) : null}

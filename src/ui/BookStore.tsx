@@ -267,7 +267,15 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
    * starts (today's old behavior), but now as a visible, changeable choice
    * rather than a silent one.
    */
-  const [interviewExtractChapterId, setInterviewExtractChapterId] = useState<string | null>(null);
+  const [interviewExtractChapterId, setInterviewExtractChapterIdState] = useState<string | null>(null);
+  /**
+   * Which scene, within `interviewExtractChapterId`, the extracted fact is
+   * attributed to (roadmap-ideas.md #33 follow-up) — null means "the whole
+   * chapter," the old, simpler default. Set together with the chapter id
+   * (never independently) so the two can never point at mismatched
+   * chapters; see `setInterviewExtractPosition`.
+   */
+  const [interviewExtractSceneId, setInterviewExtractSceneId] = useState<string | null>(null);
   const [developSuggestion, setDevelopSuggestion] = useState<string | null>(null);
   const [importLoreProgress, setImportLoreProgress] = useState<{ current: number; total: number } | null>(null);
   const bookRef = useRef<Book | null>(null);
@@ -1668,13 +1676,21 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, models.length, ollamaError, recordPrompt, reviewModel]
   );
 
+  /** The only way to change either half of the extraction position — keeps chapter and scene from ever pointing at mismatched chapters. */
+  const setInterviewExtractPosition = useCallback((chapterId: string, sceneId: string | null) => {
+    setInterviewExtractChapterIdState(chapterId);
+    setInterviewExtractSceneId(sceneId);
+  }, []);
+
   const startInterview = useCallback((entityRef: string, entityLabel: string, kind: BibleKind) => {
     setInterviewEntity({ ref: entityRef, label: entityLabel, kind });
     setInterviewHistory([]);
     setInterviewPersonalityDraft(profileFor(bookRef.current?.profiles ?? [], entityRef).personality);
     const current = bookRef.current;
     const opened = current?.chapters.find((item) => item.id === chapterRef.current);
-    setInterviewExtractChapterId(opened?.id ?? (current ? sortedChapters(current)[0]?.id ?? null : null));
+    const chapterId = opened?.id ?? (current ? sortedChapters(current)[0]?.id ?? null : null);
+    setInterviewExtractChapterIdState(chapterId);
+    setInterviewExtractSceneId(null);
   }, []);
 
   const closeInterview = useCallback(() => {
@@ -1682,7 +1698,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     setInterviewEntity(null);
     setInterviewHistory([]);
     setInterviewPersonalityDraft("");
-    setInterviewExtractChapterId(null);
+    setInterviewExtractChapterIdState(null);
+    setInterviewExtractSceneId(null);
   }, []);
 
   const saveInterviewPersonality = useCallback(() => {
@@ -1832,7 +1849,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         current.chapters.find((item) => item.id === chapterRef.current) ??
         sortedChapters(current)[0];
       if (!chapter) return;
-      const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id);
+      // Only trust interviewExtractSceneId when it actually belongs to the
+      // chapter just resolved — setInterviewExtractPosition keeps the two in
+      // sync, but the chapter fallbacks above exist precisely for when
+      // interviewExtractChapterId itself couldn't be resolved.
+      const sceneId = chapter.id === interviewExtractChapterId ? (interviewExtractSceneId ?? undefined) : undefined;
+      const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
       await flushSave(touch(current, { facts: nextFacts }));
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
@@ -1850,6 +1872,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     flushSave,
     interviewEntity,
     interviewExtractChapterId,
+    interviewExtractSceneId,
     interviewHistory,
     models.length,
     ollamaError,
@@ -2232,7 +2255,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     interviewHistory,
     interviewPersonalityDraft,
     interviewExtractChapterId,
-    setInterviewExtractChapterId,
+    interviewExtractSceneId,
+    setInterviewExtractPosition,
     developSuggestion,
     importLoreProgress,
     refresh,

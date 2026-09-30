@@ -54,6 +54,7 @@ import {
 } from "@core/BookSchema";
 import { computeGoalPace, manuscriptWordCount } from "@core/writingGoal";
 import { moveStoryTimeOrder, timelineEntries } from "@core/timeline";
+import { chapterScenes } from "@core/bookScene";
 import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
 import { addPlotline, plotlinesForChapter, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
@@ -392,9 +393,25 @@ export function Editor() {
   const interviewImage = interviewPicture?.imageDataUrl;
   // Story-time order, not manuscript order, so picking top-to-bottom follows
   // the plot's own chronology — matters for choosing where a fact from an
-  // Interview actually becomes true (see extractChapterId in BookStore).
+  // Interview actually becomes true (see setInterviewExtractPosition in
+  // BookStore). Scenes are only listed for a chapter actually split into
+  // 2+ of them — a plain chapter still renders as one flat option.
   const interviewExtractChapters = store.interviewEntity
-    ? timelineEntries(book).map((entry) => ({ id: entry.chapterId, title: entry.chapterTitle.trim() || m.editor.untitled }))
+    ? timelineEntries(book).map((entry) => {
+        const chapter = book.chapters.find((c) => c.id === entry.chapterId);
+        const scenes = chapter ? chapterScenes(chapter) : [];
+        return {
+          id: entry.chapterId,
+          title: entry.chapterTitle.trim() || m.editor.untitled,
+          scenes:
+            scenes.length > 1
+              ? scenes.map((scene, index) => ({
+                  id: scene.id,
+                  title: scene.title?.trim() || format(m.interview.extractSceneFallback, { index: index + 1 })
+                }))
+              : []
+        };
+      })
     : [];
   const pageText =
     onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
@@ -1611,7 +1628,8 @@ export function Editor() {
           onExtractFacts={() => void store.extractInterview()}
           extractChapters={interviewExtractChapters}
           extractChapterId={store.interviewExtractChapterId}
-          onExtractChapterIdChange={store.setInterviewExtractChapterId}
+          extractSceneId={store.interviewExtractSceneId}
+          onExtractPositionChange={store.setInterviewExtractPosition}
           onClose={store.closeInterview}
         />
       ) : null}

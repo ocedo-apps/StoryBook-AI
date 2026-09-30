@@ -1,9 +1,68 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.22
+Status: living document, v1.0.23
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.22 → v1.0.23 (2026-09-30):** Mats läste
+förklaringen av kapitel-vs-punkt-nyansen och frågade om man kunde
+lösa problemet genom att koppla fakta till en SCEN i kapitlet istället
+för hela kapitlet — och bad om en teknisk bedömning av om det var
+möjligt. Jag bekräftade att det var görbart (fältet `scene_id` finns
+redan på `NarrativeFact` och sattes redan av kapitel-extraktion, bara
+oanvänt av story-time-grinden; scenernas egen ordning finns redan i
+`chapterScenes`) och förklarade begränsningen: det fungerar bara om
+man skriver scen för scen, inte om man drafter hela kapitlet i ett
+svep. Mats instruktion: "VI bygger in scenkopplingen och uppdaterar
+Guiden så att man får med detta. Kanske med ett exempel som det med
+kompisen som upptäcker att hans vän är antagonisten mitt i kapitlet
+och hur arbetsgången blir för att lösa problemet."
+
+**Ändring:** `factQualifiesAtPosition`/`visibleLockedFactsAtPosition`
+(`src/core/visibility.ts`) tar nu en valfri `scenePosition` — en
+scens index plus en karta över det egna kapitlets scen-index
+(`sceneIndexById`, ny i `src/core/bookScene.ts`). En fakta från SAMMA
+kapitel som drafteringen gäller kvalificerar nu bara om dess egen
+`scene_id` ligger på eller före den scen som drafteras — men bara när
+ett `scenePosition` faktiskt skickas in, dvs bara för ett scen-för-
+scen-Draft (`draftSceneUserPrompt` i `generateProse.ts`, via
+`formatBibleForPromptAtPosition`s nya valfria `sceneId`-parameter).
+Ett Draft för hela kapitlet (`draftUserPrompt`, ingen `sceneId`) samt
+Recast/Proofread/Analyze/Brainstorm/Ask Manuscript (som redan såg hela
+Story Bible, utan positionsfiltrering) är helt opåverkade — additiv,
+bakåtkompatibel ändring.
+
+UI: `BookStore.tsx` har nu `interviewExtractSceneId` +
+`setInterviewExtractPosition(chapterId, sceneId)` (ersätter den gamla
+kapitel-bara settern). `CharacterInterviewCard.tsx`s "Från och med"-
+väljare (döpt om från "Från och med kapitel" till bara "Från och
+med") visar nu, för ett kapitel som delats i 2+ scener, en
+`<optgroup>` per kapitel med "Hela kapitlet" plus varje scen — annars
+en vanlig platt kapitel-rad precis som innan scener fanns med.
+`Editor.tsx` bygger den nästlade kapitel+scen-strukturen via
+`chapterScenes` (`@core/bookScene`).
+
+Guiden: skrev om `handbookSections["interview-to-story"]` (alla tre
+språk) med Mats eget scenario — en kompis, Marcus, som visar sig vara
+antagonisten mitt i kapitel 6 — och den nya arbetsgången: dela
+kapitlet i scener vid avslöjandet, plocka ut faktan från Intervjun och
+koppla den till avslöjandets egen scen istället för "Hela kapitlet",
+skriv sedan scen för scen. Nämner uttryckligen att detta bara hjälper
+vid scen-för-scen-Draft — den äldre två-omgångs-lösningen står kvar
+för den som föredrar att skriva hela kapitel i ett svep.
+
+Nya enhetstester i `tests/core/visibility.test.ts` (6 st) täcker: en
+scen-kopplad fakta från samma kapitel döljs för en tidigare scen och
+visas från och med sin egen scen; en fakta utan `scene_id` förblir
+kapitel-nivå-synlig oavsett scen; ett `scenePosition` ignoreras helt
+för hela-kapitel-Draft och för fakta från tidigare kapitel; en
+`scene_id` som inte går att slå upp i kapitlets egen scenlista faller
+tillbaka till synlig (fail-open, samma princip som `chapter_id` utan
+matchande rank). Verifierat live med Playwright: nytt manus, kapitel
+delat i två scener, ny karaktär, Intervju öppnad, "Från och med"-
+väljaren visar korrekt `<optgroup>` med "Hela kapitlet"/"Scen 1"/den
+namngivna scenen, och valet av scenen slår igenom i UI:t.
 
 **Ändringslogg v1.0.21 → v1.0.22 (2026-09-30):** Mats bad mig
 dokumentera kapitel-vs-punkt-nyansen i Guiden, med sitt eget exempel:

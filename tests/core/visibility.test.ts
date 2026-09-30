@@ -85,6 +85,53 @@ describe("visibleLockedFactsAtPosition", () => {
   });
 });
 
+describe("visibleLockedFactsAtPosition with scenePosition", () => {
+  const ranks = new Map([
+    ["ch1", 0],
+    ["ch2", 1]
+  ]);
+  const scenesOfCh2 = new Map([
+    ["ch2:scene-1", 0],
+    ["ch2:scene-2", 1],
+    ["ch2:scene-3", 2]
+  ]);
+
+  it("hides a same-chapter fact tied to a later scene than the one being drafted", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch2", scene_id: "ch2:scene-3" };
+    const atScene1 = { atSceneIndex: 0, sceneIndexById: scenesOfCh2 };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1, atScene1)).toEqual([]);
+  });
+
+  it("shows a same-chapter fact once the drafted scene reaches its own scene", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch2", scene_id: "ch2:scene-3" };
+    const atScene3 = { atSceneIndex: 2, sceneIndexById: scenesOfCh2 };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1, atScene3).map((row) => row.id)).toEqual(["1"]);
+  });
+
+  it("keeps a same-chapter fact with no scene_id visible for any scene — chapter-level attribution, unchanged", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch2" };
+    const atScene1 = { atSceneIndex: 0, sceneIndexById: scenesOfCh2 };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1, atScene1).map((row) => row.id)).toEqual(["1"]);
+  });
+
+  it("keeps a same-chapter, scene-tagged fact visible for a whole-chapter Draft pass (no scenePosition given)", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch2", scene_id: "ch2:scene-3" };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1).map((row) => row.id)).toEqual(["1"]);
+  });
+
+  it("ignores scenePosition entirely for a fact from an earlier chapter — already settled by chapter rank", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch1", scene_id: "ch1:scene-9" };
+    const atScene1 = { atSceneIndex: 0, sceneIndexById: scenesOfCh2 };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1, atScene1).map((row) => row.id)).toEqual(["1"]);
+  });
+
+  it("falls back to visible when the fact's scene_id doesn't resolve in the chapter's own scene list", () => {
+    const fact: NarrativeFact = { ...emma, chapter_id: "ch2", scene_id: "not-a-real-scene" };
+    const atScene1 = { atSceneIndex: 0, sceneIndexById: scenesOfCh2 };
+    expect(visibleLockedFactsAtPosition([fact], [], ranks, 1, atScene1).map((row) => row.id)).toEqual(["1"]);
+  });
+});
+
 describe("position override setter/cycle", () => {
   it("cycles automatic -> include -> exclude -> automatic", () => {
     expect(nextPositionOverride(undefined)).toBe("include");

@@ -3,7 +3,7 @@ import { formatPredecessorForDraft } from "./continuesFrom";
 import { PREDICATE_LABELS } from "./predicates";
 import type { Book, Chapter } from "./BookSchema";
 import { sortedChapters } from "./BookSchema";
-import { chapterScenes } from "./bookScene";
+import { chapterScenes, sceneIndexById } from "./bookScene";
 import { formatCraftForDraft, resolveCraft, summarizeCraft } from "./craft";
 import { plotlinesForChapter } from "./plotlines";
 import { formatReaderForPrompt, resolveReader } from "./reader";
@@ -77,14 +77,35 @@ export function formatBibleForPrompt(book: Book, empty = DEFAULT_EMPTY_BIBLE): s
  * yet. Falls back to the full Story Bible if this chapter has no resolvable
  * story-time position (shouldn't happen for a live chapter, but never
  * silently drop facts over it).
+ *
+ * `sceneId`, when given (a scene-targeted Draft/Recast pass), also narrows
+ * facts from THIS SAME chapter down to their own scene position — a fact
+ * an author attributed to a later scene (roadmap-ideas.md #33 follow-up: an
+ * old friend who turns out, mid-chapter, to be the story's antagonist)
+ * stays invisible to an earlier scene's own Draft pass, instead of reading
+ * as true from the chapter's very first page just because it shares the
+ * chapter. Facts from other chapters are unaffected either way — only
+ * `atRank` decides those, same as before.
  */
-export function formatBibleForPromptAtPosition(book: Book, chapter: Chapter, empty = DEFAULT_EMPTY_BIBLE): string {
+export function formatBibleForPromptAtPosition(
+  book: Book,
+  chapter: Chapter,
+  sceneId?: string,
+  empty = DEFAULT_EMPTY_BIBLE
+): string {
   const ranks = storyTimeRankByChapterId(book);
   const atRank = ranks.get(chapter.id);
-  const rows =
-    atRank === undefined
-      ? visibleLockedFacts(book.facts, book.hidden_entities)
-      : visibleLockedFactsAtPosition(book.facts, book.hidden_entities, ranks, atRank);
+  if (atRank === undefined) {
+    return renderBibleRows(visibleLockedFacts(book.facts, book.hidden_entities), book, empty);
+  }
+  const scenePosition = sceneId
+    ? (() => {
+        const byId = sceneIndexById(chapter);
+        const atSceneIndex = byId.get(sceneId);
+        return atSceneIndex === undefined ? undefined : { atSceneIndex, sceneIndexById: byId };
+      })()
+    : undefined;
+  const rows = visibleLockedFactsAtPosition(book.facts, book.hidden_entities, ranks, atRank, scenePosition);
   return renderBibleRows(rows, book, empty);
 }
 
@@ -166,7 +187,7 @@ export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: stri
     book.synopsis.trim()
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
-    `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
+    `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter, scene.id)}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
     formatPlotlinesForPrompt(book, chapter),
