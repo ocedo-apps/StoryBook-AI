@@ -387,7 +387,9 @@ export function Editor() {
   const names = entityLabels(book.facts, book.entity_kinds);
   const nameLinks = entityRefsAndLabels(book.facts, book.entity_kinds);
   const [openEntitySignal, setOpenEntitySignal] = useState<{ ref: string } | null>(null);
-  const interviewThumb = store.interviewEntity ? picturesFor(book.media, store.interviewEntity.ref)[0]?.thumbDataUrl : undefined;
+  const interviewPicture = store.interviewEntity ? picturesFor(book.media, store.interviewEntity.ref)[0] : undefined;
+  const interviewThumb = interviewPicture?.thumbDataUrl;
+  const interviewImage = interviewPicture?.imageDataUrl;
   const pageText =
     onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? ""
@@ -1589,6 +1591,7 @@ export function Editor() {
         <CharacterInterviewCard
           entity={store.interviewEntity}
           {...(interviewThumb !== undefined ? { characterThumb: interviewThumb } : {})}
+          {...(interviewImage !== undefined ? { characterImage: interviewImage } : {})}
           history={store.interviewHistory}
           busy={busy === "interview"}
           extracting={busy === "extract-interview"}

@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.16] - 2026-09-30
+
+### Added
+- Interview now shows the entity's own portrait (its first Story Bible picture) at the top of the info column, right below the title — matching a mockup shared by the author. Falls back to the same initial-letter placeholder the small chat avatars already use when the entity has no picture yet.
+
 ## [1.0.15] - 2026-09-29
 
 ### Added

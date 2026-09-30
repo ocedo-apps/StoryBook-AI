@@ -1,9 +1,40 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.15
+Status: living document, v1.0.16
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.15 → v1.0.16 (2026-09-30):** Mats skickade en
+mockup (en skärmdump från Pinterest, med "Spara"-märket och krysset
+i hörnet kvar — irrelevant, det visade bara VAR bilden skulle sitta):
+ett stort porträtt av Lena högst upp i infokolumnen, mellan titeln
+"Interview Lena" och ledetexten. Önskemål: platshållare om
+personen/platsen saknar bild.
+
+**Byggt:** Ny `EntityPortrait`-komponent i
+`CharacterInterviewCard.tsx`, syskon till den redan existerande
+`CharacterAvatar` (den lilla runda chatt-avataren) — samma
+fallback-princip (initialbokstav) men i stor fyrkantig form
+(`aspect-ratio: 1`, `border-radius: 8px`, `object-fit: cover`).
+Placerad mellan `<h2>`-titeln och lede-paragrafen i
+`.interview-info`, matchar mockupens ordning exakt.
+
+Bilddatan fanns redan tillgänglig: `picturesFor(book.media,
+entity.ref)[0]` (samma funktion som redan användes för den lilla
+chatt-avataren via `thumbDataUrl`) har också ett `imageDataUrl`-fält
+(fullstorlek, inte nedskalad thumb) — bättre lämpat för ett stort
+porträtt. `Editor.tsx` läser nu båda ur samma `picturesFor(...)[0]`-
+anrop istället för att anropa det två gånger.
+
+Verifierat live i webbläsare med en full flödestest (Playwright):
+skapade ett testmanus, skapade en ny karaktär "Lena" via Story
+Bible, öppnade Interview utan bild → platshållaren visade "L"
+exakt där mockupen visade bilden. Laddade sedan upp en (1×1 pixel,
+bara för teknisk verifiering) testbild via karaktärskortets egen
+bilduppladdning, öppnade Interview igen → `<img>` fyllde samma ruta
+korrekt via `object-fit: cover`. Båda kodvägarna bekräftat
+fungerande, inte bara typkontrollerade.
 
 **Ändringslogg v1.0.14 → v1.0.15 (2026-09-29):** Mats: "ska man kunna
 öppna och stänga rutan? Det är väl inte så ofta man byter Engine och

@@ -11,6 +11,15 @@ function CharacterAvatar({ thumb, label }: { thumb: string | undefined; label: s
   );
 }
 
+/** The larger portrait at the top of the info column — a full picture from the Story Bible entity's own gallery when it has one, the same initial-letter fallback as the small chat avatar when it doesn't. */
+function EntityPortrait({ image, label }: { image: string | undefined; label: string }) {
+  return (
+    <div className="interview-portrait" aria-hidden="true">
+      {image ? <img src={image} alt="" /> : <span className="interview-portrait-fallback">{label.trim().charAt(0).toUpperCase() || "?"}</span>}
+    </div>
+  );
+}
+
 function AuthorAvatar() {
   return (
     <span className="interview-avatar" aria-hidden="true">
@@ -25,6 +34,7 @@ function AuthorAvatar() {
 export function CharacterInterviewCard({
   entity,
   characterThumb,
+  characterImage,
   history,
   busy,
   extracting,
@@ -40,6 +50,7 @@ export function CharacterInterviewCard({
 }: {
   entity: { ref: string; label: string; kind: BibleKind };
   characterThumb?: string;
+  characterImage?: string;
   history: InterviewMessage[];
   busy: boolean;
   extracting: boolean;
@@ -100,6 +111,7 @@ export function CharacterInterviewCard({
         <div className="interview-body">
           <div className="interview-info">
             <h2 id="interview-title">{format(isCharacter ? m.interview.title : m.interview.titleWorld, { name: entity.label })}</h2>
+            <EntityPortrait image={characterImage} label={entity.label} />
             <p className="quiet">{format(isCharacter ? m.interview.lede : m.interview.ledeWorld, { name: entity.label })}</p>
 
             {isCharacter ? (
