@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.28
+Status: living document, v1.0.29
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -116,13 +116,78 @@ gröna på webbapps-sidan innan push. **Inte verifierat härifrån:**
 riktiga VRAM-siffror och det faktiska installationsflödet på en
 riktig Windows-dator — det är Mats att bekräfta.
 
+**Uppdatering — Uppdateringskoll klar (2026-09-30, Mats valde
+"Uppdateringskoll i appen" som nästa steg).**
+
+Rust-sidan (`src-tauri/src/update_check.rs`, ny modul): `GET
+https://api.github.com/repos/ocedo-apps/StoryBook-AI/releases/latest`
+(ureq 3.4 med rustls — verifierade dess exakta 3.x-API mot den
+nedladdade crate-källan innan jag skrev mot den, eftersom 2.x→3.x
+ändrade request/response-formen rejält). Jämför `tag_name` mot
+`app.package_info().version` (satt via `tauri.conf.json`s eget
+`"version"`-fält, samma siffra som `package.json` — en enda sanning,
+ingen synk-risk mellan webbappens och launcherns versionsnummer).
+En egen liten semver-tupel-parser (`parse_semver`, inte
+`semver`-cratet — bara `major.minor.patch`, inget pre-release-behov)
+gör själva jämförelsen, enhetstestad (6 tester totalt i modulen +
+system_check.rs). Viktigt designval: Rust-sidan returnerar bara
+siffror/URL:er, ALDRIG färdig UI-text — samma mönster som
+GPU-tier-nycklarna i förra rundan, av samma skäl (appens språkval
+sv/en/nb hör hemma i `src/ui/i18n`, inte hårdkodat i Rust).
+
+`storybookai://`-protokollet: `tauri-plugin-deep-link` (registrerat
+för schemat `storybookai` i `tauri.conf.json`). Upptäckte i
+pluginets README ett viktigt Windows/Linux-specifikt beteende jag
+inte kände till innan: till skillnad från macOS/iOS, där pluginet
+skickar ett event, startar Windows/Linux OS:et en HELT NY
+app-instans med länken som enda kommandoradsargument — ingen
+`onOpenUrl`-lyssnare att sätta upp. Löste det genom att i appens
+egen `setup()` anropa `handle_cli_arguments(std::env::args())` och,
+om en `storybookai://`-länk hittas, köra samma uppdateringskoll direkt
+och öppna GitHub-sidan om en nyare version finns — den enda rimliga
+handlingen för en process vars enda syfte just då är att ha blivit
+startad av den länken.
+
+Generaliserade samtidigt `open_ollama_download_page` (förra rundan)
+till en bredare `open_external_url(url)` — låst till `https://` (ett
+enkelt guard-test), eftersom den nu har två anropare (Ollama-länken
+OCH "Visa på GitHub"-länken i uppdateringsresultatet) och en ren
+`<a target="_blank">` inte är garanterat att öppna systemets
+webbläsare från Tauris webview på samma sätt på alla plattformar —
+samma verifierade `tauri-plugin-opener`-väg för båda.
+
+CI (`desktop-build.yml`): lade till ett publiceringssteg
+(`softprops/action-gh-release`) som taggar `v<package.json-version>`
+och bifogar `.exe`-filen som en riktig GitHub Release — inte bara den
+90-dagars-förfallande workflow-artefakten som tidigare var enda sättet
+att hämta bygget. Det här var nödvändigt, inte kosmetiskt:
+uppdateringskollen behöver en beständig sanningskälla att jämföra mot
+OCH en länk som faktiskt fortfarande fungerar om någon klickar den om
+tre månader. Släppnoteringar hämtas automatiskt ur CHANGELOG.mds
+översta `## [x.y.z]`-sektion (ett litet `awk`-skript), så det inte
+blir ett separat steg att komma ihåg vid varje version.
+
+Guiden uppdaterad enligt påminnelsen från förra rundan
+(`handbookSections.privacy`, alla tre språk): tog bort "inga
+uppdateringskontroller mot GitHub"-meningen, la till en ny mening om
+att den fristående skrivbordsappen (frivilligt) kan kolla sin egen
+version — aldrig manuset, som den inte ens har tillgång till.
+Huvudlöftet orört.
+
+Verifierat: `cargo check`/`test`/`clippy`/`rustfmt --check` rent (6
+Rust-tester), `tsc --noEmit`, `npm run build` (den riktiga kedjan) och
+alla 775 tester gröna, samt en live-skärmdump via `npm run tauri --
+dev` under Xvfb som bekräftar att "Check for updates"- och "Install
+Ollama"-knapparna renderas korrekt utan krasch (ingen `nvidia-smi` i
+sandlådan, så GPU-förslaget uteblir tyst, som väntat). **Inte
+verifierat härifrån:** att GitHub Release-publiceringen faktiskt
+går igenom i CI, att `storybookai://`-länken faktiskt startar en ny
+instans och triggar kollen på en riktig Windows-dator, att knappens
+nätverksanrop mot api.github.com faktiskt lyckas i produktion (kunde
+inte klick-testa det här — ingen `xdotool` i sandlådan).
+
 **Kvarstår, inte påbörjat:** provköra .exe-filen på en riktig
-Windows-dator (inte gjort härifrån), uppdateringskoll (`invoke`-
-bryggan respektive `storybookai://`-protokollet, se
-roadmap-ideas.md #35), Inno Setup-stubben. Kom ihåg: när
-uppdateringskollen faktiskt shippas, samma commit ska skärpa
-`handbookSections.privacy`-raden om "inga uppdateringskontroller mot
-GitHub" (redan loggat i detalj i roadmap-ideas.md #35).
+Windows-dator (inte gjort härifrån), Inno Setup-stubben.
 
 ---
 

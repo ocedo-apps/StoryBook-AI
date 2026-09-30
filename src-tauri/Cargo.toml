@@ -24,3 +24,5 @@ log = "0.4"
 tauri = { version = "2.12.0", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-opener = "2"
+ureq = { version = "3", default-features = false, features = ["rustls", "gzip", "json"] }
+tauri-plugin-deep-link = "2"

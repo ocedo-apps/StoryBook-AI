@@ -3,7 +3,15 @@ import { useBookStore } from "./useBookStore";
 import { HandbookPanel } from "./HandbookPanel";
 import { ModelSelect } from "./SettingsPanel";
 import { count, format, translateError, useLocale } from "./i18n";
-import { detectGpuSuggestion, isDesktopApp, openOllamaDownloadPage, type GpuSuggestion } from "./desktopBridge";
+import {
+  checkForUpdates,
+  detectGpuSuggestion,
+  isDesktopApp,
+  openExternalUrl,
+  openOllamaDownloadPage,
+  type GpuSuggestion,
+  type UpdateStatus
+} from "./desktopBridge";
 
 const GPU_TIER_KEY = {
   "3b": "desktopGpuTier3b",
@@ -71,6 +79,20 @@ export function Home({
     };
   }, []);
 
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
+  const [updateChecking, setUpdateChecking] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  function runUpdateCheck() {
+    setUpdateChecking(true);
+    setUpdateError(null);
+    setUpdateStatus(null);
+    checkForUpdates()
+      .then(setUpdateStatus)
+      .catch((err: unknown) => setUpdateError(String(err)))
+      .finally(() => setUpdateChecking(false));
+  }
+
   function submitNew(event?: React.SyntheticEvent) {
     event?.preventDefault();
     void newBook(title).then(() => setTitle(""));
@@ -94,6 +116,11 @@ export function Home({
             <button type="button" className="home-guide-button" onClick={() => fileRef.current?.click()}>
               {m.home.importBackup}
             </button>
+            {isDesktopApp() ? (
+              <button type="button" className="home-guide-button" onClick={runUpdateCheck} disabled={updateChecking}>
+                {updateChecking ? m.home.desktopCheckingUpdate : m.home.desktopCheckUpdate}
+              </button>
+            ) : null}
             <input
               ref={fileRef}
               className="setup-file"
@@ -108,6 +135,24 @@ export function Home({
           </div>
         </div>
         <p className="lede">{m.home.lede}</p>
+        {updateError ? (
+          <p className="banner home-banner" role="status">
+            {format(m.home.desktopUpdateCheckFailed, { error: updateError })}
+          </p>
+        ) : updateStatus ? (
+          <p className="quiet" role="status">
+            {updateStatus.updateAvailable ? (
+              <>
+                {format(m.home.desktopUpdateAvailable, { current: updateStatus.current, latest: updateStatus.latest })}{" "}
+                <button type="button" className="link-button" onClick={() => void openExternalUrl(updateStatus.releaseUrl)}>
+                  {m.home.desktopUpdateLink}
+                </button>
+              </>
+            ) : (
+              format(m.home.desktopUpToDate, { current: updateStatus.current })
+            )}
+          </p>
+        ) : null}
       </header>
 
       {error ? (

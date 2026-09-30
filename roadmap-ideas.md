@@ -1331,25 +1331,41 @@ webbläsare. Detaljer i project_spec.md v1.0.28. **Inte verifierat
 härifrån:** riktiga VRAM-siffror, det faktiska installationsflödet
 på riktig hårdvara.
 
-**Kvarstår, inte påbörjat:** uppdateringskoll-UI +
-`storybookai://`-protokollregistrering, Inno Setup-stubben.
+**Uppdatering: uppdateringskoll klar (2026-09-30, Mats valde denna
+som nästa steg).** "Kolla efter uppdateringar"-knapp på hemskärmen
+(desktop-only), jämför mot senaste GitHub Release. `storybookai://`
+-protokollet byggt (`tauri-plugin-deep-link`) — viktig upptäckt:
+till skillnad från macOS/iOS skickar Windows/Linux INGET event, utan
+startar en helt ny app-instans med länken som kommandoradsargument;
+löst genom att läsa `std::env::args()` i appens egen `setup()`.
+CI publicerar nu en riktig, beständig GitHub Release (tagg
+`v<version>`, `.exe` bifogad) istället för bara den 90-dagars-
+förfallande workflow-artefakten — nödvändigt för att uppdaterings-
+kollen ska ha något stabilt att jämföra mot och länka till. Guiden
+uppdaterad enligt påminnelsen nedan (sparas kvar här som historik).
+Detaljer i project_spec.md v1.0.29. **Inte verifierat härifrån:**
+att Release-publiceringen går igenom i CI, att `storybookai://`
+faktiskt fungerar på en riktig Windows-dator, att knappens
+nätverksanrop mot api.github.com lyckas i produktion.
 
-**Kom ihåg när uppdateringskollen byggs: Guiden måste uppdateras.**
+**Kvarstår, inte påbörjat:** Inno Setup-stubben (online-installer-
+delen, se ovan), provköra hela kedjan (inte bara byggt, utan
+uppdateringsflödet) på riktig hårdvara.
+
+**Guide-påminnelsen nedan är nu åtgärdad** (behållen som historik):
 `handbookSections.privacy` (alla tre språk — "Ett helt stängt
-digitalt kassaskåp") lovar idag uttryckligen "inga
+digitalt kassaskåp") lovade tidigare uttryckligen "inga
 uppdateringskontroller mot GitHub" som ett av flera konkreta
-bevis för att appen är helt lokal. Den raden blir sakligt fel så
+bevis för att appen är helt lokal. Den raden blev sakligt fel så
 fort launcher-appen kan kolla GitHub för nya versioner av sig
 själv — även om StoryBooks egen kod (webbappen) aldrig gör det
 anropet själv (se resonemanget om Tauri-bryggan ovan). Huvud-
-löftet ("ditt manus lämnar aldrig din dator") ska INTE mjukas upp —
-det stämmer fortfarande, absolut. Bara GitHub-raden behöver
-skärpas till något i stil med: "ingen del av StoryBook AI skickar
-ditt manus någonstans; den fristående skrivbordsappen (frivillig)
-kan kolla om det finns en nyare version av sig själv, aldrig av
-din text." Gör den ändringen i samma commit som uppdaterings-
-kollen faktiskt shippas — inte innan (då riskerar texten att driva
-isär från den verkliga implementationen).
+löftet ("ditt manus lämnar aldrig din dator") mjukades INTE upp —
+det stämmer fortfarande, absolut. Bara GitHub-raden skärptes till:
+"ingen del av StoryBook AI skickar ditt manus någonstans; den
+fristående skrivbordsappen (frivillig) kan kolla om det finns en
+nyare version av sig själv, aldrig av din text." Ändringen gjordes
+i samma commit som uppdateringskollen faktiskt shippades.
 
 ---
 

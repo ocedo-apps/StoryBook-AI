@@ -49,10 +49,19 @@ pub fn detect_gpu_suggestion() -> Option<GpuSuggestion> {
     })
 }
 
+fn is_allowed_external_url(url: &str) -> bool {
+    url.starts_with("https://")
+}
+
+/// Opens a URL in the system's default browser. Restricted to `https://` —
+/// this is a general-purpose bridge command, not just for the Ollama link
+/// below, so it shouldn't silently accept `file://` or other local schemes.
 #[tauri::command]
-pub fn open_ollama_download_page() -> Result<(), String> {
-    tauri_plugin_opener::open_url("https://ollama.com/download", None::<&str>)
-        .map_err(|err| err.to_string())
+pub fn open_external_url(url: String) -> Result<(), String> {
+    if !is_allowed_external_url(&url) {
+        return Err(format!("Refusing to open non-https URL: {url}"));
+    }
+    tauri_plugin_opener::open_url(url, None::<&str>).map_err(|err| err.to_string())
 }
 
 #[cfg(test)]
@@ -74,5 +83,13 @@ mod tests {
         assert_eq!(suggest_model_tier(11_999), suggest_model_tier(6_000));
         assert_eq!(suggest_model_tier(19_999), suggest_model_tier(12_000));
         assert_eq!(suggest_model_tier(31_999), suggest_model_tier(20_000));
+    }
+
+    #[test]
+    fn only_https_urls_are_allowed() {
+        assert!(is_allowed_external_url("https://ollama.com/download"));
+        assert!(!is_allowed_external_url("http://ollama.com/download"));
+        assert!(!is_allowed_external_url("file:///etc/passwd"));
+        assert!(!is_allowed_external_url("javascript:alert(1)"));
     }
 }

@@ -9,6 +9,15 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.29] - 2026-09-30
+
+### Added
+- The desktop app can now check for updates: a "Check for updates" button on the home screen compares the running app against the latest GitHub release and links straight to it when a newer one exists. Desktop-app-only, same as the Ollama helper above. Every push to main now also publishes a GitHub Release with the Windows installer attached (instead of only the 90-day workflow-run artifact), so there's a stable link to check against and to actually download.
+- Clicking a `storybookai://` link (from anywhere, including a plain browser tab) launches the desktop app and runs the same update check, opening the release page directly if one is available — the fallback path for anyone running StoryBook AI manually instead of through the desktop app.
+
+### Changed
+- The Guide's privacy section no longer claims "no update checks against GitHub" — that stopped being true once the desktop app could check for its own updates. The core promise is unchanged and still holds without qualification: StoryBook AI itself never sends your manuscript anywhere. The desktop app's optional update check only ever asks about its own version, never your text, which it doesn't have access to.
+
 ## [1.0.28] - 2026-09-30
 
 ### Added

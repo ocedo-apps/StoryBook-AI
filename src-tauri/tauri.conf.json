@@ -1,13 +1,20 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "StoryBook AI",
-  "version": "0.1.0",
+  "version": "1.0.29",
   "identifier": "se.ocedo.storybookai",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5175",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["storybookai"]
+      }
+    }
   },
   "app": {
     "windows": [

@@ -55,7 +55,13 @@ export const sv: Messages = {
     desktopGpuTier7b: "en modell på ungefär 7-8 miljarder parametrar (4-bit)",
     desktopGpuTier14b: "en modell på ungefär 13-14 miljarder parametrar (4-bit)",
     desktopGpuTier30b: "en modell på ungefär 30-34 miljarder parametrar (4-bit)",
-    desktopGpuTier70b: "en stor modell, 70 miljarder parametrar eller mer (4-bit)"
+    desktopGpuTier70b: "en stor modell, 70 miljarder parametrar eller mer (4-bit)",
+    desktopCheckUpdate: "Kolla efter uppdateringar",
+    desktopCheckingUpdate: "Letar efter uppdateringar…",
+    desktopUpdateAvailable: "En ny version finns ({latest}, du har {current}).",
+    desktopUpdateLink: "Visa på GitHub",
+    desktopUpToDate: "Du har den senaste versionen ({current}).",
+    desktopUpdateCheckFailed: "Kunde inte kolla efter uppdateringar: {error}"
   },
   editor: {
     manuscriptTitle: "Manustitel",
@@ -533,7 +539,7 @@ export const sv: Messages = {
     sections: {
       privacy: {
         heading: "Ett helt stängt digitalt kassaskåp",
-        body: "StoryBook AI är byggd kring en enda regel: ditt manus är din egendom, och det ska aldrig lämna din dator. Det finns ingen väg ut mot internet i appen — inga API-nycklar till ChatGPT, Claude eller andra molntjänster (det är inte en saknad funktion, utan ett medvetet val), inga uppdateringskontroller mot GitHub, och typsnitten ligger paketerade i appen istället för att hämtas utifrån. Din text lagras enbart lokalt i webbläsaren, och AI-modellen körs enbart på din egen processor. Oavsett vad du skriver — dagbok, företagshemligheter eller nästa stora fantasy-epos — stannar varje bokstav hos dig."
+        body: "StoryBook AI är byggd kring en enda regel: ditt manus är din egendom, och det ska aldrig lämna din dator. Det finns ingen väg ut mot internet i själva appen — inga API-nycklar till ChatGPT, Claude eller andra molntjänster (det är inte en saknad funktion, utan ett medvetet val), och typsnitten ligger paketerade i appen istället för att hämtas utifrån. Din text lagras enbart lokalt i webbläsaren, och AI-modellen körs enbart på din egen processor. Den fristående skrivbordsappen (frivillig) kan kolla om det finns en nyare version av sig själv — aldrig av ditt manus, som den inte ens har tillgång till. Oavsett vad du skriver — dagbok, företagshemligheter eller nästa stora fantasy-epos — stannar varje bokstav hos dig."
       },
       author: {
         heading: "Författaren vinner alltid över AI:n",

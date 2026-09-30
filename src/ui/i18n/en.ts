@@ -16,7 +16,7 @@ const guideCategories: Record<GuideCategoryId, string> = {
 const guideSections: Record<GuideMainSectionId, { heading: string; body: string }> = {
   privacy: {
     heading: "A fully closed digital safe",
-    body: "StoryBook AI is built around one rule: your manuscript is your property, and it should never leave your computer. There is no way out to the internet in this app — no API keys for ChatGPT, Claude, or other cloud services (that's not a missing feature, it's a deliberate choice), no update checks against GitHub, and the fonts ship bundled with the app instead of being fetched from anywhere. Your text lives only in your browser, and the AI model runs only on your own processor. Whatever you're writing — a diary, trade secrets, or your next big fantasy epic — every letter stays with you."
+    body: "StoryBook AI is built around one rule: your manuscript is your property, and it should never leave your computer. There is no way out to the internet in the app itself — no API keys for ChatGPT, Claude, or other cloud services (that's not a missing feature, it's a deliberate choice), and the fonts ship bundled with the app instead of being fetched from anywhere. Your text lives only in your browser, and the AI model runs only on your own processor. The separate desktop app (optional) can check whether a newer version of itself exists — never of your manuscript, which it doesn't even have access to. Whatever you're writing — a diary, trade secrets, or your next big fantasy epic — every letter stays with you."
   },
   author: {
     heading: "Author beats AI, always",
@@ -341,7 +341,13 @@ export const en = {
     desktopGpuTier7b: "a model around 7-8 billion parameters (4-bit)",
     desktopGpuTier14b: "a model around 13-14 billion parameters (4-bit)",
     desktopGpuTier30b: "a model around 30-34 billion parameters (4-bit)",
-    desktopGpuTier70b: "a large model, 70 billion parameters or more (4-bit)"
+    desktopGpuTier70b: "a large model, 70 billion parameters or more (4-bit)",
+    desktopCheckUpdate: "Check for updates",
+    desktopCheckingUpdate: "Checking for updates…",
+    desktopUpdateAvailable: "A new version is available ({latest}, you have {current}).",
+    desktopUpdateLink: "View on GitHub",
+    desktopUpToDate: "You have the latest version ({current}).",
+    desktopUpdateCheckFailed: "Couldn't check for updates: {error}"
   },
   editor: {
     manuscriptTitle: "Manuscript title",

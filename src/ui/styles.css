@@ -449,6 +449,19 @@ button:disabled {
   border-color: var(--ink);
 }
 
+.home-guide-button:disabled {
+  opacity: 0.6;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--ink);
+  text-decoration: underline;
+  font: inherit;
+}
+
 .theme-toggle {
   flex: 0 0 auto;
   letter-spacing: 0.1em;

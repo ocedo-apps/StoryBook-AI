@@ -10,6 +10,15 @@ name: Desktop build (Windows)
 # #35 — deferred until there's a budget for it). The resulting .exe will
 # trigger a Windows SmartScreen warning; that's expected for now, not a
 # failure of this workflow.
+# Also publishes a GitHub Release (tagged v<package.json version>) with the
+# .exe attached, so there's a permanent download link that doesn't expire
+# after 90 days like a plain workflow-run artifact, and something the
+# in-app "Check for updates" feature (roadmap-ideas.md #35) can compare
+# against. Re-running on the same version updates that release's asset
+# in place rather than failing on an existing tag.
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -44,9 +53,30 @@ jobs:
         with:
           args: --target x86_64-pc-windows-msvc
 
-      - name: Upload the Windows installer
+      - name: Upload the Windows installer (workflow artifact)
         uses: actions/upload-artifact@v4
         with:
           name: storybook-ai-windows-installer
           path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           if-no-files-found: error
+
+      - name: Read app version
+        id: version
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Extract this version's changelog section
+        id: changelog
+        shell: bash
+        run: |
+          awk '/^## \[/{n++} n==1{print} n==2{exit}' CHANGELOG.md > release-notes.md
+          echo "path=release-notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: StoryBook AI v${{ steps.version.outputs.version }}
+          body_path: ${{ steps.changelog.outputs.path }}
+          files: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          fail_on_unmatched_files: true
