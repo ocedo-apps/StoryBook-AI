@@ -1173,6 +1173,110 @@ fortfarande första gången på macOS — inget sätt att undvika den utan
 kodsignering/notarisering, oförändrat från analysen ovan.
 Ollama-auto-install-tillägget är fortfarande medvetet uppskjutet.
 
+**Uppdatering (2026-09-30):** dagen som nämns ovan är nu — se #35.
+Chromium-runtime-kostnaden i den ursprungliga analysen gäller
+egentligen bara Electron; Tauri (som #35 landade på) använder OS:ets
+egen webview och drar inte med sig den kostnaden. Kodsignerings-/
+notariseringsresonemanget här står sig dock oförändrat och är samma
+avvägning #35 gör.
+
+---
+
+### 35. Riktig installerare/uppdaterare för Windows (Tauri) — helhetsidé
+
+**Bakgrund.** Uppföljning på #34: dagen "om/när en riktig
+installerare någon gång byggs" är nu, efter att Mats installerade
+OnlyOffice och undrade hur deras "Online installer" fungerar, och en
+testares feedback (se project_spec.md v1.0.25) pekade på samma
+tröskel — en icke-teknisk författare skräms av terminalfönster och
+kommandorader, och Ollama + modellval + `OLLAMA_ORIGINS` är ett
+större hinder än själva `npm install`-steget.
+
+**Idén i korthet:** en fristående Windows-app som installerar
+StoryBook AI, hjälper till att installera Ollama, föreslår en
+modell utifrån datorns VRAM, och kollar efter uppdateringar — utan
+att StoryBook AI själv slutar vara 100% lokalt.
+
+**Vald teknik: Tauri, inte Electron.** Tauri använder OS:ets egen
+webview istället för att bunta med ett helt Chromium (Electrons
+kostnad, se #34-uppdateringen ovan) — mycket mindre nedladdning,
+känns mindre skrämmande redan vid installationsögonblicket. Samma
+React-app (StoryBook AI:s befintliga `dist/`-bygge) körs i Tauris
+webview, ingen omskrivning av appen.
+
+**Två delar:**
+1. **En liten "online installer"-stub** (Inno Setup, med
+   tillägget `ISDownloadPlugin` — byggt för precis den här typen av
+   "ladda ner under installationen"-flöde, samma mönster som
+   OnlyOffices nedladdningssida). Laddar ner och kör, i tur och
+   ordning: Ollamas egen (tysta) Windows-installer om den saknas, och
+   Tauri-launcherns installer.
+2. **Tauri-launcher-appen** — den bestående delen. Serverar StoryBook
+   AI lokalt i sin webview, läser av GPU/VRAM (`nvidia-smi`/WMI) och
+   föreslår en modellstorlek (tumregel, inte exakt vetenskap — 8GB →
+   7B q4, 16GB → 13B, 24GB+ → 30B+ osv, ramat som utgångspunkt), och
+   sköter uppdateringskoll.
+
+**Uppdateringskoll — hur StoryBook förblir 100% lokal.** StoryBooks
+egen kod ska aldrig göra ett utgående nätverksanrop — det är löftet
+som gör "100% lokal" trovärdigt. Två fall:
+- Körs StoryBook inuti Tauri-appens egen webview (huvudscenariot):
+  en "Kolla efter uppdateringar"-knapp i Inställningar anropar
+  Tauris JS-brygga direkt (`invoke("check_for_updates")`) — Rust-
+  skalet gör nätverksanropet, StoryBooks egen JS rör aldrig internet.
+- Körs StoryBook i en vanlig webbläsarflik (t.ex. via `starta.bat`,
+  se #34): ett eget registrerat URL-protokoll (`storybookai://
+  check-update`) kan väcka den separat installerade Tauri-appen och
+  låta den göra kollen. Knappen kollar `window.__TAURI__` för att
+  veta vilket fall den är i.
+- Samma `storybookai://`-protokoll kan senare användas för
+  djuplänkar in i appen (t.ex. öppna ett specifikt manus), inte bara
+  uppdateringskoll.
+
+**Uppdateringar i två lager:** launcher-appen sig själv (Tauris
+inbyggda updater-plugin) och StoryBook AI-bygget inuti den, separat
+och oftare — det senare kräver ingen ny installer-nedladdning, bara
+ett nytt `dist/`-bygge som launchern hämtar.
+
+**Kodsignering — medvetet uppskjutet, inte avfärdat.** Inga pengar
+för det just nu. Beslut: shippa osignerat, förklara varningen tydligt
+i installationsflödet och på nedladdningssidan ("Windows kan visa en
+varning... klicka Mer information → Kör ändå", med skärmdump) istället
+för att låta användaren möta den oförberedd. Självsignering hjälper
+inte (SmartScreen litar bara på CA-utfärdade certifikat). SmartScreens
+rykte-system är per filversion/hash, inte per app — täta
+installer-versionsbumpar bygger alltså inte upp förtroende gratis över
+tid, värt att komma ihåg om varningen blir ett återkommande klagomål.
+Två vägar när/om budget finns: ett EV-certifikat (omedelbart
+förtroende, dyrare/kräver hårdvarutoken), eller distribution via
+Microsoft Store (Microsoft granskar appen på riktigt, SmartScreen-
+varningen försvinner helt, men kräver MSIX-paketering och att följa
+Store-policyer). Den manuella vägen (`starta.bat`/`.command`/`.sh`,
+#34) finns kvar som alternativ för den som inte vill lita på en .exe
+alls.
+
+**Miljöverklighet för det fortsatta arbetet** (konstaterat
+2026-09-30 i den här sandlådan): Rust/Cargo finns och fungerar här,
+så Tauri-appens logik kan byggas och verifieras i Linux-läge
+(`cargo tauri dev`). Ingen Windows-korskompilering är installerad
+(inget mingw, ingen NSIS/WiX) — den riktiga Windows-.exe:n måste
+produceras via GitHub Actions med en `windows-latest`-runner (Tauris
+officiella `tauri-action`), eller på en riktig Windows-dator. Samma
+sak gäller Inno Setup-stubben — skrivs som källa här, kompileras till
+.exe via CI eller på Windows.
+
+**Föreslagen första etapp (inte hela installern på en gång):**
+scaffolda en Tauri-app i repot som serverar det redan byggda
+`dist/`-bygget, verifiera att den startar och visar StoryBook AI
+korrekt via `cargo tauri dev` i Linux-sandlådan, och sätt upp ett
+GitHub Actions-workflow som producerar den riktiga Windows-
+artefakten. Ollama-detektion/auto-install, VRAM-avläsning +
+modellförslag, uppdateringskoll-UI + protokollregistrering, och
+Inno Setup-stubben byggs som separata steg efter det, på samma grund.
+
+**Status: idé nedskriven, inte påbörjad.** Inget kodat. Fortsätter
+kvällen 2026-09-30 med scaffolding-etappen ovan.
+
 ---
 
 ## Medvetet nedprioriterat just nu (inte avvisat)
