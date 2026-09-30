@@ -60,10 +60,29 @@ kräver att workflowet faktiskt körs och att någon hämtar/provkör
 verifierade att webbappens egen typecheck/tester/bygge fortfarande är
 opåverkade (775 tester, rent bygge).
 
-**Kvarstår, inte påbörjat:** Ollama-detektion/auto-install,
+**Uppdatering samma kväll — CI-bygget kört på riktigt, grönt.**
+Tre körningar, tre olika riktiga buggar innan det gick igenom (inte
+flakiness): `package.json` saknade `"tauri"`-scriptet
+`tauri-action` anropar; och `npm run build` (`tsc -b && vite build`)
+hade aldrig körts rent — `tsconfig.json` saknade `"DOM.Iterable"` i
+`lib`, vilket i sin tur dolde ett andra fel (`Boolean(card)`
+narrowar inte `card: HTMLElement | null` för TypeScript, `card !==
+null` gör det). Det första av de två tsc-felen hade jag själv
+filtrerat bort som "förbefintligt, orelaterat" i varenda
+`tsc --noEmit`-körning genom hela den här sessionen — min egen
+verifiering körde aldrig det riktiga `npm run build`-kommandot
+end-to-end, bara `tsc --noEmit` och `vite build` separat, vilket
+råkade dölja att den faktiska build-kedjan var trasig. Fixade båda,
+verifierade lokalt (rent bygge, alla 775 tester gröna) innan push.
+Körning #3: grön, byggde och laddade upp en riktig ~10 MB
+`storybook-ai-windows-installer`-artefakt. Länk till körningen:
+https://github.com/ocedo-apps/StoryBook-AI/actions/runs/36757244097
+
+**Kvarstår, inte påbörjat:** provköra .exe-filen på en riktig
+Windows-dator (inte gjort härifrån), Ollama-detektion/auto-install,
 VRAM-avläsning + modellförslag, uppdateringskoll (`invoke`-bryggan
 respektive `storybookai://`-protokollet, se roadmap-ideas.md #35),
-Inno Setup-stubben, och det faktiska testet av Windows-artefakten.
+Inno Setup-stubben.
 
 ---
 

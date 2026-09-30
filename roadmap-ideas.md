@@ -1285,9 +1285,27 @@ samma "Connect a local AI"-ruta) — skalet fungerar. Ett GitHub
 Actions-workflow (`.github/workflows/desktop-build.yml`) bygger den
 riktiga Windows-.exe:n på en `windows-latest`-runner via
 `tauri-action`, osignerad (se signerings-resonemanget ovan),
-laddas upp som artefakt — inte testat än, kräver att workflowet körs
-på riktigt och att någon (Mats, eller nästa runda) hämtar och
-provkör .exe-filen på en Windows-dator. Ollama-detektion/auto-
+laddas upp som artefakt.
+
+**Uppdatering samma kväll: workflowet kört och GRÖNT.** Tre
+körningar innan det gick igenom — alla tre riktiga, tidigare okända
+buggar, inte flakiness: (1) `package.json` saknade ett `"tauri"`-
+npm-script som `tauri-action` kör (`npm run tauri build`) — fel på
+sekunder. (2) `npm run build` (`tsc -b && vite build`, det Tauri
+faktiskt anropar) hade aldrig körts rent — `tsconfig.json` saknade
+`"DOM.Iterable"` i `lib` (döljde i sin tur ett andra fel:
+`Boolean(card)` typnarrowar inte `card: HTMLElement | null`, till
+skillnad från `card !== null`). Det första felet hade jag själv
+filtrerat bort som "förbefintligt, orelaterat" i varje
+`tsc --noEmit`-körning hela sessionen, eftersom min egen
+verifiering aldrig körde det riktiga `npm run build`-kommandot
+end-to-end förrän Tauri-CI:n gjorde det på riktigt. Båda buggarna
+fixade, verifierade lokalt (`npm run build` rent, alla 775 tester
+gröna), pushade. Körning #3 lyckades: byggde och laddade upp en
+~10 MB `storybook-ai-windows-installer`-artefakt
+(https://github.com/ocedo-apps/StoryBook-AI/actions/runs/36757244097).
+**Inte provkörd på en riktig Windows-dator än** — det är nästa
+konkreta steg, inte gjort härifrån. Ollama-detektion/auto-
 install, VRAM-avläsning + modellförslag, uppdateringskoll-UI +
 `storybookai://`-protokollregistrering är fortfarande inte
 påbörjade — nästa steg.
