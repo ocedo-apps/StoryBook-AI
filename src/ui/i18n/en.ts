@@ -345,7 +345,8 @@ export const en = {
     desktopCheckUpdate: "Check for updates",
     desktopCheckingUpdate: "Checking for updates…",
     desktopUpdateAvailable: "A new version is available ({latest}, you have {current}).",
-    desktopUpdateLink: "View on GitHub",
+    desktopViewChangelog: "View changelog",
+    desktopDownloadUpdate: "Download update",
     desktopUpToDate: "You have the latest version ({current}).",
     desktopUpdateCheckFailed: "Couldn't check for updates: {error}"
   },

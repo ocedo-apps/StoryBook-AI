@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.30] - 2026-09-30
+
+### Changed
+- "Check for updates" now opens a proper dialog instead of a small line of text on the home screen — easy to miss feedback from a tester's report ("it just flashes"). The dialog shows the checking/up-to-date/update-available states clearly, with a download link and a link to the full changelog when a newer version exists.
+
 ## [1.0.29] - 2026-09-30
 
 ### Added

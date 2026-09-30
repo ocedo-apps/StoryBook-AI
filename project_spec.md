@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.29
+Status: living document, v1.0.30
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -185,6 +185,45 @@ går igenom i CI, att `storybookai://`-länken faktiskt startar en ny
 instans och triggar kollen på en riktig Windows-dator, att knappens
 nätverksanrop mot api.github.com faktiskt lyckas i produktion (kunde
 inte klick-testa det här — ingen `xdotool` i sandlådan).
+
+**Uppdatering — Mats testkörde, hittade en verklig UX-bugg
+(2026-09-30).** Mats installerade v1.0.29 på riktig hårdvara och
+provade "Kolla efter uppdateringar": "Det är möjligt att det
+fungerar men det blinkar bara till." Den ursprungliga lösningen
+visade bara en liten `.quiet`-textrad under ledtexten på
+hemskärmen — lätt att missa, ingen tydlig bekräftelse. Bytte ut den
+mot en riktig modal dialog (`src/ui/UpdateCheckDialog.tsx`),
+återanvänder det befintliga `.edit-overlay`/`.edit-card`-mönstret
+som redan finns i appen (samma som t.ex. `ChapterFeedbackCard.tsx`)
+istället för att uppfinna ett nytt UI-språk. Dialogen visar tydligt
+"Letar..."/"Uppdatering finns"/"Senaste versionen"/fel, med två
+knappar när en uppdatering finns: "Ladda ner uppdatering" (öppnar
+release-sidan) och "Visa ändringslogg" (öppnar CHANGELOG.md direkt
+på GitHub — det konkreta svaret på Mats önskemål om en
+ändringslogg-länk).
+
+Installerade `xdotool` i sandlådan (saknades tidigare, blockerade
+klick-testning helt) för att kunna verifiera hela flödet på riktigt,
+inte bara läsa koden. Upptäckte under tiden ett par praktiska
+Xvfb-utan-fönsterhanterare-fällor: `import -window root` fångar
+HELA skärmen i skärmkoordinater (inte fönstrets egna, trots att
+fönstret ligger förskjutet på skärmen), och ett klick direkt efter
+navigering hinner ibland fångas i en skärmdump innan webviewen
+hunnit rita om sig — löst med `xdotool windowfocus` + en kort paus
+innan skärmdumpen. Klickade igenom hela flödet: knappen öppnar
+dialogen omedelbart, den visar "Letar efter uppdateringar…", och
+växlar sedan till resultatet. I sandlådan blir resultatet ett
+TLS-fel ("invalid peer certificate: UnknownIssuer") — inte en bugg,
+utan förväntat: sandlådans utgående HTTPS går via en MITM-proxy för
+loggning, som `rustls` (ureqs TLS-backend, med Mozillas publika
+root-CA-lista inbyggd) korrekt vägrar lita på. På Mats riktiga
+Windows-dator finns ingen sådan proxy, så anropet mot
+api.github.com ska gå igenom rent. Stängknappen verifierad också
+(klick + att dialogen faktiskt försvinner).
+
+Verifierat: `tsc --noEmit`, `npm run build`, alla 775 tester, plus
+den här live-klick-genomgången — den mest konkreta verifieringen av
+en desktop-UI-funktion hittills i det här spåret.
 
 **Kvarstår, inte påbörjat:** provköra .exe-filen på en riktig
 Windows-dator (inte gjort härifrån), Inno Setup-stubben.

@@ -59,7 +59,8 @@ export const sv: Messages = {
     desktopCheckUpdate: "Kolla efter uppdateringar",
     desktopCheckingUpdate: "Letar efter uppdateringar…",
     desktopUpdateAvailable: "En ny version finns ({latest}, du har {current}).",
-    desktopUpdateLink: "Visa på GitHub",
+    desktopViewChangelog: "Visa ändringslogg",
+    desktopDownloadUpdate: "Ladda ner uppdatering",
     desktopUpToDate: "Du har den senaste versionen ({current}).",
     desktopUpdateCheckFailed: "Kunde inte kolla efter uppdateringar: {error}"
   },

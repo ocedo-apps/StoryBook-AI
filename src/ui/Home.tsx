@@ -7,11 +7,11 @@ import {
   checkForUpdates,
   detectGpuSuggestion,
   isDesktopApp,
-  openExternalUrl,
   openOllamaDownloadPage,
   type GpuSuggestion,
   type UpdateStatus
 } from "./desktopBridge";
+import { UpdateCheckDialog } from "./UpdateCheckDialog";
 
 const GPU_TIER_KEY = {
   "3b": "desktopGpuTier3b",
@@ -79,11 +79,13 @@ export function Home({
     };
   }, []);
 
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
   const [updateChecking, setUpdateChecking] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   function runUpdateCheck() {
+    setUpdateDialogOpen(true);
     setUpdateChecking(true);
     setUpdateError(null);
     setUpdateStatus(null);
@@ -135,25 +137,16 @@ export function Home({
           </div>
         </div>
         <p className="lede">{m.home.lede}</p>
-        {updateError ? (
-          <p className="banner home-banner" role="status">
-            {format(m.home.desktopUpdateCheckFailed, { error: updateError })}
-          </p>
-        ) : updateStatus ? (
-          <p className="quiet" role="status">
-            {updateStatus.updateAvailable ? (
-              <>
-                {format(m.home.desktopUpdateAvailable, { current: updateStatus.current, latest: updateStatus.latest })}{" "}
-                <button type="button" className="link-button" onClick={() => void openExternalUrl(updateStatus.releaseUrl)}>
-                  {m.home.desktopUpdateLink}
-                </button>
-              </>
-            ) : (
-              format(m.home.desktopUpToDate, { current: updateStatus.current })
-            )}
-          </p>
-        ) : null}
       </header>
+
+      {updateDialogOpen ? (
+        <UpdateCheckDialog
+          checking={updateChecking}
+          status={updateStatus}
+          error={updateError}
+          onClose={() => setUpdateDialogOpen(false)}
+        />
+      ) : null}
 
       {error ? (
         <p className="banner home-banner" role="status">

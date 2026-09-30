@@ -59,7 +59,8 @@ export const nb: Messages = {
     desktopCheckUpdate: "Se etter oppdateringer",
     desktopCheckingUpdate: "Ser etter oppdateringer…",
     desktopUpdateAvailable: "En ny versjon finnes ({latest}, du har {current}).",
-    desktopUpdateLink: "Vis på GitHub",
+    desktopViewChangelog: "Vis endringslogg",
+    desktopDownloadUpdate: "Last ned oppdatering",
     desktopUpToDate: "Du har den nyeste versjonen ({current}).",
     desktopUpdateCheckFailed: "Kunne ikke se etter oppdateringer: {error}"
   },
