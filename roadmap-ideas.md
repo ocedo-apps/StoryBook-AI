@@ -1313,6 +1313,27 @@ sandlådan. Ollama-detektion/auto-install, VRAM-avläsning +
 modellförslag, uppdateringskoll-UI + `storybookai://`-
 protokollregistrering är fortfarande inte påbörjade — nästa steg.
 
+**Uppdatering: Ollama-hjälp + VRAM-modellförslag klart
+(2026-09-30, Mats: "Då kör vi den delen nu").** Kunde inte
+verifiera Ollamas faktiska nedladdnings-URL härifrån (`ollama.com`
+blockerad för utgående nät i sandlådan) — löste det genom att aldrig
+hårdkoda en `.exe`-länk: en ny knapp öppnar istället
+`https://ollama.com/download` i systemets webbläsare
+(`tauri-plugin-opener`), säkrare än att tyst ladda ner och köra en
+tredjepartsinstallerare. VRAM läses via `nvidia-smi` (NVIDIA-only,
+`None` annars) och mappas till en av fem storleksklasser genom en
+ren, enhetstestad `suggest_model_tier()` i
+`src-tauri/src/system_check.rs` — returnerar bara en nyckel (t.ex.
+`"7b"`), texten ligger i `src/ui/i18n/{sv,en,nb}.ts` som allt annat
+appspråk. Syns bara i desktop-appen när Ollama inte är anslutet
+(`Home.tsx`s "Connect a local AI"-ruta), osynligt i vanlig
+webbläsare. Detaljer i project_spec.md v1.0.28. **Inte verifierat
+härifrån:** riktiga VRAM-siffror, det faktiska installationsflödet
+på riktig hårdvara.
+
+**Kvarstår, inte påbörjat:** uppdateringskoll-UI +
+`storybookai://`-protokollregistrering, Inno Setup-stubben.
+
 **Kom ihåg när uppdateringskollen byggs: Guiden måste uppdateras.**
 `handbookSections.privacy` (alla tre språk — "Ett helt stängt
 digitalt kassaskåp") lovar idag uttryckligen "inga

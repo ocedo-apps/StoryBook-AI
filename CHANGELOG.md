@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.28] - 2026-09-30
+
+### Added
+- The desktop app (see roadmap-ideas.md #35) now helps with the first step of connecting a local AI: when it can't find Ollama yet, an "Install Ollama" button opens Ollama's official download page in your system browser, and — on an NVIDIA graphics card — a rough size suggestion ("this computer can likely run a model around 7-8 billion parameters") based on the card's VRAM. Both are desktop-app-only; nothing changes for anyone running StoryBook AI in a plain browser tab.
+
 ## [1.0.27] - 2026-09-30
 
 ### Added

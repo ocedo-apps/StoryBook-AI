@@ -334,7 +334,14 @@ export const en = {
     facts: { one: "{count} locked fact", other: "{count} locked facts" },
     connectFound: { one: "Connected — {count} model found.", other: "Connected — {count} models found." },
     connectNotFound:
-      "Not connected yet. Don't have a local AI server? We recommend Ollama — free, from ollama.com. Install a model (search for “stheno” for one tuned for fiction, or any general chat model like llama3), and it will show up here automatically."
+      "Not connected yet. Don't have a local AI server? We recommend Ollama — free, from ollama.com. Install a model (search for “stheno” for one tuned for fiction, or any general chat model like llama3), and it will show up here automatically.",
+    desktopInstallOllama: "Install Ollama",
+    desktopGpuSuggestion: "Based on your graphics card's memory (~{gb} GB), this computer can likely run {tier}.",
+    desktopGpuTier3b: "a small model, around 3 billion parameters (4-bit)",
+    desktopGpuTier7b: "a model around 7-8 billion parameters (4-bit)",
+    desktopGpuTier14b: "a model around 13-14 billion parameters (4-bit)",
+    desktopGpuTier30b: "a model around 30-34 billion parameters (4-bit)",
+    desktopGpuTier70b: "a large model, 70 billion parameters or more (4-bit)"
   },
   editor: {
     manuscriptTitle: "Manuscript title",

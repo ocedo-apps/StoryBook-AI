@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.27
+Status: living document, v1.0.28
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -78,11 +78,51 @@ Körning #3: grön, byggde och laddade upp en riktig ~10 MB
 `storybook-ai-windows-installer`-artefakt. Länk till körningen:
 https://github.com/ocedo-apps/StoryBook-AI/actions/runs/36757244097
 
+**Uppdatering — Ollama-hjälp + VRAM-baserat modellförslag
+(2026-09-30, Mats: "Då kör vi den delen nu").** Innan kodning:
+försökte verifiera Ollamas faktiska Windows-installer-URL för att
+kunna ladda ner/köra den direkt, men `ollama.com` är blockerad för
+utgående nät i den här sandlådan (både `WebFetch` och rå `curl`,
+även `github.com/ollama/ollama/releases` gav 403) — kunde alltså
+inte verifiera en direkt `.exe`-länk. Löste det genom att INTE
+hårdkoda en nedladdningslänk alls: en ny Tauri-kommando
+(`open_ollama_download_page`, `src-tauri/src/system_check.rs`) öppnar
+`https://ollama.com/download` i systemets vanliga webbläsare (via
+`tauri-plugin-opener`) istället för att tyst ladda ner och köra en
+tredjepartsinstallerare — säkrare design, och sidosteppar
+verifieringsproblemet helt.
+
+VRAM-avläsning: `nvidia-smi --query-gpu=memory.total
+--format=csv,noheader,nounits` (NVIDIA-only — `None` för andra
+tillverkare/ingen GPU, ärligt begränsad omfattning snarare än ett
+falskt löfte). En ren, enhetstestad `suggest_model_tier(vram_mb)`
+(samma fil) mappar VRAM till en av fem storleksklasser (3b/7b/14b/
+30b/70b) — returnerar bara en stabil nyckel, ALDRIG färdig text,
+eftersom Rust-sidan inte känner till appens språkval (sv/en/nb);
+själva texten (`desktopGpuTier3b` osv.) ligger i
+`src/ui/i18n/{sv,en,nb}.ts` precis som allt annat UI-språk. 5 nya
+Rust-enhetstester (`cargo test`, gröna) för tröskelvärdena.
+
+Frontend: ny `src/ui/desktopBridge.ts` (`isDesktopApp()` via
+`@tauri-apps/api/core`s officiella `isTauri()`, tunna wrappers runt
+`invoke()`), inkopplad i `Home.tsx`s befintliga "Connect a local
+AI"-ruta — en "Installera Ollama"-knapp och VRAM-förslagsraden syns
+bara när `isDesktopApp() && !connected`, dvs osynligt i en vanlig
+webbläsarflik precis som planerat. Verifierat: `cargo check`/
+`cargo test`/`cargo clippy`/`rustfmt --check` rent på Rust-sidan,
+`npm run build` (den faktiska build-kedjan, inte bara `tsc --noEmit`
+separat — lärdomen från förra rundans CI-miss) och alla 775 tester
+gröna på webbapps-sidan innan push. **Inte verifierat härifrån:**
+riktiga VRAM-siffror och det faktiska installationsflödet på en
+riktig Windows-dator — det är Mats att bekräfta.
+
 **Kvarstår, inte påbörjat:** provköra .exe-filen på en riktig
-Windows-dator (inte gjort härifrån), Ollama-detektion/auto-install,
-VRAM-avläsning + modellförslag, uppdateringskoll (`invoke`-bryggan
-respektive `storybookai://`-protokollet, se roadmap-ideas.md #35),
-Inno Setup-stubben.
+Windows-dator (inte gjort härifrån), uppdateringskoll (`invoke`-
+bryggan respektive `storybookai://`-protokollet, se
+roadmap-ideas.md #35), Inno Setup-stubben. Kom ihåg: när
+uppdateringskollen faktiskt shippas, samma commit ska skärpa
+`handbookSections.privacy`-raden om "inga uppdateringskontroller mot
+GitHub" (redan loggat i detalj i roadmap-ideas.md #35).
 
 ---
 

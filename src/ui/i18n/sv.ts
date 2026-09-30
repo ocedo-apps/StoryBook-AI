@@ -48,7 +48,14 @@ export const sv: Messages = {
     facts: { one: "{count} låst faktum", other: "{count} låsta fakta" },
     connectFound: { one: "Ansluten — {count} modell hittad.", other: "Ansluten — {count} modeller hittade." },
     connectNotFound:
-      "Inte ansluten än. Har du ingen lokal AI-server? Vi rekommenderar Ollama — gratis, från ollama.com. Installera en modell (sök på ”stheno” för en anpassad för skönlitteratur, eller vilken vanlig chattmodell som helst, t.ex. llama3), så dyker den upp här automatiskt."
+      "Inte ansluten än. Har du ingen lokal AI-server? Vi rekommenderar Ollama — gratis, från ollama.com. Installera en modell (sök på ”stheno” för en anpassad för skönlitteratur, eller vilken vanlig chattmodell som helst, t.ex. llama3), så dyker den upp här automatiskt.",
+    desktopInstallOllama: "Installera Ollama",
+    desktopGpuSuggestion: "Baserat på grafikkortets minne (~{gb} GB) klarar den här datorn troligen {tier}.",
+    desktopGpuTier3b: "en liten modell, ungefär 3 miljarder parametrar (4-bit)",
+    desktopGpuTier7b: "en modell på ungefär 7-8 miljarder parametrar (4-bit)",
+    desktopGpuTier14b: "en modell på ungefär 13-14 miljarder parametrar (4-bit)",
+    desktopGpuTier30b: "en modell på ungefär 30-34 miljarder parametrar (4-bit)",
+    desktopGpuTier70b: "en stor modell, 70 miljarder parametrar eller mer (4-bit)"
   },
   editor: {
     manuscriptTitle: "Manustitel",

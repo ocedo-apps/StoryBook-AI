@@ -391,6 +391,19 @@ button:disabled {
   color: var(--text-dim);
 }
 
+.home-connect-desktop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0.2rem;
+}
+
+.home-connect-desktop .home-guide-button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+}
+
 .home-heading-row {
   display: flex;
   align-items: center;

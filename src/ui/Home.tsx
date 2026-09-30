@@ -1,8 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useBookStore } from "./useBookStore";
 import { HandbookPanel } from "./HandbookPanel";
 import { ModelSelect } from "./SettingsPanel";
 import { count, format, translateError, useLocale } from "./i18n";
+import { detectGpuSuggestion, isDesktopApp, openOllamaDownloadPage, type GpuSuggestion } from "./desktopBridge";
+
+const GPU_TIER_KEY = {
+  "3b": "desktopGpuTier3b",
+  "7b": "desktopGpuTier7b",
+  "14b": "desktopGpuTier14b",
+  "30b": "desktopGpuTier30b",
+  "70b": "desktopGpuTier70b"
+} as const;
 
 export function Home({
   guideOpen,
@@ -46,6 +55,21 @@ export function Home({
   const [connectOpen, setConnectOpen] = useState<boolean | null>(null);
   const connected = models.length > 0 && !ollamaError;
   const isConnectOpen = connectOpen ?? !connected;
+
+  // Only the standalone desktop app can reach the OS (open a browser tab,
+  // read GPU memory) — a plain browser tab has neither capability, so this
+  // whole block stays invisible there.
+  const [gpuSuggestion, setGpuSuggestion] = useState<GpuSuggestion | null>(null);
+  useEffect(() => {
+    if (!isDesktopApp()) return;
+    let cancelled = false;
+    void detectGpuSuggestion().then((result) => {
+      if (!cancelled) setGpuSuggestion(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function submitNew(event?: React.SyntheticEvent) {
     event?.preventDefault();
@@ -116,6 +140,21 @@ export function Home({
         <p className={ollamaError ? "banner home-banner" : "quiet"} role={ollamaError ? "status" : undefined}>
           {ollamaError ? translateError(ollamaError, m) : models.length > 0 ? count(models.length, m.home.connectFound) : m.home.connectNotFound}
         </p>
+        {isDesktopApp() && !connected ? (
+          <div className="home-connect-desktop">
+            <button type="button" className="home-guide-button" onClick={() => void openOllamaDownloadPage()}>
+              {m.home.desktopInstallOllama}
+            </button>
+            {gpuSuggestion ? (
+              <p className="quiet">
+                {format(m.home.desktopGpuSuggestion, {
+                  gb: Math.round(gpuSuggestion.vramMb / 1024),
+                  tier: m.home[GPU_TIER_KEY[gpuSuggestion.tier]]
+                })}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         {isConnectOpen ? (
           <>
             <div className="settings-engine">
