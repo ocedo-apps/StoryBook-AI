@@ -40,6 +40,8 @@ describe("character profiles", () => {
           approximateAge: 42,
           looks: "salt-cut hands",
           personality: "dry, keeps her own counsel",
+          goals: "",
+          fears: "",
           tags: ["double nature", "SECRETTAG"]
         }
       ]
@@ -52,9 +54,30 @@ describe("character profiles", () => {
     expect(prompt).not.toContain("double nature");
   });
 
+  it("includes goals and fears in the writing prompt when set", () => {
+    const prompt = formatCharacterProfilesForPrompt(
+      [emmaFact],
+      [
+        {
+          entity_ref: "emma",
+          looks: "",
+          personality: "",
+          goals: "Find out who set the fire",
+          fears: "Being trapped below deck again",
+          tags: []
+        }
+      ]
+    );
+    expect(prompt).toContain("Emma · Goals: Find out who set the fire");
+    expect(prompt).toContain("Emma · Fears: Being trapped below deck again");
+  });
+
   it("skips a profile with no locked entity", () => {
     expect(
-      formatCharacterProfilesForPrompt([], [{ entity_ref: "emma", looks: "salt-cut hands", personality: "", tags: [] }])
+      formatCharacterProfilesForPrompt(
+        [],
+        [{ entity_ref: "emma", looks: "salt-cut hands", personality: "", goals: "", fears: "", tags: [] }]
+      )
     ).toBe("");
   });
 });

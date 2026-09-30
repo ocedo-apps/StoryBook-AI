@@ -33,8 +33,12 @@ function bookWithEmma(): Book {
       fact("jeff")
     ],
     profiles: [
-      { entity_ref: "emma", looks: "Salt-cut hands", personality: "Guarded", tags: [] },
-      { entity_ref: "jeff", looks: "", personality: "", tags: [] }
+      { entity_ref: "emma", looks: "Salt-cut hands", personality: "Guarded", goals: "", fears: "", tags: [] },
+      { entity_ref: "jeff", looks: "", personality: "", goals: "", fears: "", tags: [] }
+    ],
+    event_profiles: [
+      { entity_ref: "the-storm", where: "emma", participants: ["emma", "jeff"] },
+      { entity_ref: "jeff", participants: ["emma"] }
     ],
     media: [
       { entity_ref: "emma", pictures: [{ thumbDataUrl: "data:thumb", imageDataUrl: "data:full" }] },
@@ -64,6 +68,28 @@ describe("deleteEntity", () => {
     expect(next.media.find((row) => row.entity_ref === "jeff")).toBeTruthy();
     expect(next.hidden_entities).toEqual(["jeff"]);
     expect(next.entity_kinds).toEqual([{ entity_ref: "jeff", kind: "groups" }]);
+  });
+
+  it("scrubs the deleted entity out of every other event's profile, and drops its own", () => {
+    const next = deleteEntity(bookWithEmma(), "emma");
+    // "the-storm" is an event placed at emma (as a Location) with emma
+    // among its participants — deleting emma must clear "where" and drop
+    // emma from participants, but the row itself survives (jeff is still
+    // a participant).
+    const storm = next.event_profiles.find((row) => row.entity_ref === "the-storm");
+    expect(storm?.where).toBeUndefined();
+    expect(storm?.participants).toEqual(["jeff"]);
+    // "jeff" is also an Event here (its own event_profiles row) with emma
+    // as a participant — that row survives too, minus emma.
+    const jeffAsEvent = next.event_profiles.find((row) => row.entity_ref === "jeff");
+    expect(jeffAsEvent?.participants).toEqual([]);
+  });
+
+  it("drops an event's own profile entirely when that event is the one deleted", () => {
+    const next = deleteEntity(bookWithEmma(), "the-storm");
+    expect(next.event_profiles.some((row) => row.entity_ref === "the-storm")).toBe(false);
+    // Unrelated rows are untouched.
+    expect(next.event_profiles.find((row) => row.entity_ref === "jeff")?.participants).toEqual(["emma"]);
   });
 
   it("leaves the rest of the book untouched when the entity has nothing beyond facts", () => {

@@ -51,7 +51,7 @@ describe("characterInterviewSystem", () => {
   it("uses the saved profile personality when no draft override is given", () => {
     const book: Book = {
       ...createBook("Night Keys"),
-      profiles: [{ entity_ref: "henrik", looks: "", personality: "clipped, always sees the downside first", tags: [] }]
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "clipped, always sees the downside first", goals: "", fears: "", tags: [] }]
     };
     const system = characterInterviewSystem(book, "henrik", "Henrik", "characters");
     expect(system).toContain("clipped, always sees the downside first");
@@ -60,7 +60,7 @@ describe("characterInterviewSystem", () => {
   it("a personality draft overrides the saved profile personality", () => {
     const book: Book = {
       ...createBook("Night Keys"),
-      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", tags: [] }]
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", goals: "", fears: "", tags: [] }]
     };
     const system = characterInterviewSystem(book, "henrik", "Henrik", "characters", "terse, one-word answers");
     expect(system).toContain("terse, one-word answers");
@@ -70,7 +70,7 @@ describe("characterInterviewSystem", () => {
   it("an empty-string draft overrides on purpose — clearing the field really means no personality line", () => {
     const book: Book = {
       ...createBook("Night Keys"),
-      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", tags: [] }]
+      profiles: [{ entity_ref: "henrik", looks: "", personality: "warm and talkative", goals: "", fears: "", tags: [] }]
     };
     const system = characterInterviewSystem(book, "henrik", "Henrik", "characters", "");
     expect(system).not.toContain("warm and talkative");
@@ -101,7 +101,7 @@ describe("characterInterviewSystem", () => {
   it("never renders a personality line for a non-character kind, even with a saved profile and a draft", () => {
     const book: Book = {
       ...createBook("Night Keys"),
-      profiles: [{ entity_ref: "ravendal", looks: "", personality: "brooding and ancient", tags: [] }]
+      profiles: [{ entity_ref: "ravendal", looks: "", personality: "brooding and ancient", goals: "", fears: "", tags: [] }]
     };
     const system = characterInterviewSystem(book, "ravendal", "Ravendal", "locations", "brooding and ancient");
     expect(system).not.toContain("brooding and ancient");

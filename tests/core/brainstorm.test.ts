@@ -156,6 +156,8 @@ describe("brainstorm prompts", () => {
             entity_ref: "emma",
             looks: "salt-cut hands",
             personality: "",
+            goals: "",
+            fears: "",
             tags: ["SECRETTAG"]
           }
         ]

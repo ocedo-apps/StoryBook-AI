@@ -160,6 +160,8 @@ describe("draftUserPrompt", () => {
             approximateAge: 42,
             looks: "salt-cut hands",
             personality: "dry, keeps her own counsel",
+            goals: "",
+            fears: "",
             tags: ["SECRETTAG", "double nature"]
           }
         ]
@@ -219,6 +221,8 @@ describe("draftUserPrompt", () => {
           entity_ref: "stranger",
           looks: "a grey coat",
           personality: "",
+          goals: "",
+          fears: "",
           tags: []
         }
       ],

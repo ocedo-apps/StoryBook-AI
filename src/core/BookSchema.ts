@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { POV_MODES, TENSES } from "./craft";
 import { CharacterProfileSchema } from "./characterProfile";
+import { EventProfileSchema } from "./eventProfile";
 import { EntityKindSchema } from "./bibleGroups";
 import { EntityMediaSchema, EntityPictureSchema } from "./entityMedia";
 import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
@@ -193,6 +194,11 @@ export const BookSchema = z.object({
    */
   profiles: z.array(CharacterProfileSchema).default([]),
   /**
+   * Event card fields (where it happened, who was there) — same
+   * side-table pattern as `profiles`. Missing on older saves.
+   */
+  event_profiles: z.array(EventProfileSchema).default([]),
+  /**
    * Entity refs the model must not see. The author still sees the cards.
    * Missing on older saves — default keeps IndexedDB loadable.
    */
@@ -280,6 +286,7 @@ export function createBook(title: string): Book {
     facts: [],
     media: [],
     profiles: [],
+    event_profiles: [],
     hidden_entities: [],
     entity_kinds: [],
     plotlines: [],

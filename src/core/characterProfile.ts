@@ -22,6 +22,10 @@ export const CharacterProfileSchema = z.object({
   looks: z.string().default(""),
   /** How they tend to be. Draft reads this. */
   personality: z.string().default(""),
+  /** What they want. Draft reads this. */
+  goals: z.string().default(""),
+  /** What they're afraid of. Draft reads this. */
+  fears: z.string().default(""),
   /** Shelf / later export. Draft never reads these. */
   tags: z.array(z.string().min(1)).default([])
 });
@@ -33,6 +37,8 @@ export type CharacterProfileInput = {
   approximateAge?: number | undefined;
   looks?: string;
   personality?: string;
+  goals?: string;
+  fears?: string;
   tags?: string[];
 };
 
@@ -42,7 +48,7 @@ export type CastMember = {
 };
 
 export function emptyProfile(entity_ref: string): CharacterProfile {
-  return { entity_ref, looks: "", personality: "", tags: [] };
+  return { entity_ref, looks: "", personality: "", goals: "", fears: "", tags: [] };
 }
 
 export function profileFor(profiles: CharacterProfile[], entity_ref: string): CharacterProfile {
@@ -88,6 +94,8 @@ function cleanProfile(input: CharacterProfileInput): CharacterProfile {
     entity_ref: input.entity_ref,
     looks: input.looks ?? "",
     personality: input.personality ?? "",
+    goals: input.goals ?? "",
+    fears: input.fears ?? "",
     tags: input.tags ?? []
   };
   if (input.pronoun !== undefined && isCharacterPronoun(input.pronoun)) {
@@ -110,6 +118,8 @@ export function profileIsEmpty(profile: CharacterProfile): boolean {
     profile.approximateAge === undefined &&
     profile.looks.trim() === "" &&
     profile.personality.trim() === "" &&
+    profile.goals.trim() === "" &&
+    profile.fears.trim() === "" &&
     profile.tags.length === 0
   );
 }
@@ -122,7 +132,7 @@ export function upsertCharacterProfile(profiles: CharacterProfile[], input: Char
 }
 
 /**
- * Pronoun, age, looks, and personality as Story Bible lines.
+ * Pronoun, age, looks, personality, goals, and fears as Story Bible lines.
  * Tags are omitted — they are shelf/export only.
  */
 export function formatCharacterProfilesForPrompt(
@@ -143,6 +153,8 @@ export function formatCharacterProfilesForPrompt(
     if (profile.approximateAge !== undefined) lines.push(`- ${label} · Approximate age: ${profile.approximateAge}`);
     if (profile.looks.trim()) lines.push(`- ${label} · Looks: ${profile.looks.trim()}`);
     if (profile.personality.trim()) lines.push(`- ${label} · Personality: ${profile.personality.trim()}`);
+    if (profile.goals.trim()) lines.push(`- ${label} · Goals: ${profile.goals.trim()}`);
+    if (profile.fears.trim()) lines.push(`- ${label} · Fears: ${profile.fears.trim()}`);
   }
   return lines.join("\n");
 }

@@ -51,6 +51,8 @@ describe("exportSandboxCards", () => {
           approximateAge: 42,
           looks: "salt-cut hands",
           personality: "dry, keeps her own counsel",
+          goals: "",
+          fears: "",
           tags: ["middle-aged"]
         }
       ],

@@ -9,9 +9,15 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
-## [1.0.26] - 2026-09-30
+## [1.0.27] - 2026-09-30
 
 ### Added
+- Character cards now have Goals and Fears fields alongside Looks and Personality — Draft reads them the same way.
+- Event cards now have Where (a Location) and Who was there (Characters present) — structured links to existing Story Bible cards, not free text.
+- A Location card now shows "Events here" and "People here", read straight off which Events are placed there and who's in them — nothing to fill in on the Location card itself, so there's only one place to keep it up to date.
+
+### Changed
+- Deleting a Character or Location now also clears it out of any Event's Where/Who was there, instead of leaving a dangling reference.
 - "Extract facts" on the Synopsis and on any chapter or scene brief — the same planning-content pipeline Brainstorm notes got in 1.0.25, now covering all three sources the roadmap called for. A chapter or scene brief's candidates are attributed to that chapter (and scene, when extracted from a scene's own brief) the same way Interview-extracted facts already are, so they're gated by the same story-time visibility rule; Synopsis, like Brainstorm and Lore, isn't tied to any one chapter.
 
 ## [1.0.25] - 2026-09-30

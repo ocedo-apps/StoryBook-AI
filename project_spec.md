@@ -1,9 +1,66 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.26
+Status: living document, v1.0.27
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.26 → v1.0.27 (2026-09-30):** Uppföljning på
+schema-diskussionen från förra rundan. Jag lade fram tre öppna
+punkter innan jag kodade: (1) ska Event "where"/"participants" vara
+fri text eller riktiga kopplingar till befintliga kort — avgörande
+för om Location-härledningen ens går att bygga; (2) ska "Description"
+gälla alla kategorier eller bara de som saknar motsvarighet idag
+(Character har redan Looks+Personality); (3) var syns härledningen
+rent konkret. Mats: "Kör på ditt förslag" — dvs riktiga kopplingar,
+Description bara där det saknas, ny sektion i Location-kortet.
+
+**Genomfört:**
+
+Character: nya fält **goals** och **fears** i befintlig
+`CharacterProfile` (`src/core/characterProfile.ts`) — exakt samma
+mönster som Looks/Personality, Draft läser dem på samma sätt.
+Ingen "Description" lades till för Character (redan täckt av
+Looks+Personality, per punkt 2 ovan).
+
+Event: helt ny sidotabell `EventProfile`
+(`src/core/eventProfile.ts`, ny `event_profiles`-array på `Book`) —
+**where** (en enda Location-referens) och **participants** (en lista
+Character-referenser). Medvetet INGET "when"-fält — det är redan
+bättre löst via kapitel/scen/story-time-rank på faktan, ett till
+fritextfält där hade bara konkurrerat med det. UI: en `<select>`
+för Where, en rad togglingsbara knappar för participants (samma
+visuella språk som Character-kortets pronomen-väljare).
+
+Location: INGEN ny lagring alls, per plan — bara en härledd,
+skrivskyddad vy ("Events here" / "People here") som läser direkt ur
+alla Events egna `where`/`participants`
+(`eventsAtLocation`/`participantsAtLocation`-hjälpare i
+`eventProfile.ts`). En sak att redigera, ingen synk-risk.
+
+`deleteEntity.ts` fick städning: tar bort en Events egen profil om
+Eventet självt raderas, men rensar OCKSÅ `entity_ref` ur andra
+Events `participants`/`where` när en Character eller Location
+raderas — annars hade Location-vyn kunnat visa en död referens (eller
+värre, en helt annan framtida entitet som råkar återanvända samma
+slug).
+
+Nya enhetstester: 9 i `tests/core/event-profile.test.ts`
+(upsert/tomt-fall/eventsAtLocation/participantsAtLocation), 2 nya i
+`tests/core/delete-entity.test.ts` för scrubbnings-beteendet, 1 ny i
+`tests/core/character-profile.test.ts` för goals/fears i
+Draft-prompten. Fem befintliga testfiler behövde uppdateras (raka
+`CharacterProfile`-literaler saknade de nya obligatoriska fälten
+— zod `.default()` fyller i vid parsning men TypeScript kräver
+fälten explicit på en literal).
+
+Verifierat live med Playwright: skapade Nora (Character) med
+Goals/Fears, The Lighthouse (Location), The Storm (Event) — satte
+Where till The Lighthouse och togglade Nora som participant, öppnade
+sedan Location-kortet igen och såg "Events here: The Storm" /
+"People here: Nora" — helt härlett, ingenting dubbelmatat.
+
+Med det här är schema-arbetet från förra rundans diskussion klart.
 
 **Ändringslogg v1.0.25 → v1.0.26 (2026-09-30):** Mats: "Då kör vi på
 Synopsis och kapitel/scen-Briefs" — de två återstående

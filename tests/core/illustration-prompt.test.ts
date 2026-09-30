@@ -46,7 +46,9 @@ function bookWithCast() {
         created_at: "2026-09-14T00:00:00.000Z"
       }
     ],
-    profiles: [{ entity_ref: "emma-vale", looks: "Red hair, sea-worn coat", personality: "Guarded", tags: [] }]
+    profiles: [
+      { entity_ref: "emma-vale", looks: "Red hair, sea-worn coat", personality: "Guarded", goals: "", fears: "", tags: [] }
+    ]
   };
   return book;
 }

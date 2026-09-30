@@ -25,6 +25,14 @@ import {
   type CharacterProfileInput
 } from "@core/characterProfile";
 import {
+  eventProfileFor,
+  participantsAtLocation,
+  eventsAtLocation,
+  upsertEventProfile,
+  type EventProfile,
+  type EventProfileInput
+} from "@core/eventProfile";
+import {
   addEntityPicture,
   MAX_ENTITY_PICTURES,
   picturesFor,
@@ -125,6 +133,45 @@ export function BiblePanel({
     overlay?.type === "asOfEntity"
       ? displaySections.flatMap((section) => section.entities).find((entity) => entity.entity_ref === overlay.ref)
       : undefined;
+
+  const characterOptions = useMemo(
+    () =>
+      (sections.find((section) => section.kind === "characters")?.entities ?? []).map((entity) => ({
+        ref: entity.entity_ref,
+        label: entity.entity_label
+      })),
+    [sections]
+  );
+  const locationOptions = useMemo(
+    () =>
+      (sections.find((section) => section.kind === "locations")?.entities ?? []).map((entity) => ({
+        ref: entity.entity_ref,
+        label: entity.entity_label
+      })),
+    [sections]
+  );
+  /** Only computed when the open card is a Location — "which events happened here, who was at them", read straight off Event's own where/participants rather than a separately stored list (see eventProfile.ts). */
+  const locationDerived = useMemo(() => {
+    const empty = { events: [] as { ref: string; label: string }[], people: [] as { ref: string; label: string }[] };
+    if (!book || !openEntity || openSection?.kind !== "locations") return empty;
+    const eventLabels = new Map(
+      (sections.find((section) => section.kind === "events")?.entities ?? []).map((entity) => [
+        entity.entity_ref,
+        entity.entity_label
+      ])
+    );
+    const charLabels = new Map(characterOptions.map((item) => [item.ref, item.label]));
+    return {
+      events: eventsAtLocation(book.event_profiles, openEntity.entity_ref).map((ref) => ({
+        ref,
+        label: eventLabels.get(ref) ?? ref
+      })),
+      people: participantsAtLocation(book.event_profiles, openEntity.entity_ref).map((ref) => ({
+        ref,
+        label: charLabels.get(ref) ?? ref
+      }))
+    };
+  }, [book, openEntity, openSection, sections, characterOptions]);
 
   if (!book) return null;
 
@@ -325,6 +372,17 @@ export function BiblePanel({
               touch(current, { profiles: upsertCharacterProfile(current.profiles, { ...next, entity_ref: openEntity.entity_ref }) })
             )
           }
+          eventProfile={eventProfileFor(book.event_profiles, openEntity.entity_ref)}
+          onEventProfile={(next) =>
+            void patchBook((current) =>
+              touch(current, {
+                event_profiles: upsertEventProfile(current.event_profiles, { ...next, entity_ref: openEntity.entity_ref })
+              })
+            )
+          }
+          locationOptions={locationOptions}
+          characterOptions={characterOptions}
+          locationDerived={locationDerived}
           onAddPicture={async (file) => {
             const picture = await picturesFromFile(file);
             await patchBook((current) => touch(current, { media: addEntityPicture(current.media, openEntity.entity_ref, picture) }));
@@ -637,6 +695,11 @@ function EntityOverlay({
   onCycleFactPositionOverride,
   onKind,
   onProfile,
+  eventProfile,
+  onEventProfile,
+  locationOptions,
+  characterOptions,
+  locationDerived,
   onAddPicture,
   onRemovePicture,
   onCommitName,
@@ -661,6 +724,11 @@ function EntityOverlay({
   onCycleFactPositionOverride: (factId: string, current: "include" | "exclude" | undefined) => void;
   onKind: (kind: BibleKind) => void;
   onProfile: (next: CharacterProfileInput) => void;
+  eventProfile: EventProfile;
+  onEventProfile: (next: EventProfileInput) => void;
+  locationOptions: { ref: string; label: string }[];
+  characterOptions: { ref: string; label: string }[];
+  locationDerived: { events: { ref: string; label: string }[]; people: { ref: string; label: string }[] };
   onAddPicture: (file: File) => Promise<void>;
   onRemovePicture: (index: number) => void;
   onCommitName: (next: string) => { from: string; to: string; hits: number } | null;
@@ -789,6 +857,15 @@ function EntityOverlay({
         {imageError ? <p className="conflict-note">{imageError}</p> : null}
       </section>
       {kind === "characters" ? <CharacterFields profile={profile} onChange={onProfile} /> : null}
+      {kind === "events" ? (
+        <EventFields
+          profile={eventProfile}
+          locationOptions={locationOptions}
+          characterOptions={characterOptions}
+          onChange={onEventProfile}
+        />
+      ) : null}
+      {kind === "locations" ? <LocationDerived events={locationDerived.events} people={locationDerived.people} /> : null}
       <ul className="bible-card-facts">
         {entity.facts.map((row) => (
           <LockedFact
@@ -1108,6 +1185,121 @@ function CharacterFields({
           rows={1}
         />
       </label>
+      <label className="bible-field">
+        <span className="bible-field-label">{m.bible.goals}</span>
+        <textarea
+          className="bible-goals"
+          value={draft.goals}
+          onChange={(event) => commit({ ...draft, goals: event.target.value })}
+          placeholder={m.bible.goalsPlaceholder}
+          rows={1}
+        />
+      </label>
+      <label className="bible-field">
+        <span className="bible-field-label">{m.bible.fears}</span>
+        <textarea
+          className="bible-fears"
+          value={draft.fears}
+          onChange={(event) => commit({ ...draft, fears: event.target.value })}
+          placeholder={m.bible.fearsPlaceholder}
+          rows={1}
+        />
+      </label>
+    </div>
+  );
+}
+
+function EventFields({
+  profile,
+  locationOptions,
+  characterOptions,
+  onChange
+}: {
+  profile: EventProfile;
+  locationOptions: { ref: string; label: string }[];
+  characterOptions: { ref: string; label: string }[];
+  onChange: (next: EventProfileInput) => void;
+}) {
+  const { messages: m } = useLocale();
+  return (
+    <div className="bible-card-fields">
+      <label className="bible-field">
+        <span className="bible-field-label">{m.bible.eventWhere}</span>
+        <select
+          value={profile.where ?? ""}
+          onChange={(event) =>
+            onChange({ ...profile, where: event.target.value || undefined })
+          }
+        >
+          <option value="">{m.bible.eventWhereNone}</option>
+          {locationOptions.map((location) => (
+            <option key={location.ref} value={location.ref}>
+              {location.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {characterOptions.length > 0 ? (
+        <fieldset className="bible-field bible-participants-field">
+          <legend className="bible-field-label">{m.bible.eventParticipants}</legend>
+          <div className="bible-participants" role="group" aria-label={m.bible.eventParticipants}>
+            {characterOptions.map((character) => {
+              const on = profile.participants.includes(character.ref);
+              return (
+                <button
+                  key={character.ref}
+                  type="button"
+                  className={on ? "bible-participant is-on" : "bible-participant"}
+                  aria-pressed={on}
+                  onClick={() =>
+                    onChange({
+                      ...profile,
+                      participants: on
+                        ? profile.participants.filter((ref) => ref !== character.ref)
+                        : [...profile.participants, character.ref]
+                    })
+                  }
+                >
+                  {character.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : null}
+    </div>
+  );
+}
+
+function LocationDerived({
+  events,
+  people
+}: {
+  events: { ref: string; label: string }[];
+  people: { ref: string; label: string }[];
+}) {
+  const { messages: m } = useLocale();
+  if (events.length === 0) return null;
+  return (
+    <div className="bible-card-fields bible-location-derived">
+      <div className="bible-field">
+        <span className="bible-field-label">{m.bible.eventsHere}</span>
+        <ul className="bible-derived-list">
+          {events.map((event) => (
+            <li key={event.ref}>{event.label}</li>
+          ))}
+        </ul>
+      </div>
+      {people.length > 0 ? (
+        <div className="bible-field">
+          <span className="bible-field-label">{m.bible.peopleHere}</span>
+          <ul className="bible-derived-list">
+            {people.map((person) => (
+              <li key={person.ref}>{person.label}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
