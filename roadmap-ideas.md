@@ -1304,11 +1304,31 @@ fixade, verifierade lokalt (`npm run build` rent, alla 775 tester
 gröna), pushade. Körning #3 lyckades: byggde och laddade upp en
 ~10 MB `storybook-ai-windows-installer`-artefakt
 (https://github.com/ocedo-apps/StoryBook-AI/actions/runs/36757244097).
-**Inte provkörd på en riktig Windows-dator än** — det är nästa
-konkreta steg, inte gjort härifrån. Ollama-detektion/auto-
-install, VRAM-avläsning + modellförslag, uppdateringskoll-UI +
-`storybookai://`-protokollregistrering är fortfarande inte
-påbörjade — nästa steg.
+**Uppdatering: provkörd av Mats på en riktig Windows-dator samma
+kväll — fungerade.** Installationen gick igenom, appen startade i
+ett eget fönster (Tauris WebView2-skal, inte en flik i Mats vanliga
+webbläsare — precis som tänkt). Hela kedjan (installer → launcher →
+StoryBook AI renderad) bekräftad på riktig hårdvara, inte bara i
+sandlådan. Ollama-detektion/auto-install, VRAM-avläsning +
+modellförslag, uppdateringskoll-UI + `storybookai://`-
+protokollregistrering är fortfarande inte påbörjade — nästa steg.
+
+**Kom ihåg när uppdateringskollen byggs: Guiden måste uppdateras.**
+`handbookSections.privacy` (alla tre språk — "Ett helt stängt
+digitalt kassaskåp") lovar idag uttryckligen "inga
+uppdateringskontroller mot GitHub" som ett av flera konkreta
+bevis för att appen är helt lokal. Den raden blir sakligt fel så
+fort launcher-appen kan kolla GitHub för nya versioner av sig
+själv — även om StoryBooks egen kod (webbappen) aldrig gör det
+anropet själv (se resonemanget om Tauri-bryggan ovan). Huvud-
+löftet ("ditt manus lämnar aldrig din dator") ska INTE mjukas upp —
+det stämmer fortfarande, absolut. Bara GitHub-raden behöver
+skärpas till något i stil med: "ingen del av StoryBook AI skickar
+ditt manus någonstans; den fristående skrivbordsappen (frivillig)
+kan kolla om det finns en nyare version av sig själv, aldrig av
+din text." Gör den ändringen i samma commit som uppdaterings-
+kollen faktiskt shippas — inte innan (då riskerar texten att driva
+isär från den verkliga implementationen).
 
 ---
 
