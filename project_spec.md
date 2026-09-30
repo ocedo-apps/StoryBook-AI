@@ -1,9 +1,63 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.25
+Status: living document, v1.0.26
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.25 → v1.0.26 (2026-09-30):** Mats: "Då kör vi på
+Synopsis och kapitel/scen-Briefs" — de två återstående
+planeringskällorna från v1.0.25-planen.
+
+**Genomfört:** Ingen kärnkod behövde ändras — `origin`-fältet,
+`PLANNING_EXTRACTOR_SYSTEM` och `applyExtractorDrafts` var redan
+källoberoende sedan Brainstorm-rundan. Bara nya store-funktioner och
+UI-krokar:
+
+`extractSynopsis()` i `BookStore.tsx` — samma mönster som
+Lore-import: ingen chapter_id/scene_id (Synopsis beskriver hela
+berättelsen, inte en position i story time), origin "synopsis".
+Knapp i Synopsis-vyns footer, bredvid "Start Chapter N",
+inaktiverad tills synopsis har text.
+
+`extractBrief(chapterId, sceneId?)` — här är chapter_id/scene_id
+INTE valfritt bortvalt som för Synopsis/Brainstorm, utan medvetet
+satt: en brief hör naturligt till ett kapitel (eller en scen), så
+precis som Intervju-fakta sedan v1.0.23 attribueras resultatet till
+den positionen och går genom samma story-time-grind. En fakta från
+en scens egen brief förblir osynlig för Draft till just den scenens
+egen omgång; en fakta från kapitlets HELA brief är synlig från
+kapitlets första sida (samma "chapter_id utan scene_id"-beteende
+som redan fanns). Två UI-krokar för samma funktion: en
+"Extract facts"-knapp i vänsterlistans expanderbara kapitel-brief
+(`Editor.tsx`, ny `.chapter-brief-extract`-knapp under
+`ChapterBriefCopy`), och en i `ScenesPanel.tsx` per scen, bredvid
+scenens egen brief-textruta (ny `.scene-brief-extract`). Båda
+inaktiverade tills respektive brief-fält har text.
+
+Nya i18n-strängar i alla tre språk: knappetiketter/hintar för
+Synopsis och Brief, nya STORE_ERROR-koder
+(synopsisExtractorNone/briefExtractorNone), nya busy-lägen
+("extract-synopsis"/"extract-brief") och nya PromptInspector-
+operationsetiketter. `bible.sources`-mappen (från v1.0.25) täckte
+redan "synopsis" och "brief" som nycklar, så inget nytt där.
+
+Verifierat live med Playwright: Synopsis-knappen inaktiverad tom/
+aktiverad med text; kapitel-brief-knappen samma (med en fix i
+testskriptet självt — klick på `.chapter-brief-toggle` när kapitlet
+redan är valt stänger IGEN den brief som chapter-radens egen
+onClick redan öppnade, inte en bugg i appen); scen-brief-knappen
+samma. Inga krascher vid klick utan ansluten modell (samma
+`STORE_ERROR.noModel`-väg som alla andra extraktions-knappar).
+Ingen ny kärnlogik att enhetstesta utöver vad `applyExtractorDrafts`-
+testerna redan täcker generiskt för godtyckligt `origin`.
+
+Med det här är alla fyra planeringskällor från den ursprungliga
+speccen (Brainstorm, Synopsis, kapitel-Brief, scen-Brief) klara,
+utöver de tre som redan fanns (Kapitel, Intervju, Lore) — sju
+källor totalt in i samma granskningskö. Schema-diskussionen
+(gemensam kärna + Event/Location-profil) väntar fortfarande, per
+Mats eget beslut i förra rundan.
 
 **Ändringslogg v1.0.24 → v1.0.25 (2026-09-30):** En användares
 kommentar (vidarebefordrad av Mats) argumenterade för att appen

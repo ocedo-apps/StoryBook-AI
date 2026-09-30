@@ -1033,6 +1033,15 @@ export function Editor() {
                         void store.patchBook((current) => updateChapter(current, item.id, { brief }))
                       }
                     />
+                    <button
+                      type="button"
+                      className="text-button chapter-brief-extract"
+                      title={m.editor.extractBriefFactsHint}
+                      disabled={busy !== null || !item.brief.trim()}
+                      onClick={() => void store.extractBrief(item.id)}
+                    >
+                      {busy === "extract-brief" ? m.editor.extracting : m.editor.extractBriefFacts}
+                    </button>
                   </div>
                 ) : null}
               </li>
@@ -1375,9 +1384,19 @@ export function Editor() {
                     {m.common.stop}
                   </button>
                 ) : (
-                  <button type="button" className="primary" onClick={() => store.setChapterId(chapter.id)} disabled={busy !== null}>
-                    {format(m.editor.startChapter, { n: chapter.sequence_index + 1 })}
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      title={m.editor.extractSynopsisFactsHint}
+                      disabled={busy !== null || !book.synopsis.trim()}
+                      onClick={() => void store.extractSynopsis()}
+                    >
+                      {busy === "extract-synopsis" ? m.editor.extracting : m.editor.extractSynopsisFacts}
+                    </button>
+                    <button type="button" className="primary" onClick={() => store.setChapterId(chapter.id)} disabled={busy !== null}>
+                      {format(m.editor.startChapter, { n: chapter.sequence_index + 1 })}
+                    </button>
+                  </>
                 )}
               </div>
             </footer>
@@ -1431,6 +1450,8 @@ export function Editor() {
                   if (ok) setNotesOpen(true);
                 });
               }}
+              onExtractBrief={(sceneId) => void store.extractBrief(chapter.id, sceneId)}
+              extractingBrief={busy === "extract-brief"}
             />
             <ProseCanvas
               value={chapter.prose}

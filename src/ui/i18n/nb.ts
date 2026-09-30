@@ -199,7 +199,11 @@ export const nb: Messages = {
     sendLaneEmpty: "Slipp lapper her",
     sendToSynopsis: "Send til synopsis",
     extractNoteFacts: "Hent ut fakta",
-    extractNoteFactsHint: "Finn mulige Story Bible-fakta i denne lappen. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det."
+    extractNoteFactsHint: "Finn mulige Story Bible-fakta i denne lappen. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det.",
+    extractSynopsisFacts: "Hent ut fakta",
+    extractSynopsisFactsHint: "Finn mulige Story Bible-fakta i denne synopsis. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det.",
+    extractBriefFacts: "Hent ut fakta",
+    extractBriefFactsHint: "Finn mulige Story Bible-fakta i denne brief-en. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det."
   },
   backup: {
     title: "Sikkerhetskopi",
@@ -289,6 +293,8 @@ export const nb: Messages = {
       develop: "Utviklingsmetode",
       "extract-interview": "Hent ut fakta (intervju)",
       "extract-brainstorm": "Hent ut fakta (brainstorm)",
+      "extract-synopsis": "Hent ut fakta (synopsis)",
+      "extract-brief": "Hent ut fakta (brief)",
       "import-lore": "Importer lore",
       beat: "Skriv en beat"
     }
@@ -1412,6 +1418,8 @@ export const nb: Messages = {
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
     interviewExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne samtalen.",
     brainstormExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne lappen.",
+    synopsisExtractorNone: "Ekstraktoren fant ingen uttalte fakta i synopsis.",
+    briefExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne brief-en.",
     importLoreNone: "Ekstraktoren fant ingen uttalte fakta i den innlimte teksten.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",

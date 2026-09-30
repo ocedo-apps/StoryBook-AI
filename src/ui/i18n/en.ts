@@ -485,7 +485,11 @@ export const en = {
     sendLaneEmpty: "Drop notes here",
     sendToSynopsis: "Send to synopsis",
     extractNoteFacts: "Extract facts",
-    extractNoteFactsHint: "Find possible Story Bible facts in this note. They land in the review queue as candidates — nothing here becomes canon until you lock it."
+    extractNoteFactsHint: "Find possible Story Bible facts in this note. They land in the review queue as candidates — nothing here becomes canon until you lock it.",
+    extractSynopsisFacts: "Extract facts",
+    extractSynopsisFactsHint: "Find possible Story Bible facts in this synopsis. They land in the review queue as candidates — nothing here becomes canon until you lock it.",
+    extractBriefFacts: "Extract facts",
+    extractBriefFactsHint: "Find possible Story Bible facts in this brief. They land in the review queue as candidates — nothing here becomes canon until you lock it."
   },
   backup: {
     title: "Backup",
@@ -575,6 +579,8 @@ export const en = {
       develop: "Development method",
       "extract-interview": "Extract facts (interview)",
       "extract-brainstorm": "Extract facts (brainstorm)",
+      "extract-synopsis": "Extract facts (synopsis)",
+      "extract-brief": "Extract facts (brief)",
       "import-lore": "Import lore",
       beat: "Write a beat"
     }
@@ -1422,6 +1428,8 @@ export const en = {
     extractorNone: "Extractor found no stated facts in this chapter.",
     interviewExtractorNone: "Extractor found no stated facts in this conversation.",
     brainstormExtractorNone: "Extractor found no stated facts in this note.",
+    synopsisExtractorNone: "Extractor found no stated facts in the synopsis.",
+    briefExtractorNone: "Extractor found no stated facts in this brief.",
     importLoreNone: "Extractor found no stated facts in the pasted text.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",

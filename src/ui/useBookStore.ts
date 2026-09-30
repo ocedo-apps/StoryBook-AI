@@ -30,6 +30,8 @@ export type Busy =
   | "interview"
   | "extract-interview"
   | "extract-brainstorm"
+  | "extract-synopsis"
+  | "extract-brief"
   | "import-lore"
   | "develop"
   | null;
@@ -129,6 +131,8 @@ export type BookStoreValue = {
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
   extractBrainstormNote: (noteId: string) => Promise<void>;
+  extractSynopsis: () => Promise<void>;
+  extractBrief: (chapterId: string, sceneId?: string) => Promise<void>;
   importLoreArticles: (
     articles: LoreArticleCandidate[]
   ) => Promise<{ articlesProcessed: number; articlesWithFacts: number; totalFacts: number }>;

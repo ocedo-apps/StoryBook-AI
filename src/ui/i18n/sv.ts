@@ -199,7 +199,11 @@ export const sv: Messages = {
     sendLaneEmpty: "Släpp lappar här",
     sendToSynopsis: "Skicka till synopsis",
     extractNoteFacts: "Plocka ut fakta",
-    extractNoteFactsHint: "Hitta möjliga Story Bible-fakta i den här lappen. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det."
+    extractNoteFactsHint: "Hitta möjliga Story Bible-fakta i den här lappen. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det.",
+    extractSynopsisFacts: "Plocka ut fakta",
+    extractSynopsisFactsHint: "Hitta möjliga Story Bible-fakta i det här synopsiset. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det.",
+    extractBriefFacts: "Plocka ut fakta",
+    extractBriefFactsHint: "Hitta möjliga Story Bible-fakta i den här brief:en. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det."
   },
   backup: {
     title: "Säkerhetskopia",
@@ -289,6 +293,8 @@ export const sv: Messages = {
       develop: "Utvecklingsmetod",
       "extract-interview": "Extrahera fakta (intervju)",
       "extract-brainstorm": "Extrahera fakta (brainstorm)",
+      "extract-synopsis": "Extrahera fakta (synopsis)",
+      "extract-brief": "Extrahera fakta (brief)",
       "import-lore": "Importera lore",
       beat: "Skriv en beat"
     }
@@ -1412,6 +1418,8 @@ export const sv: Messages = {
     extractorNone: "Extraktorn hittade inga uttalade fakta i det här kapitlet.",
     interviewExtractorNone: "Extraktorn hittade inga uttalade fakta i det här samtalet.",
     brainstormExtractorNone: "Extraktorn hittade inga uttalade fakta i den här lappen.",
+    synopsisExtractorNone: "Extraktorn hittade inga uttalade fakta i synopsis.",
+    briefExtractorNone: "Extraktorn hittade inga uttalade fakta i den här brief:en.",
     importLoreNone: "Extraktorn hittade inga uttalade fakta i den inklistrade texten.",
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",

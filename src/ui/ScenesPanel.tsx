@@ -14,7 +14,9 @@ export function ScenesPanel({
   busy,
   onDraftScene,
   onRecastScene,
-  onAnalyzeScene
+  onAnalyzeScene,
+  onExtractBrief,
+  extractingBrief
 }: {
   chapter: Chapter;
   onPatch: (scenes: SceneMeta[]) => void;
@@ -23,6 +25,8 @@ export function ScenesPanel({
   onDraftScene: (sceneId: string) => void;
   onRecastScene: (sceneId: string) => void;
   onAnalyzeScene: (sceneId: string) => void;
+  onExtractBrief: (sceneId: string) => void;
+  extractingBrief: boolean;
 }) {
   const { messages: m } = useLocale();
   const scenes = chapterScenes(chapter);
@@ -69,6 +73,15 @@ export function ScenesPanel({
                   rows={2}
                   onChange={(event) => onPatch(updateSceneMeta(chapter, scene.id, { brief: event.target.value }))}
                 />
+                <button
+                  type="button"
+                  className="text-button scene-brief-extract"
+                  title={m.editor.extractBriefFactsHint}
+                  disabled={busy || !scene.brief?.trim()}
+                  onClick={() => onExtractBrief(scene.id)}
+                >
+                  {extractingBrief ? m.editor.extracting : m.editor.extractBriefFacts}
+                </button>
                 {preview ? (
                   <p className="scene-preview quiet">
                     {preview}

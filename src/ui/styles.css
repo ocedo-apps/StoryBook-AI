@@ -1268,6 +1268,12 @@ button:disabled {
   color: var(--text-faint);
 }
 
+.chapter-brief-extract {
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  padding: 0;
+}
+
 .chapter-item {
   display: grid;
   grid-template-columns: 1.4rem 1fr;
@@ -5224,6 +5230,12 @@ button.illustration-genre-item:focus-visible {
 
 .scene-brief::placeholder {
   color: var(--text-faint);
+}
+
+.scene-brief-extract {
+  font-size: 0.78rem;
+  margin-top: 0.2rem;
+  padding: 0;
 }
 
 .scene-preview {

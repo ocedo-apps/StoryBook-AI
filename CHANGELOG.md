@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.26] - 2026-09-30
+
+### Added
+- "Extract facts" on the Synopsis and on any chapter or scene brief — the same planning-content pipeline Brainstorm notes got in 1.0.25, now covering all three sources the roadmap called for. A chapter or scene brief's candidates are attributed to that chapter (and scene, when extracted from a scene's own brief) the same way Interview-extracted facts already are, so they're gated by the same story-time visibility rule; Synopsis, like Brainstorm and Lore, isn't tied to any one chapter.
+
 ## [1.0.25] - 2026-09-30
 
 ### Added

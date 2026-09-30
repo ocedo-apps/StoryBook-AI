@@ -10,6 +10,8 @@ export type PromptOperation =
   | "interview"
   | "extract-interview"
   | "extract-brainstorm"
+  | "extract-synopsis"
+  | "extract-brief"
   | "import-lore"
   | "develop"
   | "word-swap"

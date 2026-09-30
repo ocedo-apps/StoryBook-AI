@@ -1945,6 +1945,122 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   /**
+   * Second of the three planning-content sources (Brainstorm notes above,
+   * chapter/scene briefs below) — same PLANNING_EXTRACTOR_SYSTEM, same
+   * unattached-to-any-chapter treatment as importLoreArticles: Synopsis
+   * describes the whole story, not one chapter's story-time position.
+   */
+  const extractSynopsis = useCallback(async () => {
+    const current = bookRef.current;
+    if (!current || busy || !current.synopsis.trim()) return;
+    if (models.length === 0) {
+      setError(ollamaError ?? STORE_ERROR.noModel);
+      return;
+    }
+    setBusy("extract-synopsis");
+    setError(null);
+    try {
+      const provider = makeProvider(reviewModel);
+      const extractMessages: PromptDebugMessage[] = [
+        { role: "system", content: PLANNING_EXTRACTOR_SYSTEM },
+        { role: "user", content: planningExtractorUserPrompt(current.synopsis, "Synopsis") }
+      ];
+      recordPrompt("extract-synopsis", reviewModel, extractMessages);
+      const raw = await provider.chat({
+        messages: extractMessages,
+        temperature: 0.1,
+        maxTokens: EXTRACTOR_MAX_TOKENS
+      });
+      recordPromptResponse(raw);
+      let drafts: FactDraft[];
+      try {
+        drafts = parseExtractorPayload(raw);
+      } catch {
+        drafts = [];
+      }
+      if (drafts.length === 0) {
+        setError(STORE_ERROR.synopsisExtractorNone);
+        return;
+      }
+      const latest = bookRef.current ?? current;
+      const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length, undefined, undefined, "synopsis");
+      await flushSave(touch(latest, { facts: nextFacts }));
+    } catch (err) {
+      setError(ollamaHint(err));
+    } finally {
+      setBusy(null);
+    }
+  }, [busy, flushSave, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]);
+
+  /**
+   * Third planning-content source: a chapter's own brief, or (with sceneId)
+   * one scene's own brief. Unlike Brainstorm/Synopsis, briefs ARE naturally
+   * chapter-scoped — so, exactly like Interview extraction since v1.0.23,
+   * this attributes the resulting facts to that chapter (and scene, when
+   * given), reusing the same story-time visibility gate: a fact from a
+   * scene's own brief stays invisible to Draft until that scene's own pass,
+   * a fact from the chapter's whole brief from the chapter's first page.
+   */
+  const extractBrief = useCallback(
+    async (chapterId: string, sceneId?: string) => {
+      const current = bookRef.current;
+      if (!current || busy) return;
+      const chapter = current.chapters.find((item) => item.id === chapterId);
+      if (!chapter) return;
+      const scene = sceneId ? chapterScenes(chapter).find((item) => item.id === sceneId) : undefined;
+      const text = sceneId ? scene?.brief : chapter.brief;
+      if (!text?.trim()) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      setBusy("extract-brief");
+      setError(null);
+      try {
+        const provider = makeProvider(reviewModel);
+        const title = chapter.title.trim() || "Untitled";
+        const label = sceneId ? `${title} — scene brief` : `${title} — chapter brief`;
+        const extractMessages: PromptDebugMessage[] = [
+          { role: "system", content: PLANNING_EXTRACTOR_SYSTEM },
+          { role: "user", content: planningExtractorUserPrompt(text, label) }
+        ];
+        recordPrompt("extract-brief", reviewModel, extractMessages);
+        const raw = await provider.chat({
+          messages: extractMessages,
+          temperature: 0.1,
+          maxTokens: EXTRACTOR_MAX_TOKENS
+        });
+        recordPromptResponse(raw);
+        let drafts: FactDraft[];
+        try {
+          drafts = parseExtractorPayload(raw);
+        } catch {
+          drafts = [];
+        }
+        if (drafts.length === 0) {
+          setError(STORE_ERROR.briefExtractorNone);
+          return;
+        }
+        const latest = bookRef.current ?? current;
+        const nextFacts = applyExtractorDrafts(
+          latest.facts,
+          drafts,
+          chapter.sequence_index,
+          chapter.id,
+          sceneId,
+          "brief"
+        );
+        await flushSave(touch(latest, { facts: nextFacts }));
+      } catch (err) {
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [busy, flushSave, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]
+  );
+
+  /**
    * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,
    * step 1: source-agnostic, before any format-specific adapter exists) —
    * run one or more pasted/uploaded articles through the same extractor a
@@ -2375,6 +2491,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     askCharacter,
     extractInterview,
     extractBrainstormNote,
+    extractSynopsis,
+    extractBrief,
     importLoreArticles,
     closeInterview,
     setInterviewPersonalityDraft,
