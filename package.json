@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
+    "@tauri-apps/api": "^2.12.0",
     "dale-chall": "^2.0.1",
     "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
@@ -21,6 +22,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.0",
     "@types/node": "^26.6.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

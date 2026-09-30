@@ -5,6 +5,68 @@ Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
 
+**Separat spår — Windows-installerare/launcher (2026-09-30 kväll,
+se roadmap-ideas.md #35).** Ingen version-bump här — det här är ett
+eget delprojekt (Tauri-baserad desktop-app) vid sidan av StoryBook
+AI-webbappen, inte en ändring av den. Mats: "Vi kan köra igång 😁"
+efter att idén skrevs ner i sin helhet igår kväll.
+
+**Genomfört (scaffolding-etappen):**
+
+Miljökoll i sandlådan: Rust/Cargo 1.94.1 finns och fungerar, men
+ingen Windows-korskompilering (inget mingw, ingen NSIS/WiX) — löste
+det genom att installera Tauris Linux-byggberoenden
+(`libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`,
+`librsvg2-dev` m.fl. via apt) för att kunna utveckla och verifiera
+appens logik i Linux-läge, och lägga den riktiga Windows-byggningen
+på GitHub Actions istället för att kämpa med korskompilering här.
+
+`npx tauri init --ci` scaffoldade `src-tauri/` rakt in i det
+befintliga repot (Tauri v2.12.0) — pekar på det befintliga
+`dist/`-bygget (`frontendDist`) och den befintliga Vite-dev-servern
+på port 5175 (`devUrl`/`beforeDevCommand: npm run dev`), ingen
+separat frontend-app. Justerade det genererade `tauri.conf.json`:
+eget identifier (`se.ocedo.storybookai` istället för placeholder-
+värdet `com.tauri.dev`), fönsterstorlek 1320×860 (standard-800×600
+var för litet för ett skrivverktyg), och begränsade bundle-target
+till `["nsis"]` — Windows-only, matchar planen.
+
+Genererade en egen app-ikon istället för Tauris standard-robot: ett
+beskuret "S" ur logotypens egen sketch-bokstav visade sig för
+detaljrikt för att skalas ner snyggt (konstruktionslinjerna blir
+grumliga brus vid 16–32px), så istället en ren, enkel platshållare —
+en rost-färgad "S" (samma `--ink`-nyans som appens mörka tema,
+`#d06a48` på `#14110e`) i Liberation Serif Bold. Genererade hela
+ikonuppsättningen (.ico, .icns, alla PNG-storlekar) via
+`npx tauri icon`.
+
+**Verifierat live, inte bara "borde funka":** startade
+`cargo tauri dev` under Xvfb (virtuell skärm) i sandlådan, väntade in
+Rust-kompileringen (429 crates, ~1m30s) och Vite-dev-servern, tog en
+skärmdump av det faktiska fönstret. StoryBook AI renderas korrekt i
+Tauris webview — samma startsida, samma "Connect a local AI"-ruta,
+samma mörka tema som i en vanlig webbläsare. Skalet fungerar.
+
+Skrev `.github/workflows/desktop-build.yml` — bygger på
+`windows-latest` via `tauri-apps/tauri-action`, osignerat (inget
+kodsigneringscertifikat ännu, se roadmap-ideas.md #35), laddar upp
+NSIS-installern som artefakt. Triggas manuellt eller vid push till
+main som rör `src-tauri/`/`src/`. **Inte testat på riktigt än** —
+kräver att workflowet faktiskt körs och att någon hämtar/provkör
+.exe-filen på en Windows-dator, vilket jag inte kan göra härifrån.
+
+`npm install` lade till `@tauri-apps/cli` (dev) och `@tauri-apps/api`
+(runtime, för framtida `invoke()`-anrop från StoryBooks egen kod) —
+verifierade att webbappens egen typecheck/tester/bygge fortfarande är
+opåverkade (775 tester, rent bygge).
+
+**Kvarstår, inte påbörjat:** Ollama-detektion/auto-install,
+VRAM-avläsning + modellförslag, uppdateringskoll (`invoke`-bryggan
+respektive `storybookai://`-protokollet, se roadmap-ideas.md #35),
+Inno Setup-stubben, och det faktiska testet av Windows-artefakten.
+
+---
+
 **Ändringslogg v1.0.26 → v1.0.27 (2026-09-30):** Uppföljning på
 schema-diskussionen från förra rundan. Jag lade fram tre öppna
 punkter innan jag kodade: (1) ska Event "where"/"participants" vara

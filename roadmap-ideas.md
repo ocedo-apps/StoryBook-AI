@@ -1274,8 +1274,23 @@ artefakten. Ollama-detektion/auto-install, VRAM-avläsning +
 modellförslag, uppdateringskoll-UI + protokollregistrering, och
 Inno Setup-stubben byggs som separata steg efter det, på samma grund.
 
-**Status: idé nedskriven, inte påbörjad.** Inget kodat. Fortsätter
-kvällen 2026-09-30 med scaffolding-etappen ovan.
+**Status: scaffolding-etappen klar (2026-09-30 kväll).** `src-tauri/`
+finns i repot (`npx tauri init` + eget `se.ocedo.storybookai`-
+identifier, 1320×860-fönster, mål begränsat till NSIS/Windows). Egen
+ikon genererad (rust-färgad "S", samma ton som appens mörka tema) —
+ren platshållare, byt gärna ut mot en riktig design senare. Verifierat
+live i sandlådan: `cargo tauri dev` under Xvfb, skärmdump bekräftar
+att StoryBook AI renderas korrekt i webviewen (samma startsida,
+samma "Connect a local AI"-ruta) — skalet fungerar. Ett GitHub
+Actions-workflow (`.github/workflows/desktop-build.yml`) bygger den
+riktiga Windows-.exe:n på en `windows-latest`-runner via
+`tauri-action`, osignerad (se signerings-resonemanget ovan),
+laddas upp som artefakt — inte testat än, kräver att workflowet körs
+på riktigt och att någon (Mats, eller nästa runda) hämtar och
+provkör .exe-filen på en Windows-dator. Ollama-detektion/auto-
+install, VRAM-avläsning + modellförslag, uppdateringskoll-UI +
+`storybookai://`-protokollregistrering är fortfarande inte
+påbörjade — nästa steg.
 
 ---
 

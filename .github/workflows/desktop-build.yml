@@ -1,0 +1,52 @@
+name: Desktop build (Windows)
+
+# Builds the Tauri desktop launcher (roadmap-ideas.md #35). Windows-only for
+# now, matching the current plan — no macOS/Linux targets configured in
+# src-tauri/tauri.conf.json yet. Manually triggered, plus a self-check on any
+# push to main that touches the desktop project, so a broken build surfaces
+# immediately instead of silently rotting until someone runs it by hand.
+#
+# Unsigned build: no code-signing secrets are configured (see roadmap-ideas.md
+# #35 — deferred until there's a budget for it). The resulting .exe will
+# trigger a Windows SmartScreen warning; that's expected for now, not a
+# failure of this workflow.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src-tauri/**"
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/desktop-build.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build the Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target x86_64-pc-windows-msvc
+
+      - name: Upload the Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-ai-windows-installer
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          if-no-files-found: error
