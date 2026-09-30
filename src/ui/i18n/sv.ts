@@ -977,7 +977,7 @@ export const sv: Messages = {
     search: "Sök i Story Bible",
     searchPlaceholder: "Hitta ett namn eller ett påstående",
     shelves: "Story Bible-hyllor",
-    review: "Granskning",
+    review: "Granska fakta",
     reviewCount: "Granskning · {count}",
     lockedCount: "{count} låsta",
     exportCards: "Exportera kort",

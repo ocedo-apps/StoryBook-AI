@@ -987,7 +987,7 @@ export const en = {
     search: "Search Story Bible",
     searchPlaceholder: "Find a name or claim",
     shelves: "Story Bible shelves",
-    review: "Review",
+    review: "Review facts",
     reviewCount: "Review · {count}",
     lockedCount: "{count} locked",
     exportCards: "Export cards",

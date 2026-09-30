@@ -595,21 +595,23 @@ function ReviewOverlay({
   const { messages: m } = useLocale();
   return (
     <OverlayCard titleId="bible-review-title" title={m.bible.review} onClose={onClose} className="bible-review-card">
-      <p className="quiet">{m.bible.reviewBody}</p>
-      <ul className="bible-review-list">
-        {pending.map((fact) => {
-          const conflict = fact.conflict_with ? against(fact.conflict_with) : undefined;
-          return (
-            <PendingFact
-              key={fact.id}
-              fact={fact}
-              {...(conflict ? { against: conflict } : {})}
-              onLock={(value) => onLock(fact.id, value)}
-              onReject={() => onReject(fact.id)}
-            />
-          );
-        })}
-      </ul>
+      <div className="bible-review-scroll">
+        <p className="quiet">{m.bible.reviewBody}</p>
+        <ul className="bible-review-list">
+          {pending.map((fact) => {
+            const conflict = fact.conflict_with ? against(fact.conflict_with) : undefined;
+            return (
+              <PendingFact
+                key={fact.id}
+                fact={fact}
+                {...(conflict ? { against: conflict } : {})}
+                onLock={(value) => onLock(fact.id, value)}
+                onReject={() => onReject(fact.id)}
+              />
+            );
+          })}
+        </ul>
+      </div>
     </OverlayCard>
   );
 }
@@ -1184,7 +1186,7 @@ function PendingFact({
         <strong>{fact.entity_label}</strong>
         <span className="quiet"> {m.bible.predicates[fact.predicate]}</span>
       </p>
-      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} aria-label={m.bible.factText} />
+      <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={2} aria-label={m.bible.factText} />
       {against ? (
         <p className={isMergeSuggestion ? "merge-note" : "conflict-note"}>
           {format(isMergeSuggestion ? m.bible.similarTo : m.bible.conflictsWith, { value: against.value })}

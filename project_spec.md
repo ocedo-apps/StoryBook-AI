@@ -1,9 +1,36 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.18
+Status: living document, v1.0.19
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.18 → v1.0.19 (2026-09-30):** Mats skickade en
+skärmdump av granskningskön (fungerade nu, tack vare v1.0.17:s
+z-index-fix) med tre önskemål: rubriken "REVIEW" + Close försvann ur
+bild när man scrollat ner i en lång lista; fälten för föreslagen
+fakta kunde bli ~33% lägre (aldrig sett en fakta längre än några
+ord); titeln till "REVIEW FACTS".
+
+**Fix:**
+- `ReviewOverlay` (`BiblePanel.tsx`) wrappar nu sitt innehåll
+  (ledetext + fakta-lista) i en ny `<div className="bible-review-scroll">`.
+  Ny CSS: `.edit-card.bible-review-card` blir `display:flex;
+  flex-direction:column` med `max-height: min(88vh, 42rem)`, huvudet
+  (`.bible-card-head`) `flex:0 0 auto` (fast), och
+  `.bible-review-scroll` `flex:1 1 auto; overflow-y:auto` (det enda
+  som scrollar). Tidigare scrollade hela `.edit-card` som ett block
+  (ingen höjdgräns fanns) — troligen sidans egen scroll snarare än
+  en intern scrollyta, vilket tog rubrik och Close-knapp med sig.
+  Verifierat med en syntetisk DOM-injektion (12 fejkade
+  fakta-förslag, scrollat listan 5000px): huvudet stannar kvar inom
+  viewport (`getBoundingClientRect()` bekräftar) medan listan
+  scrollar under.
+- `PendingFact`s textarea: `rows={3}` → `rows={2}` — en exakt 33%
+  minskning, matchar Mats siffra rakt av.
+- `m.bible.review`: "Review" → "Review facts" (alla tre språk;
+  `m.bible.reviewCount` — den lilla räknaren-knappen i
+  Story Bible-rutan — rör ordet "Review" separat och lämnades orörd).
 
 **Ändringslogg v1.0.17 → v1.0.18 (2026-09-30):** Mats skickade en
 skärmdump: vänsterkolumnen (titel, porträtt, personlighet) hade fått

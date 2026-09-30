@@ -9,6 +9,15 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.19] - 2026-09-30
+
+### Fixed
+- The fact-review queue could scroll its own "Review facts" heading and Close button out of view on a long list — the whole card scrolled as one block. Only the list of proposed facts scrolls now; the heading and Close stay put.
+
+### Changed
+- Proposed-fact text fields are shorter by default (2 lines instead of 3) — a locked fact is almost always a short claim, not a paragraph.
+- The review queue's title is now "Review facts" instead of the more generic "Review".
+
 ## [1.0.18] - 2026-09-30
 
 ### Fixed

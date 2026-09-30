@@ -3119,6 +3119,30 @@ button:disabled {
   z-index: 60;
 }
 
+/*
+ * A tester's review queue can run long — the whole card used to scroll as
+ * one block, so scrolling down to a later fact also scrolled the "Review
+ * facts" heading and Close button out of view (page-level scroll, since
+ * .edit-card itself had no height cap). Give the card a definite height
+ * and let only the fact list scroll inside it, with the head staying put.
+ */
+.edit-card.bible-review-card {
+  max-height: min(88vh, 42rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bible-review-card .bible-card-head {
+  flex: 0 0 auto;
+}
+
+.bible-review-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .edit-card {
   width: min(36rem, 100%);
   background: var(--panel);
