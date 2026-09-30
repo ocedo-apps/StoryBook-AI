@@ -3094,6 +3094,20 @@ button:disabled {
   padding: 1.5rem;
 }
 
+/*
+ * The fact-review queue opens itself automatically the moment a new
+ * pending fact appears (BiblePanel.tsx watches pending.length) — including
+ * while Interview's own overlay is already open, e.g. right after Extract
+ * facts. Every .edit-overlay shares the same z-index, so stacking order
+ * came down to DOM position, and the review card was landing behind
+ * Interview's — genuinely invisible, not just easy to miss. The review
+ * queue should always win that fight: it's reacting to something that
+ * just happened, not something the author opened on purpose.
+ */
+.edit-overlay:has(.bible-review-card) {
+  z-index: 60;
+}
+
 .edit-card {
   width: min(36rem, 100%);
   background: var(--panel);

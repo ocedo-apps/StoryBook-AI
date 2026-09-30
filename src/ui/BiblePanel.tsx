@@ -594,7 +594,7 @@ function ReviewOverlay({
 }) {
   const { messages: m } = useLocale();
   return (
-    <OverlayCard titleId="bible-review-title" title={m.bible.review} onClose={onClose}>
+    <OverlayCard titleId="bible-review-title" title={m.bible.review} onClose={onClose} className="bible-review-card">
       <p className="quiet">{m.bible.reviewBody}</p>
       <ul className="bible-review-list">
         {pending.map((fact) => {

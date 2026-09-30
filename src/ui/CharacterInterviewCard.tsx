@@ -97,7 +97,7 @@ export function CharacterInterviewCard({
           <div className="bible-card-head-actions">
             <button
               type="button"
-              className="text-button"
+              className="primary"
               disabled={history.length === 0 || busy || extracting || blocked}
               onClick={onExtractFacts}
             >

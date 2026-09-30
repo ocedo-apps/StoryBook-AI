@@ -9,6 +9,14 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.17] - 2026-09-30
+
+### Fixed
+- Extract facts on an Interview could genuinely hide its own result: the fact-review queue opens itself automatically whenever a new pending fact appears, but it shares the same stacking layer as every other modal — so it could open right behind the still-open Interview card, invisible. The review queue now always wins that stacking fight.
+
+### Changed
+- "Extract facts" is now an orange primary button instead of a plain text link, matching Ask and every other main action in the app, so it's easier to spot.
+
 ## [1.0.16] - 2026-09-30
 
 ### Added

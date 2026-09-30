@@ -1,9 +1,43 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.16
+Status: living document, v1.0.17
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.16 → v1.0.17 (2026-09-30):** Två önskemål: gör
+"Extract facts"-knappen orange/tydligare, och ett verkligt fel —
+"den fakta som extraheras läggs för godkännande i en ny ruta som
+ligger under intervjun så man ser den inte."
+
+**Grundorsak till det andra:** `BiblePanel.tsx` (rad ~99-102) har en
+`useEffect` som öppnar granskningskön (`overlay: {type: "review"}`)
+automatiskt så fort `pending.length` ökar — dvs. varje gång nya
+`ai_proposed`/`flagged`-fakta dyker upp, oavsett vad användaren just
+då tittar på. Både den rutan och Interview-kortet renderas som
+`.edit-overlay` med samma `z-index: 50` — vilken som hamnar överst
+avgörs då enbart av DOM-ordning. Eftersom `BiblePanel` (som äger
+granskningskön) monteras tidigare i `Editor.tsx`s träd än
+Interview-kortet, förlorade granskningsrutan alltid den kampen när
+den triggades medan Interview redan var öppet: den öppnades
+bokstavligen bakom, helt osynlig — inte bara lätt att missa.
+
+**Fix:** `ReviewOverlay` (i `BiblePanel.tsx`) skickar nu
+`className="bible-review-card"` till sin `OverlayCard`. Ny CSS-regel
+i `styles.css`: `.edit-overlay:has(.bible-review-card) { z-index:
+60; }` — granskningsrutan vinner nu alltid stapelordningen, oavsett
+DOM-position, eftersom den reagerar på något som just hänt snarare
+än något författaren själv öppnade. Verifierade mekaniken isolerat
+(en fristående HTML-fil mot den byggda CSS-filen, granskningsrutan
+FÖRST i DOM men ändå överst i skärmdumpen) eftersom ett riktigt
+end-to-end-test hade krävt en körande lokal modell för att faktiskt
+trigga extraktionen.
+
+"Extract facts"-knappen (`CharacterInterviewCard.tsx`) bytte
+`className` från `"text-button"` till `"primary"` — samma
+orange/rost-knapp som "Ask", "Create", "Lock into Story Bible" m.fl.
+redan använder (appens `--ink`-token är faktiskt en rostfärg, inte
+svart, trots namnet). Verifierat live i webbläsare.
 
 **Ändringslogg v1.0.15 → v1.0.16 (2026-09-30):** Mats skickade en
 mockup (en skärmdump från Pinterest, med "Spara"-märket och krysset
