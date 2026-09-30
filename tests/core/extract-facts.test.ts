@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { INTERVIEW_EXTRACTOR_SYSTEM, interviewExtractorUserPrompt, parseExtractorPayload } from "@core/extractFacts";
+import {
+  INTERVIEW_EXTRACTOR_SYSTEM,
+  interviewExtractorUserPrompt,
+  parseExtractorPayload,
+  PLANNING_EXTRACTOR_SYSTEM,
+  planningExtractorUserPrompt
+} from "@core/extractFacts";
 
 describe("parseExtractorPayload", () => {
   it("reads a clean facts array", () => {
@@ -161,5 +167,38 @@ describe("INTERVIEW_EXTRACTOR_SYSTEM", () => {
     // model's guess — the "no guesses" rule must not be read as excluding it.
     expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("let's say 35");
     expect(INTERVIEW_EXTRACTOR_SYSTEM).toContain("still extract it");
+  });
+});
+
+describe("planningExtractorUserPrompt", () => {
+  it("names the source and includes the text", () => {
+    const prompt = planningExtractorUserPrompt("Nora lives in Blackwater.", "Brainstorm note");
+    expect(prompt).toContain("Source: Brainstorm note");
+    expect(prompt).toContain("Nora lives in Blackwater.");
+  });
+
+  it("falls back to a generic label for an untitled source", () => {
+    const prompt = planningExtractorUserPrompt("Nora lives in Blackwater.", "  ");
+    expect(prompt).toContain("Source: Untitled");
+  });
+});
+
+describe("PLANNING_EXTRACTOR_SYSTEM", () => {
+  it("tells the model planning text may be settled or still speculative", () => {
+    expect(PLANNING_EXTRACTOR_SYSTEM).toContain("possibility");
+    expect(PLANNING_EXTRACTOR_SYSTEM).toContain("may change or never happen");
+  });
+
+  it("requires a speculative claim to keep its own hedge rather than being flattened into certainty", () => {
+    // Regression risk this guards against: "Nora may discover that Marcus
+    // was involved" must not extract as the flat claim "Marcus was
+    // involved" — the whole point of extracting from planning material
+    // rather than accepted prose is that it isn't settled yet.
+    expect(PLANNING_EXTRACTOR_SYSTEM).toContain("Nora may discover");
+    expect(PLANNING_EXTRACTOR_SYSTEM).toContain("Never drop the hedge");
+  });
+
+  it("shares the same predicate guide as the other two extractor prompts", () => {
+    expect(PLANNING_EXTRACTOR_SYSTEM).toContain("core.identity, core.trait, core.place");
   });
 });

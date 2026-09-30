@@ -2,6 +2,7 @@ import { newId, nowIso, normalizeValue } from "./ids";
 import {
   activeFacts,
   type FactDraft,
+  type FactOrigin,
   type FactSource,
   type NarrativeFact
 } from "./NarrativeFact";
@@ -113,6 +114,7 @@ export function factFromDraft(
     sequence_index: number;
     chapter_id?: string;
     scene_id?: string;
+    origin?: FactOrigin;
     conflict_with?: string;
     is_merge_suggestion?: boolean;
   }
@@ -130,6 +132,7 @@ export function factFromDraft(
   };
   if (args.chapter_id) fact.chapter_id = args.chapter_id;
   if (args.scene_id) fact.scene_id = args.scene_id;
+  if (args.origin) fact.origin = args.origin;
   if (args.conflict_with) fact.conflict_with = args.conflict_with;
   if (args.is_merge_suggestion) fact.is_merge_suggestion = true;
   return fact;
@@ -207,7 +210,8 @@ export function applyExtractorDrafts(
   drafts: FactDraft[],
   sequence_index: number,
   chapter_id?: string,
-  scene_id?: string
+  scene_id?: string,
+  origin?: FactOrigin
 ): NarrativeFact[] {
   let next = facts;
   for (const draft of drafts) {
@@ -235,6 +239,7 @@ export function applyExtractorDrafts(
           sequence_index,
           ...(chapter_id ? { chapter_id } : {}),
           ...(scene_id ? { scene_id } : {}),
+          ...(origin ? { origin } : {}),
           conflict_with: decision.againstId
         })
       );
@@ -251,6 +256,7 @@ export function applyExtractorDrafts(
             sequence_index,
             ...(chapter_id ? { chapter_id } : {}),
             ...(scene_id ? { scene_id } : {}),
+            ...(origin ? { origin } : {}),
             conflict_with: decision.supersedesId,
             is_merge_suggestion: true
           }
@@ -265,7 +271,8 @@ export function applyExtractorDrafts(
         source: "extractor",
         sequence_index,
         ...(chapter_id ? { chapter_id } : {}),
-        ...(scene_id ? { scene_id } : {})
+        ...(scene_id ? { scene_id } : {}),
+        ...(origin ? { origin } : {})
       })
     );
   }

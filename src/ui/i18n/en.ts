@@ -483,7 +483,9 @@ export const en = {
     sendLane: "To synopsis",
     sendLaneLede: "Drop notes here. Order in this column is the order they land as paragraphs.",
     sendLaneEmpty: "Drop notes here",
-    sendToSynopsis: "Send to synopsis"
+    sendToSynopsis: "Send to synopsis",
+    extractNoteFacts: "Extract facts",
+    extractNoteFactsHint: "Find possible Story Bible facts in this note. They land in the review queue as candidates — nothing here becomes canon until you lock it."
   },
   backup: {
     title: "Backup",
@@ -572,6 +574,7 @@ export const en = {
       interview: "Character interview",
       develop: "Development method",
       "extract-interview": "Extract facts (interview)",
+      "extract-brainstorm": "Extract facts (brainstorm)",
       "import-lore": "Import lore",
       beat: "Write a beat"
     }
@@ -1061,6 +1064,15 @@ export const en = {
     personalityPlaceholder: "How they tend to be",
     namePlaceholder: "Name",
     factText: "Fact text",
+    sourceLabel: "Source: {source}",
+    sources: {
+      chapter: "Chapter",
+      interview: "Interview",
+      lore: "Lore",
+      brainstorm: "Brainstorm",
+      synopsis: "Synopsis",
+      brief: "Brief"
+    },
     conflictsWith: "Conflicts with: {value}",
     similarTo: "Similar to: {value} — looks like the same fact, more detailed",
     lock: "Lock",
@@ -1409,6 +1421,7 @@ export const en = {
     analyzeEmpty: "Write or draft some prose before analyzing the chapter.",
     extractorNone: "Extractor found no stated facts in this chapter.",
     interviewExtractorNone: "Extractor found no stated facts in this conversation.",
+    brainstormExtractorNone: "Extractor found no stated facts in this note.",
     importLoreNone: "Extractor found no stated facts in the pasted text.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",

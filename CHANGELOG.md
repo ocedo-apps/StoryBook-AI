@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.25] - 2026-09-30
+
+### Added
+- "Extract facts" on each Brainstorm note — the same review-queue pipeline Chapter, Interview, and Lore import already use, now reachable from planning material too, so an idea written naturally in a note doesn't have to be manually re-typed into Story Bible. Uses a new extractor prompt tuned for planning text: a hedged or speculative claim ("Nora may discover…") keeps its own hedge in the extracted candidate rather than being flattened into a flat, false-certain claim — it still only ever produces a candidate for review, never locks automatically. Proposed and flagged facts in the review queue now show which source they came from (Chapter, Interview, Lore, or Brainstorm) when known.
+
 ## [1.0.24] - 2026-09-30
 
 ### Changed

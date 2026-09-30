@@ -8,6 +8,18 @@ export const FactSourceSchema = z.enum(["author", "extractor"]);
 export type FactSource = z.infer<typeof FactSourceSchema>;
 
 /**
+ * Which piece of the author's own writing an extractor-sourced fact was
+ * pulled from — shown in the review queue as "Source: X" (roadmap: extract
+ * candidate facts from planning content, not just Lore/Interview/Chapter).
+ * Purely a display label; it plays no role in the ConsistencyGate or the
+ * story-time visibility gate, which stay keyed off `chapter_id`/`scene_id`
+ * and `status` as before. Missing on facts from before this field existed,
+ * and on any author-typed fact — both render with no source line.
+ */
+export const FactOriginSchema = z.enum(["chapter", "interview", "lore", "brainstorm", "synopsis", "brief"]);
+export type FactOrigin = z.infer<typeof FactOriginSchema>;
+
+/**
  * One established (or proposed) narrative claim.
  * In this app the Story Bible *is* these rows — not an export shadow.
  * Facts are never deleted once locked; they are superseded.
@@ -30,6 +42,7 @@ export const NarrativeFactSchema = z.object({
   scene_id: z.string().min(1).optional(),
   status: FactStatusSchema,
   source: FactSourceSchema,
+  origin: FactOriginSchema.optional(),
   conflict_with: z.string().min(1).optional(),
   superseded_by: z.string().min(1).optional(),
   /**

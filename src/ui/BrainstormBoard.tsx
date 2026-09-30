@@ -74,7 +74,8 @@ export function BrainstormBoard({
   extraActions,
   children,
   onPatch,
-  onSend
+  onSend,
+  onExtractFacts
 }: {
   book: Book;
   busy: boolean;
@@ -83,6 +84,7 @@ export function BrainstormBoard({
   children?: React.ReactNode;
   onPatch: (mutate: (book: Book) => Book) => void;
   onSend: () => void;
+  onExtractFacts: (noteId: string) => void;
 }) {
   const { messages: m } = useLocale();
   const boardRef = useRef<HTMLDivElement>(null);
@@ -337,23 +339,38 @@ export function BrainstormBoard({
             ×
           </button>
         </div>
-        <div className="idea-note-tints" role="group" aria-label={m.editor.noteColor}>
-          {NOTE_COLORS.map((tint) => (
-            <button
-              key={tint}
-              type="button"
-              className={["idea-note-tint", `is-${tint}`, color === tint ? "is-on" : ""]
-                .filter(Boolean)
-                .join(" ")}
-              aria-label={m.editor.noteColors[tint]}
-              aria-pressed={color === tint}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (color === tint) return;
-                onPatch((current) => updateBrainstormNote(current, note.id, { color: tint }));
-              }}
-            />
-          ))}
+        <div className="idea-note-row">
+          <div className="idea-note-tints" role="group" aria-label={m.editor.noteColor}>
+            {NOTE_COLORS.map((tint) => (
+              <button
+                key={tint}
+                type="button"
+                className={["idea-note-tint", `is-${tint}`, color === tint ? "is-on" : ""]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-label={m.editor.noteColors[tint]}
+                aria-pressed={color === tint}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (color === tint) return;
+                  onPatch((current) => updateBrainstormNote(current, note.id, { color: tint }));
+                }}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            className="text-button idea-note-extract"
+            title={m.editor.extractNoteFactsHint}
+            disabled={busy || !liveNoteText(note).trim()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onPatch((current) => applyBrainstormNoteTexts(current, [[note.id, liveNoteText(note)]]));
+              onExtractFacts(note.id);
+            }}
+          >
+            {m.editor.extractNoteFacts}
+          </button>
         </div>
         <ChapterBriefCopy
           id={`idea-note-${note.id}`}

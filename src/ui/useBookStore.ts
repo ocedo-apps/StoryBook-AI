@@ -29,6 +29,7 @@ export type Busy =
   | "illustrate"
   | "interview"
   | "extract-interview"
+  | "extract-brainstorm"
   | "import-lore"
   | "develop"
   | null;
@@ -127,6 +128,7 @@ export type BookStoreValue = {
   startInterview: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   askCharacter: (question: string) => Promise<void>;
   extractInterview: () => Promise<void>;
+  extractBrainstormNote: (noteId: string) => Promise<void>;
   importLoreArticles: (
     articles: LoreArticleCandidate[]
   ) => Promise<{ articlesProcessed: number; articlesWithFacts: number; totalFacts: number }>;

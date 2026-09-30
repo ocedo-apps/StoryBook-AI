@@ -1759,10 +1759,23 @@ button:disabled {
   background: var(--note-lilac);
 }
 
+.idea-note-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
 .idea-note-tints {
   display: flex;
   gap: 0.32rem;
   padding: 0.05rem 0.05rem 0.1rem;
+}
+
+.idea-note-extract {
+  font-size: 0.7rem;
+  padding: 0;
+  white-space: nowrap;
 }
 
 .idea-note-tint {
@@ -4587,6 +4600,10 @@ button:disabled {
   margin: 0 0 0.35rem;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.proposal-source {
+  font-size: 0.8rem !important;
 }
 
 .conflict-note {

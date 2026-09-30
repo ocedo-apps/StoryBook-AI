@@ -163,7 +163,7 @@ export function parseExtractorPayload(raw: string): FactDraft[] {
  * description: "a stable characteristic" doesn't obviously cover an age or
  * a relationship status unless it says so.
  */
-const PREDICATE_GUIDE = `- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
+export const PREDICATE_GUIDE = `- predicate must be one of: core.identity, core.trait, core.place, core.object, core.group, core.relationship, core.event, core.concept
 - core.identity: who this is (a single person, name, role). core.trait: a stable characteristic — an age, a relationship status, an occupation, a physical trait, a stated preference, or a habit. core.place: a named location, including a ship or building you can be inside. core.object: a named thing. core.group: a named order, crew, house, guild, or other collective — not one person. core.relationship: how two people are connected. core.event: something that has happened. core.concept: a named abstract idea, system, rule, or piece of lore that is not a person, place, object, or group — a magic system, a historical era, a custom, a law.
 - entity_label is the person's, place's, object's, group's, or concept's displayed name. Spell it exactly the same way, every time, whenever the same fact-holder comes up again in this extraction — matching spellings are how the app recognizes it is the same card; a different spelling (a title added or dropped, a nickname) is treated as a different card.`;
 
@@ -210,4 +210,33 @@ ${PREDICATE_GUIDE}
 
 export function interviewExtractorUserPrompt(transcript: string, interviewee: string): string {
   return `Interviewee: ${interviewee.trim()} (whether their answers below use "I"/"me"/"my" or name them directly in the third person, facts about them belong to this name)\n\nTranscript:\n${transcript.trim()}`;
+}
+
+/**
+ * A third system prompt, for the author's own planning material (Brainstorm
+ * notes, and later Synopsis and chapter/scene briefs) — not a reuse of
+ * EXTRACTOR_SYSTEM. That one is written for "accepted prose": settled,
+ * already-true narrative. Planning text is the opposite on purpose — it's
+ * where an author tries out possibilities that may never happen ("Nora may
+ * discover that Marcus was involved…"). Extracting that the same way
+ * EXTRACTOR_SYSTEM extracts finished prose would flatten a maybe into a
+ * flat claim. This still only ever produces *candidates* for review, same
+ * as every other extractor — the hedge-preserving rule below is about
+ * making the candidate itself read honestly, not about gating whether it
+ * reaches the review queue (nothing here ever auto-locks).
+ */
+export const PLANNING_EXTRACTOR_SYSTEM = `You extract candidate narrative facts from an author's own planning notes — brainstorming or synopsis material, not finished prose.
+Return JSON only, shaped as: {"facts":[{"entity_label":"...","predicate":"core.identity","value":"..."}]}
+
+Rules:
+- This text is planning material: the author may be stating something as settled, or trying out a possibility that may change or never happen.
+- A claim stated as definite ("Nora lives in Blackwater") extracts normally.
+- A claim stated as possible, conditional, or speculative ("Nora may discover…", "perhaps Marcus knows…", "what if…") also extracts, but keep the same hedge in value, in the author's own words, rather than restating it as settled fact. Never drop the hedge to make the value read more certain than the text does.
+${PREDICATE_GUIDE}
+- Skip pure brainstorming chatter with no concrete claim at all — a bare question with no proposed answer, a mood note, a reminder to self.
+- If nothing is extractable, return {"facts":[]}.
+- Respond with the JSON object and nothing else: no explanation, no markdown fences, no text before or after it — even when the answer is {"facts":[]}.`;
+
+export function planningExtractorUserPrompt(text: string, sourceLabel: string): string {
+  return `Source: ${sourceLabel.trim() || "Untitled"}\n\nText:\n${text.trim()}`;
 }

@@ -118,6 +118,28 @@ describe("applyExtractorDrafts", () => {
     const again = applyExtractorDrafts(next, [{ ...emmaIdentity, predicate: "core.trait", value: "Steady hands" }], 0, "ch1");
     expect(again.filter((fact) => fact.status === "ai_proposed")).toHaveLength(1);
   });
+
+  it("tags a new proposal with the given origin", () => {
+    const next = applyExtractorDrafts(
+      [],
+      [{ ...emmaIdentity, predicate: "core.trait", value: "Slow to trust" }],
+      0,
+      undefined,
+      undefined,
+      "brainstorm"
+    );
+    expect(next[0]?.origin).toBe("brainstorm");
+  });
+
+  it("tags a flagged conflict and a merge suggestion with the given origin too", () => {
+    const conflict = applyExtractorDrafts([lockedEmma()], [{ ...emmaIdentity, value: "A visiting scholar" }], 0, "ch1", undefined, "synopsis");
+    expect(conflict.find((fact) => fact.status === "flagged")?.origin).toBe("synopsis");
+  });
+
+  it("leaves origin unset when none is given, same as before this field existed", () => {
+    const next = applyExtractorDrafts([], [{ ...emmaIdentity, predicate: "core.trait", value: "Slow to trust" }], 0);
+    expect(next[0]?.origin).toBeUndefined();
+  });
 });
 
 describe("approveFact / rejectFact", () => {

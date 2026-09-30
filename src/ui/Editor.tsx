@@ -1226,6 +1226,7 @@ export function Editor() {
             }
             onPatch={(mutate) => void store.patchBook(mutate)}
             onSend={() => void store.sendBrainstormToSynopsis()}
+            onExtractFacts={(noteId) => void store.extractBrainstormNote(noteId)}
           >
             {askOpen ? (
               <div

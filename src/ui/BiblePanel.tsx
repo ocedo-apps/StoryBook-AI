@@ -10,7 +10,7 @@ import {
   type BibleEntityGroup,
   type BibleKind
 } from "@core/bibleGroups";
-import { activeFacts, type NarrativeFact } from "@core/NarrativeFact";
+import { activeFacts, type FactOrigin, type NarrativeFact } from "@core/NarrativeFact";
 import { chainsWithHistory, factHistoryForEntity, factsAsOfSequence, type FactHistoryChain } from "@core/bibleHistory";
 import { mentionsForEntity, type MentionHit } from "@core/bibleMentions";
 import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
@@ -1174,6 +1174,7 @@ function PendingFact({
     predicate: CorePredicate;
     value: string;
     status: string;
+    origin?: FactOrigin | undefined;
     is_merge_suggestion?: boolean | undefined;
   };
   against?: { value: string };
@@ -1192,6 +1193,9 @@ function PendingFact({
         <strong>{fact.entity_label}</strong>
         <span className="quiet"> {m.bible.predicates[fact.predicate]}</span>
       </p>
+      {fact.origin ? (
+        <p className="quiet proposal-source">{format(m.bible.sourceLabel, { source: m.bible.sources[fact.origin] })}</p>
+      ) : null}
       <textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={2} aria-label={m.bible.factText} />
       {against ? (
         <p className={isMergeSuggestion ? "merge-note" : "conflict-note"}>

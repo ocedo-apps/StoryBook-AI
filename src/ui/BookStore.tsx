@@ -56,7 +56,9 @@ import {
   extractorUserPrompt,
   INTERVIEW_EXTRACTOR_SYSTEM,
   interviewExtractorUserPrompt,
-  parseExtractorPayload
+  parseExtractorPayload,
+  PLANNING_EXTRACTOR_SYSTEM,
+  planningExtractorUserPrompt
 } from "@core/extractFacts";
 import type { LoreArticleCandidate } from "@core/loreImport";
 import { proseChapters, startProofreadJob, touchProofread, type ProofreadStage } from "@core/proofread";
@@ -1504,7 +1506,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         }
         totalDrafts += drafts.length;
         const latest = bookRef.current ?? current;
-        const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, scene.id);
+        const nextFacts = applyExtractorDrafts(latest.facts, drafts, chapter.sequence_index, chapter.id, scene.id, "chapter");
         await flushSave(touch(latest, { facts: nextFacts }));
       }
       if (totalDrafts === 0) setError(STORE_ERROR.extractorNone);
@@ -1854,7 +1856,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       // sync, but the chapter fallbacks above exist precisely for when
       // interviewExtractChapterId itself couldn't be resolved.
       const sceneId = chapter.id === interviewExtractChapterId ? (interviewExtractSceneId ?? undefined) : undefined;
-      const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id, sceneId);
+      const nextFacts = applyExtractorDrafts(current.facts, drafts, chapter.sequence_index, chapter.id, sceneId, "interview");
       await flushSave(touch(current, { facts: nextFacts }));
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
@@ -1880,6 +1882,67 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     recordPromptResponse,
     reviewModel
   ]);
+
+  /**
+   * Extract candidate Story Bible facts straight from a Brainstorm note —
+   * the first of several planning-content sources (Synopsis and chapter/
+   * scene briefs are next) meant to close the "author writes naturally,
+   * then has to re-type the same information into Story Bible" gap. Not
+   * tied to any chapter (same reasoning as importLoreArticles below: a
+   * brainstorm note isn't manuscript prose, so nothing here is "as of" a
+   * story-time position) and uses PLANNING_EXTRACTOR_SYSTEM rather than
+   * EXTRACTOR_SYSTEM — planning text mixes settled claims with possibilities
+   * ("Nora may discover…") that a prose-tuned extractor would flatten into
+   * false certainty. Every candidate still lands in the same review queue
+   * as any other extraction, tagged origin: "brainstorm" for the "Source:
+   * Brainstorm" line — never locked directly.
+   */
+  const extractBrainstormNote = useCallback(
+    async (noteId: string) => {
+      const current = bookRef.current;
+      if (!current || busy) return;
+      const note = current.brainstorm_notes.find((item) => item.id === noteId);
+      if (!note?.text.trim()) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      setBusy("extract-brainstorm");
+      setError(null);
+      try {
+        const provider = makeProvider(reviewModel);
+        const extractMessages: PromptDebugMessage[] = [
+          { role: "system", content: PLANNING_EXTRACTOR_SYSTEM },
+          { role: "user", content: planningExtractorUserPrompt(note.text, "Brainstorm note") }
+        ];
+        recordPrompt("extract-brainstorm", reviewModel, extractMessages);
+        const raw = await provider.chat({
+          messages: extractMessages,
+          temperature: 0.1,
+          maxTokens: EXTRACTOR_MAX_TOKENS
+        });
+        recordPromptResponse(raw);
+        let drafts: FactDraft[];
+        try {
+          drafts = parseExtractorPayload(raw);
+        } catch {
+          drafts = [];
+        }
+        if (drafts.length === 0) {
+          setError(STORE_ERROR.brainstormExtractorNone);
+          return;
+        }
+        const latest = bookRef.current ?? current;
+        const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length, undefined, undefined, "brainstorm");
+        await flushSave(touch(latest, { facts: nextFacts }));
+      } catch (err) {
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [busy, flushSave, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]
+  );
 
   /**
    * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,
@@ -1934,7 +1997,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             const drafts = parseExtractorPayload(raw);
             if (drafts.length === 0) continue;
             const latest = bookRef.current ?? current;
-            const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length);
+            const nextFacts = applyExtractorDrafts(latest.facts, drafts, latest.facts.length, undefined, undefined, "lore");
             await flushSave(touch(latest, { facts: nextFacts }));
             articlesWithFacts += 1;
             totalFacts += drafts.length;
@@ -2311,6 +2374,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startInterview,
     askCharacter,
     extractInterview,
+    extractBrainstormNote,
     importLoreArticles,
     closeInterview,
     setInterviewPersonalityDraft,

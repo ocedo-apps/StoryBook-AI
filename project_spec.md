@@ -1,9 +1,92 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.24
+Status: living document, v1.0.25
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.24 → v1.0.25 (2026-09-30):** En användares
+kommentar (vidarebefordrad av Mats) argumenterade för att appen
+"gör för lite för att föra information vidare automatiskt" och
+efterlyste ett arbetsflöde: författaren skriver naturligt → AI
+extraherar → författaren godkänner → kanon — med Brainstorm →
+Synopsis som huvudexempel. Jag höll delvis med (efter att ha läst
+`ConsistencyGate.ts`/`extractFacts.ts` fastslog jag att den pipen
+redan finns och redan används av Kapitel/Intervju/Lore — luckan var
+specifikt att Brainstorm/Synopsis/Briefs saknades som källor) men
+nyanserade en separat kommentar om att Story Bible-kategorierna är
+"kosmetiska" (bekräftat i kod: `classifyEntity` gissar kind enbart
+från vilket predikat en faktas rader råkar använda — inget eget
+kind-fält finns, förutom `CharacterProfile` som är ett särfall bara
+för Character). Mats gav sedan ett konkret schema-förslag (gemensam
+kärna + kategori-specifik struktur, typ Character:
+traits/goals/fears, Event: when/where/participants/consequences,
+Location: characteristics/inhabitants/relevant events) — jag
+föreslog att skala ner det: Facts/Relationships/Source/Canon status
+hör redan hemma på FAKTAN, inte entiteten (skulle vara ett steg
+bakåt från "facts are never deleted, only superseded"); "traits"
+och Event "when" krockar med sådant som redan finns bättre löst
+(core.trait-fakta, respektive scen/kapitel-story-time-attribution);
+goals/fears (Character) och participants/where (Event) är genuint
+nya och konkret motiverade; Location inhabitants/relevant events
+bör vara HÄRLEDDA vyer, inte separat lagrade (annars synk-risk).
+Mats beslut: bygg extraktions-arbetet (Brainstorm → Synopsis →
+Briefs) först, fundera på schemat efteråt. Han sa uttryckligen
+"Vi börjar med Brainstorm arbetet".
+
+**Genomfört (Brainstorm-delen, första av tre planerade källor):**
+
+Ny `origin`-fält på `NarrativeFact` (`src/core/NarrativeFact.ts`) —
+`"chapter" | "interview" | "lore" | "brainstorm" | "synopsis" |
+"brief"`, valfritt, additivt, rent visuellt (påverkar varken
+ConsistencyGate eller story-time-grinden, som fortsätter styras av
+chapter_id/scene_id/status precis som innan). Trädde genom
+`factFromDraft`/`applyExtractorDrafts` (`ConsistencyGate.ts`) som ny
+sista valfri parameter. Satte den även på de TRE befintliga
+extraktions-anropen (Kapitel → "chapter", Intervju → "interview",
+Lore → "lore") i `BookStore.tsx` så käll-etiketten blir konsekvent
+för alla källor direkt, inte bara den nya — annars hade
+granskningskön sett inkonsekvent ut (vissa fakta med källa, andra
+utan, utan anledning).
+
+Ny tredje extraktor-systemprompt, `PLANNING_EXTRACTOR_SYSTEM`
+(`src/core/extractFacts.ts`, delar `PREDICATE_GUIDE` — nu exporterad
+— med de andra två) för planeringstext: till skillnad från
+`EXTRACTOR_SYSTEM` (skriven för redan sann, accepterad prosa)
+instruerar den uttryckligen att en spekulativ formulering ("Nora may
+discover…") ska extraheras MED sin egen brasklapp kvar i värdet,
+inte plattas till en skarp fakta — exakt Mats/användarens exempel.
+Följer samma mönster som `INTERVIEW_EXTRACTOR_SYSTEM` redan
+använder för brasklapps-svar ("let's say 35").
+
+Ny store-funktion `extractBrainstormNote(noteId)` i `BookStore.tsx`
+(ny busy-status `"extract-brainstorm"`) — extraherar en enskild
+Brainstorm-lapps text, ingen chapter_id/scene_id (samma resonemang
+som Lore-import: en lapp är inte manusprosa, inget "as of" en
+story-time-position). Landar i samma granskningskö som allt annat,
+aldrig låst direkt.
+
+UI: `BrainstormBoard.tsx` fick en "Extract facts"-knapp per lapp
+(i samma rad som färgprickarna, höger-justerad via ny `.idea-note-row`),
+inaktiverad tills lappen har text. `BiblePanel.tsx`s `PendingFact`
+visar nu en "Source: X"-rad när `fact.origin` är satt.
+
+Nya enhetstester: 3 i `tests/core/consistency-gate.test.ts` för
+origin-trådningen (ny fakta, flaggad konflikt, och att avsaknad av
+origin inte sätter något — bakåtkompatibelt), 5 i
+`tests/core/extract-facts.test.ts` för
+`planningExtractorUserPrompt`/`PLANNING_EXTRACTOR_SYSTEM` (bland
+annat regressionstestet att "Nora may discover…" måste behålla sin
+brasklapp). Verifierat live med Playwright: ny bok, öppnade
+Brainstorm, skapade en lapp, knappen inaktiverad tom/aktiverad med
+text, klick utan ansluten modell misslyckas snyggt (samma
+`STORE_ERROR.noModel`-väg som Kapitel/Intervju redan använder) utan
+att krascha.
+
+**Kvarstår** (nästa steg, enligt planen): Synopsis och
+kapitel/scen-Briefs som ytterligare två extraktions-källor, samma
+mönster. Schema-diskussionen (gemensam kärna + Event/Location-profil)
+är medvetet uppskjuten till efteråt.
 
 **Ändringslogg v1.0.23 → v1.0.24 (2026-09-30):** Mats bad mig ge
 honom Guide-texten som ren text (satt vid en annan dator utan appen

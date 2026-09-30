@@ -9,6 +9,7 @@ export type PromptOperation =
   | "ask-manuscript"
   | "interview"
   | "extract-interview"
+  | "extract-brainstorm"
   | "import-lore"
   | "develop"
   | "word-swap"

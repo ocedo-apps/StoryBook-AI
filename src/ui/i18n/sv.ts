@@ -197,7 +197,9 @@ export const sv: Messages = {
     sendLane: "Till synopsis",
     sendLaneLede: "Släpp lappar här. Ordningen i kolumnen är ordningen de landar som stycken.",
     sendLaneEmpty: "Släpp lappar här",
-    sendToSynopsis: "Skicka till synopsis"
+    sendToSynopsis: "Skicka till synopsis",
+    extractNoteFacts: "Plocka ut fakta",
+    extractNoteFactsHint: "Hitta möjliga Story Bible-fakta i den här lappen. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det."
   },
   backup: {
     title: "Säkerhetskopia",
@@ -286,6 +288,7 @@ export const sv: Messages = {
       interview: "Karaktärsintervju",
       develop: "Utvecklingsmetod",
       "extract-interview": "Extrahera fakta (intervju)",
+      "extract-brainstorm": "Extrahera fakta (brainstorm)",
       "import-lore": "Importera lore",
       beat: "Skriv en beat"
     }
@@ -1051,6 +1054,15 @@ export const sv: Messages = {
     personalityPlaceholder: "Hur de brukar vara",
     namePlaceholder: "Namn",
     factText: "Faktatext",
+    sourceLabel: "Källa: {source}",
+    sources: {
+      chapter: "Kapitel",
+      interview: "Intervju",
+      lore: "Lore",
+      brainstorm: "Brainstorm",
+      synopsis: "Synopsis",
+      brief: "Brief"
+    },
     conflictsWith: "Krockar med: {value}",
     similarTo: "Liknar: {value} — verkar vara samma fakta, fast mer detaljerad",
     lock: "Lås",
@@ -1399,6 +1411,7 @@ export const sv: Messages = {
     analyzeEmpty: "Skriv eller ta fram lite prosa innan du analyserar kapitlet.",
     extractorNone: "Extraktorn hittade inga uttalade fakta i det här kapitlet.",
     interviewExtractorNone: "Extraktorn hittade inga uttalade fakta i det här samtalet.",
+    brainstormExtractorNone: "Extraktorn hittade inga uttalade fakta i den här lappen.",
     importLoreNone: "Extraktorn hittade inga uttalade fakta i den inklistrade texten.",
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",

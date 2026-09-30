@@ -197,7 +197,9 @@ export const nb: Messages = {
     sendLane: "Til synopsis",
     sendLaneLede: "Slipp lapper her. Rekkefølgen i kolonnen er rekkefølgen de lander som avsnitt.",
     sendLaneEmpty: "Slipp lapper her",
-    sendToSynopsis: "Send til synopsis"
+    sendToSynopsis: "Send til synopsis",
+    extractNoteFacts: "Hent ut fakta",
+    extractNoteFactsHint: "Finn mulige Story Bible-fakta i denne lappen. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det."
   },
   backup: {
     title: "Sikkerhetskopi",
@@ -286,6 +288,7 @@ export const nb: Messages = {
       interview: "Karakterintervju",
       develop: "Utviklingsmetode",
       "extract-interview": "Hent ut fakta (intervju)",
+      "extract-brainstorm": "Hent ut fakta (brainstorm)",
       "import-lore": "Importer lore",
       beat: "Skriv en beat"
     }
@@ -1051,6 +1054,15 @@ export const nb: Messages = {
     personalityPlaceholder: "Hvordan de pleier å være",
     namePlaceholder: "Navn",
     factText: "Faktatekst",
+    sourceLabel: "Kilde: {source}",
+    sources: {
+      chapter: "Kapittel",
+      interview: "Intervju",
+      lore: "Lore",
+      brainstorm: "Brainstorm",
+      synopsis: "Synopsis",
+      brief: "Brief"
+    },
     conflictsWith: "Kolliderer med: {value}",
     similarTo: "Ligner: {value} — ser ut som samme fakta, bare mer detaljert",
     lock: "Lås",
@@ -1399,6 +1411,7 @@ export const nb: Messages = {
     analyzeEmpty: "Skriv eller ta fram litt prosa før du analyserer kapitlet.",
     extractorNone: "Ekstraktoren fant ingen uttalte fakta i dette kapitlet.",
     interviewExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne samtalen.",
+    brainstormExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne lappen.",
     importLoreNone: "Ekstraktoren fant ingen uttalte fakta i den innlimte teksten.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
