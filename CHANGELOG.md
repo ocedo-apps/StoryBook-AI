@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.22] - 2026-09-30
+
+### Changed
+- The Handbook's "From interview to story" section now explains that a locked fact is tied to a chapter as a whole, not a point within it — important for a mid-chapter reveal (a friend turning out to be the one who hurt the protagonist's wife, say), where locking the reveal as of that chapter makes it visible to Draft from the chapter's very first page, not just from the reveal onward.
+
 ## [1.0.21] - 2026-09-30
 
 ### Added

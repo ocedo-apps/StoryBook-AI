@@ -1,9 +1,23 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.21
+Status: living document, v1.0.22
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
+
+**Ändringslogg v1.0.21 → v1.0.22 (2026-09-30):** Mats bad mig
+dokumentera kapitel-vs-punkt-nyansen i Guiden, med sitt eget exempel:
+huvudpersonen träffar en vän i kapitel 4 och får mitt i kapitlet
+reda på att vännen skadat hans fru — kapitlet ska inledas som om de
+är vänner, dynamiken vänder mitt i.
+
+**Ändring:** utökade `handbookSections["interview-to-story"]` (alla
+tre språk) med ett nytt stycke om detta — generaliserat exempel
+("kapitel 6", "gammal vän", "skadat hans fru", matchar Mats scenario
+utan att använda hans faktiska karaktärsnamn), som förklarar att en
+låst fakta hör till HELA kapitlet, inte en punkt i det, och ger den
+praktiska rekommendationen: vänta med att låsa till efter vändningen
+är skriven, eller skriv kapitlet i två omgångar.
 
 **Ändringslogg v1.0.20 → v1.0.21 (2026-09-30):** Uppföljning på
 förra svaret om story-time. Mats konkreta exempel: han frågar Henrik
