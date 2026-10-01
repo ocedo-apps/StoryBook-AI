@@ -28,7 +28,11 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: installer-stub/storybook-ai-online-installer.iss
-          install_latest: true
+        # No install_latest/installer_url input: windows-latest runner images
+        # already ship with a recent Inno Setup (6.7.1 as of this writing),
+        # and this action version (v1.2.2) doesn't support that input anyway
+        # (confirmed via its first real run — a harmless "unexpected input"
+        # warning, not a failure).
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2

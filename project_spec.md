@@ -283,10 +283,25 @@ med att CI avslöjar minst någon bugg jag inte kan se härifrån. Och
 Ollama-installation, övergång till StoryBook AI:s installer) är
 helt oprovkört på riktig Windows-hårdvara.
 
+**Uppdatering — CI grönt på första försöket (2026-10-01).**
+Kompileringen gick igenom direkt, 1.2 sekunder, ingen bugg denna
+gång (ovanligt — Tauri-bygget tog tre körningar förra gången).
+Förklaringen till den misstänkt snabba körningen: `windows-latest`-
+avbildningen har redan Inno Setup 6.7.1 förinstallerat, så
+`install_latest: true`-parametern jag satte behövdes aldrig — och
+visade sig dessutom inte ens stödjas av den exakta action-versionen
+(`Minionguyjpro/Inno-Setup-Action@v1.2.2`), bara en ofarlig
+"unexpected input"-varning i loggen. Tog bort den parametern.
+Release `installer-stub` publicerad med `.exe`-filen bifogad:
+https://github.com/ocedo-apps/StoryBook-AI/releases/tag/installer-stub
+
 **Kvarstår, inte påbörjat:** provköra .exe-filen (huvudappen) på en
 riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara (med OCH utan Ollama förinstallerat,
-för att se Check-villkoret faktiskt fungera som tänkt).
+för att se Check-villkoret faktiskt fungera som tänkt — det enda
+jag fortfarande inte kunnat verifiera alls, eftersom CI bara bevisar
+att skriptet kompilerar, inte att nedladdnings-/installationslogiken
+faktiskt gör rätt sak på en riktig dator).
 
 ---
 
