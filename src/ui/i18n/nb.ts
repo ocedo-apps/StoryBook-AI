@@ -101,6 +101,8 @@ export const nb: Messages = {
     contextWindowSuggested: "Satt til {value}, modellens egen rapporterte maksverdi.",
     contextWindowSuggestError: "Klarte ikke hente dette fra modellen — angi det for hånd.",
     contextWindowOpenAiNote: "For LM Studio og andre OpenAI-kompatible servere settes kontekstlengden når du laster modellen der, ikke her.",
+    filterLoreLabel: "Vis bare relevant lore for Skriv utkast",
+    filterLoreLede: "Avslått som standard. Lore-fakta (importert, ikke skrevet i et kapittel) tas ellers alltid med, uansett om kapittelet faktisk handler om dem. Slå på denne hvis Story Bible-en din har mye importert lore og prompten begynner å bli for stor — da tas bare lore med hvis navnet (eller, for Hendelser, en deltaker eller et sted) nevnes i kapittelets brief eller tekst så langt. Pin en enkelt lore-fakta for å alltid ta den med uansett, med samme knapp som allerede finnes i Story Bible.",
     historyLimit: "Versjoner per kapittel",
     historyLimitLede:
       "Hvor mange tidligere versjoner av et kapittel som lagres, fra Lag utkast, Omskriv, Forleng, Utdyp og Skriv om. Så snart grensen nås, forsvinner den eldste versjonen først. Det du skriver selv for hånd lagres ikke som en egen versjon — bare disse handlingene gjør det.",
@@ -1109,7 +1111,7 @@ export const nb: Messages = {
     positionOverrideAuto: "Auto",
     positionOverrideInclude: "Alltid med",
     positionOverrideExclude: "Aldri med",
-    positionOverrideToInclude: "Inkluder alltid i Lag utkast, uansett kapittelets posisjon i story-tiden",
+    positionOverrideToInclude: "Inkluder alltid i Lag utkast, uansett kapittelets posisjon i story-tiden og uansett relevansfilteret for lore",
     positionOverrideToExclude: "Utelat alltid fra Lag utkast, uansett kapittelets posisjon i story-tiden",
     positionOverrideToAuto: "Gå tilbake til automatisk posisjonering (styres av story-tiden)",
     edit: "Rediger",

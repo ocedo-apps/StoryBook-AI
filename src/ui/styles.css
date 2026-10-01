@@ -2417,7 +2417,8 @@ button:disabled {
   background: var(--plotline-charcoal);
 }
 
-.plotline-hide-from-ai {
+.plotline-hide-from-ai,
+.settings-checkbox-field {
   display: flex;
   align-items: center;
   gap: 0.5rem;

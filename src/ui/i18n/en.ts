@@ -391,6 +391,8 @@ export const en = {
     contextWindowSuggested: "Set to {value}, the model's own reported maximum.",
     contextWindowSuggestError: "Couldn't get this from the model — set it by hand.",
     contextWindowOpenAiNote: "For LM Studio and other OpenAI-compatible servers, the context length is set when you load the model there, not here.",
+    filterLoreLabel: "Only show relevant lore for Draft",
+    filterLoreLede: "Off by default. Lore facts (imported, not written in a chapter) are otherwise always included, whether or not the chapter is actually about them. Turn this on if your Story Bible has a lot of imported lore and the prompt is getting too large — only lore whose name (or, for Events, a participant or location) is mentioned in the chapter's brief or text so far gets included. Pin an individual lore fact to always include it regardless, with the same button already in the Story Bible.",
     historyLimit: "Versions per chapter",
     historyLimitLede:
       "How many earlier versions of a chapter are kept, going back through Draft, Recast, Extend, Elaborate, and Rewrite. Once you go over the limit, the oldest version is dropped first. Typing on your own doesn't create a version — only those actions do.",
@@ -1119,7 +1121,7 @@ export const en = {
     positionOverrideAuto: "Auto",
     positionOverrideInclude: "Always on",
     positionOverrideExclude: "Never on",
-    positionOverrideToInclude: "Always include in Draft, regardless of the chapter's position in story time",
+    positionOverrideToInclude: "Always include in Draft, regardless of the chapter's position in story time or the lore-relevance filter",
     positionOverrideToExclude: "Always exclude from Draft, regardless of the chapter's position in story time",
     positionOverrideToAuto: "Back to automatic positioning (goes by story time)",
     edit: "Edit",

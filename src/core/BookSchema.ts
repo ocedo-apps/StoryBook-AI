@@ -209,6 +209,16 @@ export const BookSchema = z.object({
    */
   entity_kinds: z.array(EntityKindSchema).default([]),
   /**
+   * Filters locked Story Bible facts whose origin is lore import by
+   * relevance to the chapter being drafted (roadmap-ideas.md #38),
+   * instead of including every one of them unconditionally the way
+   * chapter/interview-origin facts always are. Off by default — existing
+   * books keep today's "everything always included" behavior; an author
+   * with a large, lore-heavy Story Bible can turn it on. Missing on
+   * older saves.
+   */
+  filter_lore_by_relevance: z.boolean().default(false),
+  /**
    * Named threads (plotlines) an author can mark chapters against, shown
    * as a chapter × plotline matrix. Missing on older saves.
    */
@@ -289,6 +299,7 @@ export function createBook(title: string): Book {
     event_profiles: [],
     hidden_entities: [],
     entity_kinds: [],
+    filter_lore_by_relevance: false,
     plotlines: [],
     created_at: timestamp,
     updated_at: timestamp

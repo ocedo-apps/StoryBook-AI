@@ -1,5 +1,6 @@
 import { withCharacterProfiles } from "./characterProfile";
 import { formatPredecessorForDraft } from "./continuesFrom";
+import { filterLoreFactsByRelevance, relevantContextText } from "./loreRelevance";
 import { PREDICATE_LABELS } from "./predicates";
 import type { Book, Chapter } from "./BookSchema";
 import { sortedChapters } from "./BookSchema";
@@ -95,9 +96,6 @@ export function formatBibleForPromptAtPosition(
 ): string {
   const ranks = storyTimeRankByChapterId(book);
   const atRank = ranks.get(chapter.id);
-  if (atRank === undefined) {
-    return renderBibleRows(visibleLockedFacts(book.facts, book.hidden_entities), book, empty);
-  }
   const scenePosition = sceneId
     ? (() => {
         const byId = sceneIndexById(chapter);
@@ -105,8 +103,14 @@ export function formatBibleForPromptAtPosition(
         return atSceneIndex === undefined ? undefined : { atSceneIndex, sceneIndexById: byId };
       })()
     : undefined;
-  const rows = visibleLockedFactsAtPosition(book.facts, book.hidden_entities, ranks, atRank, scenePosition);
-  return renderBibleRows(rows, book, empty);
+  const rows =
+    atRank === undefined
+      ? visibleLockedFacts(book.facts, book.hidden_entities)
+      : visibleLockedFactsAtPosition(book.facts, book.hidden_entities, ranks, atRank, scenePosition);
+  const filtered = book.filter_lore_by_relevance
+    ? filterLoreFactsByRelevance(rows, book, relevantContextText(book, chapter, sceneId))
+    : rows;
+  return renderBibleRows(filtered, book, empty);
 }
 
 export const DRAFT_SYSTEM = `You are a novelist drafting one chapter of literary prose.

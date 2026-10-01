@@ -101,6 +101,8 @@ export const sv: Messages = {
     contextWindowSuggested: "Satt till {value}, modellens egna rapporterade maxvärde.",
     contextWindowSuggestError: "Kunde inte hämta det här från modellen — ange det för hand.",
     contextWindowOpenAiNote: "För LM Studio och andra OpenAI-kompatibla servrar sätts kontextlängden när du laddar modellen där, inte här.",
+    filterLoreLabel: "Visa bara relevant lore för Skriv utkast",
+    filterLoreLede: "Avstängt som standard. Lore-fakta (importerade, inte skrivna i ett kapitel) tas annars alltid med, oavsett om kapitlet faktiskt handlar om dem. Slå på det här om din Story Bible har mycket importerad lore och prompten börjar bli för stor — då tas bara lore vars namn (eller, för Händelser, en deltagare eller plats) nämns i kapitlets brief eller text hittills. Pinna en enskild lore-fakta för att alltid ta med den oavsett, med samma knapp som redan finns i Story Bible.",
     historyLimit: "Versioner per kapitel",
     historyLimitLede:
       "Hur många tidigare versioner av ett kapitel som sparas, från Skriv utkast, Omskriv, Förläng, Utveckla och Skriv om. Så fort gränsen nås försvinner den äldsta versionen först. Det du skriver själv för hand sparas inte som en egen version — bara de här åtgärderna gör det.",
@@ -1109,7 +1111,7 @@ export const sv: Messages = {
     positionOverrideAuto: "Auto",
     positionOverrideInclude: "Alltid med",
     positionOverrideExclude: "Aldrig med",
-    positionOverrideToInclude: "Inkludera alltid i Skriv utkast, oavsett kapitlets position i story-tiden",
+    positionOverrideToInclude: "Inkludera alltid i Skriv utkast, oavsett kapitlets position i story-tiden och oavsett relevansfiltret för lore",
     positionOverrideToExclude: "Uteslut alltid från Skriv utkast, oavsett kapitlets position i story-tiden",
     positionOverrideToAuto: "Återgå till automatisk positionering (styrs av story-tiden)",
     edit: "Redigera",

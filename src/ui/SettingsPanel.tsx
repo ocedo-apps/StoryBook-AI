@@ -316,6 +316,15 @@ export function SettingsPanel({
         ) : (
           <p className="quiet">{m.editor.contextWindowOpenAiNote}</p>
         )}
+        <label className="settings-checkbox-field">
+          <input
+            type="checkbox"
+            checked={book.filter_lore_by_relevance}
+            onChange={(event) => onPatch((current) => ({ ...current, filter_lore_by_relevance: event.target.checked }))}
+          />
+          {m.editor.filterLoreLabel}
+        </label>
+        <p className="quiet">{m.editor.filterLoreLede}</p>
         <div className="edit-actions">
           <button type="button" className="text-button" onClick={() => setContextOpen(true)}>
             {m.aiContext.trigger}

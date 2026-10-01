@@ -1511,6 +1511,71 @@ bestämmer sig för om, och i så fall vilket, nytt namn.
 
 ---
 
+### 38. Relevansfiltrering av lore-fakta i Story Bible-prompten ✅ byggd (v1.0.32)
+
+**Bakgrund.** En testare jämförde StoryBook mot SillyTavern/Writingway
+och pekade på en verklig arkitektur-brist: alla låsta Story
+Bible-fakta skickas alltid med i Draft-prompten, oavsett om kapitlet
+som skrivs faktiskt har med dem att göra. Det är rimligt för fakta
+som härstammar från manuset själv (`origin: "chapter"`/`"interview"`
+— de växer bara i takt med manuset, och att utelämna en redan
+etablerad sanning vore ett kontinuitetsfel). Men en importerad
+lore-fakta (`origin: "lore"`) är bakgrundsinformation, inte "vad
+berättelsen redan sagt" — och en testare med en stor, importerad
+setting kan få en Story Bible där lore-delen växer mycket snabbare än
+manuset, vilket (a) sväller prompten i onödan och (b) begraver de
+fakta som faktiskt är relevanta för kapitlet bland hundratals som
+inte är det.
+
+Konkret exempel som avslöjade bristen: en Patron-karaktärs
+sponsring var inte skriven som en enda fakta utan som två separata
+lore-artiklar — en om Patronen själv, en om själva sponsrings-
+händelsen (en Event-entitet med `EventProfile.participants`) — och
+ingen av dem nämnde varandra med namn. Ett rent namn-i-text-filter
+hade missat kopplingen helt.
+
+**Lösning.** Ny bok-inställning `filter_lore_by_relevance` (boolean,
+default `false` — befintliga böcker beter sig exakt som innan).
+Avstängd: ingen förändring alls. Påslagen: `origin: "lore"`-fakta tas
+bara med i Draft-promptens Story Bible-sektion (kapitel- och
+scen-nivå) om minst ett av:
+- fakta är pinnad med `position_override: "include"` (samma fält/knapp
+  som redan fanns för story-tid-positionering i `BiblePanel`, nu med
+  bredare betydelse — texten i UI:t är uppdaterad för att spegla det),
+- entitetens eget namn nämns i kapitlets brief/text-hittills/taggade
+  Plotlines (eller scenens egen brief/text för en scen-riktad pass),
+- för en Event-entitet: en deltagare eller platsen (`EventProfile.
+  where`/`.participants`, från v1.0.27) nämns istället, även om
+  händelsens eget namn aldrig nämns direkt — exakt vad som löser
+  Patron/Event-scenariot ovan.
+
+`origin: "chapter"`/`"interview"`/`"brainstorm"`/`"synopsis"`/
+`"brief"`-fakta, och fakta utan `origin` alls (äldre sparfiler),
+påverkas inte — de tas alltid med precis som innan.
+
+**Avgränsning, medvetet.** Filtret sitter bara i
+`formatBibleForPromptAtPosition` (Draft, kapitel + scen). Extend/
+Elaborate/Instruct/Beat (`passageUserPrompt`) använder redan idag den
+opositionerade `formatBibleForPrompt` och är opåverkade — en redan
+existerande inkonsekvens i kodbasen, inte något som fixades här.
+Recast/Analyze/Korrekturläsning/Brainstorm är avsiktligt opåverkade
+sedan tidigare (de resonerar om text/anteckningar som redan finns,
+inte om vad ett kapitel "får veta än").
+
+Ingen ny transparens-UI byggdes för att visa exakt vilka fakta som
+filtrerades bort — den befintliga Prompt Inspector-funktionen (visar
+redan skickade meddelanden + uppskattat antal tokens) täcker behovet.
+
+**Implementation:** `src/core/loreRelevance.ts` (ny fil —
+`relevantContextText`, `isLoreFactRelevant`,
+`filterLoreFactsByRelevance`), `filter_lore_by_relevance` i
+`BookSchema.ts`, inkoppling i `generateProse.ts`s
+`formatBibleForPromptAtPosition`, kryssruta i `SettingsPanel.tsx`,
+uppdaterad tooltip-text för `position_override`-knappen i
+`BiblePanel.tsx`/i18n.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**

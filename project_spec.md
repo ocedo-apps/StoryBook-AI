@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.31
+Status: living document, v1.0.32
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,77 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.31 → v1.0.32 (2026-10-01):** Uppföljning på
+testarens arkitektur-kritik av Story Bible (se roadmap-ideas.md #38
+för full bakgrund och lösning). Efter två korrigeringar av mig själv
+på vägen — först att jag felaktigt trodde att story-tid-positionering
+var orsaken till ett missat faktum, sedan att jag felaktigt trodde
+att testarens Story Bible var tom när hen bara sa att extraherade
+(ej godkända) fakta var för lösa — landade vi i den faktiska
+poängen: Patron-sponsringen fanns som fakta, men uppdelad på två
+separata lore-artiklar (Patronen själv, och en separat Event-artikel
+om själva erbjudandet) som aldrig nämnde varandra med namn, plus en
+bredare poäng: Story Bible blandar idag "vad berättelsen redan
+etablerat" (chapter/interview-fakta, alltid med, rätt) och
+"bakgrundsreferens" (importerad lore, alltid med, fel när mängden
+blir stor — sväller prompten och begraver det relevanta).
+
+Mats frågade "Hur stort jobb är det att fixa det?" — svarade med en
+grundad uppskattning (måttlig, inte stor: `origin`-fältet fanns redan
+från en tidigare session, filtret kunde byggas som ett fristående,
+testbart lager ovanpå det utan att röra fact-datamodellen). Mats bad
+sedan om ett förslag ("Skissa på ett förslag så tar vi det därifrån")
+— jag lade fram två alternativ (A: explicit per-bok-inställning,
+default av; B: automatiskt alltid-på baserat på fakta-antal) och
+rekommenderade A, med motiveringen att author > AI-principen redan
+etablerats för liknande inställningar (`context_window`) och att en
+tyst beteendeändring för befintliga böcker vore fel. Mats: "A, kör
+med förslaget."
+
+**Implementation.** Ny bok-inställning `filter_lore_by_relevance`
+(boolean, default `false`) i `BookSchema.ts`. Ny fil
+`src/core/loreRelevance.ts`: `relevantContextText` (samlar kapitlets
+brief/prosa/taggade Plotlines, plus scenens egen brief/prosa för en
+scen-riktad pass — medvetet INTE Story Bible själv, annars blir all
+lore "relevant" mot annan lore), `isLoreFactRelevant` (namn-match mot
+entitetens egen label, eller — för en Event-entitet — mot en
+deltagare/plats via `EventProfile`, v1.0.27; `position_override:
+"include"` vinner alltid), `filterLoreFactsByRelevance` (lämnar
+icke-lore-fakta orörda, filtrerar bara `origin: "lore"`). Inkopplat i
+`generateProse.ts`s `formatBibleForPromptAtPosition` (Draft, kapitel
++ scen) bakom `book.filter_lore_by_relevance`.
+
+Medveten avgränsning: Extend/Elaborate/Instruct/Beat
+(`passageUserPrompt`) använder redan den opositionerade
+`formatBibleForPrompt` och nås därför inte av filtret — en redan
+existerande inkonsekvens i kodbasen (upptäckt under research för
+storleks-uppskattningen), inte något jag försökte fixa här.
+
+Kryssruta i `SettingsPanel.tsx` ("Visa bara relevant lore för Skriv
+utkast") med förklarande text, bunden till `book.filter_lore_by_relevance`
+via `onPatch`. Tooltip-texten för `position_override`-knappen i
+`BiblePanel.tsx` (via i18n) uppdaterad på alla tre språk för att
+spegla att "Alltid med" nu även betyder "ignorera relevansfiltret",
+inte bara "ignorera story-tid-positionering" som innan — ingen ny
+knapp, samma kontroll, bredare betydelse, precis som i förslaget.
+
+Ny testfil `tests/core/lore-relevance.test.ts` (12 tester): icke-lore-
+och fakta-utan-`origin` passerar alltid, lore-fakta utan namn-match
+filtreras bort, namn-match i kontext-texten behåller fakta,
+`position_override: "include"` vinner alltid, Event-fakta behålls via
+deltagare eller plats även utan eget namn i texten (täcker
+Patron/Event-scenariot exakt), samt `relevantContextText`s
+sammansättning av brief/prosa/Plotlines/scen-fält.
+
+Ny roadmap-post #38 i `roadmap-ideas.md` (refererad av kod-
+kommentarer redan innan posten skrevs — nu finns den faktiskt).
+`tsc --noEmit`, `npm run build` (den riktiga kedjan) och hela
+testsviten gröna.
+
+v1.0.31 → v1.0.32.
 
 ---
 

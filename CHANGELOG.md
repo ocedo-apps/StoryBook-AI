@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.32] - 2026-10-01
+
+### Added
+- An optional, off-by-default setting ("Only show relevant lore for Draft") that filters imported lore facts (not facts established by the manuscript itself) out of the Draft prompt's Story Bible section unless the fact's own entity, or — for an Event entity — one of its participants or its location, is actually mentioned in the chapter. Pin an individual lore fact to always include it regardless, with the same cycle button already used for story-time position overrides. Addresses a tester's report that a large imported Story Bible buries the handful of facts actually relevant to the chapter being written, and that cross-referenced facts (e.g. a sponsorship event whose participant is named elsewhere, but which is never itself named in the text) could be missed entirely.
+
 ## [1.0.31] - 2026-10-01
 
 ### Added
