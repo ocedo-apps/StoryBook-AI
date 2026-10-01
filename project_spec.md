@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.30
+Status: living document, v1.0.31
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,50 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.30 → v1.0.31 (2026-10-01):** Mats: "jag skulle
+vilja få in en sektion om hur man gör för att ställa in så att man
+kör mot en lokal AI-server som är installerad på det lokala nätet
+men inte på min dator." Ny Handbok-sektion, "An AI server on another
+computer on the network" (kategorin Hjälp & felsökning), på alla tre
+språk.
+
+Research innan text skrevs, inget gissat: läste igenom hela
+anslutnings-kedjan i koden (`SettingsPanel.tsx`, `BookStore.tsx`,
+`llm/provider.ts`) för att slå fast en viktig, lätt missad detalj —
+serveradress-fältet visas ENDAST när motorn är "OpenAI-compatible"
+(`engine === "openai-compatible"` i `SettingsPanel.tsx`); väljer man
+"Ollama" istället skickas inget `baseUrl` alls till
+`OllamaModelProvider` (`BookStore.tsx` rad ~314), så den pekar alltid
+mot `localhost:11434` oavsett vad man försöker ställa in. Innebär att
+en Ollama-server på en ANNAN dator bara går att nå genom att välja
+"OpenAI-compatible"-motorn och peka den mot den andra datorns
+`http://IP:11434` (Ollama har ett eget OpenAI-kompatibelt API på
+`/v1/chat/completions`, vilket `OpenAICompatibleLocalProvider` redan
+antar — `/v1` ska INTE skrivas in av användaren, koden lägger till
+det). Verifierade också `assertLocalOnlyBaseUrl` (samma fil) — den
+blockerar bara kända molnvärdar, inte LAN-IP:er, så scenariot kräver
+ingen kodändring, bara dokumentation.
+
+Verifierade LM Studios faktiska inställningsnamn mot deras egen
+dokumentation (`lmstudio.ai/docs/developer/core/server/
+serve-on-network`) istället för att gissa: Developer-fliken →
+Server-inställningar → "Serve on Local Network" + separat
+"Enable CORS"-växel — två olika inställningar, inte en.
+
+Ny sektion `"network-ai-server"` tillagd i `HANDBOOK_SECTION_IDS`/
+`HANDBOOK_SECTION_CATEGORY` (`HandbookPanel.tsx`, kategorin "help"),
+innehåll i `handbook.sections` i `sv.ts`/`en.ts`/`nb.ts`. Verifierat
+live med Playwright (headless Chromium, det globalt installerade
+paketet eftersom projektet inte har Playwright som eget
+dev-beroende): öppnade Guiden, klickade till Hjälp-kategorin,
+bekräftade att rubrik och brödtext renderas korrekt och fullständigt
+— skärmdump bekräftar layouten. `tsc --noEmit`, `npm run build` (den
+riktiga kedjan) och alla 775 tester gröna.
+
+v1.0.30 → v1.0.31.
 
 ---
 

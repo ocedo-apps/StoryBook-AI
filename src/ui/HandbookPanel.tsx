@@ -70,6 +70,7 @@ export const HANDBOOK_SECTION_IDS = [
   "images-illustrations",
   "publish",
   "backup",
+  "network-ai-server",
   "ai-writing-wrong-things",
   "marker-conversion-no-match"
 ] as const;
@@ -122,6 +123,7 @@ export const HANDBOOK_SECTION_CATEGORY: Record<HandbookSectionId, HandbookCatego
   "images-illustrations": "images-publish-backup",
   publish: "images-publish-backup",
   backup: "images-publish-backup",
+  "network-ai-server": "help",
   "ai-writing-wrong-things": "help",
   "marker-conversion-no-match": "help"
 };

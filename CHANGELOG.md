@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.31] - 2026-10-01
+
+### Added
+- A new Guide section, "An AI server on another computer on the network" (Help & Troubleshooting), walking through connecting to Ollama or LM Studio running on a different machine on your LAN: which engine to pick (only "LM Studio / other local server" exposes a server-address field — the Ollama engine always points at localhost), the address format, and the server-side settings (OLLAMA_HOST/OLLAMA_ORIGINS for Ollama, Serve on Local Network/Enable CORS for LM Studio) plus the firewall rule needed on the other machine.
+
 ## [1.0.30] - 2026-09-30
 
 ### Changed
