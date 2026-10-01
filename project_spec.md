@@ -225,8 +225,68 @@ Verifierat: `tsc --noEmit`, `npm run build`, alla 775 tester, plus
 den här live-klick-genomgången — den mest konkreta verifieringen av
 en desktop-UI-funktion hittills i det här spåret.
 
-**Kvarstår, inte påbörjat:** provköra .exe-filen på en riktig
-Windows-dator (inte gjort härifrån), Inno Setup-stubben.
+**Uppdatering — Inno Setup-stubben skriven (2026-10-01, Mats:
+"Vi kör igång med stubben").** Ingen version-bump här — rör varken
+webbappen (`src/`) eller själva Tauri-launchern (`src-tauri/src/`),
+bara ett nytt, fristående delprojekt i `installer-stub/`.
+
+Research före kodning, inget gissat: `jrsoftware.org` (Inno Setups
+egen sajt) är blockerad i den här sandlådan, precis som `ollama.com`
+— men `raw.githubusercontent.com` fungerar, och Inno Setups
+källkod ligger öppen på `jrsoftware/issrc`. Hämtade de OFFICIELLA
+exempelskripten (`Examples/DownloadFiles.iss`,
+`Examples/CodeDownloadFiles.iss`) direkt från den repon istället för
+att lita på minnet eller en gammal tredjepartsplugin
+("Inno Download Plugin", en Google Code-era DLL utan ren
+CI-vänlig binärdistribution — övergiven till förmån för något
+bättre). Upptäckte att Inno Setup 6.3+ har INBYGGT URL-nedladdning i
+`[Files]`-sektionen (`Flags: external download`) — ingen
+tredjeparts-DLL, inget `[Code]` behövs alls för själva
+nedladdningen. Verifierade även `WelcomeLabel2` (den anpassade
+välkomsttexten) genom att grep:a efter strängen i Inno Setups eget
+Pascal-källskript (`Setup.WizardForm.pas`) snarare än att gissa om
+meddelande-ID:t faktiskt finns.
+
+Ollama-upptäckt: `{localappdata}\Programs\Ollama\ollama.exe` (Ollamas
+dokumenterade binärsökväg). Ollamas egen Windows-installer visade sig
+(via dess dokumenterade `/DIR=`-flagga — en Inno Setup-specifik
+switch) vara byggd med Inno Setup, vilket gör
+`/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART` till Inno Setups egna
+universella tysta-installations-flaggor, inte en gissning om Ollama
+specifikt — korsverifierat mot flera oberoende källor som listar
+exakt samma flaggor för Ollama. StoryBook AI:s egen installer
+lämnas INTE tyst — den visas normalt för användaren precis som idag,
+eftersom jag inte kan verifiera Tauri-NSIS-installerns exakta
+installationssökväg härifrån för att auto-starta appen efteråt.
+
+Stubben laddar ner StoryBook AI från en NY, versionsoberoende URL
+(`.../releases/latest/download/StoryBook-AI-Setup.exe`) — krävde en
+liten CI-ändring i `desktop-build.yml`: varje bygge kopierar nu
+installern till ett fast filnamn också, så stubben alltid hämtar
+"senaste" utan att känna till versionsnumret eller anropa GitHub:s
+API. Stubben själv publiceras till en EGEN, stabil Release-tagg
+(`installer-stub`) separat från appens versionstaggar — den ändras
+sällan och ska inte behöva en ny release varje gång appen gör det.
+
+Kompileringen sker via `Minionguyjpro/Inno-Setup-Action` på en
+`windows-latest`-runner (ny `.github/workflows/
+installer-stub-build.yml`) — precis som Tauri-bygget kan jag inte
+kompilera `.iss`-filer själv här (Inno Setup är Windows-only, och
+`jrsoftware.org` är blockerad så jag kunde inte ens ladda ner
+kompilatorn för att testa under Wine, som jag annars installerade
+och övervägde). **Inte verifierat härifrån, flaggar extra tydligt:**
+den faktiska `.iss`-syntaxen har aldrig körts genom en riktig
+kompilator — baserad på noggrant verifierade officiella exempel, men
+precis som Tauri-bygget (tre körningar förra gången) bör man räkna
+med att CI avslöjar minst någon bugg jag inte kan se härifrån. Och
+även om den kompilerar: hela flödet (nedladdning, tyst
+Ollama-installation, övergång till StoryBook AI:s installer) är
+helt oprovkört på riktig Windows-hårdvara.
+
+**Kvarstår, inte påbörjat:** provköra .exe-filen (huvudappen) på en
+riktig Windows-dator (inte gjort härifrån), provköra hela
+stub-kedjan på riktig hårdvara (med OCH utan Ollama förinstallerat,
+för att se Check-villkoret faktiskt fungera som tänkt).
 
 ---
 

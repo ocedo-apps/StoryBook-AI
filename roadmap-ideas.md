@@ -1348,9 +1348,27 @@ att Release-publiceringen går igenom i CI, att `storybookai://`
 faktiskt fungerar på en riktig Windows-dator, att knappens
 nätverksanrop mot api.github.com lyckas i produktion.
 
-**Kvarstår, inte påbörjat:** Inno Setup-stubben (online-installer-
-delen, se ovan), provköra hela kedjan (inte bara byggt, utan
-uppdateringsflödet) på riktig hårdvara.
+**Uppdatering: Inno Setup-stubben skriven (2026-10-01, Mats: "Vi kör
+igång med stubben").** `installer-stub/storybook-ai-online-installer.iss`
+— laddar ner och installerar Ollama tyst om det saknas (Ollamas
+installer är själv Inno Setup-byggd, bekräftat via dess `/DIR=`-flagga,
+så `/VERYSILENT`-flaggorna är Inno Setups egna universella, inte en
+gissning om Ollama), laddar sedan ner StoryBook AI:s senaste installer
+och lämnar över den normalt till användaren. Använder Inno Setup 6.3+:s
+inbyggda `[Files]`-nedladdning, inte den gamla tredjeparts-DLN:n
+("Inno Download Plugin") som inte går att källa pålitligt längre.
+Kompileras via `Minionguyjpro/Inno-Setup-Action` på `windows-latest`
+(ny `.github/workflows/installer-stub-build.yml`), publiceras till en
+egen stabil Release-tagg (`installer-stub`), separat från appens
+versionstaggar. Detaljer i project_spec.md. **Inte verifierat
+härifrån:** `.iss`-filen har aldrig körts genom en riktig kompilator
+(jrsoftware.org blockerad, kunde inte ens testa under Wine), så
+räkna med minst någon CI-runda till innan det är grönt — samma
+mönster som Tauri-bygget första gången.
+
+**Kvarstår, inte påbörjat:** provköra hela stub-kedjan på riktig
+Windows-hårdvara (med OCH utan Ollama förinstallerat), provköra
+uppdateringsflödet (inte bara att det byggs) på riktig hårdvara.
 
 **Guide-påminnelsen nedan är nu åtgärdad** (behållen som historik):
 `handbookSections.privacy` (alla tre språk — "Ett helt stängt

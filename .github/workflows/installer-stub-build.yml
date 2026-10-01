@@ -1,0 +1,46 @@
+name: Online installer stub (Windows)
+
+# Compiles installer-stub/storybook-ai-online-installer.iss (roadmap-ideas.md
+# #35) with Inno Setup on a windows-latest runner — Inno Setup is Windows-only
+# and isn't installed in this project's Linux-based dev sandbox. Publishes the
+# result to a dedicated "installer-stub" GitHub Release (not the app's own
+# v<version> releases from desktop-build.yml) — the stub's own source rarely
+# changes, and its download page link should stay the same name/URL
+# regardless of which StoryBook AI version it happens to fetch at runtime.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "installer-stub/**"
+      - ".github/workflows/installer-stub-build.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile the online installer stub
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: installer-stub/storybook-ai-online-installer.iss
+          install_latest: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: installer-stub
+          name: StoryBook AI — online installer
+          body: |
+            The small bootstrap installer (see roadmap-ideas.md #35): downloads
+            and installs Ollama if it isn't already present, then hands off to
+            the current StoryBook AI installer. Always points at the latest
+            StoryBook AI release — this isn't tied to the app's own version
+            numbers, so this release gets updated in place as the stub itself
+            changes, not on every app release.
+          files: installer-stub/output/StoryBookAI-OnlineInstaller.exe
+          fail_on_unmatched_files: true

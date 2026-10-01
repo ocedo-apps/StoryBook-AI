@@ -72,11 +72,24 @@ jobs:
           awk '/^## \[/{n++} n==1{print} n==2{exit}' CHANGELOG.md > release-notes.md
           echo "path=release-notes.md" >> "$GITHUB_OUTPUT"
 
+      # A second copy with a fixed, version-free name — the online-installer
+      # stub (installer-stub/, see roadmap-ideas.md #35) downloads this exact
+      # filename via GitHub's stable ".../releases/latest/download/<name>"
+      # pattern, so it always fetches the current version without needing to
+      # know the version number or call the GitHub API.
+      - name: Copy installer under a fixed filename
+        shell: bash
+        run: |
+          src=$(ls src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe)
+          cp "$src" "StoryBook-AI-Setup.exe"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: StoryBook AI v${{ steps.version.outputs.version }}
           body_path: ${{ steps.changelog.outputs.path }}
-          files: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          files: |
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            StoryBook-AI-Setup.exe
           fail_on_unmatched_files: true
