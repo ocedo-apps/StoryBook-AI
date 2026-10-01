@@ -698,7 +698,7 @@ permanent understrykning, och Draft blir positionsmedveten.
   och kapiteltexten — Brainstorm har ingen `ProseCanvas`/namnlänkar
   att markera i, så ingen tredje knapp dök upp där.
 
-### 25. Textformatering (fet/kursiv/understruken) i kapiteltexten
+### 25. Textformatering (fet/kursiv/understruken) i kapiteltexten ✅ byggd (v0.99.43, export/scen-gränser kvar)
 Författarens förslag: markera text, högerklicka, tre kvadratiska
 knappar (Fet/Kursiv/Understruken) som formaterar valet direkt.
 
