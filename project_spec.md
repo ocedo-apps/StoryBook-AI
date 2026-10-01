@@ -319,10 +319,33 @@ vilken registerhive den faktiskt hamnar i, därav att båda kollas).
 `[Files]`/`[Run]`-villkoren pekar nu på en `WantOllama`-funktion som
 läser kryssrutans faktiska värde, inte bara auto-upptäckten direkt.
 
+**Uppdatering — grönt efter två riktiga buggar till (2026-10-01).**
+Första körningen med den nya Pascal-koden gav, som väntat, ett
+verkligt kompileringsfel — den här gången hittade kompilatorn
+faktiskt något jag inte kunde se bara genom att läsa dokumentation:
+
+1. Radbrytningen `#13#10#13#10` råkade stå först på sin egen rad i
+   strängkonkateneringen — ISPP (Inno Setups preprocessor) körs över
+   HELA filen, även inuti `[Code]`, och en rad som börjar med `#`
+   tolkas som ett direktiv oavsett sammanhang. Flyttade den till
+   slutet av föregående rad istället.
+2. Nästa körning gav ett nytt, separat fel: en lokal `const`-sektion
+   mellan en funktionssignatur och dess `begin` — tillåtet i vanlig
+   Delphi, men INTE i Inno Setups Pascal Script-dialekt
+   ("'BEGIN' expected"). Flyttade konstanten till en global
+   `const`-sektion istället, samma mönster som den befintliga
+   `var`-sektionen.
+
+Tredje körningen gick igenom. Släppfilen bekräftat uppdaterad
+(asset-tidsstämpeln matchar exakt den sista körningen). Det här är
+precis det jag flaggade för Mats skulle kunna hända — nya,
+aldrig-kompilerade Pascal-funktioner (`CreateInputOptionPage`,
+`RegKeyExists`, globala `const`) avslöjade saker en kompilator ser
+men dokumentation/exempelskript inte alltid gör.
+
 **Inte verifierat härifrån:** CI bevisar bara att skriptet
-kompilerar (nästa körning), inte att vallogiken eller
-LM Studio-upptäckten faktiskt stämmer på en riktig dator med
-LM Studio installerat.
+kompilerar, inte att vallogiken eller LM Studio-upptäckten faktiskt
+stämmer på en riktig dator med LM Studio installerat.
 
 **Kvarstår, inte påbörjat:** provköra .exe-filen (huvudappen) på en
 riktig Windows-dator (inte gjort härifrån), provköra hela
