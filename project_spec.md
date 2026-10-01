@@ -295,13 +295,40 @@ visade sig dessutom inte ens stödjas av den exakta action-versionen
 Release `installer-stub` publicerad med `.exe`-filen bifogad:
 https://github.com/ocedo-apps/StoryBook-AI/releases/tag/installer-stub
 
+**Uppdatering — valbar Ollama-installation + LM Studio-hänsyn
+(2026-10-01).** Mats: "Ska man få välja om man vill installera
+Ollama? Vad händer om jag har LM Studio installerat? Eller om jag
+hellre vill använda LM Studio?" — rätt invändning: förra versionen
+installerade Ollama tyst om den inte upptäckte den, utan att fråga,
+och kände inte till LM Studio alls (trots att StoryBook AI:s egna
+Inställningar redan stödjer LM Studio och vilken annan
+OpenAI-kompatibel lokal server som helst via "OpenAI-compatible"-
+motorn — ingen kodändring behövdes där, bara stubben som inte ska
+anta att alla vill ha Ollama).
+
+Lade till en riktig valsida (`CreateInputOptionPage`, verifierad mot
+det officiella `Examples/CodeDlg.iss` snarare än gissad) med EN
+kryssruta "Install Ollama automatically" — förvald baserat på
+upptäckt (av/på beroende på om Ollama ELLER LM Studio redan verkar
+finnas), men alltid användarens eget slutgiltiga val oavsett
+upptäckt. LM Studio-upptäckt via registernyckeln
+`...\Uninstall\LM-Studio` (kollar både HKCU och HKLM, eftersom
+LM Studio troligen installeras per användare precis som Ollama —
+registersökvägen är bekräftad via sökning, men inte 100% säker på
+vilken registerhive den faktiskt hamnar i, därav att båda kollas).
+`[Files]`/`[Run]`-villkoren pekar nu på en `WantOllama`-funktion som
+läser kryssrutans faktiska värde, inte bara auto-upptäckten direkt.
+
+**Inte verifierat härifrån:** CI bevisar bara att skriptet
+kompilerar (nästa körning), inte att vallogiken eller
+LM Studio-upptäckten faktiskt stämmer på en riktig dator med
+LM Studio installerat.
+
 **Kvarstår, inte påbörjat:** provköra .exe-filen (huvudappen) på en
 riktig Windows-dator (inte gjort härifrån), provköra hela
-stub-kedjan på riktig hårdvara (med OCH utan Ollama förinstallerat,
-för att se Check-villkoret faktiskt fungera som tänkt — det enda
-jag fortfarande inte kunnat verifiera alls, eftersom CI bara bevisar
-att skriptet kompilerar, inte att nedladdnings-/installationslogiken
-faktiskt gör rätt sak på en riktig dator).
+stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
+Ollama installerat, LM Studio installerat) för att se att vallogiken
+och auto-upptäckten faktiskt gör rätt sak.
 
 ---
 
