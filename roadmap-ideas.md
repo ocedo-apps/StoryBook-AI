@@ -1430,6 +1430,87 @@ idé" efter en inledande diskussion — inget konkret förslag
 
 ---
 
+### 37. Namnbyte till WrighterAI (eller WrajterAI) — checklista, inget beslut än
+
+**Bakgrund.** Mats: "jag funderar på om jag ska döpa om appen till
+WrighterAI eller WrajterAI. Det är svårt att hitta en dän för
+StorybookAI och dessutom är Storybook redan ett begrepp för UI tror
+jag." Giltig poäng — Storybook (storybook.js.org) är ett väletablerat
+namn i frontend-utvecklingsvärlden, så namnkonflikten/domän-
+konkurrensen är reell, inte överdriven. Min rekommendation mellan de
+två alternativen: "Wrighter" (läses direkt som "writer" men bär också
+"wright" = hantverkare/byggare, som i playwright/shipwright — matchar
+appens idé om strukturerat hantverk) snarare än "Wrajter" (svårare
+att läsa rätt på första anblicken).
+
+**Inget beslutat än** — Mats: "jag är inte säker än. En checklista
+kan vara bra." Så detta är ren förberedelse inför ett eventuellt
+beslut, inte ett pågående arbete.
+
+**Checklista, genomsökt i hela kodbasen (inte gissad):**
+
+**A. Ren varumärkes-/visningstext (lågrisk, bara att göra när/om
+beslutet tas):** `package.json` (`name`/`description`),
+`index.html`-titeln, `tauri.conf.json`s `productName` (INTE
+`identifier`, se B), loggan själv (`public/logo.png`/`logo-dark.png`
+— kräver nydesign, inte bara filnamnsbyte), all UI-text på tre
+språk som nämner namnet, README.md, CHANGELOG.md-rubriken,
+Guide/Handbok-texter, och GitHub-repots eget namn
+(`ocedo-apps/StoryBook-AI`).
+
+**B. Interna tekniska ID:n kopplade till BEFINTLIGA testares data —
+rekommendation: rör INTE dessa, oavsett beslut om namnbyte.** Det är
+den farliga kategorin: byts de samtidigt som namnet tappar befintliga
+testare tyst åtkomst till sitt sparade arbete.
+- IndexedDB-databasnamnet (`"storybook-ai"`, `src/persistence/
+  Repository.ts`) — där alla manus faktiskt lagras i webbläsaren.
+  Byts det utan migrering öppnas en ny, tom databas; gamla manus
+  "försvinner" (finns kvar på disk, appen hittar dem bara inte).
+- 12 localStorage-nycklar (`storybook-ai.theme`, `.engine`,
+  `.last-book`, `.base-url`, `.model`, `.review-model`, `.locale`,
+  `.context-window`, `.prose-history-limit`, `.writing-primer`,
+  `.last-json-backup.*`, `.manuscript`) — nollställer tyst alla
+  inställningar om de byts.
+- Backup-filens "kind"-stämpel (`MANUSCRIPT_BACKUP_KIND =
+  "storybook-ai.manuscript"`, `src/core/manuscriptBackup.ts`) —
+  bränd in i varje redan sparad `.json`-säkerhetskopia. Byts den
+  utan bakåtkompatibilitet går gamla backuper inte att importera i
+  en omdöpt app.
+- Tauri-appens `identifier` (`se.ocedo.storybookai`,
+  `src-tauri/tauri.conf.json`) — Windows egen app-identitet
+  (register, uppdaterings-/avinstallationsposter). Byts den blir det
+  en HELT NY app för Windows, inte en uppdatering av den gamla —
+  befintliga desktop-testare får två installerade appar sida vid
+  sida istället för att den gamla ersätts.
+
+Rekommendation: behåll alla dessa interna ID:n som de är, för alltid
+— osynliga för användaren ändå, så det gör hela namnbytet riskfritt
+för befintliga testare.
+
+**C. Infrastruktur som hänger ihop med repo-namnet** (måste göras i
+samma svep om/när repot byter namn, annars tillfälligt trasiga
+länkar): hårdkodade GitHub-URL:er i `.github/workflows/*.yml`,
+`installer-stub/*.iss`, `src-tauri/src/update_check.rs`
+(RELEASES_URL), `UpdateCheckDialog.tsx` (länk till ändringsloggen),
+README, CHANGELOG; release-/installerfilnamnen
+(`StoryBook-AI-Setup.exe`, `StoryBookAI-OnlineInstaller.exe`,
+workflow-artefaktens namn); release-namnen själva ("StoryBook AI
+v1.0.30").
+
+**D. Utanför repot, Mats egna att-göra:** domänregistrering för det
+nya namnet; eventuell befintlig närvaro (sociala medier, community)
+under StoryBook AI-namnet; syskonrepot Sandbox-AI:s egen
+dokumentation nämner StoryBook AI ("This is a sibling of Sandbox
+AI") — inte kollat, den repon fanns inte i den här sessionen;
+meddela befintliga testare om bytet — Mats egen poäng om att det
+kan vara en snygg nyhet att kommunicera ("nu byter vi namn till
+WrighterAI").
+
+**Status: checklista klar, inget beslut.** Väntar på att Mats
+bestämmer sig för om, och i så fall vilket, nytt namn.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
