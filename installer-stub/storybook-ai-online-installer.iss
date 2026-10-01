@@ -67,6 +67,10 @@ Filename: "{tmp}\OllamaSetup.exe"; Parameters: "/SP- /VERYSILENT /SUPPRESSMSGBOX
 Filename: "{tmp}\StoryBook-AI-Setup.exe"; Description: "Continue to the StoryBook AI installer"; Flags: nowait postinstall skipifsilent shellexec
 
 [Code]
+const
+  // LM Studio's documented uninstall registry entry name.
+  LMStudioUninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\LM-Studio';
+
 var
   OllamaChoicePage: TInputOptionWizardPage;
 
@@ -79,11 +83,9 @@ end;
 // so its uninstall registry entry should be under HKCU — checking HKLM
 // too costs nothing and covers an all-users install if one exists.
 function IsLMStudioInstalled: Boolean;
-const
-  UninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\LM-Studio';
 begin
-  Result := RegKeyExists(HKEY_CURRENT_USER, UninstallKey) or
-    RegKeyExists(HKEY_LOCAL_MACHINE, UninstallKey);
+  Result := RegKeyExists(HKEY_CURRENT_USER, LMStudioUninstallKey) or
+    RegKeyExists(HKEY_LOCAL_MACHINE, LMStudioUninstallKey);
 end;
 
 // Reflects the user's actual choice on OllamaChoicePage, not just the
