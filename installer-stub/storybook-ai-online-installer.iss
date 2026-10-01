@@ -100,8 +100,7 @@ begin
     'Local AI engine', 'Install Ollama?',
     'StoryBook AI needs a local AI engine to write with. Ollama is the ' +
     'one it''s built around, and this installer can set it up for you ' +
-    '(a large download, around 1.5 GB, done silently in the background).' +
-    #13#10#13#10 +
+    '(a large download, around 1.5 GB, done silently in the background).' + #13#10#13#10 +
     'If you already have Ollama, already use LM Studio, or run your own ' +
     'local server, leave this unchecked — StoryBook AI''s own Settings ' +
     'can connect to any OpenAI-compatible server, LM Studio included.',
