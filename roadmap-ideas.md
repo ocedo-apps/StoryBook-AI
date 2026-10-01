@@ -1387,6 +1387,49 @@ i samma commit som uppdateringskollen faktiskt shippades.
 
 ---
 
+### 36. Lokal bildgenerering — skicka illustrationsprompten till en lokal bild-AI istället för urklipp
+
+**Bakgrund.** Mats: "Skulle man kunna ställa in så att man kan skapa
+bilder lokalt om man har ett kort som klarar det? Så att den prompt
+jag kopierar och klistrar in i t.ex Gemini istället körs mot min
+lokala AI-bildgenerator?" Idag genererar StoryBook (via den lokala
+LLM:en) en bildprompt-text som författaren kopierar och klistrar in
+i ett externt verktyg (Gemini, Midjourney, m.fl.) för att faktiskt
+skapa bilden — `src/core/illustrationPrompt.ts` bygger prompten,
+`Editor.tsx` visar den i en dialog med en Kopiera-knapp
+(`navigator.clipboard.writeText`). Själva bildgenereringen sker
+alltså helt utanför appen idag, manuellt.
+
+**Idén:** låt StoryBook skicka samma prompt direkt till en lokalt
+körande bildgenerator (t.ex. AUTOMATIC1111 eller ComfyUI) via dess
+lokala HTTP-API — samma mönster som Ollama-anropet, bara ett annat
+lokalt API. Ingen molntjänst inblandad, passar "allt lokalt"-
+principen (§9) rakt av.
+
+**Vad som redan finns att bygga vidare på:** appen har redan
+bild-blob-lagring (`entityMedia.ts`/`EntityMediaSchema`, används
+idag för illustrationsstilarnas exempelbilder och
+entity-bilder/`BlobThumbnail`) — en genererad bild skulle kunna
+sparas där, ingen helt ny lagringsmekanism behövs.
+
+**Huvudsaklig avvägning, varför det inte bara är att bygga:**
+till skillnad från Ollama (en installer, dra ner en modell, klart)
+är lokal bildgenerering betydligt krångligare att sätta upp —
+Python-miljö, flera GB stora modellcheckpoints, ofta GPU-specifik
+konfiguration. Det blir alltså en feature för en mindre skara med
+kapabla grafikkort och viss teknisk tålamod, inte den bredare
+icke-tekniska målgrupp installer-spåret (#35) är byggt för. Det
+finns heller ingen Ollama-motsvarande de-facto-standard för lokal
+bildgenerering än — A1111 och ComfyUI har olika API:er, så ett val
+av backend (A1111 trolig favorit, störst spridning) blir en egen
+designfråga, inte "stöd vilken som helst".
+
+**Status: lagd som idé, inte påbörjad.** Mats: "Lägg in det som
+idé" efter en inledande diskussion — inget konkret förslag
+(UI, val av API, koppling till bild-lagringen) är utarbetat än.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
