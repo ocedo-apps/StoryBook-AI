@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.34] - 2026-10-02
+
+### Added
+- Two new Guide sections documenting the last two releases: "Keeping a large imported Story Bible relevant" (Story Bible & World), explaining the new lore-relevance filter toggle, and "Ask about a chapter or a passage" (Revise the Manuscript), explaining the new free-form craft-feedback feature. The map of StoryBook AI and the "Which tool do I need?" overview were also updated to mention the new Ask feature.
+
 ## [1.0.33] - 2026-10-02
 
 ### Added

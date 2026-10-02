@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.33
+Status: living document, v1.0.34
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,44 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.33 → v1.0.34 (2026-10-02):** Mats: "Kan du kolla
+att Guiden är uppdaterad med de förändringar vi gjort." — berättigad
+fråga: kollade handboksinnehållet (`handbookSections` i i18n-filerna)
+mot de två senaste releaserna och hittade att ingen av dem fanns
+dokumenterad.
+
+**Två nya sektioner tillagda**, en per release, samma mönster som
+tidigare Handbok-arbete (`HANDBOOK_SECTION_IDS`/`HANDBOOK_SECTION_
+CATEGORY` i `HandbookPanel.tsx`, innehåll i `handbook.sections` på
+alla tre språk):
+- `"lore-relevance-filter"` (kategorin Story Bible & World, direkt
+  efter "Importera lore") — förklarar den nya `filter_lore_by_
+  relevance`-inställningen från v1.0.32: varför chapter/interview-
+  fakta alltid tas med men importerad lore inte, hur relevans avgörs
+  (namn nämnt, eller för en Händelse en deltagare/plats), och pin-
+  knappens utökade betydelse.
+- `"ask-about-passage"` (kategorin Bearbeta manuset, direkt efter
+  "Fråga manuset") — förklarar den nya fria hantverksfrågan från
+  v1.0.33: skillnaden mot Analysera (fasta kategorier) och Fråga
+  manuset (försiktig faktakoll), de två ingångarna (knappen bredvid
+  Analysera, markera text → "Fråga…"), och att svaret är efemärt.
+
+Uppdaterade även de två befintliga översikts-sektionerna som räknar
+upp verktygen för att inkludera den nya funktionen: "En karta över
+StoryBook AI" (GRANSKA-raden) och "Vilket verktyg behöver jag?"
+(ny FAQ-rad: "Jag vill ha ärlig, kritisk feedback på en specifik
+fråga." → Fråga om kapitlet / Fråga om en passage).
+
+Live-verifierat med Playwright: båda nya sektionerna renderar under
+rätt kategori med korrekt numrering (4.11 respektive 6.4). `tsc
+--noEmit`, `npm run build` och hela testsviten (790 tester) gröna —
+ingen kod ändrad, bara i18n-innehåll och `HandbookPanel.tsx`s
+sektionslistor.
+
+v1.0.33 → v1.0.34.
 
 ---
 
