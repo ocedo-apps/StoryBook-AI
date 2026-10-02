@@ -78,6 +78,8 @@ export const nb: Messages = {
     backupDue: "! Sikkerhetskopi",
     backupDueTitle: "Manuskriptet har endret seg siden siste JSON-sikkerhetskopi",
     backupTitle: "Sikkerhetskopi",
+    appExport: "Eksporter for andre apper",
+    appExportTitle: "Last ned en StoryCore-eksport av manuset — låste Story Bible-fakta og kapitler, til for at en søsterapp som ComicBook AI skal kunne importere. Et øyeblikksbilde, ingen levende kobling.",
     publish: "Publiser",
     settings: "Innstillinger",
     backToManuscript: "← Tilbake til manuskriptet",

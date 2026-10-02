@@ -78,6 +78,8 @@ export const sv: Messages = {
     backupDue: "! Säkerhetskopia",
     backupDueTitle: "Manuset har ändrats sedan senaste JSON-säkerhetskopian",
     backupTitle: "Säkerhetskopia",
+    appExport: "Exportera för andra appar",
+    appExportTitle: "Ladda ner en StoryCore-export av manuset — låsta Story Bible-fakta och kapitel, till för att en syskonapp som ComicBook AI ska kunna importera. En ögonblicksbild, ingen levande koppling.",
     publish: "Publicera",
     settings: "Inställningar",
     backToManuscript: "← Tillbaka till manuset",

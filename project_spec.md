@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.34
+Status: living document, v1.0.35
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,75 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
+riktiga byggsteget, efter flera rundors arkitekturdiskussion (se
+roadmap-ideas.md #31). Mats byggde ett tredje syskonprojekt
+(`ComicBook-AI`, story-till-serie) och undrade om det var dags att ta
+tag i idén om en gemensam bas. Jag klonade och läste det faktiska
+ComicBook-repot istället för att gissa, och hittade tre konkreta,
+redan existerande fel i dess hemmasnickrade `storybookImport.ts`:
+(1) bara 2 av 6 Story Bible-kategorier hanterades (Objekt/Grupper/
+Händelser/Koncept föll bort tyst), (2) ingen statusfiltrering — en
+`ai_proposed`/flaggad fakta kunde importeras som om den vore låst
+kanon, (3) `hidden_from_ai`/`hidden_entities` respekterades inte,
+trots att ComicBooks egen spec uttryckligen kräver det.
+
+**Arkitekturprincipen vi landade i, efter flera rundor:** varje app
+äger bara sin egen kanon. Data från en annan app är alltid ett
+förslag, aldrig en skrivning — en generalisering av appens egen
+"författare > AI"-princip till app-till-app-nivå, inte en ny regel.
+Mekanismen stannar medvetet enkel (nivå 1 av tre diskuterade): en
+manuellt genererad exportfil som mottagaren importerar genom sin
+egen befintliga granskningskö (Import lore), inte en delad, levande
+databas eller ens en delad lokal "brevlåda"-mapp — båda skulle lösa
+ett upptäckbarhetsproblem ingen har stött på än, till priset av
+ett nytt, meddelandeprotokoll-liknande underhållsansvar.
+
+**Nytt repo: `ocedo-apps/StoryCore`** (publikt, GPL-3.0 — samma
+licens som StoryBook AI; måste vara publikt eftersom StoryBook AI:s
+egen Windows-CI annars inte kan hämta en privat sidokomponent med
+standard-`GITHUB_TOKEN`). Innehåller bara ett schema och en
+validator (`ManuscriptExportSchema`/`parseManuscriptExport`) —
+inget eget datalager. Medvetet skilt från StoryBook AI:s interna
+`Book`-typ, som ändras nästan varje release; kontraktet versioneras
+separat via sitt eget `format`-nummer.
+
+Två verkliga fel hittade och fixade under byggandet, inte bara i
+StoryBook AI:s egen kod: (a) paketets första version kompilerade med
+TypeScripts "Bundler"-upplösning, som tillät extensionslösa imports
+(`./schema`) — men den byggda `dist/index.js` behöll samma
+extensionslösa form, vilket varken Node eller Vites egen
+node_modules-upplösning accepterar. Upptäckt genom att faktiskt
+installera och importera paketet i ett separat testprojekt, inte
+bara lita på `tsc`/`vitest` internt. Löst genom att växla till
+`moduleResolution`/`module: "NodeNext"`. (b) `package.json`-
+beroendet löstes till `git+ssh://` i `package-lock.json` trots
+explicit `git+https://`-syntax — verifierade (inte gissade) att det
+bara är en kosmetisk lockfil-etikett genom att köra `npm ci` med
+`GIT_SSH_COMMAND=false` i en simulerad CI-miljö; installationen
+lyckades ändå, så ingen risk för StoryBook AI:s riktiga Windows-CI.
+
+**StoryBook AI:s sida:** ny `packManuscriptExport()`
+(`src/core/manuscriptAppExport.ts`) — den maskinläsbara systern till
+den redan existerande `buildManuscriptExport()` (Publish), men byggd
+på `visibleLockedFacts` istället för bara `lockedFacts`, eftersom en
+syskonapp som matar in data i vidare AI-generering är samma sorts
+konsument som Draft, inte en människa som läser en färdig bok. Ny
+knapp "Exportera för andra appar" bredvid Backup-knappen, laddar ner
+direkt utan dialog (ingen anteckning/filnamn att fylla i, till
+skillnad från den vanliga backupen). 9 nya tester, bland annat att en
+`ai_proposed`-fakta, en `hidden_from_ai`-fakta och en helt dold
+entitet alla korrekt utelämnas, och att alla sex Story Bible-
+kategorier (inte bara karaktärer/platser) tas med.
+
+`tsc --noEmit`, `npm run build` och hela testsviten (799 tester)
+gröna. ComicBook AI:s egen sida (byta ut `storybookImport.ts` mot
+StoryCore) är nästa steg, inte gjort än.
+
+v1.0.34 → v1.0.35.
 
 ---
 

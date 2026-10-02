@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.35] - 2026-10-02
+
+### Added
+- "Export for other apps" — a new, separate export next to Backup that writes a [StoryCore](https://github.com/ocedo-apps/StoryCore)-shaped JSON snapshot of the manuscript: locked, visible Story Bible facts (grouped by kind — characters, locations, objects, groups, events, concepts) and chapters, for a sibling app such as ComicBook AI to import. A snapshot, not a live link — unlocked, flagged, or hidden-from-the-model facts are never included, the same visibility rule Draft itself uses.
+
 ## [1.0.34] - 2026-10-02
 
 ### Added

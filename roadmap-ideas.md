@@ -975,7 +975,7 @@ v0.99.57-fixen ovan, som är en förutsättning, inte samma sak).
 
 ---
 
-### 31. Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar
+### 31. Story Core — gemensam bas för StoryBook, Sandbox (RPG) och möjliga framtida appar ✅ byggsteg 1 (v1.0.35)
 **Bakgrund (författarens egen historik, 2026-09-27):** Sandbox AI
 (RPG-motorn) byggdes först. Under speltestning märktes att det som
 uppstod ofta liknade prosa mer än spelloggar, vilket ledde till att
@@ -1038,8 +1038,39 @@ saknas idag för att motivera arbetet. Om/när det blir aktuellt: börja
 med en enda liten, ren exportfil i StoryBook (generalisera
 `sandboxExport.ts`), inte ett monorepo på dag ett.
 
-**Status: idé nedskriven, en 2.0-riktning — medvetet inte påbörjad.**
-Inget kodat.
+**Status (2026-10-02): byggsteg 1 klart, utlöst av precis det villkor
+som saknades ovan — en andra, samtidigt aktiv konsument.** Mats
+påbörjade `ComicBook-AI` (story-till-serie), vilket gjorde frågan
+konkret igen. Innan kod skrevs lästes det faktiska ComicBook-repot
+(inte gissat): dess hemmasnickrade `storybookImport.ts` hade redan,
+i sin första version, tre verkliga fel — bara 2 av 6 Story
+Bible-kategorier hanterades, ingen statusfiltrering (en `ai_proposed`
+fakta kunde läsas in som låst kanon), och `hidden_from_ai`/
+`hidden_entities` respekterades inte trots att ComicBooks egen spec
+kräver det.
+
+Arkitekturdiskussion i flera steg landade i en generaliserad princip:
+**varje app äger bara sin egen kanon — data från en annan app är
+alltid ett förslag, aldrig en skrivning**, en utvidgning av "författare
+> AI" till app-till-app-nivå snarare än en ny regel. Tre mekanism-
+nivåer vägdes (ren exportfil / delad lokal "brevlåda"-mapp / en
+levande delad databas) — valde den enklaste (ren fil, mottagaren
+granskar genom sin egen befintliga kö, t.ex. Import lore) eftersom
+de dyrare nivåerna löser ett upptäckbarhetsproblem ingen stött på än.
+
+**Byggt:** nytt, separat repo `ocedo-apps/StoryCore` (publikt,
+GPL-3.0 — måste vara publikt för att StoryBook AI:s egen publika
+Windows-CI ska kunna hämta det med standard-`GITHUB_TOKEN`). Bara ett
+schema + en validator (`ManuscriptExportSchema`/
+`parseManuscriptExport`) — inget eget datalager, medvetet skilt från
+StoryBook AI:s interna `Book`-typ som ändras varje release.
+`packManuscriptExport()` i StoryBook AI (`src/core/
+manuscriptAppExport.ts`), byggd på `visibleLockedFacts` (samma regel
+Draft använder) istället för den mer tillåtande `lockedFacts` Publish-
+exporten använder. Ny knapp "Exportera för andra appar".
+
+**Kvarstår:** ComicBook AI:s sida — byta ut dess egen gissande
+importkod mot StoryCore. Inte gjort än.
 
 ---
 

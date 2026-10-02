@@ -37,6 +37,7 @@ import {
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
 import { buildManuscriptExport, formatExportHtml, formatExportPlainText, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
+import { manuscriptAppExportFilename, packManuscriptExport } from "@core/manuscriptAppExport";
 import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
 import {
   addChapter,
@@ -705,6 +706,17 @@ export function Editor() {
             }}
           >
             {jsonBackupDue ? m.editor.backupDue : m.editor.backup}
+          </button>
+          <button
+            type="button"
+            className="text-button theme-toggle"
+            title={m.editor.appExportTitle}
+            onClick={() => {
+              const packed = packManuscriptExport(book);
+              downloadJson(manuscriptAppExportFilename(book, packed.exportedAt), packed);
+            }}
+          >
+            {m.editor.appExport}
           </button>
           <button
             type="button"
