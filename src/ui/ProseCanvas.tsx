@@ -49,6 +49,7 @@ type AltsMenu = {
 type MenuState = RewriteMenu | BeatMenu | AltsMenu;
 type InstructState = { span: TextSpan; marked: string; instruction: string };
 type BeatState = { span: TextSpan; instruction: string };
+type AskState = { span: TextSpan; marked: string; question: string };
 
 export function ProseCanvas({
   value,
@@ -69,6 +70,7 @@ export function ProseCanvas({
   onBeat,
   onLift,
   onIllustrate,
+  onAskAboutPassage,
   onSuggestAlternatives,
   instructTitle,
   instructHint,
@@ -101,6 +103,8 @@ export function ProseCanvas({
   onBeat?: (span: TextSpan, instruction: string) => void;
   onLift?: (span: TextSpan) => void;
   onIllustrate?: (span: TextSpan) => void;
+  /** Free-form critical craft feedback on the marked passage (roadmap-ideas.md #32) — ephemeral, never edits the text. */
+  onAskAboutPassage?: (span: TextSpan, question: string) => void;
   onSuggestAlternatives?: (args: {
     word: string;
     sentence: string;
@@ -139,6 +143,7 @@ export function ProseCanvas({
   const [manual, setManual] = useState<{ span: TextSpan; draft: string } | null>(null);
   const [instruct, setInstruct] = useState<InstructState | null>(null);
   const [beat, setBeat] = useState<BeatState | null>(null);
+  const [ask, setAsk] = useState<AskState | null>(null);
   const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
   const [formatBar, setFormatBar] = useState<{ x: number; y: number; span: TextSpan } | null>(null);
   const [pendingSelection, setPendingSelection] = useState<TextSpan | null>(null);
@@ -318,7 +323,7 @@ export function ProseCanvas({
     return () => abort.abort();
   }, [menu]);
 
-  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift" | "illustrate") {
+  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift" | "illustrate" | "ask") {
     if (!menu || menu.kind !== "rewrite") return;
     const span = menu.span;
     setMenu(null);
@@ -328,6 +333,10 @@ export function ProseCanvas({
     }
     if (kind === "instruct") {
       setInstruct({ span, marked: selectedText(value, span), instruction: "" });
+      return;
+    }
+    if (kind === "ask") {
+      setAsk({ span, marked: selectedText(value, span), question: "" });
       return;
     }
     if (kind === "lift") {
@@ -379,6 +388,14 @@ export function ProseCanvas({
     const next = beat;
     setBeat(null);
     onBeat(next.span, next.instruction.trim());
+  }
+
+  function applyAsk(event: React.FormEvent) {
+    event.preventDefault();
+    if (!ask || !ask.question.trim() || !onAskAboutPassage) return;
+    const next = ask;
+    setAsk(null);
+    onAskAboutPassage(next.span, next.question.trim());
   }
 
   useEffect(() => {
@@ -565,6 +582,11 @@ export function ProseCanvas({
           <button type="button" role="menuitem" onClick={() => run("instruct")}>
             {rewriteAction}…
           </button>
+          {onAskAboutPassage ? (
+            <button type="button" role="menuitem" onClick={() => run("ask")}>
+              {m.canvas.ask}
+            </button>
+          ) : null}
           {onLift ? (
             <button type="button" role="menuitem" onClick={() => run("lift")}>
               {m.canvas.lift}
@@ -725,6 +747,37 @@ export function ProseCanvas({
               </button>
               <button type="submit" className="primary" disabled={!beat.instruction.trim()}>
                 {m.canvas.beatAction}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+      {ask ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAsk(null);
+          }}
+        >
+          <form className="edit-card" action="#" onSubmit={applyAsk} aria-labelledby="ask-passage-title">
+            <h2 id="ask-passage-title">{m.canvas.askTitle}</h2>
+            <p className="quiet">{m.canvas.askHint}</p>
+            <blockquote className="marked-passage">{ask.marked}</blockquote>
+            <textarea
+              value={ask.question}
+              onChange={(event) => setAsk({ ...ask, question: event.target.value })}
+              placeholder={m.canvas.askPlaceholder}
+              rows={3}
+              autoFocus
+              required
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setAsk(null)}>
+                {m.common.cancel}
+              </button>
+              <button type="submit" className="primary" disabled={!ask.question.trim()}>
+                {m.canvas.askAction}
               </button>
             </div>
           </form>

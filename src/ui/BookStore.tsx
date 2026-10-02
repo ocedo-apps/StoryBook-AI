@@ -31,6 +31,7 @@ import {
   type ManuscriptEvidence,
   type ManuscriptSource
 } from "@core/askManuscript";
+import { ASK_ABOUT_PASSAGE_SYSTEM, askAboutChapterUserPrompt, askAboutSelectionUserPrompt } from "@core/askAboutPassage";
 import { characterInterviewSystem, type InterviewMessage } from "@core/characterInterview";
 import type { BibleKind } from "@core/bibleGroups";
 import { profileFor, upsertCharacterProfile } from "@core/characterProfile";
@@ -255,6 +256,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [modelAsides, setModelAsides] = useState<string[]>([]);
   const [lastPrompt, setLastPrompt] = useState<PromptDebugEntry | null>(null);
   const [askManuscriptAnswer, setAskManuscriptAnswer] = useState<AskManuscriptAnswer | null>(null);
+  const [askPassageAnswer, setAskPassageAnswer] = useState<{ question: string; answer: string } | null>(null);
   const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string; kind: BibleKind } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
@@ -1678,6 +1680,56 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, models.length, ollamaError, recordPrompt, reviewModel]
   );
 
+  const askAboutPassage = useCallback(
+    async (args: { span?: TextSpan; question: string }) => {
+      const current = bookRef.current;
+      const id = chapterRef.current;
+      const trimmed = args.question.trim();
+      if (!current || !id || busy || !trimmed) return false;
+      const chapter = current.chapters.find((item) => item.id === id);
+      if (!chapter?.prose.trim()) {
+        setError(STORE_ERROR.analyzeEmpty);
+        return false;
+      }
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return false;
+      }
+
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+      setBusy("ask-passage");
+      setError(null);
+      try {
+        const userContent = args.span
+          ? askAboutSelectionUserPrompt({ book: current, chapter, ...surroundingPassage(chapter.prose, args.span), question: trimmed })
+          : askAboutChapterUserPrompt(current, chapter, trimmed);
+        const askMessages: PromptDebugMessage[] = [
+          { role: "system", content: ASK_ABOUT_PASSAGE_SYSTEM },
+          { role: "user", content: userContent }
+        ];
+        recordPrompt("ask-passage", reviewModel, askMessages);
+        const raw = await makeProvider(reviewModel).chat({
+          messages: askMessages,
+          temperature: 0.4,
+          maxTokens: 700,
+          signal: abort.signal
+        });
+        setAskPassageAnswer({ question: trimmed, answer: raw.trim() });
+        return true;
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return false;
+        setError(ollamaHint(err));
+        return false;
+      } finally {
+        setBusy(null);
+        abortRef.current = null;
+      }
+    },
+    [busy, models.length, ollamaError, recordPrompt, reviewModel]
+  );
+
   /** The only way to change either half of the extraction position — keeps chapter and scene from ever pointing at mismatched chapters. */
   const setInterviewExtractPosition = useCallback((chapterId: string, sceneId: string | null) => {
     setInterviewExtractChapterIdState(chapterId);
@@ -2430,6 +2482,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     modelAsides,
     lastPrompt,
     askManuscriptAnswer,
+    askPassageAnswer,
     interviewEntity,
     interviewHistory,
     interviewPersonalityDraft,
@@ -2487,6 +2540,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     startProofread,
     generateIllustrationPrompt,
     askManuscript,
+    askAboutPassage,
     startInterview,
     askCharacter,
     extractInterview,

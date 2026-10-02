@@ -7,6 +7,7 @@ export type PromptOperation =
   | "beat"
   | "ask"
   | "ask-manuscript"
+  | "ask-passage"
   | "interview"
   | "extract-interview"
   | "extract-brainstorm"

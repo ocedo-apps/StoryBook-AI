@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.32
+Status: living document, v1.0.33
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,61 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.32 → v1.0.33 (2026-10-02):** Mats, apropå roadmap-
+genomgången: "Den fria frågan till AI kanske kan vara aktuell. Jag
+tänker att man kan markera text och ställa en fråga (eg. Bygger texten
+upp ett starkt slut som lockar till att läsa nästa del?)" — roadmap-
+punkt #32, hittills bara en nedskriven idé.
+
+Research innan förslag: läste `askManuscript.ts` (`ASK_MANUSCRIPT_SYSTEM`
+— medvetet försiktig, "säg hellre att du inte vet"), `chapterFeedback.ts`
+(`ANALYZE_SYSTEM` — fasta kategorier, inget fritt läge) och Instruct-
+lägets markerings-mekanik i `ProseCanvas.tsx` (`spanFromArea`/
+`window.getSelection()` → `InstructState`-panel → `onInstruct(span,
+instruction)`). Slutsats: markerings-mekaniken går att återanvända rakt
+av — bara ett nytt menyval och en parallell panel-state, ingen ny
+markeringslogik.
+
+**Förslag lagt fram, godkänt rakt av ("Det låter rätt"):** återanvänd
+Instructs markering, men Review-modellen (icke-strömmande `.chat()`,
+som Analyze/Ask Manuscript) istället för skrivmodellen, och en
+systemprompt som uttryckligen uppmuntrar ärlig kritik — motsatt Ask
+Manuscripts försiktiga ton. Täcker både markerad text (med omgivande
+kontext, samma `before/selected/after`-form som Instruct) och hela
+kapitlet utan markering (en egen liten knapp bredvid Analyze).
+
+**Implementation.** Ny fil `src/core/askAboutPassage.ts`:
+`ASK_ABOUT_PASSAGE_SYSTEM` (uppmanar till specifik, ärlig kritik;
+instruerar uttryckligen att det INTE är en faktakoll mot Story Bible,
+bara ett hantverksomdöme), `askAboutSelectionUserPrompt` (markerad
+passage + kontext) och `askAboutChapterUserPrompt` (hela kapitlet).
+Ny handler `askAboutPassage` i `BookStore.tsx`, ny `askPassageAnswer`-
+state, nytt menyval "Fråga…" i `ProseCanvas.tsx` (ny `AskState`,
+`run("ask")`, `applyAsk`, spegling av Instructs mönster) bakom en ny
+valfri `onAskAboutPassage`-prop. Ny `AskAboutPassageCard.tsx` — en
+delad overlay för båda ingångarna: öppnad direkt via den nya knappen
+("Fråga om kapitlet…" bredvid Analyze) visas en tom frågeruta; öppnad
+efter en markerings-fråga visas svaret direkt, med frågerutan fri för
+en uppföljning. Ny `"ask-passage"` i `PromptOperation`/`Busy`-unionerna
+och i Prompt Inspectorns `operations`-etiketter.
+
+Döpte om en i18n-nyckel under vägen (`askAction` användes först både
+för menyvalet OCH skicka-knappen, vilket med den tillagda "…" i JSX
+hade gett dubbla prickar "Fråga……" i menyn) — löst genom att följa
+samma mönster Beat redan använder: `ask`/`askTitle`/`askHint`/
+`askPlaceholder` (meny + overlay) och `askAction` (bara skicka-
+knappen, ingen "…").
+
+Ny testfil `tests/core/ask-about-passage.test.ts` (3 tester).
+Live-verifierat med Playwright: båda ingångarna (knappen bredvid
+Analyze, och markera text → "Fråga…" i menyn) renderar och fungerar
+korrekt, inklusive att den markerade texten visas ordagrant i panelen.
+`tsc --noEmit`, `npm run build` och hela testsviten (790 tester) gröna.
+
+v1.0.32 → v1.0.33.
 
 ---
 

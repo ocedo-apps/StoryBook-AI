@@ -72,6 +72,7 @@ import { picturesFor } from "@core/entityMedia";
 import { useIllustrationStyles } from "./useIllustrationStyles";
 import { IllustrationStyleLibraryCard } from "./IllustrationStyleLibraryCard";
 import { AskManuscriptPanel } from "./AskManuscript";
+import { AskAboutPassageCard } from "./AskAboutPassageCard";
 import { TimelineBoardPanel } from "./TimelineBoard";
 import { useBookStore } from "./useBookStore";
 import { downloadBytes, downloadJson, downloadText } from "./downloadJson";
@@ -352,6 +353,7 @@ export function Editor() {
   const [maximized, setMaximized] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [askPassageOpen, setAskPassageOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
   const [illustrationLibraryOpen, setIllustrationLibraryOpen] = useState(false);
@@ -1482,6 +1484,11 @@ export function Editor() {
                 void store.rewriteSpan({ target: "prose", mode: "instruct", span, instruction })
               }
               onBeat={(span, instruction) => void store.rewriteSpan({ target: "prose", mode: "beat", span, instruction })}
+              onAskAboutPassage={(span, question) => {
+                void store.askAboutPassage({ span, question }).then((ok) => {
+                  if (ok) setAskPassageOpen(true);
+                });
+              }}
               onIllustrate={(span) => {
                 setIllustratePrompt(null);
                 setIllustrateOpen(true);
@@ -1553,6 +1560,19 @@ export function Editor() {
                     disabled={busy !== null || !chapter.prose.trim()}
                   >
                     {m.editor.analyze}
+                  </button>
+                )}
+                {busy === "ask-passage" ? (
+                  <button type="button" onClick={store.stopDraft}>
+                    {m.common.stop}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setAskPassageOpen(true)}
+                    disabled={busy !== null || !chapter.prose.trim()}
+                  >
+                    {m.editor.askPassage}
                   </button>
                 )}
                 {notes ? (
@@ -1660,6 +1680,14 @@ export function Editor() {
           items={notes.items}
           {...(activeReaderAge !== undefined ? { readerAge: activeReaderAge } : {})}
           onClose={() => setNotesOpen(false)}
+        />
+      ) : null}
+      {askPassageOpen ? (
+        <AskAboutPassageCard
+          answer={store.askPassageAnswer}
+          busy={busy === "ask-passage"}
+          onAsk={(question) => void store.askAboutPassage({ question })}
+          onClose={() => setAskPassageOpen(false)}
         />
       ) : null}
       {historyOpen ? (

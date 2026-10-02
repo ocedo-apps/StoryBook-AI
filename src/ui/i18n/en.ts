@@ -456,6 +456,7 @@ export const en = {
     extract: "Extract facts",
     extracting: "Extracting…",
     analyze: "Analyze",
+    askPassage: "Ask about chapter…",
     proofread: "Proofread",
     notes: "Notes",
     history: "History",
@@ -595,6 +596,7 @@ export const en = {
       illustrate: "Illustration prompt",
       proofread: "Proofread",
       "ask-manuscript": "Ask Manuscript",
+      "ask-passage": "Ask about passage",
       interview: "Character interview",
       develop: "Development method",
       "extract-interview": "Extract facts (interview)",
@@ -616,6 +618,14 @@ export const en = {
     sourcesHeading: "Sources",
     jumpToChapter: "Open “{chapter}”",
     empty: "Ask a question about your manuscript and the answer will appear here, with its sources."
+  },
+  askPassage: {
+    title: "Ask about this chapter",
+    lede: "Ask anything about the chapter's craft — pacing, tension, voice, whether the ending lands. Be as critical as you like; this is just a read, nothing is saved.",
+    placeholder: "E.g. “Does this build toward a strong ending?”",
+    action: "Ask",
+    asking: "Asking…",
+    answerHeading: "Answer"
   },
   interview: {
     action: "Interview",
@@ -1203,6 +1213,11 @@ export const en = {
     rewriteHint: "Tell the model how to change the marked passage. Only that span is replaced.",
     rewritePlaceholder: "What should change?",
     rewriteAction: "Rewrite",
+    ask: "Ask…",
+    askTitle: "Ask about this passage",
+    askHint: "Ask anything about the marked passage — be as critical as you like. The answer is just a read, nothing is changed or saved.",
+    askPlaceholder: "What do you want to know?",
+    askAction: "Ask",
     rewriteChips: {
       group: "Shortcuts from Stats and Analyze",
       povLeakCamera:

@@ -166,6 +166,7 @@ export const sv: Messages = {
     extract: "Extrahera fakta",
     extracting: "Extraherar…",
     analyze: "Analysera",
+    askPassage: "Fråga om kapitlet…",
     proofread: "Korrekturläsning",
     notes: "Anteckningar",
     history: "Historik",
@@ -305,6 +306,7 @@ export const sv: Messages = {
       illustrate: "Illustrationsprompt",
       proofread: "Korrekturläsning",
       "ask-manuscript": "Fråga manuset",
+      "ask-passage": "Fråga om passage",
       interview: "Karaktärsintervju",
       develop: "Utvecklingsmetod",
       "extract-interview": "Extrahera fakta (intervju)",
@@ -326,6 +328,14 @@ export const sv: Messages = {
     sourcesHeading: "Källor",
     jumpToChapter: "Öppna ”{chapter}”",
     empty: "Ställ en fråga om ditt manus så visas svaret här, tillsammans med källorna."
+  },
+  askPassage: {
+    title: "Fråga om det här kapitlet",
+    lede: "Fråga vad som helst om kapitlets hantverk — tempo, spänning, röst, om slutet funkar. Var så kritisk du vill, det här är bara till för att läsas, inget sparas.",
+    placeholder: "T.ex. ”Bygger det här upp mot ett starkt slut?”",
+    action: "Fråga",
+    asking: "Frågar…",
+    answerHeading: "Svar"
   },
   interview: {
     action: "Intervju",
@@ -1193,6 +1203,11 @@ export const sv: Messages = {
     rewriteHint: "Säg åt modellen hur det markerade stycket ska ändras. Bara det spannet byts ut.",
     rewritePlaceholder: "Vad ska ändras?",
     rewriteAction: "Skriv om",
+    ask: "Fråga…",
+    askTitle: "Fråga om den här passagen",
+    askHint: "Fråga vad som helst om den markerade passagen — var så kritisk du vill. Svaret är bara till för att läsas, inget ändras eller sparas.",
+    askPlaceholder: "Vad vill du veta?",
+    askAction: "Fråga",
     rewriteChips: {
       group: "Snabbval från Statistik och Analys",
       povLeakCamera:

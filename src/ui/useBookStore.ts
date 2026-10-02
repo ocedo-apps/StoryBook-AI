@@ -23,6 +23,7 @@ export type Busy =
   | "beat"
   | "ask"
   | "ask-manuscript"
+  | "ask-passage"
   | "recast"
   | "analyze"
   | "proofread"
@@ -56,6 +57,7 @@ export type BookStoreValue = {
   modelAsides: string[];
   lastPrompt: PromptDebugEntry | null;
   askManuscriptAnswer: AskManuscriptAnswer | null;
+  askPassageAnswer: { question: string; answer: string } | null;
   interviewEntity: { ref: string; label: string; kind: BibleKind } | null;
   interviewHistory: InterviewMessage[];
   interviewPersonalityDraft: string;
@@ -124,6 +126,7 @@ export type BookStoreValue = {
   startProofread: (opts?: { restart?: boolean; stages?: ProofreadStage[]; scopeChapterId?: string }) => Promise<void>;
   generateIllustrationPrompt: (passage: string) => Promise<string | null>;
   askManuscript: (question: string) => Promise<void>;
+  askAboutPassage: (args: { span?: TextSpan; question: string }) => Promise<boolean>;
   setDevelopmentMethod: (id: string | null) => Promise<void>;
   developExpand: (step: Extract<DevelopmentStep, { kind: "expand" }>, draft: string) => Promise<void>;
   dismissDevelopSuggestion: () => void;

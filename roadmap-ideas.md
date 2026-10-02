@@ -1043,7 +1043,7 @@ Inget kodat.
 
 ---
 
-### 32. Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text
+### 32. Fri fråga till AI om det skrivna — kritisk hantverksfeedback på fri text ✅ byggd (v1.0.33)
 Författarens exempel: kunna skriva en egen, fri instruktion om det man
 just skrivit, t.ex. "kolla om kapitlet är välskrivet och med en
 intensitet som slutar med en cliffhanger. Var kritisk." — och få ett
@@ -1083,7 +1083,15 @@ båda, som Analyze redan kan välja); om svaret ska kunna citera exakta
 rader ur prosan (som Analyze gör) eller bara resonera fritt; om det ska
 vara en helt ny yta eller en frivillig fri fråga ovanpå Analyze.
 
-**Status: idé nedskriven, inte påbörjad.** Inget kodat.
+**Status: byggd (v1.0.33).** Återanvänder Instructs markeringsmekanik
+i `ProseCanvas.tsx` (nytt menyval "Fråga…") istället för att bygga ny
+markerings-UI. Review-modellen (icke-strömmande, som Analyze/Ask
+Manuscript), inte skrivmodellen. Ny systemprompt (`src/core/
+askAboutPassage.ts`) som uttryckligen uppmuntrar ärlig, specifik kritik
+— motsatt Ask Manuscripts försiktiga "säg hellre att du inte vet".
+Täcker både markerad text (med omgivande kontext) och hela kapitlet
+utan markering, via en ny knapp bredvid Analyze. Efemärt svar, sparas
+aldrig, ändrar inget — som Ask Manuscript.
 
 ---
 

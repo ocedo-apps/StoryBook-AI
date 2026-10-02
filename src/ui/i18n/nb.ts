@@ -166,6 +166,7 @@ export const nb: Messages = {
     extract: "Hent ut fakta",
     extracting: "Henter ut…",
     analyze: "Analyser",
+    askPassage: "Spør om kapittelet…",
     proofread: "Korrektur",
     notes: "Notater",
     history: "Historikk",
@@ -305,6 +306,7 @@ export const nb: Messages = {
       illustrate: "Illustrasjonsprompt",
       proofread: "Korrekturlesing",
       "ask-manuscript": "Spør manuset",
+      "ask-passage": "Spør om passasje",
       interview: "Karakterintervju",
       develop: "Utviklingsmetode",
       "extract-interview": "Hent ut fakta (intervju)",
@@ -326,6 +328,14 @@ export const nb: Messages = {
     sourcesHeading: "Kilder",
     jumpToChapter: "Åpne «{chapter}»",
     empty: "Still et spørsmål om manuset ditt, så vises svaret her, sammen med kildene."
+  },
+  askPassage: {
+    title: "Spør om dette kapittelet",
+    lede: "Spør om hva som helst om kapittelets håndverk — tempo, spenning, stemme, om slutten funker. Vær så kritisk du vil, dette er bare til å lese, ingenting lagres.",
+    placeholder: "F.eks. «Bygger dette mot en sterk slutt?»",
+    action: "Spør",
+    asking: "Spør…",
+    answerHeading: "Svar"
   },
   interview: {
     action: "Intervju",
@@ -1193,6 +1203,11 @@ export const nb: Messages = {
     rewriteHint: "Si til modellen hvordan det markerte avsnittet skal endres. Bare det spannet byttes ut.",
     rewritePlaceholder: "Hva skal endres?",
     rewriteAction: "Skriv om",
+    ask: "Spør…",
+    askTitle: "Spør om denne passasjen",
+    askHint: "Spør om hva som helst om den markerte passasjen — vær så kritisk du vil. Svaret er bare til å lese, ingenting endres eller lagres.",
+    askPlaceholder: "Hva vil du vite?",
+    askAction: "Spør",
     rewriteChips: {
       group: "Snarveier fra Statistikk og Analyse",
       povLeakCamera:

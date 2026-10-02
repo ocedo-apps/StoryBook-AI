@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.33] - 2026-10-02
+
+### Added
+- "Ask about chapter…" — a free-form question to the Review model about the chapter's craft (pacing, tension, voice, whether the ending lands), with a system prompt that explicitly encourages honest, critical feedback instead of politely hedging. Two ways to use it: a new button next to Analyze asks about the whole chapter, or mark a passage in the text and choose "Ask…" from its menu to ask about just that passage (with surrounding context). The answer is a read-only reply — nothing is changed or saved, same as Ask Manuscript.
+
 ## [1.0.32] - 2026-10-01
 
 ### Added
