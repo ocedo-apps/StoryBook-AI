@@ -1803,7 +1803,17 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       try {
         const provider = makeProvider(model);
         const askMessages: PromptDebugMessage[] = [
-          { role: "system", content: characterInterviewSystem(current, target.ref, target.label, target.kind, interviewPersonalityDraft) },
+          {
+            role: "system",
+            content: characterInterviewSystem(
+              current,
+              target.ref,
+              target.label,
+              target.kind,
+              interviewPersonalityDraft,
+              [...priorTurns.map((turn) => turn.content), trimmed].join("\n")
+            )
+          },
           ...priorTurns,
           userTurn
         ];

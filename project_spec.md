@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.35
+Status: living document, v1.0.36
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -352,6 +352,68 @@ riktig Windows-dator (inte gjort härifrån), provköra hela
 stub-kedjan på riktig hårdvara i alla tre lägen (inget installerat,
 Ollama installerat, LM Studio installerat) för att se att vallogiken
 och auto-upptäckten faktiskt gör rätt sak.
+
+---
+
+**Ändringslogg v1.0.35 → v1.0.36 (2026-10-03):** Mats fick en
+testarkommentar han inte riktigt förstod och bad mig förklara den.
+Kommentaren: "Draft gets too much information while Interview gets
+too little... interrogating them on something relating to other
+subjects is pointless... inventing canon that doesn't exist could
+contradict the already established facts." Verifierade mot koden
+innan jag förklarade — stämde exakt: `characterInterviewSystem`
+filtrerade bokens fakta till bara `fact.entity_ref === entityRef`,
+alltså enbart den intervjuade entitetens egen post. Frågar författaren
+om vem eller vad som helst annat måste modellen antingen säga "vet
+inte" eller hitta på — och ett påhitt om t.ex. en annan karaktär kan
+rakt motsäga den karaktärens egna, redan låsta fakta, eftersom
+modellen aldrig fick se dem.
+
+**Förslag lagt fram, godkänt rakt av ("Kör på det"):** låt Interview
+även se fakta om andra entiteter som faktiskt nämns — antingen i den
+intervjuades egna fakta (en relationsfakta som redan namnger någon),
+eller i själva konversationen när författaren frågar om någon för
+första gången. Återanvänder två redan byggda bitar rakt av:
+`entityRefsAndLabels` (`bibleGroups.ts`) för listan att leta i, och
+`findNameHitsInText` (`bibleMentions.ts`, samma namnigenkänning som
+klickbara namn i prosan) för att hitta nämningarna. `visibleLockedFacts`
+för synlighetsregeln, som redan användes för entitetens egna fakta.
+
+**Implementation.** Ny funktion `relatedEntityContext(book, entityRef,
+conversationText)` i `characterInterview.ts`: bygger en sökyta av
+(a) den intervjuades egna faktatext + (b) konversationen hittills,
+kör namnigenkänning mot alla andra entiteter, returnerar fakta för de
+som faktiskt träffas. `characterInterviewSystem` fick en ny, valfri
+sjätte parameter (`conversationText`, default `""`) och en ny
+promptsektion ("Also established, about others mentioned in this
+conversation...") när något hittas. `BookStore.tsx`s `askCharacter`
+skickar nu in hela konversationshistoriken (redan tillgänglig i
+scope) — ingen ny sparad state, prompten byggs om från grunden varje
+tur precis som innan, så en ny nämning får effekt redan samma tur
+den dyker upp.
+
+Medvetet avgränsat till en nivå: en nämnd entitets egna nämningar
+jagas inte vidare (Marcus fakta "Rivals with Theo" tas med ordagrant,
+men Theos EGNA fakta dras inte in bara för att hans namn råkar stå i
+Marcus fakta) — en djupare kedja hade riskerat att återskapa samma
+"för mycket"-problem `filter_lore_by_relevance` finns till för att
+undvika, fast på Interview-sidan istället för Skriv utkast.
+
+6 nya tester (bl.a. att ingenting läggs till om inget nämns — exakt
+oförändrat beteende — att en relationsfakta drar in den nämnda
+personen från start, att en fråga i konversationen drar in personen
+även utan egen relationsfakta, att entiteten själv aldrig räknas som
+"relaterad", att andra nivån inte jagas, och att en dold-från-AI-fakta
+hos den nämnda entiteten korrekt utelämnas). Alla 9 befintliga
+Interview-tester oförändrat gröna. `tsc --noEmit`, `npm run build`
+och hela testsviten (805 tester) gröna.
+
+Ingen ny UI-yta — samma Interview-panel, bara vad systemprompten
+innehåller ändras. Inte Playwright-verifierat den här gången av det
+skälet (inget nytt att se renderas); litar på de 15 enhetstesterna
+för att styrka logikens korrekthet istället.
+
+v1.0.35 → v1.0.36.
 
 ---
 

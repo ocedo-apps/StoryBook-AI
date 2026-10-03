@@ -507,6 +507,17 @@ Ny "Intervjua"-knapp på karaktärskort i Story Bible (bara för
 `kind === "characters"`). Flyktigt precis som Ask Manuscript-svaret —
 inget sparas till manuset, försvinner när kortet stängs.
 
+**Uppdatering (v1.0.36) — fixade ett verkligt gap en testare hittade.**
+"Bara låsta fakta som kontext" filtrerade för hårt: bara den
+intervjuade entitetens EGNA fakta, ingenting om andra entiteter alls.
+Frågar författaren karaktären om någon annan måste modellen antingen
+säga "vet inte" eller hitta på — och ett påhitt om en annan, redan
+etablerad karaktär kan motsäga den karaktärens riktiga, låsta fakta.
+`relatedEntityContext()` (`characterInterview.ts`) drar nu in fakta om
+andra entiteter som faktiskt nämns, antingen i den intervjuades egna
+fakta eller i konversationen — en nivå bara, inga kedjade nämningar.
+Se `project_spec.md`s ändringslogg v1.0.35 → v1.0.36 för detaljer.
+
 ### 19. Korrekturläsning: Faktakontroll-steg ✅ byggd (v0.80)
 Uppstod ur en fråga om Novelcrafter-jämförelsen: fanns det redan ett
 sätt att snabbt kontrollera fakta mot hela boken? Nej — Extract facts

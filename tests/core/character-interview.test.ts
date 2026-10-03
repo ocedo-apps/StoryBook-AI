@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook, type Book } from "@core/BookSchema";
-import { characterInterviewSystem } from "@core/characterInterview";
+import { characterInterviewSystem, relatedEntityContext } from "@core/characterInterview";
 import type { NarrativeFact } from "@core/NarrativeFact";
 
 function fact(overrides: Partial<NarrativeFact> & Pick<NarrativeFact, "id" | "value" | "entity_ref">): NarrativeFact {
@@ -106,5 +106,78 @@ describe("characterInterviewSystem", () => {
     const system = characterInterviewSystem(book, "ravendal", "Ravendal", "locations", "brooding and ancient");
     expect(system).not.toContain("brooding and ancient");
     expect(system).not.toContain("How you tend to be");
+  });
+
+  it("stays unchanged (no related-entity block) when nothing else is mentioned", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [
+        fact({ id: "a", entity_ref: "henrik", value: "stubborn" }),
+        fact({ id: "b", entity_ref: "lena", entity_label: "Lena", value: "brave" })
+      ]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "characters");
+    expect(system).not.toContain("Lena");
+    expect(system).not.toContain("Also established");
+  });
+
+  it("pulls in another entity's facts when the interviewee's own fact names them", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [
+        fact({ id: "a", entity_ref: "henrik", predicate: "core.relationship", value: "Married to Lena" }),
+        fact({ id: "b", entity_ref: "lena", entity_label: "Lena", predicate: "core.trait", value: "fiercely loyal" })
+      ]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "characters");
+    expect(system).toContain("Also established");
+    expect(system).toContain("Lena — (Trait) fiercely loyal");
+  });
+
+  it("pulls in another entity's facts when the live conversation names them, even if the interviewee's own facts don't", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [
+        fact({ id: "a", entity_ref: "henrik", value: "stubborn" }),
+        fact({ id: "b", entity_ref: "marcus", entity_label: "Marcus", predicate: "core.trait", value: "quick to anger" })
+      ]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "characters", undefined, "What do you think of Marcus?");
+    expect(system).toContain("Marcus — (Trait) quick to anger");
+  });
+
+  it("never pulls in the interviewee's own entity as a 'related' entity", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [fact({ id: "a", entity_ref: "henrik", value: "stubborn" })]
+    };
+    const related = relatedEntityContext(book, "henrik", "Henrik, tell me about Henrik");
+    expect(related).toEqual([]);
+  });
+
+  it("doesn't chase a second level — a mentioned entity's own mentions aren't pulled in too", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [
+        fact({ id: "a", entity_ref: "henrik", value: "stubborn" }),
+        fact({ id: "b", entity_ref: "marcus", entity_label: "Marcus", predicate: "core.relationship", value: "Rivals with Theo" }),
+        fact({ id: "c", entity_ref: "theo", entity_label: "Theo", predicate: "core.trait", value: "secretive" })
+      ]
+    };
+    const system = characterInterviewSystem(book, "henrik", "Henrik", "characters", undefined, "What do you think of Marcus?");
+    expect(system).toContain("Marcus — (Relationship) Rivals with Theo");
+    expect(system).not.toContain("secretive");
+  });
+
+  it("excludes a related entity's fact that is hidden from the model", () => {
+    const book: Book = {
+      ...createBook("Night Keys"),
+      facts: [
+        fact({ id: "a", entity_ref: "henrik", value: "stubborn" }),
+        fact({ id: "b", entity_ref: "marcus", entity_label: "Marcus", predicate: "core.identity", value: "a smuggler", hidden_from_ai: true })
+      ]
+    };
+    const related = relatedEntityContext(book, "henrik", "What do you think of Marcus?");
+    expect(related).toEqual([]);
   });
 });

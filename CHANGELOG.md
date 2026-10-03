@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.36] - 2026-10-03
+
+### Fixed
+- Character/entity Interview now also sees locked facts about other Story Bible entities mentioned in the conversation — either because the interviewee's own facts already name them (e.g. a relationship), or because the author asks about them directly. Previously an Interview could only ever see the one entity's own card, so asking about anyone or anything else gave the model nothing to work from except inventing an answer — risking a contradiction with what was actually established elsewhere. One level only: a mentioned entity's own mentions aren't chased further.
+
 ## [1.0.35] - 2026-10-02
 
 ### Added
