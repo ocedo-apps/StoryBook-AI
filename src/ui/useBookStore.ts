@@ -3,6 +3,7 @@ import type { Book, BookSummary, EditorSurface } from "@core/BookSchema";
 import type { BibleKind } from "@core/bibleGroups";
 import type { AskManuscriptAnswer } from "@core/askManuscript";
 import type { InterviewMessage } from "@core/characterInterview";
+import type { BrainstormChatMessage } from "@core/brainstorm";
 import type { DevelopmentStep } from "@core/developmentMethod";
 import type { ChapterFeedback } from "@core/chapterFeedback";
 import type { FactDraft } from "@core/NarrativeFact";
@@ -21,7 +22,7 @@ export type Busy =
   | "elaborate"
   | "instruct"
   | "beat"
-  | "ask"
+  | "brainstorm-chat"
   | "ask-manuscript"
   | "ask-passage"
   | "recast"
@@ -61,6 +62,7 @@ export type BookStoreValue = {
   interviewEntity: { ref: string; label: string; kind: BibleKind } | null;
   interviewHistory: InterviewMessage[];
   interviewPersonalityDraft: string;
+  brainstormChatHistory: BrainstormChatMessage[];
   interviewExtractChapterId: string | null;
   interviewExtractSceneId: string | null;
   setInterviewExtractPosition: (chapterId: string, sceneId: string | null) => void;
@@ -108,7 +110,9 @@ export type BookStoreValue = {
     instruction?: string;
   }) => Promise<void>;
   restoreChapterProse: (revisionId: string) => Promise<void>;
-  askBrainstorm: (instruction: string) => Promise<void>;
+  startBrainstormChat: () => void;
+  askBrainstormChat: (message: string) => Promise<void>;
+  closeBrainstormChat: () => void;
   liftToSynopsis: (fragment: string) => Promise<void>;
   sendBrainstormToSynopsis: () => Promise<void>;
   suggestAlternatives: (args: {

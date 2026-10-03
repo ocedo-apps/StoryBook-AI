@@ -31,7 +31,7 @@ describe("totalEstimatedTokens", () => {
   });
 
   it("is zero for an entry with no messages", () => {
-    const entry: PromptDebugEntry = { operation: "ask", model: "m", messages: [], at: "2026-09-24T00:00:00.000Z" };
+    const entry: PromptDebugEntry = { operation: "brainstorm-chat", model: "m", messages: [], at: "2026-09-24T00:00:00.000Z" };
     expect(totalEstimatedTokens(entry)).toBe(0);
   });
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   appendBrainstormReply,
-  brainstormAskUserPrompt,
+  brainstormChatSystemPrompt,
   brainstormPassageUserPrompt,
   liftFragmentToSynopsis,
   sendStagedNotesToSynopsis
@@ -82,13 +82,19 @@ describe("appendBrainstormReply", () => {
   });
 });
 
-describe("brainstorm prompts", () => {
+describe("brainstorm chat system prompt", () => {
   it("treats empty notes as the place for secrets, not a ban on secret history", () => {
     const book = createBook("Night Keys");
-    const prompt = brainstormAskUserPrompt(book, "Who is the stowaway?");
-    expect(prompt).toContain("Who is the stowaway?");
+    const prompt = brainstormChatSystemPrompt(book);
     expect(prompt).toContain("Secrets and alternatives belong in these notes");
     expect(prompt).not.toContain("Do not invent a secret history");
+  });
+
+  it("carries the chat's back-and-forth instructions", () => {
+    const book = createBook("Night Keys");
+    const prompt = brainstormChatSystemPrompt(book);
+    expect(prompt).toContain("back-and-forth");
+    expect(prompt).toContain("Do not write chapter prose");
   });
 
   it("asks to continue a marked note without turning it into chapter prose", () => {
@@ -128,15 +134,14 @@ describe("brainstorm prompts", () => {
         }
       ]
     };
-    const prompt = brainstormAskUserPrompt(book, "Who is the stowaway?");
+    const prompt = brainstormChatSystemPrompt(book);
     expect(prompt).not.toContain("SECRETPICTURE");
     expect(prompt).not.toContain("data:image");
   });
 
   it("feeds character looks, but never tags", () => {
     const book = createBook("Night Keys");
-    const prompt = brainstormAskUserPrompt(
-      {
+    const prompt = brainstormChatSystemPrompt({
         ...book,
         facts: [
           {
@@ -161,17 +166,14 @@ describe("brainstorm prompts", () => {
             tags: ["SECRETTAG"]
           }
         ]
-      },
-      "Who is the stowaway?"
-    );
+    });
     expect(prompt).toContain("Looks: salt-cut hands");
     expect(prompt).not.toContain("SECRETTAG");
   });
 
   it("omits a hidden card from brainstorm", () => {
     const book = createBook("Night Keys");
-    const prompt = brainstormAskUserPrompt(
-      {
+    const prompt = brainstormChatSystemPrompt({
         ...book,
         facts: [
           {
@@ -187,9 +189,7 @@ describe("brainstorm prompts", () => {
           }
         ],
         hidden_entities: ["stranger"]
-      },
-      "Who is the stowaway?"
-    );
+    });
     expect(prompt).not.toContain("SECRETNAME");
     expect(prompt).not.toContain("Pays in");
   });

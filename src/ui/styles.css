@@ -3018,6 +3018,16 @@ button:disabled {
   resize: vertical;
 }
 
+.brainstorm-chat-lede {
+  flex: 0 0 auto;
+  margin: 0 0 0.6rem;
+}
+
+.brainstorm-chat-save {
+  margin: 0.15rem 0 0 0.7rem;
+  font-size: 0.78rem;
+}
+
 .proofread-stages {
   list-style: none;
   margin: 0.2rem 0 0;

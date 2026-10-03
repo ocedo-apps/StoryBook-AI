@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.36
+Status: living document, v1.0.37
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -414,6 +414,65 @@ skälet (inget nytt att se renderas); litar på de 15 enhetstesterna
 för att styrka logikens korrekthet istället.
 
 v1.0.35 → v1.0.36.
+
+---
+
+**Ändringslogg v1.0.36 → v1.0.37 (2026-10-03):** Mats, om Brainstorms
+Fråga-knapp: "Man skulle också ha en funktion för att bolla idéer och
+diskutera hur berättelsen kan utvecklas. Mer som någon att resonera
+med. Speciellt under Brainstorm." Jämfört med Interview (som redan har
+precis den flerstegs-konversationsmekaniken, fast mot en
+Story Bible-entitet) hade Brainstorms Fråga bara en engångsfråga: ett
+enda svar som klistrades in som en ny lapp på brädet, inget minne av
+tidigare frågor.
+
+**Beslut (Mats):** samtalet ska vara flyktigt, inte sparas i bokfilen
+— "Det är som att man pratar med en polare och tar de idéer man
+fastnar för. Man behöver inte ha kvar diskussionen." Alltså samma
+livscykel som Interviews egen historik: ren React-state, nollställs
+när rutan stängs.
+
+**Implementation.** `brainstorm.ts`: bytte ut den gamla
+`BRAINSTORM_ASK_SYSTEM`/`brainstormAskUserPrompt` (en fråga åt gången)
+mot `BRAINSTORM_CHAT_SYSTEM`/`brainstormChatSystemPrompt(book)` — hela
+storyn + brädets lappar i systemprompten, konversationsturerna skickas
+som egna meddelanden i listan (precis som `characterInterviewSystem`/
+`askCharacter` redan gör), inte infogade i en enda textsträng.
+`BookStore.tsx`: ersatte `askBrainstorm` med tre funktioner som
+speglar Interviews `startInterview`/`askCharacter`/`closeInterview`
+rakt av — `startBrainstormChat` (nollställer historiken),
+`askBrainstormChat` (strömmar svaret turn för turn, samma
+abort/timeout-hantering som Interview), `closeBrainstormChat`
+(nollställer historiken igen, så en återöppning alltid börjar om).
+Ny `Busy`-tagg `"brainstorm-chat"` ersatte den gamla `"ask"`-taggen
+(uppdaterad i `useBookStore.ts` och `promptDebug.ts`/Prompt
+Inspector-etiketten).
+
+Nytt UI: `BrainstormChatCard.tsx`, en förenklad variant av
+`CharacterInterviewCard.tsx` (samma `.interview-*`-CSS-klasser
+återanvända rakt av — transcript, rader, avatarer, formulär — bara
+utan porträtt-/personlighetskolumnen som är specifik för karaktärer).
+Varje AI-tur får en egen "Lägg till i anteckningar"-knapp
+(`onAddToNotes` → `addBrainstormNote` på brädet) istället för att
+automatiskt sparas, eftersom ett helt samtal annars skulle svämma över
+brädet med repliker ingen bad om att spara. Knappen i Brainstorms
+footer bytte namn från "Fråga…" till "Bolla idéer…" (engelska: "Talk
+it through…", bokmål: "Diskuter idéer…") och öppnar nu chattrutan
+istället för en engångsdialog.
+
+Alla tre språkfiler uppdaterade (`editor.brainstormChat` för
+knappen, ny `brainstormChat`-sektion för själva chattrutans texter).
+Tester i `brainstorm.test.ts` omskrivna till den nya
+`brainstormChatSystemPrompt`-funktionen (samma hemlighets-/
+bild-/tagg-/dold-entitet-filtrering verifierad, ärvd gratis från
+`storyContext`). `tsc --noEmit`, hela testsviten (806 tester) och
+`npm run build` gröna. Verifierat i riktig webbläsare (Playwright):
+chattrutan öppnas och stängs korrekt (både Stäng-knappen och Escape),
+visar tomt-läge och samtalshistorik, respekterar samma
+ingen-modell-spärr som Interview, och renderar rätt på både engelska
+och svenska.
+
+v1.0.36 → v1.0.37.
 
 ---
 

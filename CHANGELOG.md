@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.37] - 2026-10-03
+
+### Changed
+- Brainstorm's "Ask…" is now "Talk it through…" — a real back-and-forth chat instead of a single question and answer. The AI sees your whole story and the notes already on the board, and remembers the conversation turn to turn, like a thinking partner you can keep talking to. The conversation itself is never saved — close the window and it's gone — but each of its replies gets its own "Add to notes" button, so you only keep the ideas you actually want.
+
 ## [1.0.36] - 2026-10-03
 
 ### Fixed

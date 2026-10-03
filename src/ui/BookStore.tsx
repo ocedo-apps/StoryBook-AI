@@ -10,14 +10,8 @@ import {
   type BookSummary,
   type EditorSurface
 } from "@core/BookSchema";
-import { BRAINSTORM_ASK_SYSTEM, BRAINSTORM_PASSAGE_SYSTEM, brainstormAskUserPrompt, brainstormPassageUserPrompt, liftFragmentToSynopsis, sendStagedNotesToSynopsis } from "@core/brainstorm";
-import {
-  addBrainstormNote,
-  applyAssembledBrainstorm,
-  ensureBrainstormNotes,
-  nextNotePosition,
-  updateBrainstormNote
-} from "@core/brainstormNotes";
+import { BRAINSTORM_PASSAGE_SYSTEM, brainstormChatSystemPrompt, brainstormPassageUserPrompt, liftFragmentToSynopsis, sendStagedNotesToSynopsis, type BrainstormChatMessage } from "@core/brainstorm";
+import { applyAssembledBrainstorm } from "@core/brainstormNotes";
 import { applyAuthorAddition, applyAuthorDraft, applyExtractorDrafts, approveFact, keepFactSeparate, rejectFact, reviseFact } from "@core/ConsistencyGate";
 import { applyMarkerConversion, type MarkerConversionRule } from "@core/markerConversion";
 import { withRelationshipMirrorFor } from "@core/relationshipMirror";
@@ -91,7 +85,7 @@ import { shiftFormattingRanges, type ProseFormattingRange } from "@core/proseFor
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
 import { BREAK_SYSTEM, breakUserPrompt, parseParagraphBreak } from "@core/paragraphBreak";
 import { SPLIT_SYSTEM, parseSplitSuggestion, splitUserPrompt } from "@core/sentenceSplit";
-import { newId, nowIso, slugify } from "@core/ids";
+import { nowIso, slugify } from "@core/ids";
 import type { CorePredicate } from "@core/predicates";
 import type { FactDraft } from "@core/NarrativeFact";
 import {
@@ -260,6 +254,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
   const [interviewEntity, setInterviewEntity] = useState<{ ref: string; label: string; kind: BibleKind } | null>(null);
   const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
   const [interviewPersonalityDraft, setInterviewPersonalityDraft] = useState("");
+  const [brainstormChatHistory, setBrainstormChatHistory] = useState<BrainstormChatMessage[]>([]);
   /**
    * Which chapter Extract facts attributes new facts to, in story time — not
    * always the chapter open in the editor. An interview isn't extracted
@@ -1262,67 +1257,75 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, flushSave]
   );
 
-  const askBrainstorm = useCallback(
-    async (instruction: string) => {
+  const startBrainstormChat = useCallback(() => {
+    setBrainstormChatHistory([]);
+  }, []);
+
+  const closeBrainstormChat = useCallback(() => {
+    setBrainstormChatHistory([]);
+  }, []);
+
+  const askBrainstormChat = useCallback(
+    async (message: string) => {
       const current = bookRef.current;
-      const question = instruction.trim();
-      if (!current || !question || busy) return;
+      const trimmed = message.trim();
+      if (!current || !trimmed) return;
+      if (busy) {
+        setError(STORE_ERROR.busy);
+        return;
+      }
       if (models.length === 0) {
         setError(ollamaError ?? STORE_ERROR.noModel);
         return;
       }
 
+      const priorTurns = brainstormChatHistory;
+      const userTurn: BrainstormChatMessage = { role: "user", content: trimmed };
+      setBrainstormChatHistory([...priorTurns, userTurn]);
+
       abortRef.current?.abort();
       const abort = new AbortController();
       abortRef.current = abort;
-      setBusy("ask");
+      setBusy("brainstorm-chat");
       setError(null);
-
-      const noteId = newId();
-      const pos = nextNotePosition(ensureBrainstormNotes(current).brainstorm_notes);
-      let assembled = "";
-
-      const persistNote = async (latest: Book) => {
-        const patched = updateBrainstormNote(latest, noteId, { text: assembled });
-        await flushSave(touch(latest, { brainstorm: patched.brainstorm, brainstorm_notes: patched.brainstorm_notes }));
-      };
+      const requestTimeout = withRequestTimeout(abort);
 
       try {
-        await patchBook((book) => addBrainstormNote(book, { id: noteId, text: "", x: pos.x, y: pos.y }));
         const provider = makeProvider(model);
         const askMessages: PromptDebugMessage[] = [
-          { role: "system", content: writingSystem(BRAINSTORM_ASK_SYSTEM) },
-          { role: "user", content: brainstormAskUserPrompt(current, question) }
+          { role: "system", content: writingSystem(brainstormChatSystemPrompt(current)) },
+          ...priorTurns,
+          userTurn
         ];
-        recordPrompt("ask", model, askMessages);
+        recordPrompt("brainstorm-chat", model, askMessages);
+        let raw = "";
         for await (const chunk of provider.streamChat({
           messages: askMessages,
           temperature: 0.9,
-          maxTokens: 700,
+          maxTokens: 500,
           signal: abort.signal
         })) {
           if (chunk.type === "text_delta") {
-            assembled += chunk.text;
-            setBook((prev) => (prev ? updateBrainstormNote(prev, noteId, { text: assembled }) : prev));
+            raw += chunk.text;
+            setBrainstormChatHistory([...priorTurns, userTurn, { role: "assistant", content: raw }]);
           } else if (chunk.type === "error") {
             throw new Error(chunk.message);
           }
         }
-        const latest = bookRef.current;
-        if (latest) await persistNote(latest);
+        setBrainstormChatHistory([...priorTurns, userTurn, { role: "assistant", content: raw.trim() }]);
       } catch (err) {
         if ((err as { name?: string }).name === "AbortError") {
-          const latest = bookRef.current;
-          if (latest) await persistNote(latest);
-        } else {
-          setError(ollamaHint(err));
+          if (requestTimeout.timedOut()) setError(STORE_ERROR.timeout);
+          return;
         }
+        setError(ollamaHint(err));
       } finally {
+        requestTimeout.clear();
         setBusy(null);
         abortRef.current = null;
       }
     },
-    [busy, flushSave, model, models.length, ollamaError, patchBook]
+    [brainstormChatHistory, busy, model, models.length, ollamaError, recordPrompt]
   );
 
   const liftToSynopsis = useCallback(
@@ -2496,6 +2499,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     interviewEntity,
     interviewHistory,
     interviewPersonalityDraft,
+    brainstormChatHistory,
     interviewExtractChapterId,
     interviewExtractSceneId,
     setInterviewExtractPosition,
@@ -2538,7 +2542,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     mergeScene,
     rewriteSpan,
     restoreChapterProse,
-    askBrainstorm,
+    startBrainstormChat,
+    askBrainstormChat,
+    closeBrainstormChat,
     liftToSynopsis,
     sendBrainstormToSynopsis,
     suggestAlternatives,

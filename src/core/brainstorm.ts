@@ -15,11 +15,14 @@ You may offer alternatives and press on holes.
 Match the language of the notes. If a prose language is given, prefer that.
 Output only the requested text — no title or commentary.`;
 
-export const BRAINSTORM_ASK_SYSTEM = `You are a thinking partner for a novelist.
+export type BrainstormChatMessage = { role: "user" | "assistant"; content: string };
+
+export const BRAINSTORM_CHAT_SYSTEM = `You are a thinking partner for a novelist, talking an idea through like a friend — a real back-and-forth, not a lecture or a one-off Q&A.
 The notes are private scratch — not the book, not the synopsis, and not canon.
 Do not write chapter prose. Do not lock facts. Do not invent a finished plot unless asked for options.
-Offer alternatives, press on holes, and keep secrets in the notes.
-Match the language of the notes and the author's question. If a prose language is given, prefer that.
+Offer alternatives, press on holes, push back when something is thin, and ask a question back when that moves the thinking forward.
+Match the language the author writes in. If a prose language is given, prefer that.
+Keep replies short and conversational, like a chat message — not an essay.
 Output only your reply — no title or preamble.`;
 
 export function liftFragmentToSynopsis(synopsis: string, fragment: string): string {
@@ -97,11 +100,11 @@ export function brainstormPassageUserPrompt(args: {
   return parts.filter(Boolean).join("\n\n");
 }
 
-export function brainstormAskUserPrompt(book: Book, instruction: string): string {
+export function brainstormChatSystemPrompt(book: Book): string {
   const parts = [
     ...storyContext(book),
-    book.brainstorm.trim() ? `Scratch notes:\n${book.brainstorm.trim()}` : "The scratch page is still empty.",
-    `Author asks:\n${instruction.trim()}`
+    book.brainstorm.trim() ? `Scratch notes already on the board:\n${book.brainstorm.trim()}` : "The scratch board is still empty.",
+    BRAINSTORM_CHAT_SYSTEM
   ];
   return parts.filter(Boolean).join("\n\n");
 }

@@ -59,7 +59,7 @@ import { chapterScenes } from "@core/bookScene";
 import { timelineBoardColumns } from "@core/timelineBoard";
 import { knowledgeLeaksForChapter } from "@core/continuity";
 import { addPlotline, plotlinesForChapter, removePlotline, toggleChapterPlotline, updatePlotline } from "@core/plotlines";
-import { replaceInBrainstormNotes } from "@core/brainstormNotes";
+import { addBrainstormNote, replaceInBrainstormNotes } from "@core/brainstormNotes";
 import {
   READER_CATEGORIES,
   READER_TIER_AGE,
@@ -82,6 +82,7 @@ import { BiblePanel } from "./BiblePanel";
 import { LoreImportCard } from "./LoreImportCard";
 import { MarkerConversionCard } from "./MarkerConversionCard";
 import { CharacterInterviewCard } from "./CharacterInterviewCard";
+import { BrainstormChatCard } from "./BrainstormChatCard";
 import { SettingsPanel } from "./SettingsPanel";
 import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
@@ -349,8 +350,7 @@ export function Editor() {
   };
   const [boardOpen, setBoardOpen] = useState(false);
   const onBoard = boardOpen;
-  const [askOpen, setAskOpen] = useState(false);
-  const [ask, setAsk] = useState("");
+  const [brainstormChatOpen, setBrainstormChatOpen] = useState(false);
   const [maximized, setMaximized] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -439,7 +439,7 @@ export function Editor() {
         }
       : {};
 
-  const partnerBusy = busy === "extend" || busy === "elaborate" || busy === "instruct" || busy === "ask";
+  const partnerBusy = busy === "extend" || busy === "elaborate" || busy === "instruct" || busy === "brainstorm-chat";
   const jsonBackupDue = manuscriptNeedsJsonBackup(book.updated_at, lastJsonBackupAt);
   const canReorder = chapters.length > 1;
 
@@ -518,7 +518,8 @@ export function Editor() {
     setBackupOpen(false);
     setPublishOpen(false);
     setProgressOpen(false);
-    setAskOpen(false);
+    setBrainstormChatOpen(false);
+    store.closeBrainstormChat();
     setStatsOpen(false);
     setNotesOpen(false);
     setIllustrationLibraryOpen(false);
@@ -537,7 +538,8 @@ export function Editor() {
     setBackupOpen(false);
     setPublishOpen(false);
     setProgressOpen(false);
-    setAskOpen(false);
+    setBrainstormChatOpen(false);
+    store.closeBrainstormChat();
     setStatsOpen(false);
     setNotesOpen(false);
     setFindOpen(false);
@@ -559,7 +561,8 @@ export function Editor() {
     setBackupOpen(false);
     setPublishOpen(false);
     setProgressOpen(false);
-    setAskOpen(false);
+    setBrainstormChatOpen(false);
+    store.closeBrainstormChat();
     setNotesOpen(false);
     setStatsOpen(false);
     setFindLaunch({
@@ -1238,8 +1241,15 @@ export function Editor() {
                 </button>
               ) : (
                 <>
-                  <button type="button" onClick={() => setAskOpen(true)} disabled={busy !== null}>
-                    {m.editor.ask}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBrainstormChatOpen(true);
+                      store.startBrainstormChat();
+                    }}
+                    disabled={busy !== null}
+                  >
+                    {m.editor.brainstormChat}
                   </button>
                   <button type="button" onClick={store.showSynopsis} disabled={busy !== null}>
                     {m.editor.openSynopsis}
@@ -1251,47 +1261,19 @@ export function Editor() {
             onSend={() => void store.sendBrainstormToSynopsis()}
             onExtractFacts={(noteId) => void store.extractBrainstormNote(noteId)}
           >
-            {askOpen ? (
-              <div
-                className="edit-overlay"
-                role="presentation"
-                onMouseDown={(event) => {
-                  if (event.target === event.currentTarget) setAskOpen(false);
+            {brainstormChatOpen ? (
+              <BrainstormChatCard
+                history={store.brainstormChatHistory}
+                busy={busy === "brainstorm-chat"}
+                blocked={busy !== null && busy !== "brainstorm-chat"}
+                error={busy === "brainstorm-chat" ? null : error ? translateError(error, m) : ollamaError ? translateError(ollamaError, m) : null}
+                onAsk={(message) => void store.askBrainstormChat(message)}
+                onAddToNotes={(text) => void store.patchBook((current) => addBrainstormNote(current, { text }))}
+                onClose={() => {
+                  setBrainstormChatOpen(false);
+                  store.closeBrainstormChat();
                 }}
-              >
-                <form
-                  className="edit-card"
-                  action="#"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    const question = ask.trim();
-                    if (!question) return;
-                    setAsk("");
-                    setAskOpen(false);
-                    void store.askBrainstorm(question);
-                  }}
-                  aria-labelledby="ask-title"
-                >
-                  <h2 id="ask-title">{m.editor.askTitle}</h2>
-                  <p className="quiet">{m.editor.askBody}</p>
-                  <textarea
-                    value={ask}
-                    onChange={(event) => setAsk(event.target.value)}
-                    placeholder={m.editor.askPlaceholder}
-                    rows={4}
-                    autoFocus
-                    required
-                  />
-                  <div className="edit-actions">
-                    <button type="button" className="text-button" onClick={() => setAskOpen(false)}>
-                      {m.common.cancel}
-                    </button>
-                    <button type="submit" className="primary" disabled={!ask.trim()}>
-                      {m.editor.askAction}
-                    </button>
-                  </div>
-                </form>
-              </div>
+              />
             ) : null}
           </BrainstormBoard>
         ) : onAskManuscript ? (
