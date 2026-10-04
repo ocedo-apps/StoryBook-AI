@@ -9,6 +9,14 @@ import {
   type ProseFormattingRange,
   type ProseFormattingStyle
 } from "@core/proseFormatting";
+import {
+  addPlaceholder,
+  diffEditRange,
+  removePlaceholder,
+  shiftPlaceholders,
+  updatePlaceholderNote,
+  type Placeholder
+} from "@core/placeholders";
 import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
 import { findAiTicHits } from "@core/aiTics";
@@ -21,6 +29,7 @@ import {
   placeCaretAtEnd,
   placeSelectionAtSpan,
   proseFromElement,
+  rectAtOffset,
   spanFromSelection
 } from "./proseDom";
 import { useLocale, format } from "./i18n";
@@ -33,7 +42,7 @@ import {
 } from "./rewriteChips";
 
 type RewriteMenu = { kind: "rewrite"; x: number; y: number; span: TextSpan };
-type BeatMenu = { kind: "beat-menu"; x: number; y: number; span: TextSpan };
+type CursorMenu = { kind: "cursor-menu"; x: number; y: number; span: TextSpan };
 type AltsMenu = {
   kind: "alts";
   x: number;
@@ -46,10 +55,12 @@ type AltsMenu = {
   status: "loading" | "ready" | "error";
   options: string[];
 };
-type MenuState = RewriteMenu | BeatMenu | AltsMenu;
+type MenuState = RewriteMenu | CursorMenu | AltsMenu;
 type InstructState = { span: TextSpan; marked: string; instruction: string };
 type BeatState = { span: TextSpan; instruction: string };
 type AskState = { span: TextSpan; marked: string; question: string };
+type PlaceholderFormState = { at: number; note: string };
+type ActivePlaceholderState = { id: string; note: string };
 
 export function ProseCanvas({
   value,
@@ -82,7 +93,10 @@ export function ProseCanvas({
   onJumpToEntity,
   formatting = [],
   onFormatChange,
-  onToggleFormat
+  onToggleFormat,
+  placeholders = [],
+  onPlaceholdersChange,
+  activePlaceholderId
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -128,6 +142,12 @@ export function ProseCanvas({
   onFormatChange?: (next: ProseFormattingRange[]) => void;
   /** A deliberate Bold/Italic/Underline toggle on the given selection, from the floating format toolbar or a Ctrl+B/I/U shortcut. */
   onToggleFormat?: (span: TextSpan, style: ProseFormattingStyle) => void;
+  /** Sticky-note markers at `value`'s own offsets. Omitted (default `[]`) hides the inline marker and the context-menu action entirely — Synopsis and Brainstorm have no use for it. */
+  placeholders?: Placeholder[];
+  /** Fires whenever the placeholder set changes: typing shifts positions, the context menu adds one, or its own popup edits or resolves one. */
+  onPlaceholdersChange?: (next: Placeholder[]) => void;
+  /** Set briefly (e.g. from a book-wide placeholders list) to scroll that one marker into view. */
+  activePlaceholderId?: string;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -136,6 +156,7 @@ export function ProseCanvas({
   const rewriteAction = instructAction ?? m.canvas.rewriteAction;
   const scrollRef = useRef<HTMLDivElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const rareRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const instructFieldRef = useRef<HTMLTextAreaElement>(null);
@@ -144,10 +165,14 @@ export function ProseCanvas({
   const [instruct, setInstruct] = useState<InstructState | null>(null);
   const [beat, setBeat] = useState<BeatState | null>(null);
   const [ask, setAsk] = useState<AskState | null>(null);
+  const [placeholderForm, setPlaceholderForm] = useState<PlaceholderFormState | null>(null);
+  const [activePlaceholder, setActivePlaceholder] = useState<ActivePlaceholderState | null>(null);
+  const [placeholderMarks, setPlaceholderMarks] = useState<{ id: string; left: number; top: number }[]>([]);
   const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
   const [formatBar, setFormatBar] = useState<{ x: number; y: number; span: TextSpan } | null>(null);
   const [pendingSelection, setPendingSelection] = useState<TextSpan | null>(null);
   const formattingEnabled = Boolean(onFormatChange || onToggleFormat);
+  const placeholdersEnabled = Boolean(onPlaceholdersChange);
 
   const highlightHits = useMemo(() => {
     if (highlightRare) {
@@ -283,11 +308,12 @@ export function ProseCanvas({
       return;
     }
 
-    if (onBeat) {
+    if (onBeat || placeholdersEnabled) {
       const offset = offsetFromPoint(area, event.clientX, event.clientY);
       event.preventDefault();
-      const at = placeMenu(event, 60);
-      setMenu({ kind: "beat-menu", ...at, span: { start: offset, end: offset } });
+      const extraHeight = onBeat && placeholdersEnabled ? 100 : 60;
+      const at = placeMenu(event, extraHeight);
+      setMenu({ kind: "cursor-menu", ...at, span: { start: offset, end: offset } });
     }
   }
 
@@ -364,6 +390,9 @@ export function ProseCanvas({
     if (formattingEnabled) {
       onFormatChange?.(shiftFormattingRanges(formatting, manual.span.start, manual.span.end, manual.draft.length));
     }
+    if (placeholdersEnabled) {
+      onPlaceholdersChange?.(shiftPlaceholders(placeholders, manual.span.start, manual.span.end, manual.draft.length));
+    }
     setManual(null);
   }
 
@@ -396,6 +425,29 @@ export function ProseCanvas({
     const next = ask;
     setAsk(null);
     onAskAboutPassage(next.span, next.question.trim());
+  }
+
+  function applyPlaceholderForm(event: React.FormEvent) {
+    event.preventDefault();
+    if (!placeholderForm) return;
+    const { at, note } = placeholderForm;
+    setPlaceholderForm(null);
+    onPlaceholdersChange?.(addPlaceholder(placeholders, at, note.trim()));
+  }
+
+  function saveActivePlaceholder(event: React.FormEvent) {
+    event.preventDefault();
+    if (!activePlaceholder) return;
+    const { id, note } = activePlaceholder;
+    setActivePlaceholder(null);
+    onPlaceholdersChange?.(updatePlaceholderNote(placeholders, id, note.trim()));
+  }
+
+  function resolveActivePlaceholder() {
+    if (!activePlaceholder) return;
+    const { id } = activePlaceholder;
+    setActivePlaceholder(null);
+    onPlaceholdersChange?.(removePlaceholder(placeholders, id));
   }
 
   useEffect(() => {
@@ -432,11 +484,51 @@ export function ProseCanvas({
     }
   }, [value, formatting, formattingEnabled, pendingSelection]);
 
+  useEffect(() => {
+    if (!placeholdersEnabled || placeholders.length === 0) {
+      if (placeholderMarks.length > 0) setPlaceholderMarks([]);
+      return;
+    }
+    function recompute() {
+      const area = areaRef.current;
+      const body = bodyRef.current;
+      if (!area || !body) return;
+      const bodyRect = body.getBoundingClientRect();
+      const next = placeholders
+        .map((item) => {
+          const rect = rectAtOffset(area, item.at);
+          if (!rect) return null;
+          return { id: item.id, left: rect.left - bodyRect.left, top: rect.top - bodyRect.top };
+        })
+        .filter((item): item is { id: string; left: number; top: number } => item !== null);
+      setPlaceholderMarks(next);
+    }
+    recompute();
+    window.addEventListener("resize", recompute);
+    return () => window.removeEventListener("resize", recompute);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, placeholders, placeholdersEnabled]);
+
+  useEffect(() => {
+    if (!activePlaceholderId) return;
+    const scroller = scrollRef.current;
+    const marker = areaRef.current?.parentElement?.querySelector(`[data-placeholder-id="${activePlaceholderId}"]`);
+    if (!scroller || !(marker instanceof HTMLElement)) return;
+    const markerRect = marker.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    scroller.scrollTop += markerRect.top - scrollerRect.top - scroller.clientHeight / 3;
+  }, [activePlaceholderId, placeholderMarks]);
+
   function emitProse() {
     const area = areaRef.current;
     if (!area) return;
-    onChange(proseFromElement(area));
+    const next = proseFromElement(area);
+    onChange(next);
     if (formattingEnabled) onFormatChange?.(formattingFromElement(area));
+    if (placeholdersEnabled && placeholders.length > 0 && next !== value) {
+      const { editStart, editEnd, insertedLength } = diffEditRange(value, next);
+      onPlaceholdersChange?.(shiftPlaceholders(placeholders, editStart, editEnd, insertedLength));
+    }
   }
 
   const findOn = Boolean(findNeedle?.trim());
@@ -449,7 +541,7 @@ export function ProseCanvas({
       className={overlayOn ? ["prose-wrap", overlayModeClass, findOn ? "is-find" : ""].filter(Boolean).join(" ") : "prose-wrap"}
     >
       {aside}
-      <div className="prose-body">
+      <div className="prose-body" ref={bodyRef}>
       {overlayOn ? (
         <div ref={rareRef} className="prose-rare" aria-hidden="true">
           <ProseMarkup
@@ -533,6 +625,31 @@ export function ProseCanvas({
           document.execCommand("insertText", false, pasted);
         }}
       />
+      {placeholdersEnabled && placeholderMarks.length > 0 ? (
+        <div className="prose-placeholders">
+          {placeholderMarks.map((mark) => {
+            const owner = placeholders.find((item) => item.id === mark.id);
+            if (!owner) return null;
+            return (
+              <button
+                key={mark.id}
+                type="button"
+                className="prose-placeholder-mark"
+                data-placeholder-id={mark.id}
+                style={{ left: mark.left, top: mark.top }}
+                title={owner.note || m.canvas.placeholderEmptyNote}
+                aria-label={m.canvas.placeholderOpen}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setActivePlaceholder({ id: owner.id, note: owner.note });
+                }}
+              >
+                📌
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       {hoverTip ? (
         <div className="prose-hover-tip" style={{ left: hoverTip.x, top: hoverTip.y }} role="tooltip">
           {hoverTip.text}
@@ -602,19 +719,34 @@ export function ProseCanvas({
           </button>
         </div>
       ) : null}
-      {menu?.kind === "beat-menu" ? (
+      {menu?.kind === "cursor-menu" ? (
         <div ref={menuRef} className="selection-menu" style={{ left: menu.x, top: menu.y }} role="menu">
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              const span = menu.span;
-              setMenu(null);
-              setBeat({ span, instruction: "" });
-            }}
-          >
-            {m.canvas.beat}
-          </button>
+          {onBeat ? (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                const span = menu.span;
+                setMenu(null);
+                setBeat({ span, instruction: "" });
+              }}
+            >
+              {m.canvas.beat}
+            </button>
+          ) : null}
+          {placeholdersEnabled ? (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                const at = menu.span.start;
+                setMenu(null);
+                setPlaceholderForm({ at, note: "" });
+              }}
+            >
+              {m.canvas.placeholderAdd}
+            </button>
+          ) : null}
         </div>
       ) : null}
       {menu?.kind === "alts" ? (
@@ -778,6 +910,66 @@ export function ProseCanvas({
               </button>
               <button type="submit" className="primary" disabled={!ask.question.trim()}>
                 {m.canvas.askAction}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+      {placeholderForm ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPlaceholderForm(null);
+          }}
+        >
+          <form className="edit-card" action="#" onSubmit={applyPlaceholderForm} aria-labelledby="placeholder-add-title">
+            <h2 id="placeholder-add-title">{m.canvas.placeholderAddTitle}</h2>
+            <p className="quiet">{m.canvas.placeholderAddHint}</p>
+            <textarea
+              value={placeholderForm.note}
+              onChange={(event) => setPlaceholderForm({ ...placeholderForm, note: event.target.value })}
+              placeholder={m.canvas.placeholderPlaceholder}
+              rows={2}
+              autoFocus
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setPlaceholderForm(null)}>
+                {m.common.cancel}
+              </button>
+              <button type="submit" className="primary">
+                {m.canvas.placeholderAddAction}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+      {activePlaceholder ? (
+        <div
+          className="edit-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setActivePlaceholder(null);
+          }}
+        >
+          <form className="edit-card" action="#" onSubmit={saveActivePlaceholder} aria-labelledby="placeholder-view-title">
+            <h2 id="placeholder-view-title">{m.canvas.placeholderViewTitle}</h2>
+            <textarea
+              value={activePlaceholder.note}
+              onChange={(event) => setActivePlaceholder({ ...activePlaceholder, note: event.target.value })}
+              placeholder={m.canvas.placeholderPlaceholder}
+              rows={2}
+              autoFocus
+            />
+            <div className="edit-actions">
+              <button type="button" className="text-button" onClick={() => setActivePlaceholder(null)}>
+                {m.common.cancel}
+              </button>
+              <button type="button" className="text-button" onClick={resolveActivePlaceholder}>
+                {m.canvas.placeholderResolve}
+              </button>
+              <button type="submit" className="primary">
+                {m.canvas.placeholderSave}
               </button>
             </div>
           </form>

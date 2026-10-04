@@ -460,6 +460,7 @@ export const en = {
     chapterSettingsToggle: "Chapter settings",
     chapterReaderInheritOption: "Same as manuscript — {category}",
     readerCue: "Reader",
+    placeholdersCue: "Has a placeholder to come back to",
     newStrand: "new strand",
     startChapter: "Start Chapter {n}",
     draft: "Draft",
@@ -689,6 +690,14 @@ export const en = {
     },
     leakHint: "These are already locked truth, but established after this chapter — the model can still see them here. Not necessarily a problem (maybe this chapter is a flash-forward), just worth a glance.",
     establishedIn: "Established in “{chapter}”"
+  },
+  placeholders: {
+    count: {
+      one: "{count} placeholder to come back to",
+      other: "{count} placeholders to come back to"
+    },
+    empty: "Placeholder",
+    jumpTo: "In “{chapter}”"
   },
   plotlines: {
     nav: "Plotlines",
@@ -1236,6 +1245,16 @@ export const en = {
     askHint: "Ask anything about the marked passage — be as critical as you like. The answer is just a read, nothing is changed or saved.",
     askPlaceholder: "What do you want to know?",
     askAction: "Ask",
+    placeholderAdd: "Drop a placeholder…",
+    placeholderAddTitle: "Drop a placeholder",
+    placeholderAddHint: "A quick note to yourself — a name, a fact, a date you'll fill in later. Keep writing; come back to it anytime.",
+    placeholderPlaceholder: "What do you need to come back to?",
+    placeholderAddAction: "Drop it",
+    placeholderViewTitle: "Placeholder",
+    placeholderSave: "Save",
+    placeholderResolve: "Mark resolved",
+    placeholderOpen: "Open this placeholder",
+    placeholderEmptyNote: "Placeholder",
     rewriteChips: {
       group: "Shortcuts from Stats and Analyze",
       povLeakCamera:

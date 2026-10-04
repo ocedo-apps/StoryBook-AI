@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.38] - 2026-10-04
+
+### Added
+- Placeholders — drop a marker mid-draft without breaking your flow ("what was this character's last name again?") from the right-click menu at your cursor, then keep writing. A small pin shows where it sits in the text; click it to see the note, edit it, or mark it resolved. Chapters with an open one get a small dot in the chapter list, and a compact "N placeholders to come back to" panel lists every one in the book with a jump to its chapter.
+
 ## [1.0.37] - 2026-10-03
 
 ### Changed

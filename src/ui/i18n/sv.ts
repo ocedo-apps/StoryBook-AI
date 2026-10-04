@@ -162,6 +162,7 @@ export const sv: Messages = {
     chapterSettingsToggle: "Kapitlets inställningar",
     chapterReaderInheritOption: "Samma som manuset — {category}",
     readerCue: "Läsare",
+    placeholdersCue: "Har en platshållare att återkomma till",
     newStrand: "ny tråd",
     startChapter: "Börja kapitel {n}",
     draft: "Skriv utkast",
@@ -391,6 +392,14 @@ export const sv: Messages = {
     },
     leakHint: "De här är redan låst sanning, men etablerade efter det här kapitlet — modellen kan ändå se dem här. Inte nödvändigtvis ett problem (kanske är det här kapitlet ett hopp framåt), men värt en snabb koll.",
     establishedIn: "Etablerad i ”{chapter}”"
+  },
+  placeholders: {
+    count: {
+      one: "{count} platshållare att återkomma till",
+      other: "{count} platshållare att återkomma till"
+    },
+    empty: "Platshållare",
+    jumpTo: "I ”{chapter}”"
   },
   plotlines: {
     nav: "Trådar",
@@ -1226,6 +1235,16 @@ export const sv: Messages = {
     askHint: "Fråga vad som helst om den markerade passagen — var så kritisk du vill. Svaret är bara till för att läsas, inget ändras eller sparas.",
     askPlaceholder: "Vad vill du veta?",
     askAction: "Fråga",
+    placeholderAdd: "Lägg till platshållare…",
+    placeholderAddTitle: "Lägg till platshållare",
+    placeholderAddHint: "En snabb notering till dig själv — ett namn, en fakta, ett datum du fyller i senare. Fortsätt skriva; kom tillbaka när du vill.",
+    placeholderPlaceholder: "Vad behöver du återkomma till?",
+    placeholderAddAction: "Lägg till",
+    placeholderViewTitle: "Platshållare",
+    placeholderSave: "Spara",
+    placeholderResolve: "Markera löst",
+    placeholderOpen: "Öppna den här platshållaren",
+    placeholderEmptyNote: "Platshållare",
     rewriteChips: {
       group: "Snabbval från Statistik och Analys",
       povLeakCamera:

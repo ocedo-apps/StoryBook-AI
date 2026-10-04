@@ -82,6 +82,14 @@ import { peelModelAsides } from "@core/proseFlow";
 import { resolveReader, kidlitReader } from "@core/reader";
 import { applyExtend, applyReplace, normalizeSpan, surroundingPassage, type TextSpan } from "@core/textSpan";
 import { shiftFormattingRanges, type ProseFormattingRange } from "@core/proseFormatting";
+import {
+  addPlaceholder,
+  diffEditRange,
+  removePlaceholder,
+  shiftPlaceholders,
+  updatePlaceholderNote,
+  type Placeholder
+} from "@core/placeholders";
 import { ALTERNATIVES_SYSTEM, alternativesUserPrompt, dropWrongSense, parseAlternativeWords } from "@core/wordAlternatives";
 import { BREAK_SYSTEM, breakUserPrompt, parseParagraphBreak } from "@core/paragraphBreak";
 import { SPLIT_SYSTEM, parseSplitSuggestion, splitUserPrompt } from "@core/sentenceSplit";
@@ -393,13 +401,20 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       assembled: string,
       op: ProseHistoryOp,
       before: string,
-      formatting?: ProseFormattingRange[]
+      formatting?: ProseFormattingRange[],
+      placeholders?: Placeholder[]
     ) => {
       let next = latest;
       if (before !== assembled) {
         next = recordProseRevision(next, id, op, before, historyLimitRef.current);
       }
-      await flushSave(updateChapter(next, id, { prose: assembled, ...(formatting ? { formatting } : {}) }));
+      await flushSave(
+        updateChapter(next, id, {
+          prose: assembled,
+          ...(formatting ? { formatting } : {}),
+          ...(placeholders ? { placeholders } : {})
+        })
+      );
     },
     [flushSave]
   );
@@ -412,12 +427,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       let totalConversions = 0;
       let chaptersChanged = 0;
       for (const chapter of current.chapters) {
-        const result = applyMarkerConversion(chapter.prose, chapter.formatting ?? [], rules);
+        const result = applyMarkerConversion(chapter.prose, chapter.formatting ?? [], rules, chapter.placeholders ?? []);
         if (result.count === 0) continue;
         totalConversions += result.count;
         chaptersChanged += 1;
         next = recordProseRevision(next, chapter.id, "format", chapter.prose, historyLimitRef.current);
-        next = updateChapter(next, chapter.id, { prose: result.prose, formatting: result.formatting });
+        next = updateChapter(next, chapter.id, { prose: result.prose, formatting: result.formatting, placeholders: result.placeholders });
       }
       if (chaptersChanged > 0) await flushSave(next);
       return { totalConversions, chaptersChanged };
@@ -737,6 +752,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     const provider = makeProvider(model);
     const before = chapter.prose;
     const beforeFormatting = chapter.formatting ?? [];
+    const beforePlaceholders = chapter.placeholders ?? [];
     // Draft appends after whatever is already there — the kept prefix's
     // characters don't move, so their formatting survives untouched; only
     // the freshly generated tail (from here on) has none of its own.
@@ -747,6 +763,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     let raw = "";
 
     const draftFormatting = () => shiftFormattingRanges(beforeFormatting, insertionPoint, insertionPoint, assembled.length - insertionPoint);
+    const draftPlaceholders = () => shiftPlaceholders(beforePlaceholders, insertionPoint, insertionPoint, assembled.length - insertionPoint);
 
     try {
       await patchBook((book) => updateChapter(book, id, { prose: assembled }));
@@ -764,17 +781,19 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
         if (chunk.type === "text_delta") {
           raw += chunk.text;
           assembled = prefix + manuscriptFromModel(raw, "");
-          setBook((prev) => (prev ? updateChapter(prev, id, { prose: assembled, formatting: draftFormatting() }) : prev));
+          setBook((prev) =>
+            prev ? updateChapter(prev, id, { prose: assembled, formatting: draftFormatting(), placeholders: draftPlaceholders() }) : prev
+          );
         } else if (chunk.type === "error") {
           throw new Error(chunk.message);
         }
       }
       const latest = bookRef.current;
-      if (latest) await persistProseWrite(latest, id, assembled, "draft", before, draftFormatting());
+      if (latest) await persistProseWrite(latest, id, assembled, "draft", before, draftFormatting(), draftPlaceholders());
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
         const latest = bookRef.current;
-        if (latest) await persistProseWrite(latest, id, assembled, "draft", before, draftFormatting());
+        if (latest) await persistProseWrite(latest, id, assembled, "draft", before, draftFormatting(), draftPlaceholders());
       } else {
         setError(ollamaHint(err));
       }
@@ -812,6 +831,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     // falls back to its original text, the original formatting comes back
     // with it.
     const originalFormatting = chapter.formatting ?? [];
+    const originalPlaceholders = chapter.placeholders ?? [];
     let assembled = "";
     let raw = "";
 
@@ -834,7 +854,11 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           const finished = assembled.trim() ? assembled : original;
           setBook((prev) =>
             prev
-              ? updateChapter(prev, id, { prose: finished, formatting: assembled.trim() ? [] : originalFormatting })
+              ? updateChapter(prev, id, {
+                  prose: finished,
+                  formatting: assembled.trim() ? [] : originalFormatting,
+                  placeholders: assembled.trim() ? [] : originalPlaceholders
+                })
               : prev
           );
         } else if (chunk.type === "error") {
@@ -844,19 +868,36 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const latest = bookRef.current;
       if (latest) {
         const finished = assembled.trim() ? assembled : original;
-        await persistProseWrite(latest, id, finished, "recast", original, assembled.trim() ? [] : originalFormatting);
+        await persistProseWrite(
+          latest,
+          id,
+          finished,
+          "recast",
+          original,
+          assembled.trim() ? [] : originalFormatting,
+          assembled.trim() ? [] : originalPlaceholders
+        );
       }
     } catch (err) {
       if ((err as { name?: string }).name === "AbortError") {
         const latest = bookRef.current;
         if (latest) {
           const finished = assembled.trim() ? assembled : original;
-          await persistProseWrite(latest, id, finished, "recast", original, assembled.trim() ? [] : originalFormatting);
+          await persistProseWrite(
+            latest,
+            id,
+            finished,
+            "recast",
+            original,
+            assembled.trim() ? [] : originalFormatting,
+            assembled.trim() ? [] : originalPlaceholders
+          );
         }
       } else {
         setError(ollamaHint(err));
         const latest = bookRef.current;
-        if (latest) await flushSave(updateChapter(latest, id, { prose: original, formatting: originalFormatting }));
+        if (latest)
+          await flushSave(updateChapter(latest, id, { prose: original, formatting: originalFormatting, placeholders: originalPlaceholders }));
       }
     } finally {
       setBusy(null);
@@ -896,7 +937,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const finish = async (sceneAssembled: string) => {
         const spliced = replaceSceneProse(chapter, sceneId, sceneAssembled);
         const latest = bookRef.current ?? current;
-        await persistProseWrite(updateChapter(latest, id, { scenes: spliced.scenes }), id, spliced.prose, "draft", before, []);
+        await persistProseWrite(updateChapter(latest, id, { scenes: spliced.scenes }), id, spliced.prose, "draft", before, [], []);
       };
 
       try {
@@ -916,7 +957,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
             const sceneAssembled = prefix + manuscriptFromModel(raw, "");
             const spliced = replaceSceneProse(chapter, sceneId, sceneAssembled);
             setBook((prev) =>
-              prev ? updateChapter(prev, id, { prose: spliced.prose, scenes: spliced.scenes, formatting: [] }) : prev
+              prev ? updateChapter(prev, id, { prose: spliced.prose, scenes: spliced.scenes, formatting: [], placeholders: [] }) : prev
             );
           } else if (chunk.type === "error") {
             throw new Error(chunk.message);
@@ -966,6 +1007,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       // real recast clears the chapter's formatting; falling all the way
       // back to the original scene text keeps the original formatting too.
       const originalFormatting = chapter.formatting ?? [];
+      const originalPlaceholders = chapter.placeholders ?? [];
       let raw = "";
 
       const finish = async (sceneAssembled: string) => {
@@ -978,7 +1020,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           spliced.prose,
           "recast",
           before,
-          sceneAssembled.trim() ? [] : originalFormatting
+          sceneAssembled.trim() ? [] : originalFormatting,
+          sceneAssembled.trim() ? [] : originalPlaceholders
         );
       };
 
@@ -1005,7 +1048,8 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
                 ? updateChapter(prev, id, {
                     prose: spliced.prose,
                     scenes: spliced.scenes,
-                    formatting: assembled.trim() ? [] : originalFormatting
+                    formatting: assembled.trim() ? [] : originalFormatting,
+                    placeholders: assembled.trim() ? [] : originalPlaceholders
                   })
                 : prev
             );
@@ -1021,7 +1065,14 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           setError(ollamaHint(err));
           const spliced = replaceSceneProse(chapter, sceneId, originalScene);
           const latest = bookRef.current ?? current;
-          await flushSave(updateChapter(latest, id, { prose: spliced.prose, scenes: spliced.scenes, formatting: originalFormatting }));
+          await flushSave(
+            updateChapter(latest, id, {
+              prose: spliced.prose,
+              scenes: spliced.scenes,
+              formatting: originalFormatting,
+              placeholders: originalPlaceholders
+            })
+          );
         }
       } finally {
         setBusy(null);
@@ -1154,6 +1205,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
       const sourceFormatting = args.target === "prose" ? (chapter?.formatting ?? []) : [];
       const formattingFor = (next: string) =>
         shiftFormattingRanges(sourceFormatting, editStart, editEnd, next.length - source.length + (editEnd - editStart));
+      const sourcePlaceholders = args.target === "prose" ? (chapter?.placeholders ?? []) : [];
+      const placeholdersFor = (next: string) =>
+        shiftPlaceholders(sourcePlaceholders, editStart, editEnd, next.length - source.length + (editEnd - editStart));
 
       const write = (next: string) => {
         if (args.target === "synopsis") {
@@ -1164,7 +1218,9 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           setBook((prev) => (prev ? applyAssembledBrainstorm(prev, next) : prev));
           return;
         }
-        setBook((prev) => (prev && id ? updateChapter(prev, id, { prose: next, formatting: formattingFor(next) }) : prev));
+        setBook((prev) =>
+          prev && id ? updateChapter(prev, id, { prose: next, formatting: formattingFor(next), placeholders: placeholdersFor(next) }) : prev
+        );
       };
 
       const assemble = () => {
@@ -1184,7 +1240,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           await flushSave(touch(latest, { brainstorm: patched.brainstorm, brainstorm_notes: patched.brainstorm_notes }));
         }
         else if (id) {
-          await persistProseWrite(latest, id, assembled, rewriteHistoryOp(args.mode), source, formattingFor(assembled));
+          await persistProseWrite(latest, id, assembled, rewriteHistoryOp(args.mode), source, formattingFor(assembled), placeholdersFor(assembled));
         }
       };
 

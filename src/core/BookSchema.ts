@@ -12,6 +12,7 @@ import { parsePlotlineColor, PLOTLINE_COLORS } from "./plotlineColors";
 import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 import { ProseFormattingRangeSchema } from "./proseFormatting";
+import { PlaceholderSchema } from "./placeholders";
 import { MarkerConversionRuleSchema } from "./markerConversion";
 
 export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore", "format"] as const;
@@ -101,7 +102,19 @@ export const ChapterSchema = z.object({
    * regenerated wholesale (Draft, Recast, restoring an older revision) —
    * old positions would no longer line up with the new text.
    */
-  formatting: z.array(ProseFormattingRangeSchema).optional()
+  formatting: z.array(ProseFormattingRangeSchema).optional(),
+  /**
+   * Point markers the author drops mid-draft without breaking flow — "what
+   * was this character's last name again?" — a sticky note at a text
+   * offset, display-only like `formatting` and for the same reason: the
+   * model, extraction, proofreading, and word count all keep reading
+   * `prose` exactly as before. Missing/empty on older saves and chapters
+   * with none. Cleared (not migrated) whenever `prose` is regenerated
+   * wholesale (Draft, Recast, restoring an older revision) — same policy as
+   * `formatting`, for the same reason: old positions no longer line up
+   * with the new text.
+   */
+  placeholders: z.array(PlaceholderSchema).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 

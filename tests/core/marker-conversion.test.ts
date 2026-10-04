@@ -93,4 +93,25 @@ describe("applyMarkerConversion", () => {
     expect(result.count).toBe(0);
     expect(result.prose).toBe(prose);
   });
+
+  it("shifts a placeholder sitting after a converted span, same as formatting", () => {
+    const prose = "Intro. *thought* then a note.";
+    const noteAt = prose.indexOf("note");
+    const placeholder = { id: "p1", at: noteAt, note: "fill in", created_at: "2026-01-01T00:00:00.000Z" };
+    const result = applyMarkerConversion(prose, [], [{ open: "*", close: "*", style: "italic" }], [placeholder]);
+    expect(result.placeholders).toHaveLength(1);
+    expect(result.prose.slice(result.placeholders[0]!.at)).toBe("note.");
+  });
+
+  it("drops a placeholder that sat inside the converted markers", () => {
+    const prose = "Say *thought* here.";
+    const placeholder = { id: "p1", at: prose.indexOf("thought") + 2, note: "lost", created_at: "2026-01-01T00:00:00.000Z" };
+    const result = applyMarkerConversion(prose, [], [{ open: "*", close: "*", style: "italic" }], [placeholder]);
+    expect(result.placeholders).toEqual([]);
+  });
+
+  it("defaults to no placeholders when none are passed", () => {
+    const result = applyMarkerConversion("Plain *text* here.", [], [{ open: "*", close: "*", style: "italic" }]);
+    expect(result.placeholders).toEqual([]);
+  });
 });

@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.37
+Status: living document, v1.0.38
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -473,6 +473,81 @@ ingen-modell-spärr som Interview, och renderar rätt på både engelska
 och svenska.
 
 v1.0.36 → v1.0.37.
+
+---
+
+**Ändringslogg v1.0.37 → v1.0.38 (2026-10-04):** Mats hittade en
+YouTube-video om NEO (Hugh Howeys skrivapp, github.com/hughhowey/neo)
+med flera smarta idéer för författarverktyg. Efter genomgång av koden
+(bokhylle-UI, omslagsgenerering, Bind-till-en-bok, skärmspel m.m.)
+valde vi **Placeholders** som första idén att bygga: en markör man kan
+släppa mitt i skrivflödet utan att tappa tråden — "vad hette den där
+staden igen?" — istället för att behöva stanna upp och slå upp det.
+
+**Modell.** Ny `placeholders.ts`: `Placeholder = { id, at, note,
+created_at }` — en punktmarkering över `prose`s egna teckenpositioner,
+precis som den redan befintliga `formatting`-listan (fet/kursiv) ligger
+*bredvid* prosan, aldrig invävd i den. `shiftPlaceholders(...)` speglar
+`shiftFormattingRanges` rakt av: en markör innanför en redigerad sträcka
+tas bort (sammanhanget den pekade på är borta), en före lämnas orörd,
+en efter flyttas med längdskillnaden. Ny `Chapter.placeholders`-fält i
+`BookSchema.ts`, samma policy som `formatting`: rensas (inte migreras)
+vid hel regenerering (Draft, Recast, återställ en äldre revision),
+skiftas annars genom exakt samma AI-redigeringsvägar som formatering
+redan passerar (Draft, Extend/Elaborate/Instruct/Beat, Recast,
+scen-Draft/Recast, Konvertera markeringar).
+
+**Den svåra biten: vanlig handskrivning.** Till skillnad från
+fet/kursiv — som läses direkt ur den redigerbara ytans faktiska
+HTML-struktur efter varje tangenttryckning — finns platshållarens
+markör INTE i den redigerbara texten själv (den ritas som ett eget
+lager ovanpå, se nedan), så det finns inget att läsa tillbaka från
+DOM:en vid vanlig skrivning. Löst med en ny `diffEditRange(before,
+after)` i `placeholders.ts`: hittar gemensamt prefix/suffix mellan två
+textsnapshots och räknar ut en motsvarande redigeringssträcka att
+skicka till `shiftPlaceholders` — enda stället i hela funktionen som
+behöver gissa snarare än att redan känna till sin egen redigering.
+
+**UI.** Högerklicksmenyn vid insättningspunkten (samma `offsetFromPoint`
+-mekanik som redan fanns för "Skriv en beat") fick ett nytt val, "Lägg
+till platshållare…". Markören visas som en 📌 ovanpå texten — ett eget,
+alltid synligt lager (`ProseCanvas.tsx`s nya `pointAtOffset`-baserade
+`rectAtOffset` i `proseDom.ts`), till skillnad från den befintliga
+sällsynta-ord/namn-overlayen som bara visas i vissa highlight-lägen.
+Klick på markören öppnar en liten ruta med noteringen, "Spara",
+"Markera löst" (tar bort den) och "Avbryt". Kapitellistan får en liten
+prick vid kapitel med olösta platshållare, och en kompakt
+"N platshållare att återkomma till"-panel (samma mönster som
+Continuity-varningen) listar alla i hela boken med hopp till rätt
+kapitel.
+
+**Bugg hittad och fixad under vägen:** `pointAtOffset` (proseDom.ts,
+privat hjälpfunktion för att gå från textposition till DOM-punkt)
+returnerade `null` så fort den redigerbara ytan saknade `<p>`/`<div>`-
+barn — vilket visade sig hända under helt vanlig skrivning (synk-
+effekten skriver bara om DOM:en när den löpande texten faktiskt skiljer
+sig från `value`, för att inte störa markören, så en nyss skriven
+mening kan sakna `<p>`-omslag tills nästa fulla omsynk). `caretToOffset`
+(samma fils motsvarighet i andra riktningen) hade redan en reservlösning
+för exakt detta — kopierad hit. Platshållarens markör visades inte alls
+förrän detta upptäcktes och fixades, trots att allt annat (data,
+kontextmeny, panel, prick i kapitellistan) redan fungerade — hittat
+genom att faktiskt klicka runt i en riktig webbläsare, inte bara läsa
+koden.
+
+20 nya tester (`placeholders.test.ts` + 3 nya i
+`marker-conversion.test.ts`). Live-verifierat med Playwright på både
+engelska och svenska: lägga till, flytta vid redigering (text infogad
+före markören flyttade den korrekt), öppna/redigera/markera löst,
+kapitel-prick, panelens antal och text, samt hopp mellan kapitel via
+panelen. `tsc --noEmit`, hela testsviten (826 tester) och `npm run
+build` gröna.
+
+Nästa NEO-idé på tur, om Mats vill: panelerna till vänster/höger som
+döljs och kommer fram när muspekaren närmar sig kanten — ren
+layout/CSS, inget datamodellarbete, så ett mindre jobb än detta.
+
+v1.0.37 → v1.0.38.
 
 ---
 

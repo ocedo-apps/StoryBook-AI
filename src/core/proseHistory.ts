@@ -71,8 +71,9 @@ export function restoreProseRevision(
   if (!target) return book;
   if (chapter.prose === target.prose) return book;
   const next = recordProseRevision(book, chapterId, "restore", chapter.prose, limit);
-  // Revisions don't snapshot formatting (ProseRevisionSchema predates it),
-  // so a restored revision comes back plain rather than with stale ranges
-  // from whatever the chapter looked like just before the restore.
-  return updateChapter(next, chapterId, { prose: target.prose, formatting: [] });
+  // Revisions don't snapshot formatting or placeholders (ProseRevisionSchema
+  // predates both), so a restored revision comes back plain rather than with
+  // stale ranges/markers from whatever the chapter looked like just before
+  // the restore.
+  return updateChapter(next, chapterId, { prose: target.prose, formatting: [], placeholders: [] });
 }

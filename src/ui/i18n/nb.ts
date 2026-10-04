@@ -162,6 +162,7 @@ export const nb: Messages = {
     chapterSettingsToggle: "Kapitlets innstillinger",
     chapterReaderInheritOption: "Samme som manuskriptet — {category}",
     readerCue: "Leser",
+    placeholdersCue: "Har en plassholder å komme tilbake til",
     newStrand: "ny tråd",
     startChapter: "Start kapittel {n}",
     draft: "Lag utkast",
@@ -391,6 +392,14 @@ export const nb: Messages = {
     },
     leakHint: "Disse er allerede låst sannhet, men etablert etter dette kapitlet — modellen kan likevel se dem her. Ikke nødvendigvis et problem (kanskje er dette kapitlet et hopp fremover), men verdt en rask sjekk.",
     establishedIn: "Etablert i «{chapter}»"
+  },
+  placeholders: {
+    count: {
+      one: "{count} plassholder å komme tilbake til",
+      other: "{count} plassholdere å komme tilbake til"
+    },
+    empty: "Plassholder",
+    jumpTo: "I «{chapter}»"
   },
   plotlines: {
     nav: "Tråder",
@@ -1226,6 +1235,16 @@ export const nb: Messages = {
     askHint: "Spør om hva som helst om den markerte passasjen — vær så kritisk du vil. Svaret er bare til å lese, ingenting endres eller lagres.",
     askPlaceholder: "Hva vil du vite?",
     askAction: "Spør",
+    placeholderAdd: "Legg til plassholder…",
+    placeholderAddTitle: "Legg til plassholder",
+    placeholderAddHint: "En rask notis til deg selv — et navn, en fakta, en dato du fyller inn senere. Fortsett å skrive; kom tilbake når du vil.",
+    placeholderPlaceholder: "Hva trenger du å komme tilbake til?",
+    placeholderAddAction: "Legg til",
+    placeholderViewTitle: "Plassholder",
+    placeholderSave: "Lagre",
+    placeholderResolve: "Marker som løst",
+    placeholderOpen: "Åpne denne plassholderen",
+    placeholderEmptyNote: "Plassholder",
     rewriteChips: {
       group: "Snarveier fra Statistikk og Analyse",
       povLeakCamera:

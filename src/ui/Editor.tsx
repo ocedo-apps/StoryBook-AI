@@ -88,6 +88,8 @@ import { ChapterFeedbackCard } from "./ChapterFeedbackCard";
 import { ChapterHistoryCard } from "./ChapterHistoryCard";
 import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
+import { PlaceholdersPanel } from "./PlaceholdersPanel";
+import { collectPlaceholders } from "@core/placeholders";
 import { ScenesPanel } from "./ScenesPanel";
 import { GuidePanel, GuideHelpButton, type GuideSectionId } from "./GuidePanel";
 import { HandbookPanel } from "./HandbookPanel";
@@ -355,6 +357,7 @@ export function Editor() {
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [askPassageOpen, setAskPassageOpen] = useState(false);
+  const [activePlaceholderId, setActivePlaceholderId] = useState<string | undefined>(undefined);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
   const [illustrationLibraryOpen, setIllustrationLibraryOpen] = useState(false);
@@ -986,12 +989,19 @@ export function Editor() {
                   <span className="chapter-index">{item.sequence_index + 1}</span>
                   <span className="chapter-name">
                     <span className="chapter-name-text">{item.title.trim() || m.editor.untitled}</span>
-                    {cue || (item.voice !== undefined && item.voice.trim()) || item.reader_age !== undefined || continues ? (
+                    {cue ||
+                    (item.voice !== undefined && item.voice.trim()) ||
+                    item.reader_age !== undefined ||
+                    continues ||
+                    (item.placeholders?.length ?? 0) > 0 ? (
                       <span className="chapter-cues">
                         {cue ? <span className="chapter-cue">{cue}</span> : null}
                         {item.voice !== undefined && item.voice.trim() ? <span className="chapter-cue">{m.editor.voiceCue}</span> : null}
                         {item.reader_age !== undefined ? <span className="chapter-cue">{m.editor.readerCue}</span> : null}
                         {continues ? <span className="chapter-cue">{continues}</span> : null}
+                        {(item.placeholders?.length ?? 0) > 0 ? (
+                          <span className="chapter-cue-dot" title={m.editor.placeholdersCue} aria-label={m.editor.placeholdersCue} />
+                        ) : null}
                       </span>
                     ) : null}
                   </span>
@@ -1461,6 +1471,9 @@ export function Editor() {
                   return updateChapter(current, chapter.id, { formatting: toggleFormatting(target.formatting ?? [], span, style) });
                 })
               }
+              placeholders={chapter.placeholders ?? []}
+              onPlaceholdersChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { placeholders: next }))}
+              {...(activePlaceholderId !== undefined ? { activePlaceholderId } : {})}
               placeholder={m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}
@@ -1497,6 +1510,13 @@ export function Editor() {
                     onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
                   />
                   <ContinuityWarning leaks={knowledgeLeaksForChapter(book, chapter.id)} onJumpToChapter={store.setChapterId} />
+                  <PlaceholdersPanel
+                    items={collectPlaceholders(chapters)}
+                    onJump={(jumpChapterId, placeholderId) => {
+                      store.setChapterId(jumpChapterId);
+                      setActivePlaceholderId(placeholderId);
+                    }}
+                  />
                   <ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />
                 </>
               }

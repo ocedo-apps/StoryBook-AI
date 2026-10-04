@@ -192,7 +192,12 @@ function pointWithinBlock(block: HTMLElement, localOffset: number): { node: Node
 
 function pointAtOffset(root: HTMLElement, offset: number): { node: Node; offset: number } | null {
   const blocks = flowBlocks(root);
-  if (blocks.length === 0) return null;
+  // Same fallback as caretToOffset: live typing can leave the editable area
+  // as flat text with no <p>/<div> children until the next full resync (the
+  // DOM-sync effect skips rewriting the DOM while the live text already
+  // matches `value`, to avoid disturbing the caret) — treat the whole root
+  // as one block rather than finding nothing to measure against.
+  if (blocks.length === 0) return root.textContent ? pointWithinBlock(root, offset) : null;
   let pos = 0;
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i]!;
@@ -206,6 +211,17 @@ function pointAtOffset(root: HTMLElement, offset: number): { node: Node; offset:
     pos += collapsedLength + 2;
   }
   return null;
+}
+
+/** Viewport-relative rect of the caret at `offset` — used to position a placeholder marker over the live text it sits in front of. Null once the canvas has no content to measure against. */
+export function rectAtOffset(root: HTMLElement, offset: number): DOMRect | null {
+  const point = pointAtOffset(root, offset);
+  if (!point) return null;
+  const range = document.createRange();
+  range.setStart(point.node, point.offset);
+  range.setEnd(point.node, point.offset);
+  const rects = range.getClientRects();
+  return rects[0] ?? range.getBoundingClientRect();
 }
 
 /** The reverse of `spanFromSelection` — restores a selection after a formatting toggle rebuilds the canvas's HTML, so clicking Bold doesn't drop the user's selection. */
