@@ -67,11 +67,23 @@ function chapterLabel(chapterId: string | undefined, chapters: Chapter[], untitl
 
 export function BiblePanel({
   onInterview,
-  openEntitySignal
+  openEntitySignal,
+  pinned,
+  onTogglePinned,
+  railClassName,
+  onMouseEnter,
+  onMouseLeave
 }: {
   onInterview?: (entityRef: string, entityLabel: string, kind: BibleKind) => void;
   /** A fresh object each time, so opening the same entity twice in a row still re-opens the card. */
   openEntitySignal?: { ref: string } | null;
+  /** Whether this panel stays open always, or auto-hides and reveals on hover — view state the Editor owns alongside the matching left rail. */
+  pinned: boolean;
+  onTogglePinned: () => void;
+  /** Pre-built class list reflecting pinned/collapsed/floating state, computed by the Editor so both rails share one place for that logic. */
+  railClassName: string;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }) {
   const { book, approve, reject, keepSeparate, addFact, reviseFact, patchBook, setChapterId } = useBookStore();
   const { messages: m } = useLocale();
@@ -176,7 +188,17 @@ export function BiblePanel({
   if (!book) return null;
 
   return (
-    <aside className="rail rail-right">
+    <aside className={railClassName} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+      <button
+        type="button"
+        className="icon-button rail-pin"
+        title={pinned ? m.editor.unpinPanel : m.editor.pinPanel}
+        aria-label={pinned ? m.editor.unpinPanel : m.editor.pinPanel}
+        aria-pressed={pinned}
+        onClick={onTogglePinned}
+      >
+        {pinned ? "📌" : "📍"}
+      </button>
       <div className="rail-head">
         <span className="rail-head-title">
           <h2>{m.bible.title}</h2>

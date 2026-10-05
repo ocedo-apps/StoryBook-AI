@@ -481,6 +481,8 @@ export const en = {
     restore: "Restore",
     maximizeTitle: "Hide panels and write",
     restoreTitle: "Restore panels (Esc)",
+    pinPanel: "Pin panel open",
+    unpinPanel: "Auto-hide this panel — hover the edge to bring it back",
     brainstormLede:
       "Private scratch. One note per idea. Drag them anywhere — there is no order yet. When a note is ready, drag it into the To synopsis column on the right.",
     brainstormPlaceholder: "An idea…",

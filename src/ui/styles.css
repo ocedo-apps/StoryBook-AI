@@ -974,6 +974,19 @@ button:disabled {
   grid-template-columns: 23.25rem minmax(0, 1fr) 23.25rem;
   flex: 1;
   min-height: 0;
+  position: relative;
+}
+
+.editor-body.is-left-collapsed {
+  grid-template-columns: 0.6rem minmax(0, 1fr) 23.25rem;
+}
+
+.editor-body.is-right-collapsed {
+  grid-template-columns: 23.25rem minmax(0, 1fr) 0.6rem;
+}
+
+.editor-body.is-left-collapsed.is-right-collapsed {
+  grid-template-columns: 0.6rem minmax(0, 1fr) 0.6rem;
 }
 
 .rail {
@@ -983,6 +996,7 @@ button:disabled {
   overflow-y: auto;
   background: var(--panel);
   padding: 1rem 0.9rem 1.2rem;
+  position: relative;
 }
 
 .rail-left {
@@ -991,6 +1005,66 @@ button:disabled {
 
 .rail-right {
   border-left: 1px solid var(--border-soft);
+}
+
+/*
+ * Auto-hide rails (inspired by NEO's edge-reveal panels): unpinned rails
+ * shrink their grid column to a thin edge strip, which the rail itself
+ * (still a real, hoverable element at that width) sits inside. Hovering it
+ * adds `is-floating`, which lifts the rail out of the grid flow entirely —
+ * `position: absolute` within `.editor-body` — so it can expand to full
+ * width *on top of* the manuscript without changing the grid track and
+ * triggering a reflow of the prose editor underneath (which would disturb
+ * the caret and the Placeholders marker positions computed from it).
+ */
+.rail.is-collapsed {
+  padding: 0;
+  overflow: hidden;
+  background: var(--border-soft);
+  cursor: pointer;
+}
+
+.rail.is-collapsed > * {
+  visibility: hidden;
+}
+
+.rail.is-floating {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 23.25rem;
+  z-index: 25;
+  padding: 1rem 0.9rem 1.2rem;
+  box-shadow: var(--shadow);
+}
+
+.rail-left.is-floating {
+  left: 0;
+}
+
+.rail-right.is-floating {
+  right: 0;
+}
+
+.rail-pin {
+  position: absolute;
+  top: 0.4rem;
+  z-index: 1;
+  font-size: 0.85rem;
+  line-height: 1;
+  visibility: visible;
+}
+
+.rail-left .rail-pin {
+  right: 0.3rem;
+}
+
+.rail-right .rail-pin {
+  left: 0.3rem;
+}
+
+.rail.is-collapsed .rail-pin {
+  display: none;
 }
 
 .synopsis-item {

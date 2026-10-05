@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.38
+Status: living document, v1.0.39
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -548,6 +548,67 @@ döljs och kommer fram när muspekaren närmar sig kanten — ren
 layout/CSS, inget datamodellarbete, så ett mindre jobb än detta.
 
 v1.0.37 → v1.0.38.
+
+---
+
+**Ändringslogg v1.0.38 → v1.0.39 (2026-10-05):** Nästa NEO-idé, den
+enklaste av de fyra kvarvarande (Mats fråga "Vilken är enklast?" —
+svaret jämfört de andra tre mot vad Placeholders redan visat sig kosta:
+Darlings och Outline-spökstycken ligger i samma härad som Placeholders
+positionsspårningsmässigt, Enter·Enter·Enter är störst eftersom "tre
+Enter = nytt kapitel" betyder att faktiskt dela kapitlet och flytta
+scener/formatering/platshållare med). Döljbara sidopaneler: ren
+layout/CSS, ingen ny datamodell, ingen interaktion med textredigerarens
+positionsspårning.
+
+**Design, medvetet försiktig.** Standardläget (nålfast, 📌) är exakt
+som idag — ingen befintlig användare ska bli överraskad av ändrat
+beteende. En liten nål-knapp högst upp i varje panel (vänster: Kapitel-
+panelen, höger: Story Bible) växlar till "lossad" (📍): panelen krymper
+till en smal, 0,6rem bred kant mot skärmkanten istället för att
+försvinna helt — en synlig antydan att något finns där. För muspekaren
+mot kanten och panelen glider ut igen, som ett overlay *ovanpå*
+manustexten (inte genom att bredda rutnätskolumnen) — avsiktligt vald
+lösning för att undvika att själva skrivytan (och Placeholders nya
+positionsberäkning från förra releasen) skulle behöva räkna om sin
+layout varje gång en panel visas/döljs. 220 ms fördröjning innan den
+stänger igen vid musen-lämnar, så den inte fladdrar om markören bara
+snuddar förbi.
+
+**Implementation.** Nålat-läge och hovring lever som vanlig
+`useState` i `Editor.tsx` (samma mönster som `maximized` redan
+använder — ingen bokdata, bara vystate, ingen anledning att spara
+mellan sessioner för en första version). `BiblePanel.tsx` fick fem nya
+props (`pinned`, `onTogglePinned`, `railClassName`,
+`onMouseEnter`/`onMouseLeave`) istället för egen intern state, så all
+klassuträkning för båda panelerna ligger på ett ställe i `Editor.tsx`.
+Ny CSS: `.editor-body.is-left/-right-collapsed` krymper rutnäts-
+kolumnen, `.rail.is-collapsed` döljer panelens eget innehåll
+(`visibility:hidden` på barnen, bakgrundsfärgad kant kvar), `.rail.is-
+floating` lyfter ut panelen ur rutnätsflödet (`position:absolute`
+inom `.editor-body`, som fick `position:relative`) för overlay-
+effekten.
+
+**Kontrollerat mot "Maximera"** (den redan befintliga döljer-allt-
+fokusläget): `.editor.is-maximized`-reglerna har högre CSS-specificitet
+(tre klasser mot två) än mina nya regler, så Maximera vinner alltid
+oavsett nålat/lossat tillstånd — verifierat live, inte bara läst i
+koden.
+
+Live-verifierat med Playwright: standardläge oförändrat, lossa höger
+panel + flytta bort musen krymper den korrekt (huvudinnehållet får
+tillbaka utrymmet), hovring över den smala kanten tar fram den igen
+som overlay, klick genom den flytande panelen fungerar (navigerade
+till Synopsis medan vänsterpanelen svävade), åternåla fungerar, och
+Maximera döljer båda panelerna oavsett nålat-tillstånd. Svensk text
+verifierad. `tsc --noEmit`, hela testsviten (826 tester, oförändrad —
+inga nya kärnfunktioner att testa, bara UI-state och CSS) och `npm run
+build` gröna.
+
+Kvar av NEO-listan, om Mats vill fortsätta: Darlings, Enter·Enter·Enter,
+Outline-spökstycken — i ungefärlig svårighetsordning.
+
+v1.0.38 → v1.0.39.
 
 ---
 

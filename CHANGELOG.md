@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.39] - 2026-10-05
+
+### Added
+- Auto-hiding side panels — pin (📌) stays the default, exactly like today, but a new unpin toggle (📍) in the Chapters panel and the Story Bible lets either one shrink to a thin edge strip and slide back out over the manuscript when you hover near it, instead of always taking up space.
+
 ## [1.0.38] - 2026-10-04
 
 ### Added

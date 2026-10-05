@@ -183,6 +183,8 @@ export const nb: Messages = {
     restore: "Gjenopprett",
     maximizeTitle: "Skjul paneler og skriv",
     restoreTitle: "Vis paneler (Esc)",
+    pinPanel: "Fest panelet",
+    unpinPanel: "Skjul panelet automatisk — før pekeren mot kanten for å hente det fram igjen",
     brainstormLede:
       "Privat kladd. En lapp per idé. Dra dem fritt — det finnes ingen rekkefølge ennå. Når en lapp er klar, dra den til kolonnen Til synopsis til høyre.",
     brainstormPlaceholder: "En idé…",

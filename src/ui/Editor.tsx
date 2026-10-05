@@ -354,6 +354,28 @@ export function Editor() {
   const onBoard = boardOpen;
   const [brainstormChatOpen, setBrainstormChatOpen] = useState(false);
   const [maximized, setMaximized] = useState(false);
+  const [leftRailPinned, setLeftRailPinned] = useState(true);
+  const [rightRailPinned, setRightRailPinned] = useState(true);
+  const [leftRailHovering, setLeftRailHovering] = useState(false);
+  const [rightRailHovering, setRightRailHovering] = useState(false);
+  const leftRailLeaveTimer = useRef<number | null>(null);
+  const rightRailLeaveTimer = useRef<number | null>(null);
+  function railHoverHandlers(leaveTimer: { current: number | null }, setHovering: (value: boolean) => void) {
+    return {
+      onMouseEnter: () => {
+        if (leaveTimer.current !== null) {
+          window.clearTimeout(leaveTimer.current);
+          leaveTimer.current = null;
+        }
+        setHovering(true);
+      },
+      onMouseLeave: () => {
+        leaveTimer.current = window.setTimeout(() => setHovering(false), 220);
+      }
+    };
+  }
+  const leftRailExpanded = leftRailPinned || leftRailHovering;
+  const rightRailExpanded = rightRailPinned || rightRailHovering;
   const [statsOpen, setStatsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [askPassageOpen, setAskPassageOpen] = useState(false);
@@ -802,8 +824,36 @@ export function Editor() {
         </p>
       ) : null}
 
-      <div className="editor-body">
-        <aside className="rail rail-left">
+      <div
+        className={[
+          "editor-body",
+          leftRailExpanded ? "" : "is-left-collapsed",
+          rightRailExpanded ? "" : "is-right-collapsed"
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <aside
+          className={[
+            "rail",
+            "rail-left",
+            leftRailExpanded ? "" : "is-collapsed",
+            !leftRailPinned && leftRailHovering ? "is-floating" : ""
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          {...railHoverHandlers(leftRailLeaveTimer, setLeftRailHovering)}
+        >
+          <button
+            type="button"
+            className="icon-button rail-pin"
+            title={leftRailPinned ? m.editor.unpinPanel : m.editor.pinPanel}
+            aria-label={leftRailPinned ? m.editor.unpinPanel : m.editor.pinPanel}
+            aria-pressed={leftRailPinned}
+            onClick={() => setLeftRailPinned((on) => !on)}
+          >
+            {leftRailPinned ? "📌" : "📍"}
+          </button>
           <div className="synopsis-item-row">
             <button
               type="button"
@@ -1610,6 +1660,17 @@ export function Editor() {
         <BiblePanel
           onInterview={(entityRef, entityLabel, kind) => store.startInterview(entityRef, entityLabel, kind)}
           openEntitySignal={openEntitySignal}
+          pinned={rightRailPinned}
+          onTogglePinned={() => setRightRailPinned((on) => !on)}
+          railClassName={[
+            "rail",
+            "rail-right",
+            rightRailExpanded ? "" : "is-collapsed",
+            !rightRailPinned && rightRailHovering ? "is-floating" : ""
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          {...railHoverHandlers(rightRailLeaveTimer, setRightRailHovering)}
         />
       </div>
       {statsOpen ? (
