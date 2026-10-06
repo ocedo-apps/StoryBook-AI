@@ -486,7 +486,15 @@ export function ProseCanvas({
     const empty = !value.trim();
     const textChanged = empty ? current !== "" : current !== value;
     const formattingChanged = formattingEnabled && !formattingRangesEqual(formattingFromElement(area), formatting);
-    if (!textChanged && !formattingChanged) return;
+    if (!textChanged && !formattingChanged) {
+      // Nothing to reconcile against `value` — but a brand-new, never-typed-
+      // in chapter still needs a real block to type into. Left as a plain
+      // empty root, the first keystroke lands as a stray text node outside
+      // any <p>/<div>, which proseFromElement's block-walk silently drops
+      // once a later Enter adds a real sibling block next to it.
+      if (empty && area.innerHTML !== "<p><br></p>") area.innerHTML = "<p><br></p>";
+      return;
+    }
     if (empty && current === "") {
       if (area.innerHTML !== "<p><br></p>") area.innerHTML = "<p><br></p>";
       return;

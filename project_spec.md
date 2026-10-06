@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.41
+Status: living document, v1.0.42
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -709,6 +709,54 @@ text runt omkring orörd. `tsc --noEmit`, hela testsviten (847 tester,
 gröna.
 
 v1.0.40 → v1.0.41.
+
+---
+
+**Ändringslogg v1.0.41 → v1.0.42 (2026-10-06):** Mats: "Ta buggen nu" —
+den jag flaggade i förbifarten under v1.0.41:s verifiering (första
+raden i ett helt nytt kapitel kunde tappas tyst ur det som sparas).
+
+**Rotorsak, hittad genom att stega igenom DOM:t steg för steg i
+Playwright, inte genom att läsa koden.** `ProseCanvas.tsx`:s DOM-
+synk-effekt sätter `area.innerHTML = "<p><br></p>"` för ett tomt
+kapitel — men bara om `textChanged || formattingChanged` är sant.
+Vid första monteringen av ett helt nytt, tomt kapitel är den
+beräknade texten redan `""` (samma som `value`), så det villkoret
+är falskt och hela grenen hoppas över — redigeringsytan börjar alltså
+som ett bokstavligen tomt `<div>`, inte `<p><br></p>` som avsett.
+Första tecknet man skriver hamnar då som en lös textnod direkt i
+roten, utanför alla `<p>`/`<div>`-element. Så länge allt skrivs i ett
+enda stycke är det osynligt (textnoden läses ändå via `flowBlocks`s
+fallback för "inga block alls"), men så fort man trycker Enter och
+skapar ett första riktigt syskon-element slutar den fallbacken gälla
+— `flowBlocks` läser bara `:scope > p, :scope > div`, så den lösa
+textnoden (hela första stycket) försvinner tyst ur det `proseFromElement`
+sparar.
+
+**Fix, medvetet minimal:** rörde varken `flowBlocks`, `proseFromElement`
+eller någon annan offset-matematik i `proseDom.ts` — risken att
+störa markören under pågående skrivning (samma försiktighet som redan
+dokumenterad för platshållarnas DOM-fallback) gjorde det tryggare att
+förhindra att den trasiga DOM-formen någonsin uppstår, istället för
+att laga läsvägen i efterhand. `ProseCanvas.tsx`:s synk-effekt säkrar
+nu `<p><br></p>` så fort kapitlet är tomt, oavsett om `textChanged`
+råkar vara falskt — ett helt nytt kapitel (eller ett precis helt
+urraderat) har alltid ett riktigt stycke att skriva i från första
+tecknet.
+
+**Verifiering:** ingen meningsfull enhetstest möjlig (testmiljön kör
+`environment: "node"`, inget DOM alls, och `contentEditable`-skrivning
+går inte att simulera i jsdom/happy-dom ändå) — samma situation som
+platshållarnas DOM-fix tidigare. Live-verifierat med Playwright
+istället: ett helt nytt kapitel visar nu `<p><br></p>` redan innan
+första klicket; skriver man "Scene one... / --- / Scene two..." med
+riktiga Enter-tryckningar överlever alla tre styckena en omladdning
+oförändrade (tidigare tappades det första); samma sak efter att ha
+markerat allt och raderat mitt i en session och skrivit igen. `tsc
+--noEmit`, hela testsviten (847 tester, oförändrad — inget nytt att
+testa i Node-miljön) och `npm run build` gröna.
+
+v1.0.41 → v1.0.42.
 
 ---
 

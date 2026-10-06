@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.42] - 2026-10-06
+
+### Fixed
+- Typing straight into a brand-new, empty chapter could silently lose the very first paragraph once a later paragraph break was added — the editor now always starts with a real paragraph to type into, instead of leaving that first line as text outside any block.
+
 ## [1.0.41] - 2026-10-06
 
 ### Added
