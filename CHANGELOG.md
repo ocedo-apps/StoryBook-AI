@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.47] - 2026-10-06
+
+### Added
+- A new "Chapter summary" field, next to Chapter brief — a short note on what actually happens in the chapter, written by hand or generated with a new "Summarize chapter" button. Earlier chapters' summaries now feed Draft, Extend, Elaborate, and Beat for later chapters, in story-time order, so the model can keep track of what has already happened without needing each earlier chapter's full prose in context. A chapter nobody has summarized yet is simply left out — nothing required, nothing breaks.
+
 ## [1.0.46] - 2026-10-06
 
 ### Fixed

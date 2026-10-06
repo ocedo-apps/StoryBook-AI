@@ -8,6 +8,7 @@ import {
   draftSceneUserPrompt,
   draftUserPrompt,
   formatPlotlinesForPrompt,
+  formatStorySoFar,
   formatVoiceForPrompt,
   passageUserPrompt,
   recastSceneUserPrompt,
@@ -392,6 +393,127 @@ describe("position-aware Story Bible in Draft (roadmap-ideas.md #24)", () => {
     withProse = { ...withProse, chapters: withProse.chapters.map((c) => (c.id === firstId ? { ...c, prose: "Dawn." } : c)) };
     const firstChapter = withProse.chapters.find((c) => c.id === firstId)!;
     expect(recastUserPrompt(withProse, firstChapter)).toContain("The captain confesses");
+  });
+});
+
+describe("formatStorySoFar", () => {
+  function bookWithTwoChapters() {
+    let book = createBook("The Salt Road");
+    book = addChapter(book);
+    const [first, second] = book.chapters;
+    return { book, firstId: first!.id, secondId: second!.id };
+  }
+
+  it("is empty when no earlier chapter has a summary", () => {
+    const { book, secondId } = bookWithTwoChapters();
+    const second = book.chapters.find((c) => c.id === secondId)!;
+    expect(formatStorySoFar(book, second)).toBe("");
+  });
+
+  it("includes an earlier chapter's summary, not its own", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const second = withSummary.chapters.find((c) => c.id === secondId)!;
+    const text = formatStorySoFar(withSummary, second);
+    expect(text).toContain("Henrik leaves the harbor at dawn.");
+  });
+
+  it("never includes the chapter's own summary", () => {
+    const { book, firstId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const first = withSummary.chapters.find((c) => c.id === firstId)!;
+    expect(formatStorySoFar(withSummary, first)).toBe("");
+  });
+
+  it("omits a chapter that's later in story time, even if it was written first", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, secondId, { summary: "The captain confesses everything." });
+    const first = withSummary.chapters.find((c) => c.id === firstId)!;
+    expect(formatStorySoFar(withSummary, first)).toBe("");
+  });
+
+  it("goes by story time, not reading order, once a chapter is moved on the Timeline", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    let withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    // secondId now happens FIRST in story time (a flashback structure).
+    withSummary = {
+      ...withSummary,
+      chapters: withSummary.chapters.map((c) =>
+        c.id === firstId ? { ...c, story_time_order: 1 } : c.id === secondId ? { ...c, story_time_order: 0 } : c
+      )
+    };
+    const second = withSummary.chapters.find((c) => c.id === secondId)!;
+    expect(formatStorySoFar(withSummary, second)).toBe("");
+  });
+
+  it("lists multiple earlier chapters in story-time order", () => {
+    let book = createBook("The Salt Road");
+    book = addChapter(book);
+    book = addChapter(book);
+    const [first, second, third] = book.chapters;
+    book = updateChapter(book, first!.id, { summary: "Henrik leaves the harbor." });
+    book = updateChapter(book, second!.id, { summary: "He meets a stranger." });
+    const text = formatStorySoFar(book, third!);
+    const harborIndex = text.indexOf("Henrik leaves the harbor.");
+    const strangerIndex = text.indexOf("He meets a stranger.");
+    expect(harborIndex).toBeGreaterThan(-1);
+    expect(strangerIndex).toBeGreaterThan(harborIndex);
+  });
+
+  it("is woven into draftUserPrompt", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const second = withSummary.chapters.find((c) => c.id === secondId)!;
+    expect(draftUserPrompt(withSummary, second)).toContain("Henrik leaves the harbor at dawn.");
+  });
+
+  it("is woven into draftSceneUserPrompt too", () => {
+    const { book, chapterId } = splitBook();
+    let withSecond = addChapter(book);
+    const secondId = withSecond.chapters[1]!.id;
+    withSecond = updateChapter(withSecond, secondId, { summary: "A storm wrecks the first boat." });
+    const firstChapter = withSecond.chapters.find((c) => c.id === chapterId)!;
+    expect(draftSceneUserPrompt(withSecond, firstChapter, "s1")).not.toContain("A storm wrecks the first boat.");
+
+    const withEarlierSummary = updateChapter(withSecond, chapterId, { summary: "Henrik leaves the harbor." });
+    const secondChapterLive = withEarlierSummary.chapters.find((c) => c.id === secondId)!;
+    expect(draftUserPrompt(withEarlierSummary, secondChapterLive)).toContain("Henrik leaves the harbor.");
+  });
+
+  it("is woven into passageUserPrompt (Extend/Elaborate/Beat/Instruct) when a chapter is given", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const second = withSummary.chapters.find((c) => c.id === secondId)!;
+    const prompt = passageUserPrompt({
+      book: withSummary,
+      chapter: second,
+      mode: "extend",
+      before: "He walked on.",
+      selected: "",
+      after: ""
+    });
+    expect(prompt).toContain("Henrik leaves the harbor at dawn.");
+  });
+
+  it("is left out of passageUserPrompt when there is no chapter (Synopsis/Brainstorm)", () => {
+    const { book, firstId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const prompt = passageUserPrompt({
+      book: withSummary,
+      chapter: null,
+      mode: "extend",
+      before: "He walked on.",
+      selected: "",
+      after: ""
+    });
+    expect(prompt).not.toContain("Henrik leaves the harbor at dawn.");
+  });
+
+  it("is left out of Recast — out of scope, recast only restyles existing prose", () => {
+    const { book, firstId, secondId } = bookWithTwoChapters();
+    const withSummary = updateChapter(book, firstId, { summary: "Henrik leaves the harbor at dawn." });
+    const second = withSummary.chapters.find((c) => c.id === secondId)!;
+    expect(recastUserPrompt(withSummary, second)).not.toContain("Henrik leaves the harbor at dawn.");
   });
 });
 

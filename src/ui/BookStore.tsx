@@ -56,6 +56,7 @@ import {
   planningExtractorUserPrompt
 } from "@core/extractFacts";
 import type { LoreArticleCandidate } from "@core/loreImport";
+import { SUMMARIZE_CHAPTER_SYSTEM, summarizeChapterUserPrompt } from "@core/chapterSummary";
 import { proseChapters, startProofreadJob, touchProofread, type ProofreadStage } from "@core/proofread";
 import { runProofread } from "@core/proofreadRun";
 import {
@@ -2279,6 +2280,43 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     [busy, flushSave, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]
   );
 
+  const summarizeChapter = useCallback(
+    async (chapterId: string) => {
+      const current = bookRef.current;
+      if (!current || busy) return;
+      const chapter = current.chapters.find((item) => item.id === chapterId);
+      if (!chapter || !chapter.prose.trim()) return;
+      if (models.length === 0) {
+        setError(ollamaError ?? STORE_ERROR.noModel);
+        return;
+      }
+      setBusy("summarize");
+      setError(null);
+      try {
+        const provider = makeProvider(reviewModel);
+        const summarizeMessages: PromptDebugMessage[] = [
+          { role: "system", content: SUMMARIZE_CHAPTER_SYSTEM },
+          { role: "user", content: summarizeChapterUserPrompt(chapter) }
+        ];
+        recordPrompt("summarize", reviewModel, summarizeMessages);
+        const raw = await provider.chat({ messages: summarizeMessages, temperature: 0.2, maxTokens: 220 });
+        recordPromptResponse(raw);
+        const summary = manuscriptFromModel(raw, "");
+        if (!summary) {
+          setError(STORE_ERROR.summarizeNone);
+          return;
+        }
+        const latest = bookRef.current ?? current;
+        await flushSave(updateChapter(latest, chapterId, { summary }));
+      } catch (err) {
+        setError(ollamaHint(err));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [busy, flushSave, models.length, ollamaError, recordPrompt, recordPromptResponse, reviewModel]
+  );
+
   /**
    * A porting aid for an author's existing lorebook (roadmap-ideas.md #28,
    * step 1: source-agnostic, before any format-specific adapter exists) —
@@ -2696,6 +2734,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     mergeScene,
     rewriteSpan,
     restoreChapterProse,
+    summarizeChapter,
     cutChapterDarling,
     restoreChapterDarling,
     discardChapterDarling,

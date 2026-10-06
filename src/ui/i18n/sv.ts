@@ -221,7 +221,12 @@ export const sv: Messages = {
     extractSynopsisFacts: "Plocka ut fakta",
     extractSynopsisFactsHint: "Hitta möjliga Story Bible-fakta i det här synopsiset. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det.",
     extractBriefFacts: "Plocka ut fakta",
-    extractBriefFactsHint: "Hitta möjliga Story Bible-fakta i den här brief:en. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det."
+    extractBriefFactsHint: "Hitta möjliga Story Bible-fakta i den här brief:en. De hamnar i granskningskön som kandidater — inget blir kanon förrän du låser det.",
+    chapterSummary: "Kapitelsammanfattning",
+    summaryPlaceholder: "Vad som faktiskt händer i det här kapitlet — skriv för hand, eller sammanfatta nedan när det finns text.",
+    summarizeChapterAction: "Sammanfatta kapitel",
+    summarizeChapterHint: "En kort sammanfattning av vad som händer i det här kapitlet, så att senare kapitels Skriv utkast/Fortsätt/Utveckla/Beat kan se det utan att behöva hela kapitlets text.",
+    summarizing: "Sammanfattar…"
   },
   backup: {
     title: "Säkerhetskopia",
@@ -315,7 +320,8 @@ export const sv: Messages = {
       "extract-synopsis": "Extrahera fakta (synopsis)",
       "extract-brief": "Extrahera fakta (brief)",
       "import-lore": "Importera lore",
-      beat: "Skriv en beat"
+      beat: "Skriv en beat",
+      summarize: "Sammanfatta kapitel"
     }
   },
   askManuscript: {
@@ -1518,6 +1524,7 @@ export const sv: Messages = {
     synopsisExtractorNone: "Extraktorn hittade inga uttalade fakta i synopsis.",
     briefExtractorNone: "Extraktorn hittade inga uttalade fakta i den här brief:en.",
     importLoreNone: "Extraktorn hittade inga uttalade fakta i den inklistrade texten.",
+    summarizeNone: "Kunde inte sammanfatta det här kapitlet — försök igen, eller skriv sammanfattningen för hand.",
     proofreadEmpty: "Skriv eller ta fram lite kapitelprosa innan korrekturläsning.",
     askManuscriptEmpty: "Skriv eller ta fram lite kapitelprosa innan du frågar om manuset.",
     askManuscriptNoMatch: "Inget i manuset matchar den frågan.",

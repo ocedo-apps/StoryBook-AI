@@ -32,6 +32,17 @@ export const ChapterSchema = z.object({
   title: z.string(),
   /** Writing instruction for this chapter — not in-world canon. */
   brief: z.string(),
+  /**
+   * A short, backward-looking digest of what actually happens in this
+   * chapter — brief's counterpart, pointed the other way. Written by hand
+   * or generated on demand from the chapter's own prose. Feeds
+   * `formatStorySoFar` (generateProse.ts), so a later chapter's Draft/
+   * Extend/Elaborate/Beat pass can see what happened earlier without
+   * needing that chapter's full prose in context. Missing/empty on older
+   * saves and any chapter nobody has summarized yet — just leaves it out
+   * of the story-so-far block, nothing breaks.
+   */
+  summary: z.string().default(""),
   prose: z.string(),
   /**
    * Earlier chapter prose from model writes. Newest first.
@@ -366,6 +377,7 @@ export function createChapter(sequence_index: number, title = ""): Chapter {
     id: newId(),
     title: title.trim() || `Chapter ${sequence_index + 1}`,
     brief: "",
+    summary: "",
     prose: "",
     revisions: [],
     sequence_index

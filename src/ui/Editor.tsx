@@ -1151,6 +1151,24 @@ export function Editor() {
                     >
                       {busy === "extract-brief" ? m.editor.extracting : m.editor.extractBriefFacts}
                     </button>
+                    <ChapterBriefCopy
+                      id={`chapter-summary-${item.id}`}
+                      value={item.summary}
+                      placeholder={m.editor.summaryPlaceholder}
+                      label={m.editor.chapterSummary}
+                      onCommit={(summary) =>
+                        void store.patchBook((current) => updateChapter(current, item.id, { summary }))
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="text-button chapter-brief-extract"
+                      title={m.editor.summarizeChapterHint}
+                      disabled={busy !== null || !item.prose.trim()}
+                      onClick={() => void store.summarizeChapter(item.id)}
+                    >
+                      {busy === "summarize" ? m.editor.summarizing : m.editor.summarizeChapterAction}
+                    </button>
                   </div>
                 ) : null}
               </li>

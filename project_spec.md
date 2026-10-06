@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.46
+Status: living document, v1.0.47
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -952,6 +952,74 @@ testsviten (860 tester, oförändrad — ren CSS, inget att testa i
 Node-miljön) och `npm run build` gröna.
 
 v1.0.45 → v1.0.46.
+
+---
+
+**Ändringslogg v1.0.46 → v1.0.47 (2026-10-06):** Testarens punkt 3 —
+"no way to get the model to remember anything beyond the chapter".
+Jag frågade Mats vilken av två riktningar som skulle ge bäst resultat:
+(A) en löpande, auto-genererad "berättelsen hittills" matad in i
+Draft/Extend, eller (B) städa upp hur `core.event`-fakta särskiljs
+från stabila fakta i Story Bible-rendringen. Rekommenderade A —
+testaren tycker redan Story Bible-kurering är tungt ("my lore is too
+much and too verbose"), så att be om MER manuell kategorisering (B)
+lägger bördan fel; A löser klagomålet utan extra arbete av författaren.
+Mats: "Bygg A."
+
+**Rotorsak, bekräftad i koden innan design.** `formatPredecessorForDraft`
+(`continuesFrom.ts`) skickar bara de tre sista styckena av föregående
+kapitel — resten av manuset är helt osynligt för Draft/Extend/
+Elaborate/Beat, oavsett hur långt bort i berättelsen man är.
+
+**Design — position-medveten från grunden, inte en efterhandskonstruktion.**
+Story Bible-fakta är redan position-medvetna (`formatBibleForPromptAtPosition`,
+`visibleLockedFactsAtPosition` — ett kapitel ser aldrig fakta från ett
+SENARE kapitel i berättelsetid, även om det skrevs först). En global,
+en-enda sammanfattning för hela boken skulle bryta den garantin — redigerar
+man ett tidigt kapitel efter att redan ha sammanfattat fram till kapitel 10
+skulle framtida handling läcka in. Lösningen: varje kapitel får sitt EGET,
+litet `summary`-fält (bakåtblickande motsvarighet till `brief`, som är
+framåtblickande instruktion) — skrivet för hand eller genererat på
+begäran, aldrig automatiskt. `formatStorySoFar` (ny, `generateProse.ts`)
+samlar ihop alla TIDIGARE kapitels `summary`, i berättelsetidsordning,
+via samma `storyTimeRankByChapterId`-infrastruktur Story Bible redan
+bevisat fungerar korrekt — återanvänder, uppfinner inget nytt.
+
+**Varför aldrig automatiskt.** Hela appens AI-mönster kräver en
+uttrycklig författarhandling (Draft, Extrahera fakta, Analysera — allt
+"Du bestämmer"). En auto-regenererad sammanfattning efter varje
+redigering vore en svart låda som kan glida iväg med fel detaljer utan
+att någon märker det. Ny "Sammanfatta kapitel"-knapp bredvid den
+befintliga "Plocka ut fakta"-knappen i Kapitelinställningar, exakt
+samma mönster: `provider.chat(...)` (inte streaming — kort, ett
+svar), `reviewModel` (samma modellval som extraktion, inte
+skrivmodellen), fältet är fritt redigerbart för hand precis som
+`brief` redan är via samma `ChapterBriefCopy`-komponent återanvänd
+rakt av.
+
+**Omfång, medvetet begränsat.** Vävdes in i `draftUserPrompt`,
+`draftSceneUserPrompt` och `passageUserPrompt` (Extend/Elaborate/
+Instruct/Beat delar samma funktion) — INTE i Recast, som bara byter
+POV/tempus på redan existerande text och inte uppfinner ny handling,
+så "berättelsen hittills" tillför inget där. Tomt tills författaren
+faktiskt sammanfattat något — inget tvång att fylla i alla kapitel
+innan det börjar hjälpa.
+
+**Verifiering.** 15 nya tester (`generate-prose.test.ts`:
+position-medvetenhet — en senare kapitels sammanfattning läcker aldrig
+till ett tidigare, respekterar omflyttning på Timeline, aldrig kapitlets
+egen sammanfattning, uteslutet ur Recast med flit; `chapter-summary.test.ts`:
+prompt-byggaren). Kunde inte Playwright-verifiera själva AI-anropet
+(ingen Ollama kopplad i den här miljön), men verifierade UI:t live:
+fältet dyker upp bredvid Chapter brief, sparar och överlever en
+omladdning (samma 400 ms debounce-fönster som resten av appen —
+första testkörningen missade det och trodde fältet inte sparade alls,
+om-körd med längre väntan bekräftade att det fungerade hela tiden),
+"Sammanfatta kapitel"-knappen är avstängd för ett tomt kapitel.
+`tsc --noEmit`, hela testsviten (875 tester, +15 sedan v1.0.46) och
+`npm run build` gröna.
+
+v1.0.46 → v1.0.47.
 
 ---
 

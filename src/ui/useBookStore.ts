@@ -36,6 +36,7 @@ export type Busy =
   | "extract-brief"
   | "import-lore"
   | "develop"
+  | "summarize"
   | null;
 
 export type BookStoreValue = {
@@ -110,6 +111,7 @@ export type BookStoreValue = {
     instruction?: string;
   }) => Promise<void>;
   restoreChapterProse: (revisionId: string) => Promise<void>;
+  summarizeChapter: (chapterId: string) => Promise<void>;
   cutChapterDarling: (span: TextSpan) => Promise<void>;
   restoreChapterDarling: (chapterId: string, darlingId: string) => Promise<void>;
   discardChapterDarling: (chapterId: string, darlingId: string) => Promise<void>;

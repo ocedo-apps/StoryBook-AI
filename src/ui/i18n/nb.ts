@@ -221,7 +221,12 @@ export const nb: Messages = {
     extractSynopsisFacts: "Hent ut fakta",
     extractSynopsisFactsHint: "Finn mulige Story Bible-fakta i denne synopsis. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det.",
     extractBriefFacts: "Hent ut fakta",
-    extractBriefFactsHint: "Finn mulige Story Bible-fakta i denne brief-en. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det."
+    extractBriefFactsHint: "Finn mulige Story Bible-fakta i denne brief-en. De havner i granskingskøen som kandidater — ingenting blir kanon før du låser det.",
+    chapterSummary: "Kapittelsammendrag",
+    summaryPlaceholder: "Hva som faktisk skjer i dette kapittelet — skriv for hånd, eller oppsummer under når det finnes tekst.",
+    summarizeChapterAction: "Oppsummer kapittel",
+    summarizeChapterHint: "Et kort sammendrag av hva som skjer i dette kapittelet, så senere kapitlers Skriv utkast/Fortsett/Utdyp/Beat kan se det uten å trenge hele kapittelets tekst.",
+    summarizing: "Oppsummerer…"
   },
   backup: {
     title: "Sikkerhetskopi",
@@ -315,7 +320,8 @@ export const nb: Messages = {
       "extract-synopsis": "Hent ut fakta (synopsis)",
       "extract-brief": "Hent ut fakta (brief)",
       "import-lore": "Importer lore",
-      beat: "Skriv en beat"
+      beat: "Skriv en beat",
+      summarize: "Oppsummer kapittel"
     }
   },
   askManuscript: {
@@ -1518,6 +1524,7 @@ export const nb: Messages = {
     synopsisExtractorNone: "Ekstraktoren fant ingen uttalte fakta i synopsis.",
     briefExtractorNone: "Ekstraktoren fant ingen uttalte fakta i denne brief-en.",
     importLoreNone: "Ekstraktoren fant ingen uttalte fakta i den innlimte teksten.",
+    summarizeNone: "Kunne ikke oppsummere dette kapittelet — prøv igjen, eller skriv sammendraget for hånd.",
     proofreadEmpty: "Skriv eller ta fram litt kapittelprosa før korrektur.",
     askManuscriptEmpty: "Skriv eller ta fram litt kapittelprosa før du spør om manuset.",
     askManuscriptNoMatch: "Ingenting i manuset matcher det spørsmålet.",

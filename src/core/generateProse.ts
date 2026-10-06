@@ -113,6 +113,33 @@ export function formatBibleForPromptAtPosition(
   return renderBibleRows(filtered, book, empty);
 }
 
+/**
+ * A compact "story so far", built from earlier chapters' own `summary`
+ * field — not their full prose, which is what the 3-paragraph predecessor
+ * tail (`formatPredecessorForDraft`) already covers for the immediately
+ * previous chapter alone. Position-aware the same way the Story Bible is
+ * (`formatBibleForPromptAtPosition`): a chapter never sees what a LATER
+ * one (in story time) says happened, even if that chapter was written
+ * first. Empty whenever no earlier chapter has a summary yet — nothing
+ * forces the author to fill every one in before this starts helping.
+ */
+export function formatStorySoFar(book: Book, chapter: Chapter): string {
+  const ranks = storyTimeRankByChapterId(book);
+  const atRank = ranks.get(chapter.id);
+  const earlier = sortedChapters(book).filter((item) => {
+    if (item.id === chapter.id || !item.summary.trim()) return false;
+    const rank = ranks.get(item.id);
+    if (atRank === undefined || rank === undefined) return item.sequence_index < chapter.sequence_index;
+    return rank < atRank;
+  });
+  earlier.sort((a, b) => (ranks.get(a.id) ?? a.sequence_index) - (ranks.get(b.id) ?? b.sequence_index));
+  if (earlier.length === 0) return "";
+  const lines = earlier.map(
+    (item) => `- ${item.title.trim() || `Chapter ${item.sequence_index + 1}`}: ${item.summary.trim()}`
+  );
+  return `Story so far (earlier chapters, in story-time order — background only; what you can already see of this chapter's own prose, if any, is the authoritative source for it):\n${lines.join("\n")}`;
+}
+
 export const DRAFT_SYSTEM = `You are a novelist drafting one chapter of literary prose.
 The Story Bible is established truth. You may depict freely. You must not contradict it.
 The synopsis is the intended shape of the whole story — honor its turns. It is not locked fact.
@@ -139,6 +166,7 @@ export function draftUserPrompt(book: Book, chapter: Chapter): string {
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
     `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter)}`,
+    formatStorySoFar(book, chapter),
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "No brief. Continue the story naturally.",
     formatPlotlinesForPrompt(book, chapter),
@@ -192,6 +220,7 @@ export function draftSceneUserPrompt(book: Book, chapter: Chapter, sceneId: stri
       ? `Synopsis (where the story is going — follow this shape; do not treat unstated details as locked facts):\n${book.synopsis.trim()}`
       : "",
     `Story Bible:\n${formatBibleForPromptAtPosition(book, chapter, scene.id)}`,
+    formatStorySoFar(book, chapter),
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
     chapter.brief.trim() ? `Chapter brief (writing instruction):\n${chapter.brief.trim()}` : "",
     formatPlotlinesForPrompt(book, chapter),
@@ -310,6 +339,7 @@ Author instruction:\n${(args.instruction ?? "").trim()}`;
     formatLanguageForPrompt(args.book.prose_language),
     args.book.synopsis.trim() ? `Synopsis:\n${args.book.synopsis.trim()}` : "",
     `Story Bible:\n${formatBibleForPrompt(args.book)}`,
+    args.chapter ? formatStorySoFar(args.book, args.chapter) : "",
     args.chapter
       ? `Chapter ${args.chapter.sequence_index + 1}: ${args.chapter.title.trim() || "Untitled"}`
       : "This is the synopsis, not a chapter.",

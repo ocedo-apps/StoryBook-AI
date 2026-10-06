@@ -15,6 +15,7 @@ export type PromptOperation =
   | "extract-brief"
   | "import-lore"
   | "develop"
+  | "summarize"
   | "word-swap"
   | "sentence-split"
   | "paragraph-break"

@@ -519,7 +519,12 @@ export const en = {
     extractSynopsisFacts: "Extract facts",
     extractSynopsisFactsHint: "Find possible Story Bible facts in this synopsis. They land in the review queue as candidates — nothing here becomes canon until you lock it.",
     extractBriefFacts: "Extract facts",
-    extractBriefFactsHint: "Find possible Story Bible facts in this brief. They land in the review queue as candidates — nothing here becomes canon until you lock it."
+    extractBriefFactsHint: "Find possible Story Bible facts in this brief. They land in the review queue as candidates — nothing here becomes canon until you lock it.",
+    chapterSummary: "Chapter summary",
+    summaryPlaceholder: "What actually happens in this chapter — write it by hand, or Summarize it below once there's prose.",
+    summarizeChapterAction: "Summarize chapter",
+    summarizeChapterHint: "A short digest of what happens in this chapter, so later chapters' Draft/Extend/Elaborate/Beat can see it without needing this chapter's full prose.",
+    summarizing: "Summarizing…"
   },
   backup: {
     title: "Backup",
@@ -613,7 +618,8 @@ export const en = {
       "extract-synopsis": "Extract facts (synopsis)",
       "extract-brief": "Extract facts (brief)",
       "import-lore": "Import lore",
-      beat: "Write a beat"
+      beat: "Write a beat",
+      summarize: "Summarize chapter"
     }
   },
   askManuscript: {
@@ -1528,6 +1534,7 @@ export const en = {
     synopsisExtractorNone: "Extractor found no stated facts in the synopsis.",
     briefExtractorNone: "Extractor found no stated facts in this brief.",
     importLoreNone: "Extractor found no stated facts in the pasted text.",
+    summarizeNone: "Could not summarize this chapter — try again, or write the summary by hand.",
     proofreadEmpty: "Write or draft some chapter prose before proofreading.",
     askManuscriptEmpty: "Write or draft some chapter prose before asking about the manuscript.",
     askManuscriptNoMatch: "Nothing in the manuscript matches that question.",
