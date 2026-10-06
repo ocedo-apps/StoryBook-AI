@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.39
+Status: living document, v1.0.40
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -609,6 +609,64 @@ Kvar av NEO-listan, om Mats vill fortsätta: Darlings, Enter·Enter·Enter,
 Outline-spökstycken — i ungefärlig svårighetsordning.
 
 v1.0.38 → v1.0.39.
+
+---
+
+**Ändringslogg v1.0.39 → v1.0.40 (2026-10-06):** Mats: "Jag kollar
+[CI:n för v1.0.39] själv vid tillfälle. Kan vi ändå fortsätta med
+nästa? Keep your darlings..." — nästa NEO-idé, Darlings ("döda dina
+älsklingar", men behåll kropparna).
+
+**Design.** Samma positionsspårningsmönster som Placeholders
+(`Darling { id, at, text, created_at }`, en array vid sidan av
+`chapter.prose`), men med en medveten avvikelse: `formatting` och
+`placeholders` **nollställs** vid en helomskrivning av prosan (Recast,
+återställ en äldre revision) eftersom gamla positioner då ändå inte
+stämmer och inget värdefullt går förlorat. En Darling bär på riktig,
+författad text — att nollställa den skulle radera den permanent, inte
+bara en position. Den behålls därför alltid (aldrig nollställd), med
+sin (nu möjligen inaktuella) position bara clampad till
+`[0, prose.length]` när den återställs.
+
+Klippa ut sker från samma markeringsmeny som Förläng/Utvidga/Skriv om
+("Klipp till älsklingar") — ingen ny markörbaserad meny som
+Placeholders fick, bara en ny rad i den befintliga. Till skillnad från
+att lägga till en platshållare (som bara är ett `patchBook`, ingen
+historik) går både klippet och återställningen via en ny historierad
+("Älskling" i Historik) — att klippa bort ett helt stycke, eller lägga
+tillbaka ett, kändes värt att kunna ångra samma väg som Omskrivning.
+
+**Implementation.** `src/core/darlings.ts` (ny): `shiftDarlings` (samma
+"före: orörd, inom: tappad, efter: skiftad"-algoritm som formatering/
+platshållare), `cutToDarling`, `restoreDarling`, `discardDarling`,
+`collectDarlings`. `BookSchema.ts`: `Chapter.darlings`, ny
+`ProseHistoryOp`-variant `"darling"`. `BookStore.tsx`: tre nya actions
+(`cutChapterDarling`, `restoreChapterDarling`,
+`discardChapterDarling`, alla via `recordProseRevision` +
+`flushSave`), och `darlings` vävt in i alla befintliga
+positionsspårande vägar — `draftChapter`, `rewriteSpan` (Förläng/
+Utvidga/Instruera/Beat), `recastChapter` (behåller, nollställer inte),
+`restoreProseRevision` (lämnas helt orörd i patchen, vilket i sig
+bevarar den), `applyMarkerConversion`/`convertMarkersToFormatting`.
+`ProseCanvas.tsx`: nya props `darlings`/`onDarlingsChange` (skiftar vid
+skrivning och manuell redigering, samma mönster som platshållare) och
+`onCutToDarling` (den nya menyraden). Ny `DarlingsPanel.tsx` — samma
+kompakta "N älsklingar sparade"-widget som `PlaceholdersPanel.tsx`,
+men med Återställ/Släng-för-gott per rad istället för bara en hopp-
+till-knapp.
+
+Live-verifierat med Playwright: markera text → "Klipp till älsklingar"
+tar bort stycket och lägger det i facket; fortsatt skrivning efter
+klippet flyttar inte de kvarvarande älsklingarnas position fel;
+Återställ lägger tillbaka texten på rätt plats även efter en senare
+redigering någon annanstans i kapitlet; Släng för gott tar bort den för
+gott; historikraden får etiketten "Darling"/"Älskling" och går att
+återställa till som vilken annan rad. Svensk text verifierad.
+`tsc --noEmit`, hela testsviten (843 tester, +17 sedan v1.0.39: nya
+`darlings.test.ts` samt två nya fall i `marker-conversion.test.ts`) och
+`npm run build` gröna.
+
+v1.0.39 → v1.0.40.
 
 ---
 

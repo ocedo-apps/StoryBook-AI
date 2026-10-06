@@ -110,6 +110,9 @@ export type BookStoreValue = {
     instruction?: string;
   }) => Promise<void>;
   restoreChapterProse: (revisionId: string) => Promise<void>;
+  cutChapterDarling: (span: TextSpan) => Promise<void>;
+  restoreChapterDarling: (chapterId: string, darlingId: string) => Promise<void>;
+  discardChapterDarling: (chapterId: string, darlingId: string) => Promise<void>;
   startBrainstormChat: () => void;
   askBrainstormChat: (message: string) => Promise<void>;
   closeBrainstormChat: () => void;

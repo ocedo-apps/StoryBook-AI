@@ -403,6 +403,15 @@ export const nb: Messages = {
     empty: "Plassholder",
     jumpTo: "I «{chapter}»"
   },
+  darlings: {
+    count: {
+      one: "{count} yndling bevart",
+      other: "{count} yndlinger bevart"
+    },
+    jumpTo: "I «{chapter}»",
+    restore: "Gjenopprett",
+    discard: "Kast for godt"
+  },
   plotlines: {
     nav: "Tråder",
     title: "Tråder",
@@ -1216,6 +1225,7 @@ export const nb: Messages = {
     rewriteMenu: "Skriv om…",
     illustrate: "Illustrasjonsprompt…",
     lift: "Løft til synopsis",
+    cutToDarling: "Klipp til yndlinger",
     formatToolbar: "Formatering",
     bold: "Fet",
     italic: "Kursiv",
@@ -1466,7 +1476,8 @@ export const nb: Messages = {
       rewrite: "Skriv om",
       beat: "Beat",
       restore: "Gjenopprett",
-      format: "Formatering"
+      format: "Formatering",
+      darling: "Yndling"
     }
   },
   markerConvert: {

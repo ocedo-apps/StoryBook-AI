@@ -17,6 +17,7 @@ import {
   updatePlaceholderNote,
   type Placeholder
 } from "@core/placeholders";
+import { shiftDarlings, type Darling } from "@core/darlings";
 import { applyWordSwap, swapContext } from "@core/wordAlternatives";
 import { findRareHits, rareHitAt } from "@core/rareWords";
 import { findAiTicHits } from "@core/aiTics";
@@ -96,7 +97,10 @@ export function ProseCanvas({
   onToggleFormat,
   placeholders = [],
   onPlaceholdersChange,
-  activePlaceholderId
+  activePlaceholderId,
+  darlings = [],
+  onDarlingsChange,
+  onCutToDarling
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -148,6 +152,12 @@ export function ProseCanvas({
   onPlaceholdersChange?: (next: Placeholder[]) => void;
   /** Set briefly (e.g. from a book-wide placeholders list) to scroll that one marker into view. */
   activePlaceholderId?: string;
+  /** Darlings cut from `value`. Only read to keep their positions aligned as `value` changes elsewhere — the panel that lists and restores them lives outside the canvas. */
+  darlings?: Darling[];
+  /** Fires whenever typing or a manual edit shifts darling positions. */
+  onDarlingsChange?: (next: Darling[]) => void;
+  /** Cuts the selected span out to the Darlings tray — a history row, unlike an ordinary edit. Omitted hides the "Cut to Darlings" menu action entirely — Synopsis and Brainstorm have no use for it. */
+  onCutToDarling?: (span: TextSpan) => void;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -173,6 +183,7 @@ export function ProseCanvas({
   const [pendingSelection, setPendingSelection] = useState<TextSpan | null>(null);
   const formattingEnabled = Boolean(onFormatChange || onToggleFormat);
   const placeholdersEnabled = Boolean(onPlaceholdersChange);
+  const darlingsEnabled = Boolean(onDarlingsChange);
 
   const highlightHits = useMemo(() => {
     if (highlightRare) {
@@ -303,7 +314,7 @@ export function ProseCanvas({
     const span = spanFromArea();
     if (span) {
       event.preventDefault();
-      const at = placeMenu(event, onLift ? 210 : 168);
+      const at = placeMenu(event, (onLift ? 210 : 168) + (onCutToDarling ? 36 : 0));
       setMenu({ kind: "rewrite", ...at, span });
       return;
     }
@@ -349,12 +360,16 @@ export function ProseCanvas({
     return () => abort.abort();
   }, [menu]);
 
-  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift" | "illustrate" | "ask") {
+  function run(kind: "extend" | "elaborate" | "instruct" | "manual" | "lift" | "illustrate" | "ask" | "darling") {
     if (!menu || menu.kind !== "rewrite") return;
     const span = menu.span;
     setMenu(null);
     if (kind === "manual") {
       setManual({ span, draft: selectedText(value, span) });
+      return;
+    }
+    if (kind === "darling") {
+      onCutToDarling?.(span);
       return;
     }
     if (kind === "instruct") {
@@ -392,6 +407,9 @@ export function ProseCanvas({
     }
     if (placeholdersEnabled) {
       onPlaceholdersChange?.(shiftPlaceholders(placeholders, manual.span.start, manual.span.end, manual.draft.length));
+    }
+    if (darlingsEnabled) {
+      onDarlingsChange?.(shiftDarlings(darlings, manual.span.start, manual.span.end, manual.draft.length));
     }
     setManual(null);
   }
@@ -525,9 +543,14 @@ export function ProseCanvas({
     const next = proseFromElement(area);
     onChange(next);
     if (formattingEnabled) onFormatChange?.(formattingFromElement(area));
-    if (placeholdersEnabled && placeholders.length > 0 && next !== value) {
+    if ((placeholdersEnabled || darlingsEnabled) && next !== value) {
       const { editStart, editEnd, insertedLength } = diffEditRange(value, next);
-      onPlaceholdersChange?.(shiftPlaceholders(placeholders, editStart, editEnd, insertedLength));
+      if (placeholdersEnabled && placeholders.length > 0) {
+        onPlaceholdersChange?.(shiftPlaceholders(placeholders, editStart, editEnd, insertedLength));
+      }
+      if (darlingsEnabled && darlings.length > 0) {
+        onDarlingsChange?.(shiftDarlings(darlings, editStart, editEnd, insertedLength));
+      }
     }
   }
 
@@ -707,6 +730,11 @@ export function ProseCanvas({
           {onLift ? (
             <button type="button" role="menuitem" onClick={() => run("lift")}>
               {m.canvas.lift}
+            </button>
+          ) : null}
+          {onCutToDarling ? (
+            <button type="button" role="menuitem" onClick={() => run("darling")}>
+              {m.canvas.cutToDarling}
             </button>
           ) : null}
           {onIllustrate ? (

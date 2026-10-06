@@ -90,6 +90,8 @@ import { ChapterStartImageBanner } from "./ChapterStartImage";
 import { ContinuityWarning } from "./ContinuityWarning";
 import { PlaceholdersPanel } from "./PlaceholdersPanel";
 import { collectPlaceholders } from "@core/placeholders";
+import { DarlingsPanel } from "./DarlingsPanel";
+import { collectDarlings } from "@core/darlings";
 import { ScenesPanel } from "./ScenesPanel";
 import { GuidePanel, GuideHelpButton, type GuideSectionId } from "./GuidePanel";
 import { HandbookPanel } from "./HandbookPanel";
@@ -1524,6 +1526,9 @@ export function Editor() {
               placeholders={chapter.placeholders ?? []}
               onPlaceholdersChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { placeholders: next }))}
               {...(activePlaceholderId !== undefined ? { activePlaceholderId } : {})}
+              darlings={chapter.darlings ?? []}
+              onDarlingsChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { darlings: next }))}
+              onCutToDarling={(span) => void store.cutChapterDarling(span)}
               placeholder={m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}
@@ -1566,6 +1571,11 @@ export function Editor() {
                       store.setChapterId(jumpChapterId);
                       setActivePlaceholderId(placeholderId);
                     }}
+                  />
+                  <DarlingsPanel
+                    items={collectDarlings(chapters)}
+                    onRestore={(jumpChapterId, darlingId) => void store.restoreChapterDarling(jumpChapterId, darlingId)}
+                    onDiscard={(jumpChapterId, darlingId) => void store.discardChapterDarling(jumpChapterId, darlingId)}
                   />
                   <ModelAsideCallout asides={modelAsides} onDismiss={store.dismissModelAside} />
                 </>

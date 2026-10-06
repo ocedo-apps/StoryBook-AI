@@ -6,6 +6,7 @@ import {
   type ProseFormattingRange
 } from "./proseFormatting";
 import { shiftPlaceholders, type Placeholder } from "./placeholders";
+import { shiftDarlings, type Darling } from "./darlings";
 
 /**
  * One "text wrapped in `open`…`close` becomes `style`" rule, e.g. `*`…`*` →
@@ -31,6 +32,7 @@ export type MarkerConversionResult = {
   prose: string;
   formatting: ProseFormattingRange[];
   placeholders: Placeholder[];
+  darlings: Darling[];
   count: number;
 };
 
@@ -63,7 +65,8 @@ export function applyMarkerConversion(
   prose: string,
   formatting: ProseFormattingRange[],
   rules: MarkerConversionRule[],
-  placeholders: Placeholder[] = []
+  placeholders: Placeholder[] = [],
+  darlings: Darling[] = []
 ): MarkerConversionResult {
   const ordered = rules
     .filter((rule) => rule.open.trim().length > 0 && rule.close.trim().length > 0)
@@ -71,6 +74,7 @@ export function applyMarkerConversion(
   let text = prose;
   let ranges = [...formatting];
   let points = [...placeholders];
+  let kept = [...darlings];
   let count = 0;
 
   for (const rule of ordered) {
@@ -92,9 +96,10 @@ export function applyMarkerConversion(
       ranges = shiftFormattingRanges(ranges, start, end, inner.length);
       ranges.push({ start, end: start + inner.length, style: rule.style });
       points = shiftPlaceholders(points, start, end, inner.length);
+      kept = shiftDarlings(kept, start, end, inner.length);
       count++;
     }
   }
 
-  return { prose: text, formatting: mergeAdjacentRanges(ranges), placeholders: points, count };
+  return { prose: text, formatting: mergeAdjacentRanges(ranges), placeholders: points, darlings: kept, count };
 }

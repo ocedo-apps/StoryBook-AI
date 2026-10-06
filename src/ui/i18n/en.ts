@@ -701,6 +701,15 @@ export const en = {
     empty: "Placeholder",
     jumpTo: "In “{chapter}”"
   },
+  darlings: {
+    count: {
+      one: "{count} darling kept",
+      other: "{count} darlings kept"
+    },
+    jumpTo: "In “{chapter}”",
+    restore: "Restore",
+    discard: "Discard for good"
+  },
   plotlines: {
     nav: "Plotlines",
     title: "Plotlines",
@@ -1226,6 +1235,7 @@ export const en = {
     rewriteMenu: "Rewrite…",
     illustrate: "Illustration prompt…",
     lift: "Lift to synopsis",
+    cutToDarling: "Cut to Darlings",
     formatToolbar: "Formatting",
     bold: "Bold",
     italic: "Italic",
@@ -1476,7 +1486,8 @@ export const en = {
       rewrite: "Rewrite",
       beat: "Beat",
       restore: "Restore",
-      format: "Formatting"
+      format: "Formatting",
+      darling: "Darling"
     }
   },
   markerConvert: {

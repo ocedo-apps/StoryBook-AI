@@ -2240,6 +2240,16 @@ button:disabled {
   font-size: 0.85rem;
 }
 
+.darling-location {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.darling-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
 .plotline-matrix-page {
   overflow: auto;
   padding-bottom: 2.5rem;

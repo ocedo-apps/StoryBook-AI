@@ -403,6 +403,15 @@ export const sv: Messages = {
     empty: "Platshållare",
     jumpTo: "I ”{chapter}”"
   },
+  darlings: {
+    count: {
+      one: "{count} älskling sparad",
+      other: "{count} älsklingar sparade"
+    },
+    jumpTo: "I ”{chapter}”",
+    restore: "Återställ",
+    discard: "Släng för gott"
+  },
   plotlines: {
     nav: "Trådar",
     title: "Trådar",
@@ -1216,6 +1225,7 @@ export const sv: Messages = {
     rewriteMenu: "Skriv om…",
     illustrate: "Illustrationsprompt…",
     lift: "Lyft till synopsis",
+    cutToDarling: "Klipp till älsklingar",
     formatToolbar: "Formatering",
     bold: "Fet",
     italic: "Kursiv",
@@ -1466,7 +1476,8 @@ export const sv: Messages = {
       rewrite: "Skriv om",
       beat: "Beat",
       restore: "Återställ",
-      format: "Formatering"
+      format: "Formatering",
+      darling: "Älskling"
     }
   },
   markerConvert: {

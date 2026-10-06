@@ -74,6 +74,8 @@ export function restoreProseRevision(
   // Revisions don't snapshot formatting or placeholders (ProseRevisionSchema
   // predates both), so a restored revision comes back plain rather than with
   // stale ranges/markers from whatever the chapter looked like just before
-  // the restore.
+  // the restore. Darlings are deliberately left out of this patch (not
+  // cleared) — they hold real authored text, not just a position, so they
+  // simply keep their (now possibly stale) spot, clamped at restore time.
   return updateChapter(next, chapterId, { prose: target.prose, formatting: [], placeholders: [] });
 }

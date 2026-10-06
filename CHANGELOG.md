@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.40] - 2026-10-06
+
+### Added
+- Darlings — "kill your darlings," but keep the bodies. Select a passage and "Cut to Darlings" from the right-click menu to pull it out of the chapter without deleting it for good; it lands in a "N darlings kept" tray with every other cut passage in the book, where you can restore it to its spot or discard it for good. A cut or restore gets its own row in the chapter's history too.
+
 ## [1.0.39] - 2026-10-05
 
 ### Added

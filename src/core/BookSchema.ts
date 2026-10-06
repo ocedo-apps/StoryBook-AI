@@ -13,9 +13,10 @@ import { ProofreadJobSchema } from "./proofreadSchema";
 import { SceneMetaSchema } from "./bookScene";
 import { ProseFormattingRangeSchema } from "./proseFormatting";
 import { PlaceholderSchema } from "./placeholders";
+import { DarlingSchema } from "./darlings";
 import { MarkerConversionRuleSchema } from "./markerConversion";
 
-export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore", "format"] as const;
+export const PROSE_HISTORY_OPS = ["draft", "recast", "extend", "elaborate", "rewrite", "beat", "restore", "format", "darling"] as const;
 export type ProseHistoryOp = (typeof PROSE_HISTORY_OPS)[number];
 
 export const ProseRevisionSchema = z.object({
@@ -114,7 +115,19 @@ export const ChapterSchema = z.object({
    * `formatting`, for the same reason: old positions no longer line up
    * with the new text.
    */
-  placeholders: z.array(PlaceholderSchema).optional()
+  placeholders: z.array(PlaceholderSchema).optional(),
+  /**
+   * Cut passages kept on purpose — "kill your darlings" but keep the
+   * bodies. Point-anchored the same way `placeholders` is, so a darling
+   * restores to the spot it was cut from through ordinary edits elsewhere.
+   * Unlike `formatting`/`placeholders`, NOT cleared when `prose` is
+   * regenerated wholesale (Recast, restoring an older revision): the
+   * author's actual cut text would be lost, not just a stale position, so
+   * a darling instead keeps its (now best-effort) spot, clamped to the new
+   * prose's length when restored. Missing/empty on older saves and
+   * chapters with none.
+   */
+  darlings: z.array(DarlingSchema).optional()
 });
 export type Chapter = z.infer<typeof ChapterSchema>;
 
@@ -329,7 +342,8 @@ export type EditorSurface =
   | "plotlines"
   | "method"
   | "guide"
-  | "handbook";
+  | "handbook"
+  | "darlings";
 
 /**
  * A blank manuscript opens on the Handbook — a new author has nothing to

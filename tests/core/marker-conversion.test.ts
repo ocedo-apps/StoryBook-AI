@@ -114,4 +114,18 @@ describe("applyMarkerConversion", () => {
     const result = applyMarkerConversion("Plain *text* here.", [], [{ open: "*", close: "*", style: "italic" }]);
     expect(result.placeholders).toEqual([]);
   });
+
+  it("shifts a darling sitting after a converted span, same as formatting", () => {
+    const prose = "Intro. *thought* then a note.";
+    const noteAt = prose.indexOf("note");
+    const kept = { id: "d1", at: noteAt, text: "a note", created_at: "2026-01-01T00:00:00.000Z" };
+    const result = applyMarkerConversion(prose, [], [{ open: "*", close: "*", style: "italic" }], [], [kept]);
+    expect(result.darlings).toHaveLength(1);
+    expect(result.prose.slice(result.darlings[0]!.at)).toBe("note.");
+  });
+
+  it("defaults to no darlings when none are passed", () => {
+    const result = applyMarkerConversion("Plain *text* here.", [], [{ open: "*", close: "*", style: "italic" }]);
+    expect(result.darlings).toEqual([]);
+  });
 });
