@@ -41,6 +41,9 @@ const ASIDE_HEAD = /^(Notes|Note|Nota|Notering|Anteckning|Anmärkning|Anm|Notat|
 /** A scene-break paragraph on its own — the manuscript convention `---`. Rendered as a horizontal rule; the text itself is untouched. */
 const HR_BLOCK = /^-{3,}$/;
 
+/** A quoted line — `>` at the start of a paragraph, the Markdown/email-reply convention. Renders as an indented block with a rule down the side (a letter, a note someone reads aloud); the marker itself is hidden, the rest of the line displays normally. */
+const QUOTE_PREFIX = /^>[ \t]?/;
+
 /** Heading the model slaps on a rewrite, e.g. `Rewritten passage:`. */
 const REWRITE_WRAPPER =
   /(^|\n+|[.!?]["']?\s+)(?:#{1,3}\s+)?\*{0,3}(?:here(?:'s| is) (?:the )?|här är den |her er den )?(?:rewritten|revised|recast|omskrivna?|omskriven[ae]?|omskrivet|omarbetad[ea]?|omskrevet|revidert)\s+(?:passage(?:n)?|text|paragraph|stycke|avsnitt|passasje(?:n)?)\s*:\*{0,3}/i;
@@ -136,13 +139,30 @@ function tidyPeeledProse(text: string): string {
 export function htmlFromProse(text: string, formatting: ProseFormattingRange[] = []): string {
   const paras = splitFlowParagraphsWithOffsets(text);
   if (paras.length === 0) return "<p><br></p>";
-  return paras.map((para) => `<p>${markupProseBlock(para.text, para.start, formatting)}</p>`).join("");
+  return paras
+    .map((para) => {
+      const cls = QUOTE_PREFIX.test(para.text) ? ' class="prose-quote"' : "";
+      return `<p${cls}>${markupProseBlock(para.text, para.start, formatting)}</p>`;
+    })
+    .join("");
 }
 
 function markupProseBlock(block: string, blockStart: number, formatting: ProseFormattingRange[]): string {
   if (HR_BLOCK.test(block)) {
     return `<span class="prose-hr">${escapeHtml(block)}</span>`;
   }
+  const quote = block.match(QUOTE_PREFIX);
+  if (quote) {
+    const marker = quote[0];
+    return (
+      `<span class="prose-quote-marker">${escapeHtml(marker)}</span>` +
+      markupProseBlockBody(block.slice(marker.length), blockStart + marker.length, formatting)
+    );
+  }
+  return markupProseBlockBody(block, blockStart, formatting);
+}
+
+function markupProseBlockBody(block: string, blockStart: number, formatting: ProseFormattingRange[]): string {
   let out = "";
   let i = 0;
   while (i < block.length) {

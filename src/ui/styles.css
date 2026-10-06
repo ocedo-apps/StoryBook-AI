@@ -2722,6 +2722,21 @@ button:disabled {
   margin-top: 0.8em;
 }
 
+.prose .prose-quote {
+  padding-left: 1.1em;
+  border-left: 2px solid var(--border);
+}
+
+.prose .prose-quote-marker {
+  font-size: 0;
+  line-height: 0;
+}
+
+.prose .prose-quote + .prose-quote {
+  margin-top: 0;
+  padding-top: 0.8em;
+}
+
 .prose[data-empty="true"]::before {
   content: attr(data-placeholder);
   color: var(--text-faint);

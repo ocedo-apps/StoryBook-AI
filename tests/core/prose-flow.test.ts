@@ -88,6 +88,35 @@ describe("htmlFromProse", () => {
     const formatting: ProseFormattingRange[] = [{ start: 0, end: 3, style: "bold" }];
     expect(htmlFromProse(text, formatting)).toBe('<p><span class="prose-hr">---</span></p>');
   });
+
+  it("renders a > paragraph as a quote: marker hidden, text unchanged, class on the p", () => {
+    const html = htmlFromProse("> Dear Sir,");
+    expect(html).toBe('<p class="prose-quote"><span class="prose-quote-marker">&gt; </span>Dear Sir,</p>');
+  });
+
+  it("marks every paragraph of a multi-line quote, not just the first", () => {
+    const html = htmlFromProse("> Dear Sir,\n\n> I regret to inform you...");
+    expect(html).toBe(
+      '<p class="prose-quote"><span class="prose-quote-marker">&gt; </span>Dear Sir,</p>' +
+        '<p class="prose-quote"><span class="prose-quote-marker">&gt; </span>I regret to inform you...</p>'
+    );
+  });
+
+  it("works with no space after the marker", () => {
+    expect(htmlFromProse(">Dear Sir,")).toBe('<p class="prose-quote"><span class="prose-quote-marker">&gt;</span>Dear Sir,</p>');
+  });
+
+  it("does not treat a > in the middle of a line as a quote", () => {
+    expect(htmlFromProse("5 > 3 is true.")).toBe("<p>5 &gt; 3 is true.</p>");
+  });
+
+  it("still applies formatting to the quoted text after the hidden marker", () => {
+    const text = "> Dear Sir,";
+    const start = text.indexOf("Dear");
+    const formatting: ProseFormattingRange[] = [{ start, end: start + 4, style: "bold" }];
+    const html = htmlFromProse(text, formatting);
+    expect(html).toBe('<p class="prose-quote"><span class="prose-quote-marker">&gt; </span><b>Dear</b> Sir,</p>');
+  });
 });
 
 describe("peelModelAsides", () => {

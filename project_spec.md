@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.42
+Status: living document, v1.0.43
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -757,6 +757,51 @@ markerat allt och raderat mitt i en session och skrivit igen. `tsc
 testa i Node-miljön) och `npm run build` gröna.
 
 v1.0.41 → v1.0.42.
+
+---
+
+**Ändringslogg v1.0.42 → v1.0.43 (2026-10-06):** Mats höll på att lägga
+in "Baskervilles hund" och såg att Conan Doyle sätter brev-/citat-
+text indragen med en vertikal linje. Frågade om vi kunde fixa det —
+markera-och-högerklicka, eller ett tecken som `---`? Jag förordade ett
+radmarkör-tecken av samma skäl som `---`: rent kosmetiskt, ingen ny
+positionsspårad lista (vilket markera-och-högerklicka hade krävt,
+eftersom citat är ett *block*-attribut, inte ett inline-attribut som
+fet/kursiv/understruket som formateringssystemet redan är byggt för).
+Mats valde `>` — Markdown/e-post-konventet, igenkänningsbart.
+
+**Implementation.** Samma mönster som `---` i `proseFlow.ts`, fast en
+nivå till: `QUOTE_PREFIX = /^>[ \t]?/` matchar `>` i styckets början.
+`htmlFromProse` sätter `class="prose-quote"` på själva `<p>`:et när
+styckets text matchar (behövs för indraget + vänsterlinje, till
+skillnad från `---` som bara behövde en inre `<span>`).
+`markupProseBlock` kapade ut sin gamla per-tecken-loop till en ny
+`markupProseBlockBody`, så att markören (`>` plus ett ev. mellanslag)
+kan packas in i en egen `<span class="prose-quote-marker">` (osynlig
+via `font-size:0`) medan RESTEN av raden går igenom
+`markupProseBlockBody` som vanligt — vilket betyder att fetstil/
+kursiv/understruket och "Note:"-igenkänning fortfarande fungerar
+inuti en citerad rad, inte bara i vanlig text. Flera `>`-rader i rad
+får varsin `.prose-quote`-klass; CSS tar bort mellanrummet mellan dem
+(`.prose-quote + .prose-quote { margin-top: 0; padding-top: 0.8em }`)
+så vänsterlinjen blir obruten genom hela brevet, istället för att
+synas som flera korta streck.
+
+Precis som `---` behöver varken `proseFromElement` eller någon av
+offset-funktionerna i `proseDom.ts` röras — markören är fortfarande
+riktig text i en `<span>`, bara dold med CSS, så `textContent` per
+stycke är oförändrat.
+
+Live-verifierat med Playwright (efter v1.0.42:s DOM-seedningsfix,
+som gjorde det möjligt att skriva flera stycken i rad utan att tappa
+något): "Holmes handed me the letter." / "> My dear Sir," / "> It has
+come to my knowledge..." / "I read the note..." — de två citat-
+raderna får en sammanhängande vänsterlinje, texten före och efter är
+opåverkad, allt överlever en omladdning oförändrat. `tsc --noEmit`,
+hela testsviten (852 tester, +5 sedan v1.0.42, alla i
+`prose-flow.test.ts`) och `npm run build` gröna.
+
+v1.0.42 → v1.0.43.
 
 ---
 

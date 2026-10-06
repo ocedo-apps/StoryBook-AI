@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.43] - 2026-10-06
+
+### Added
+- A paragraph starting with `>` now renders as a quoted block — indented, with a rule down the side — the way a letter or note read aloud is set in print. Several `>` lines in a row share one continuous rule. Cosmetic only: the marker stays in the saved text, and formatting inside a quoted line still works.
+
 ## [1.0.42] - 2026-10-06
 
 ### Fixed
