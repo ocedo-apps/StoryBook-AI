@@ -9,6 +9,12 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.46] - 2026-10-06
+
+### Fixed
+- The Timeline / Plotlines matrix no longer gets squeezed into a cramped scrolling box of its own — a CSS quirk (setting only horizontal overflow still forces the browser to treat the box as scrollable on both axes, which collapsed its height inside the page's flex layout) had it shrinking down to a sliver with a tight inner scrollbar. The page scrolls normally again.
+- The matrix's chapter-column headers and thread-row labels now stay in view (frozen, like a spreadsheet) while scrolling in either direction, instead of scrolling out of sight and leaving the grid impossible to read at a glance.
+
 ## [1.0.45] - 2026-10-06
 
 ### Added

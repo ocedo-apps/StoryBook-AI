@@ -2259,6 +2259,14 @@ button:disabled {
   overflow-x: auto;
   margin-top: 1.2rem;
   max-width: 100%;
+  /* Setting only overflow-x (not -y) still makes the browser treat this
+     box as non-"visible" on both axes per spec — which, as a flex item of
+     `.manuscript`, collapses its automatic min-height to 0 and lets the
+     flex layout squeeze it down to a sliver with its own cramped internal
+     scrollbar instead of sizing to its content. flex-shrink: 0 keeps it at
+     its natural height, so the *page* scrolls (.plotline-matrix-page
+     already does), not a tiny box within it. */
+  flex-shrink: 0;
 }
 
 .plotline-matrix {
@@ -2279,12 +2287,28 @@ button:disabled {
   text-align: center;
 }
 
-.plotline-matrix-corner {
-  background: transparent;
+/* Frozen header row and header column, like a spreadsheet — without them,
+   scrolling the matrix in either direction loses track of which row is
+   which thread or which column is which chapter. */
+.plotline-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--paper);
+}
+
+.plotline-matrix thead th.plotline-matrix-corner {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--paper);
   border: 0 !important;
 }
 
 .plotline-row-head {
+  position: sticky;
+  left: 0;
+  z-index: 1;
   text-align: left !important;
   font-weight: 400;
   border-left: 4px solid transparent;

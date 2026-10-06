@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.45
+Status: living document, v1.0.46
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -901,6 +901,57 @@ beprövade rit-primitiver som redan används av `lines()`. `tsc
 `manuscript-export.test.ts`) och `npm run build` gröna.
 
 v1.0.44 → v1.0.45.
+
+---
+
+**Ändringslogg v1.0.45 → v1.0.46 (2026-10-06):** Samma testarsvar,
+punkt 4: en skärmdump (jag har inte sett den) av hur Timeline-tabellen
+blivit "downright frustrating to look at" — "det där med scrollbars"
+sedan "ett par uppdateringar tillbaka" (`e554b8d`, Timeline+Trådar
+slogs ihop till en matris). Mats: "Ja, fixa Timeline-tabellen nu."
+
+**Två separata fel, inte ett.** Letade i stilmallen innan jag gissade:
+
+1. **Den egentliga boven, inte bara saknade frysta rubriker.**
+   `.plotline-matrix-scroll` sätter bara `overflow-x: auto` — men CSS-
+   specen säger att så fort EN axel är något annat än `visible` tvingas
+   DEN ANDRA axeln att också bete sig som `auto`, även om den aldrig
+   sattes. Elementet är ett flex-barn till `.manuscript` (`display:
+   flex; flex-direction: column`), och en flex-items automatiska
+   minimihöjd kollapsar till 0 så fort overflow inte längre är
+   `visible` på den axeln — så hela tabellen klämdes ihop till en
+   decimeterhög låda med sin EGEN trånga vertikala scrollbar, istället
+   för att få plats i sin naturliga höjd och låta sidan (som redan har
+   `overflow-y: auto`) sköta scrollningen. Bekräftat empiriskt, inte
+   bara via spec-läsning: ett Playwright-skript som letade upp varje
+   element där `scrollHeight > clientHeight` hittade `.plotline-
+   matrix-scroll` med `scrollH: 690` mot `clientH: 96` — en 96 pixlar
+   hög ruta för en tabell som egentligen behöver 690. `flex-shrink: 0`
+   på det elementet löste det direkt (om testade efteråt: samma sida
+   visar nu `main.plotline-matrix-page` själv som den skrollande,
+   `scrollH: 1028` mot `clientH: 434` — en enda, rimlig scrollbar).
+2. **Inga frysta rubriker heller** — noll `position: sticky` i hela
+   `styles.css` innan det här. Lade till på tre ställen: `.plotline-
+   matrix thead th` (`position: sticky; top: 0`) för kapitel-
+   rubrikraden, `.plotline-row-head` (`position: sticky; left: 0`) för
+   trådnamnskolumnen, och hörncellen (`.plotline-matrix thead
+   th.plotline-matrix-corner` — den extra specificiteten var nödvändig
+   för att hörnets `z-index`/`left` skulle vinna över den mer
+   generella thead-regeln) fäst i båda led samtidigt med högst
+   `z-index` av de tre, så den alltid ritas ovanpå de andra två vid
+   skärningspunkten.
+
+Live-verifierat med Playwright: byggde en bok med 13 kapitel och 16
+trådar för att garantera scrollning i båda led, mätte `scrollHeight`/
+`clientHeight` på varje element i trädet före och efter fixen för att
+bekräfta att den trånga rutan försvann, och tog skärmdumpar vid
+scrollposition (0,0), vertikalt scrollad och scrollad i båda led
+samtidigt — kapitelrubrikerna och trådnamnen stannar synliga i alla
+tre fallen, precis som ett kalkylblad. `tsc --noEmit`, hela
+testsviten (860 tester, oförändrad — ren CSS, inget att testa i
+Node-miljön) och `npm run build` gröna.
+
+v1.0.45 → v1.0.46.
 
 ---
 
