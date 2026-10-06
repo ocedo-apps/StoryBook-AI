@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.40
+Status: living document, v1.0.41
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -667,6 +667,48 @@ gott; historikraden får etiketten "Darling"/"Älskling" och går att
 `npm run build` gröna.
 
 v1.0.39 → v1.0.40.
+
+---
+
+**Ändringslogg v1.0.40 → v1.0.41 (2026-10-06):** Mats: "Kanske kan vi
+omvandla --- till en HR?" — som svar på att jag beskrev
+Enter·Enter·Enter (kapitel-delning på tre Enter) som den mest
+invasiva kvarvarande NEO-idén. Ett `---`-stycke, det vanliga
+manusskriv-konventet för scenbrytning, är en helt annan sak: rent
+kosmetiskt, ingen ny datamodell, ingen scen- eller kapitel-delning.
+
+**Implementation.** `htmlFromProse` (`proseFlow.ts`) har redan samma
+mönster för ett annat specialfall — ett helt stycke som bara är en
+modell-"Note:" blir en egen `<span class="prose-aside">` istället för
+vanlig text. `markupProseBlock` fick en likadan tidig retur: ett
+stycke som (efter trim) bara är tre eller fler bindestreck blir
+`<span class="prose-hr">---</span>` istället för att gå igenom den
+vanliga per-tecken-loopen. CSS gör texten osynlig (`color: transparent;
+font-size: 0`) och ritar istället en kort, centrerad linje via
+`background` på samma span — `chapter.prose` har fortfarande bokstavligt
+`---` som text, så `proseFromElement` (DOM → sparad text) behöver
+ingen ändring alls: den läser bara `textContent` per stycke, som är
+oförändrat. Samma anledning som platshållare/formatering redan bevisat
+fungerar genom en `<span>`-inpackning.
+
+**Upptäckt i förbifarten, inte åtgärdat:** medan jag Playwright-
+verifierade upptäckte jag en befintlig, orelaterad bugg — `flowBlocks`
+(`proseDom.ts`) läser bara `:scope > p, :scope > div` som stycken.
+Skriver man in i ett helt tomt kapitel hamnar FÖRSTA raden som en lös
+textnod direkt i roten (webbläsarens eget beteende innan första Enter),
+och när `proseFromElement` sedan bara samlar `<p>`/`<div>`-barn tappas
+den raden helt och hållet ur det som sparas — reproducerat även helt
+utan `---` inblandat. Flaggar det här till Mats separat; rör inte
+min `---`-ändring, men värt att åtgärda.
+
+Live-verifierat med Playwright: `---` som eget stycke, infogat via
+"Manual Edit" (samma väg som undviker ovanstående bugg), renderar
+korrekt som en tunn linje mellan styckena efter omladdning; befintlig
+text runt omkring orörd. `tsc --noEmit`, hela testsviten (847 tester,
++4 sedan v1.0.40, alla i `prose-flow.test.ts`) och `npm run build`
+gröna.
+
+v1.0.40 → v1.0.41.
 
 ---
 

@@ -2702,6 +2702,18 @@ button:disabled {
   margin: 0 0 0.55em;
 }
 
+.prose .prose-hr {
+  display: block;
+  height: 1px;
+  margin: 1.1em auto;
+  width: 3.5em;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+  background: var(--border);
+  overflow: hidden;
+}
+
 .prose p + p,
 .prose-rare p + p,
 .prose div + div,

@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.41] - 2026-10-06
+
+### Added
+- A paragraph containing only `---` now renders as a scene-break rule in the editor, instead of showing as literal dashes. Purely visual — the saved text is unchanged, so export, word count, and everything else still sees `---`.
+
 ## [1.0.40] - 2026-10-06
 
 ### Added

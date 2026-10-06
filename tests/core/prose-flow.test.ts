@@ -69,6 +69,25 @@ describe("htmlFromProse", () => {
     const text = "Plain sentence, nothing marked.";
     expect(htmlFromProse(text, [])).toBe(htmlFromProse(text));
   });
+
+  it("renders a standalone --- paragraph as a scene-break span, text unchanged", () => {
+    const html = htmlFromProse("Before the break.\n\n---\n\nAfter the break.");
+    expect(html).toBe('<p>Before the break.</p><p><span class="prose-hr">---</span></p><p>After the break.</p>');
+  });
+
+  it("treats a longer run of hyphens the same way", () => {
+    expect(htmlFromProse("-----")).toBe('<p><span class="prose-hr">-----</span></p>');
+  });
+
+  it("does not treat a hyphen inside ordinary prose as a scene break", () => {
+    expect(htmlFromProse("A well-known fact--or so he thought.")).toBe("<p>A well-known fact--or so he thought.</p>");
+  });
+
+  it("leaves a formatting range on a --- paragraph out of account (the span wins)", () => {
+    const text = "---";
+    const formatting: ProseFormattingRange[] = [{ start: 0, end: 3, style: "bold" }];
+    expect(htmlFromProse(text, formatting)).toBe('<p><span class="prose-hr">---</span></p>');
+  });
 });
 
 describe("peelModelAsides", () => {

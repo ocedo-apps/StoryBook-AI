@@ -38,6 +38,9 @@ function splitFlowParagraphsWithOffsets(text: string): { text: string; start: nu
 /** Model commentary glued onto a rewrite, e.g. `(Note: swapped the verbs…)`. */
 const ASIDE_HEAD = /^(Notes|Note|Nota|Notering|Anteckning|Anmärkning|Anm|Notat|Merknad|Merk|Obs|Not)\s*:/i;
 
+/** A scene-break paragraph on its own — the manuscript convention `---`. Rendered as a horizontal rule; the text itself is untouched. */
+const HR_BLOCK = /^-{3,}$/;
+
 /** Heading the model slaps on a rewrite, e.g. `Rewritten passage:`. */
 const REWRITE_WRAPPER =
   /(^|\n+|[.!?]["']?\s+)(?:#{1,3}\s+)?\*{0,3}(?:here(?:'s| is) (?:the )?|här är den |her er den )?(?:rewritten|revised|recast|omskrivna?|omskriven[ae]?|omskrivet|omarbetad[ea]?|omskrevet|revidert)\s+(?:passage(?:n)?|text|paragraph|stycke|avsnitt|passasje(?:n)?)\s*:\*{0,3}/i;
@@ -137,6 +140,9 @@ export function htmlFromProse(text: string, formatting: ProseFormattingRange[] =
 }
 
 function markupProseBlock(block: string, blockStart: number, formatting: ProseFormattingRange[]): string {
+  if (HR_BLOCK.test(block)) {
+    return `<span class="prose-hr">${escapeHtml(block)}</span>`;
+  }
   let out = "";
   let i = 0;
   while (i < block.length) {
