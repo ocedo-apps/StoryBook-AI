@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.43
+Status: living document, v1.0.44
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -802,6 +802,47 @@ hela testsviten (852 tester, +5 sedan v1.0.42, alla i
 `prose-flow.test.ts`) och `npm run build` gröna.
 
 v1.0.42 → v1.0.43.
+
+---
+
+**Ändringslogg v1.0.43 → v1.0.44 (2026-10-06):** Sista punkten på
+NEO-listan — Outline-spökstycken. Kapitlets disposition ("vad det
+här kapitlet ska göra", `chapter.brief`) ska visas som blek
+spökprosa direkt i skrivytan istället för bara i det hopfällda
+"Chapter settings"-fältet, som en mall att skriva över.
+
+**Enklare än väntat.** Redigeringsytan har redan exakt den
+mekaniken — en generisk platshållartext ("The chapter lives here...")
+visas via `data-empty`/`data-placeholder`-attribut och en ren CSS
+`::before`-regel (`.prose[data-empty="true"]::before { content:
+attr(data-placeholder); ... }`) så fort kapitlets prosa är tom. Inget
+nytt att bygga, bara byta VILKEN text som skickas in: `Editor.tsx`
+skickar nu `chapter.brief.trim() || m.editor.chapterPlaceholder` som
+`placeholder`-prop istället för alltid den generiska texten. Faller
+tillbaka till den gamla texten för kapitel utan disposition satt —
+ingen regression för befintliga böcker.
+
+`chapter.brief` redigeras i ett `contentEditable="plaintext-only"`-
+fält (`ChapterBriefCopy.tsx`) som kan innehålla egna radbrytningar
+— en disposition skriven som "Scen 1: ...\n\nScen 2: ..." behåller
+den strukturen i `innerText`. Enda CSS-ändringen: `white-space:
+pre-line` på `::before`-regeln, så radbrytningarna syns som skilda
+spökstycken istället för att klämmas ihop till en rad.
+
+Helt riskfritt jämfört med allt annat denna session — rör varken
+`proseFromElement`, `flowBlocks` eller någon av de känsliga DOM-
+synk-vägarna; `::before` är en ren CSS-overlay som aldrig är en del
+av det faktiska DOM-trädet `proseFromElement` läser.
+
+Live-verifierat med Playwright: en disposition i två rader ("Scene
+1: Arrival..." / "Scene 2: The letter...") visas som två skilda
+spökstycken i skrivytan; börjar man skriva riktig text försvinner
+spöktexten helt (ordräkningen visar bara den riktiga texten, aldrig
+dispositionen); ett kapitel utan disposition visar fortfarande den
+gamla generiska texten. `tsc --noEmit`, hela testsviten (852 tester,
+oförändrad — ingen ny kärnlogik) och `npm run build` gröna.
+
+v1.0.43 → v1.0.44.
 
 ---
 

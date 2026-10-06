@@ -2743,6 +2743,7 @@ button:disabled {
   pointer-events: none;
   float: left;
   height: 0;
+  white-space: pre-line;
 }
 
 .prose-rare {

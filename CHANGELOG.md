@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.44] - 2026-10-06
+
+### Added
+- An empty chapter now shows its brief as faint ghost text right in the editor — a template to write over — instead of only in the collapsed "Chapter settings" panel. Falls back to the usual hint when there's no brief yet; disappears the moment you start writing for real.
+
 ## [1.0.43] - 2026-10-06
 
 ### Added
