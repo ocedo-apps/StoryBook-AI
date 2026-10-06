@@ -4,7 +4,7 @@ import { groupBibleEntities } from "./bibleGroups";
 import { sortedChapters, type Book } from "./BookSchema";
 import { profileFor } from "./characterProfile";
 import { PREDICATE_LABELS } from "./predicates";
-import { peelModelAsides } from "./proseFlow";
+import { peelModelAsides, splitFlowParagraphs } from "./proseFlow";
 import { newId } from "./ids";
 
 export type PublishFont = {
@@ -12,6 +12,17 @@ export type PublishFont = {
   stack: string;
   embed?: { regular: Uint8Array; bold: Uint8Array };
 };
+
+/**
+ * How a chapter's paragraphs are set on the page. "spaced" (the long-
+ * standing default) is a blank line between paragraphs, no indent — what
+ * every format already did before this existed. "indented" is the classic
+ * printed-book convention instead: no blank line, each paragraph's first
+ * line indented (except a chapter's very first paragraph, which typesetting
+ * convention leaves flush). Markdown is left out — a blank line is what
+ * *makes* a paragraph a paragraph there, so there's nothing to toggle.
+ */
+export type ParagraphStyle = "spaced" | "indented";
 
 function exportProse(text: string): string {
   return peelModelAsides(text).prose.trim();
@@ -116,8 +127,15 @@ export function formatExportMarkdown(doc: ManuscriptExport): string {
   return lines.join("\n");
 }
 
+function plainTextProse(prose: string, paragraphStyle: ParagraphStyle): string {
+  if (paragraphStyle === "spaced") return prose;
+  return splitFlowParagraphs(prose)
+    .map((paragraph) => `\t${paragraph}`)
+    .join("\n");
+}
+
 /** Same content as `formatExportMarkdown`, with no markup at all — for authors who just want the words. */
-export function formatExportPlainText(doc: ManuscriptExport): string {
+export function formatExportPlainText(doc: ManuscriptExport, paragraphStyle: ParagraphStyle = "spaced"): string {
   const lines: string[] = [doc.title, "", doc.exportedLabel];
   if (doc.note) {
     lines.push("", doc.note);
@@ -134,7 +152,7 @@ export function formatExportPlainText(doc: ManuscriptExport): string {
       lines.push(`Voice: ${chapter.voice}`);
     }
     if (chapter.prose) {
-      lines.push("", chapter.prose);
+      lines.push("", plainTextProse(chapter.prose, paragraphStyle));
     }
   }
   if (doc.bible.length > 0) {
@@ -152,6 +170,8 @@ export function formatExportPlainText(doc: ManuscriptExport): string {
 }
 
 const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:1.9rem;margin-bottom:0.25rem}h2{font-size:1.35rem;margin-top:2.5rem}h3{font-size:1.1rem}.meta{color:#666;font-size:0.9rem}ul{padding-left:1.25rem}.chapter-image{max-width:100%;height:auto;display:block;margin:0.75em 0 1.25em;border-radius:4px}@media print{h2.chapter{break-before:page}}`;
+/** Classic printed-book paragraphs — no blank line, first line of each indented, except the paragraph right after a heading (typesetting convention: a section's opening line is set flush). `.first` marks that one explicitly rather than relying on `:first-child`, since a chapter's first paragraph isn't its parent's first element (the heading and an optional image come before it). */
+const INDENTED_PARAGRAPHS_CSS = `.indented p{margin:0;text-indent:1.5em}.indented p.first{text-indent:0}`;
 const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 
 function base64FromBytes(bytes: Uint8Array): string {
@@ -179,13 +199,18 @@ function htmlFontCss(font: PublishFont | undefined): string {
   return `${faces}body{font-family:${stack}}`;
 }
 
-function htmlParagraphs(text: string): string {
+function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle): string {
+  if (paragraphStyle === "indented") {
+    return splitFlowParagraphs(text)
+      .map((paragraph, index) => `<p${index === 0 ? ' class="first"' : ""}>${xmlEscape(paragraph)}</p>`)
+      .join("\n");
+  }
   const lines = text.split(/\r\n|\n|\r/);
   if (lines.length === 0) return "";
   return lines.map((line) => (line ? `<p>${xmlEscape(line)}</p>` : "<p><br/></p>")).join("\n");
 }
 
-export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont): string {
+export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
   const body: string[] = [`<h1>${xmlEscape(doc.title)}</h1>`, `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`];
   if (doc.note) body.push(`<p class="meta">${xmlEscape(doc.note)}</p>`);
   if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
@@ -199,7 +224,7 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont): str
     body.push(`<h2 class="chapter">${xmlEscape(chapter.heading)}</h2>`);
     if (chapter.startImageDataUrl) body.push(`<img class="chapter-image" src="${chapter.startImageDataUrl}" alt=""/>`);
     if (chapter.voice) body.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
-    if (chapter.prose) body.push(htmlParagraphs(chapter.prose));
+    if (chapter.prose) body.push(htmlParagraphs(chapter.prose, paragraphStyle));
   }
   if (doc.bible.length > 0) {
     body.push("<h2>Story Bible</h2>");
@@ -218,16 +243,16 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont): str
 <head>
 <meta charset="utf-8"/>
 <title>${xmlEscape(doc.title)}</title>
-<style>${HTML_EXPORT_CSS_BASE}${htmlFontCss(font)}</style>
+<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${htmlFontCss(font)}</style>
 </head>
-<body>
+<body${paragraphStyle === "indented" ? ' class="indented"' : ""}>
 ${body.join("\n")}
 </body>
 </html>
 `;
 }
 
-export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont): string {
+export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
     `{\\fonttbl{\\f0\\froman ${rtfEscape(font?.name ?? "Times New Roman")};}}`,
@@ -245,7 +270,10 @@ export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont): stri
   for (const chapter of doc.chapters) {
     parts.push("\\page", `{\\fs32\\b ${rtfEscape(chapter.heading)}}\\par`);
     if (chapter.voice) parts.push(`${rtfEscape(`Voice: ${chapter.voice}`)}\\par`);
-    if (chapter.prose) parts.push("\\par", rtfBlock(chapter.prose));
+    if (chapter.prose) {
+      parts.push("\\par", rtfBlock(chapter.prose, paragraphStyle));
+      if (paragraphStyle === "indented") parts.push("\\pard");
+    }
   }
   if (doc.bible.length > 0) {
     parts.push("\\par", `{\\fs32\\b ${rtfEscape("Story Bible")}}\\par`);
@@ -261,10 +289,10 @@ export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont): stri
   return parts.join("\n");
 }
 
-export function packOdt(doc: ManuscriptExport, font?: PublishFont): Uint8Array {
+export function packOdt(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Uint8Array {
   return zipStore([
     { name: "mimetype", data: utf8("application/vnd.oasis.opendocument.text") },
-    { name: "content.xml", data: utf8(odtContentXml(doc)) },
+    { name: "content.xml", data: utf8(odtContentXml(doc, paragraphStyle)) },
     { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif")) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
   ]);
@@ -282,13 +310,13 @@ function epubFontCss(font: PublishFont | undefined): string {
   return `${faces}body{font-family:${stack}}`;
 }
 
-type EpubPage = { id: string; file: string; title: string; body: string };
+type EpubPage = { id: string; file: string; title: string; body: string; bodyClass?: string };
 
-function epubXhtml(title: string, body: string): string {
+function epubXhtml(title: string, body: string, bodyClass?: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head><meta charset="utf-8"/><title>${xmlEscape(title)}</title><link rel="stylesheet" type="text/css" href="../styles/stylesheet.css"/></head>
-<body>
+<body${bodyClass ? ` class="${bodyClass}"` : ""}>
 ${body}
 </body>
 </html>
@@ -297,7 +325,7 @@ ${body}
 
 type EpubImage = { id: string; name: string; data: Uint8Array };
 
-export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array {
+export function packEpub(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Uint8Array {
   const pages: EpubPage[] = [];
   const images: EpubImage[] = [];
 
@@ -323,12 +351,13 @@ export function packEpub(doc: ManuscriptExport, font?: PublishFont): Uint8Array 
       parts.push(`<img src="../images/chapter-${index}.jpg" alt=""/>`);
     }
     if (chapter.voice) parts.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
-    if (chapter.prose) parts.push(htmlParagraphs(chapter.prose));
+    if (chapter.prose) parts.push(htmlParagraphs(chapter.prose, paragraphStyle));
     pages.push({
       id: `chapter-${index}`,
       file: `text/chapter-${index}.xhtml`,
       title: chapter.heading,
-      body: parts.join("\n")
+      body: parts.join("\n"),
+      ...(paragraphStyle === "indented" ? { bodyClass: "indented" } : {})
     });
   });
 
@@ -411,7 +440,7 @@ ${navList}
     { name: "META-INF/container.xml", data: utf8(container) },
     { name: "OEBPS/content.opf", data: utf8(opf) },
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
-    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS_BASE + epubFontCss(font)) },
+    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + epubFontCss(font)) },
     ...images.map((image) => ({ name: `OEBPS/images/${image.name}`, data: image.data })),
     ...(font?.embed
       ? [
@@ -419,7 +448,7 @@ ${navList}
           { name: "OEBPS/fonts/bold.ttf", data: font.embed.bold }
         ]
       : []),
-    ...pages.map((page) => ({ name: `OEBPS/${page.file}`, data: utf8(epubXhtml(page.title, page.body)) }))
+    ...pages.map((page) => ({ name: `OEBPS/${page.file}`, data: utf8(epubXhtml(page.title, page.body, page.bodyClass)) }))
   ]);
 }
 
@@ -504,6 +533,25 @@ class PdfWriter {
     }
   }
 
+  /** Chapter body text. "spaced" keeps the long-standing line-by-line behavior (a blank source line opens a small gap). "indented" sets each paragraph flush against the next, first line indented — except the chapter's opening paragraph, left flush by convention. */
+  prose(text: string, paragraphStyle: ParagraphStyle, size = 11): void {
+    if (paragraphStyle === "spaced") {
+      this.lines(text, { size });
+      return;
+    }
+    const font = this.body;
+    const lineHeight = size * 1.45;
+    const indent = 20;
+    splitFlowParagraphs(text).forEach((paragraph, index) => {
+      this.wrap(paragraph, font, size, this.maxWidth).forEach((line, lineIndex) => {
+        this.ensureSpace(lineHeight);
+        const x = index > 0 && lineIndex === 0 ? PDF_MARGIN + indent : PDF_MARGIN;
+        this.page.drawText(line, { x, y: this.y, size, font });
+        this.y -= lineHeight;
+      });
+    });
+  }
+
   bullet(text: string, size = 11): void {
     const indent = 14;
     const lineHeight = size * 1.45;
@@ -539,7 +587,7 @@ class PdfWriter {
   }
 }
 
-export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promise<Uint8Array> {
+export async function packPdf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(doc.title);
   let body: PDFFont;
@@ -573,7 +621,7 @@ export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promis
       writer.image(image);
     }
     if (chapter.voice) writer.lines(`Voice: ${chapter.voice}`, { size: 9, meta: true });
-    if (chapter.prose) writer.lines(chapter.prose);
+    if (chapter.prose) writer.prose(chapter.prose, paragraphStyle);
   }
 
   if (doc.bible.length > 0) {
@@ -592,7 +640,15 @@ export async function packPdf(doc: ManuscriptExport, font?: PublishFont): Promis
   return pdf.save();
 }
 
-function rtfBlock(text: string): string {
+/** 567 twips ≈ 0.4in, a common manuscript first-line indent. */
+const RTF_INDENT_TWIPS = 567;
+
+function rtfBlock(text: string, paragraphStyle: ParagraphStyle): string {
+  if (paragraphStyle === "indented") {
+    return splitFlowParagraphs(text)
+      .map((paragraph, index) => `\\pard\\sa0\\fi${index === 0 ? 0 : RTF_INDENT_TWIPS} ${rtfEscape(paragraph)}\\par`)
+      .join("\n");
+  }
   return text.split(/\r\n|\n|\r/).map((line) => `${rtfEscape(line)}\\par`).join("\n");
 }
 
@@ -632,6 +688,13 @@ function odtParagraphs(text: string, style = "Standard"): string {
     .join("");
 }
 
+function odtProse(text: string, paragraphStyle: ParagraphStyle): string {
+  if (paragraphStyle === "spaced") return odtParagraphs(text);
+  return splitFlowParagraphs(text)
+    .map((paragraph, index) => `<text:p text:style-name="${index === 0 ? "IndentedFirst" : "Indented"}">${xmlEscape(paragraph)}</text:p>`)
+    .join("");
+}
+
 function odtHeading(level: 1 | 2 | 3, text: string): string {
   const style = level === 1 ? "Title" : level === 2 ? "Heading_20_1" : "Heading_20_2";
   return `<text:h text:style-name="${style}" text:outline-level="${level}">${xmlEscape(text)}</text:h>`;
@@ -641,7 +704,7 @@ function odtChapterHeading(text: string): string {
   return `<text:h text:style-name="ChapterHeading" text:outline-level="2">${xmlEscape(text)}</text:h>`;
 }
 
-function odtContentXml(doc: ManuscriptExport): string {
+function odtContentXml(doc: ManuscriptExport, paragraphStyle: ParagraphStyle): string {
   const body: string[] = [odtHeading(1, doc.title), odtParagraphs(doc.exportedLabel)];
   if (doc.note) body.push(odtParagraphs(doc.note));
   if (doc.voice) body.push(odtParagraphs(`Voice: ${doc.voice}`));
@@ -650,7 +713,7 @@ function odtContentXml(doc: ManuscriptExport): string {
   for (const chapter of doc.chapters) {
     body.push(odtChapterHeading(chapter.heading));
     if (chapter.voice) body.push(odtParagraphs(`Voice: ${chapter.voice}`));
-    if (chapter.prose) body.push(odtParagraphs(chapter.prose));
+    if (chapter.prose) body.push(odtProse(chapter.prose, paragraphStyle));
   }
   if (doc.bible.length > 0) {
     body.push(odtHeading(2, "Story Bible"));
@@ -693,6 +756,12 @@ function odtStyles(fontName: string): string {
     </style:style>
     <style:style style:name="Strong" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-weight="bold"/>
+    </style:style>
+    <style:style style:name="Indented" style:family="paragraph" style:parent-style-name="Standard">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" fo:text-indent="0.4in"/>
+    </style:style>
+    <style:style style:name="IndentedFirst" style:family="paragraph" style:parent-style-name="Standard">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" fo:text-indent="0in"/>
     </style:style>
   </office:styles>
 </office:document-styles>

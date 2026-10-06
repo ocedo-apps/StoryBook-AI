@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.44
+Status: living document, v1.0.45
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -843,6 +843,64 @@ gamla generiska texten. `tsc --noEmit`, hela testsviten (852 tester,
 oförändrad — ingen ny kärnlogik) och `npm run build` gröna.
 
 v1.0.43 → v1.0.44.
+
+---
+
+**Ändringslogg v1.0.44 → v1.0.45 (2026-10-06):** En testare skrev ett
+långt, "lite svidande men ändå intressant" svar på min fråga om de
+fortfarande använder appen. Två konkreta punkter, båda kollade mot
+koden innan jag svarade istället för att gissa:
+
+1. **Traits/Identities i Story Bible** — förvirring, men inget
+   trasigt. Alla fakta renderas likadant till modellen oavsett
+   kategori (`renderBibleRows` i `generateProse.ts`), och relevans-
+   filtret (`loreRelevance.ts`, av som standard) filtrerar per
+   ENTITET, inte per fakta-kategori eller hur en entitets info är
+   uppdelad. Kategorisering är alltså bara författarens egen
+   överblick — inget att åtgärda i kod, mer en fråga om hjälptext,
+   som jag lämnade öppen till Mats.
+2. **Tomma rader mellan stycken i export** — ett äkta fynd. Alla fem
+   formatgenererare i `manuscriptExport.ts` (HTML, ePub, RTF, ODT,
+   PDF) tog kapitelprosans interna radbrytning bokstavligt och lade
+   in en synlig tom rad/stycke mellan varje riktigt stycke, utan
+   växel. Mats: "Lägg till en växel i Publicera-dialogen."
+
+**Implementation.** Ny typ `ParagraphStyle = "spaced" | "indented"`
+i `manuscriptExport.ts`. "spaced" är den gamla, oförändrade koden i
+alla fem formatgenererare (bakåtkompatibel — alla 23 befintliga
+export-tester gick igenom orört). "indented" delar istället upp
+prosan med `splitFlowParagraphs` (samma funktion som redan
+proseFlow.ts/htmlFromProse bygger på) och sätter varje stycke utan
+tomrad mellan, med indrag på första raden — utom kapitlets allra
+första stycke, som enligt typografisk konvention lämnas rakt (ingen
+indrag direkt efter en rubrik). Varje format fick sin egen variant av
+samma idé: HTML/ePub en CSS-klass (`.indented p{text-indent:1.5em}`,
+`.first` undantaget) på `<body>`, RTF `\pard\sa0\fi0` / `\fi567` per
+stycke (med en extra `\pard`-reset innan nästa kapitels rubrik, annars
+ärver den kvarvarande indrag), ODT två nya stycke-stilar ("Indented"/
+"IndentedFirst"), PDF en ny `PdfWriter.prose()`-metod som ritar
+första radens x-position förskjuten. Even ren text fick växeln —
+tab-indragna stycken, en radbrytning istället för två — eftersom
+testarens faktiska arbetsflöde (klistra in kapitel i Writingway 2)
+troligen går via just den vägen. Markdown rörs inte — där ÄR
+tomraden vad som gör ett stycke till ett stycke, inget att växla.
+
+Ny `<select>` i Publicera-dialogen, avstängd bara för Markdown-
+formatet (tvärtemot typsnittsväljaren, som stängs av för både
+Markdown och Ren text — den här gäller ren text också).
+
+Live-verifierat med Playwright: växeln finns och defaultar till
+"Tom rad" (`spaced`); växlar man till "Indrag" och publicerar HTML
+visas första stycket rakt och andra indraget utan mellanrum, bekräftat
+både i den nedladdade filen och i en renderad skärmdump. PDF-
+visningen gick inte att skärmdumpa headless (Chromiums inbyggda PDF-
+visare renderar inte sidinnehåll i det här automatiserings-läget) —
+litar där på den gröna enhetstesten (sidantal, giltig PDF) och samma
+beprövade rit-primitiver som redan används av `lines()`. `tsc
+--noEmit`, hela testsviten (860 tester, +8 sedan v1.0.44, alla i
+`manuscript-export.test.ts`) och `npm run build` gröna.
+
+v1.0.44 → v1.0.45.
 
 ---
 

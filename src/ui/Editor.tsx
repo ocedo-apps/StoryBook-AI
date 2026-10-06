@@ -36,7 +36,16 @@ import {
   packManuscriptBackup,
   ensureDownloadFilename
 } from "@core/manuscriptBackup";
-import { buildManuscriptExport, formatExportHtml, formatExportPlainText, formatExportRtf, packEpub, packOdt, packPdf } from "@core/manuscriptExport";
+import {
+  buildManuscriptExport,
+  formatExportHtml,
+  formatExportPlainText,
+  formatExportRtf,
+  packEpub,
+  packOdt,
+  packPdf,
+  type ParagraphStyle
+} from "@core/manuscriptExport";
 import { manuscriptAppExportFilename, packManuscriptExport } from "@core/manuscriptAppExport";
 import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
 import {
@@ -396,6 +405,7 @@ export function Editor() {
   const [publishFilename, setPublishFilename] = useState("");
   const [publishFormat, setPublishFormat] = useState<"md" | "txt" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
   const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
+  const [publishParagraphStyle, setPublishParagraphStyle] = useState<ParagraphStyle>("spaced");
   const [findOpen, setFindOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [markerConvertOpen, setMarkerConvertOpen] = useState(false);
@@ -500,21 +510,41 @@ export function Editor() {
     if (kind === "md") {
       downloadText(ensureDownloadFilename(publishFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
     } else if (kind === "txt") {
-      downloadText(ensureDownloadFilename(publishFilename, "txt"), formatExportPlainText(doc), "text/plain");
+      downloadText(
+        ensureDownloadFilename(publishFilename, "txt"),
+        formatExportPlainText(doc, publishParagraphStyle),
+        "text/plain"
+      );
     } else if (kind === "rtf") {
-      downloadText(ensureDownloadFilename(publishFilename, "rtf"), formatExportRtf(doc, font), "application/rtf");
+      downloadText(
+        ensureDownloadFilename(publishFilename, "rtf"),
+        formatExportRtf(doc, font, publishParagraphStyle),
+        "application/rtf"
+      );
     } else if (kind === "odt") {
       downloadBytes(
         ensureDownloadFilename(publishFilename, "odt"),
-        packOdt(doc, font),
+        packOdt(doc, font, publishParagraphStyle),
         "application/vnd.oasis.opendocument.text"
       );
     } else if (kind === "html") {
-      downloadText(ensureDownloadFilename(publishFilename, "html"), formatExportHtml(doc, font), "text/html");
+      downloadText(
+        ensureDownloadFilename(publishFilename, "html"),
+        formatExportHtml(doc, font, publishParagraphStyle),
+        "text/html"
+      );
     } else if (kind === "epub") {
-      downloadBytes(ensureDownloadFilename(publishFilename, "epub"), packEpub(doc, font), "application/epub+zip");
+      downloadBytes(
+        ensureDownloadFilename(publishFilename, "epub"),
+        packEpub(doc, font, publishParagraphStyle),
+        "application/epub+zip"
+      );
     } else {
-      downloadBytes(ensureDownloadFilename(publishFilename, "pdf"), await packPdf(doc, font), "application/pdf");
+      downloadBytes(
+        ensureDownloadFilename(publishFilename, "pdf"),
+        await packPdf(doc, font, publishParagraphStyle),
+        "application/pdf"
+      );
     }
     setPublishOpen(false);
   }
@@ -1968,6 +1998,18 @@ export function Editor() {
                   {font.id === "system" ? m.publish.systemFont : font.label}
                 </option>
               ))}
+            </select>
+            <label className="field-label" htmlFor="publish-paragraph-style">
+              {m.publish.paragraphStyle}
+            </label>
+            <select
+              id="publish-paragraph-style"
+              value={publishParagraphStyle}
+              onChange={(event) => setPublishParagraphStyle(event.target.value as ParagraphStyle)}
+              disabled={publishFormat === "md"}
+            >
+              <option value="spaced">{m.publish.paragraphStyleSpaced}</option>
+              <option value="indented">{m.publish.paragraphStyleIndented}</option>
             </select>
             <div className="edit-actions">
               <button type="button" className="text-button" onClick={() => setPublishOpen(false)}>

@@ -340,3 +340,73 @@ describe("chapter start image", () => {
     expect(new TextDecoder().decode(packOdt(doc))).not.toContain("base64");
   });
 });
+
+describe("paragraph style", () => {
+  function bookWithTwoParagraphs() {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, {
+      title: "The quay",
+      prose: "Emma locked the door.\n\nShe waited for the tide."
+    });
+    return book;
+  }
+
+  it("defaults to the old spaced behavior when no style is passed", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    expect(formatExportHtml(doc)).toContain("<p><br/></p>");
+    expect(formatExportPlainText(doc)).toContain("Emma locked the door.\n\nShe waited for the tide.");
+  });
+
+  it("drops the blank-line filler and indents in HTML, leaving the opening paragraph flush", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const html = formatExportHtml(doc, undefined, "indented");
+    expect(html).not.toContain("<p><br/></p>");
+    expect(html).toContain('<body class="indented">');
+    expect(html).toContain('<p class="first">Emma locked the door.</p>');
+    expect(html).toContain("<p>She waited for the tide.</p>");
+  });
+
+  it("does the same in ePub, scoped to the chapter page only", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const text = new TextDecoder().decode(packEpub(doc, undefined, "indented"));
+    expect(text).not.toContain("<p><br/></p>");
+    expect(text).toContain('<p class="first">Emma locked the door.</p>');
+    expect(text).toContain(".indented p{margin:0;text-indent:1.5em}");
+  });
+
+  it("tab-indents each paragraph and drops the blank line in plain text", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const txt = formatExportPlainText(doc, "indented");
+    expect(txt).toContain("\tEmma locked the door.\n\tShe waited for the tide.");
+    expect(txt).not.toContain("door.\n\n\t");
+  });
+
+  it("sets a first-line indent and no inter-paragraph gap in RTF, resetting before the next heading", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const rtf = formatExportRtf(doc, undefined, "indented");
+    expect(rtf).toContain("\\pard\\sa0\\fi0 Emma locked the door.\\par");
+    expect(rtf).toContain("\\pard\\sa0\\fi567 She waited for the tide.\\par");
+    expect(rtf).toContain("\\pard\n}");
+  });
+
+  it("uses the IndentedFirst/Indented ODT styles and drops the blank filler paragraph", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const odtText = new TextDecoder().decode(packOdt(doc, undefined, "indented"));
+    expect(odtText).toContain('<text:p text:style-name="IndentedFirst">Emma locked the door.</text:p>');
+    expect(odtText).toContain('<text:p text:style-name="Indented">She waited for the tide.</text:p>');
+    expect(odtText).toContain('style:name="Indented"');
+    expect(odtText).toContain('fo:text-indent="0.4in"');
+  });
+
+  it("renders an indented PDF without throwing and keeps the page count sane", async () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    const bytes = await packPdf(doc, undefined, "indented");
+    const loaded = await PDFDocument.load(bytes);
+    expect(loaded.getPageCount()).toBe(2);
+  });
+
+  it("leaves Markdown untouched — a blank line is what makes a paragraph there", () => {
+    const doc = buildManuscriptExport(bookWithTwoParagraphs());
+    expect(formatExportMarkdown(doc)).toContain("Emma locked the door.\n\nShe waited for the tide.");
+  });
+});

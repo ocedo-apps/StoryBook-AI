@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.45] - 2026-10-06
+
+### Added
+- Publish got a new "Paragraph style" option: the long-standing "blank line between paragraphs" look, or a new "indented, no blank line" classic book style (RTF, ODT, HTML, ePub, PDF, and plain text). A chapter's opening paragraph is left flush, as in print. Markdown is unaffected — a blank line is what makes a paragraph a paragraph there.
+
 ## [1.0.44] - 2026-10-06
 
 ### Added
