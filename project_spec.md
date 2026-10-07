@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.49
+Status: living document, v1.0.50
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1112,6 +1112,47 @@ visar exakt `["Trait", "Relationship"]` för en karaktär.
 `npm run build` gröna.
 
 v1.0.48 → v1.0.49.
+
+---
+
+**Ändringslogg v1.0.49 → v1.0.50 (2026-10-07):** Fjärde och sista
+punkten från Novelcrafter-genomgången: tydligare UX kring tidsbundna
+ändringar (deras "Progressions"). Läste igenom hela kedjan innan jag
+byggde något — `reviseFact`/"Edit"-knappen (`ConsistencyGate.ts`) går
+redan via `applyAuthorDraft`, men med fakta-radens ORIGINALA
+`sequence_index`/`chapter_id` — den RÄTTAR vad påståendet alltid varit,
+den flyttar det inte framåt i tiden. Det är "Add fact"-formulärets
+samma-predikat-väg (triggar Ersätt/Lägg till-dialogen) som faktiskt
+förankras vid kapitlet författaren har öppet just nu — det är vår
+riktiga Progression-mekanism, bara osynlig: inget på en låst fakta-rad
+pekade mot den.
+
+**Lösning.** Ny "Update…"-knapp på varje låst fakta-rad (bredvid
+redan existerande "Edit") — förifyller Add fact-formulärets kategori-
+väljare och fokuserar/scrollar till textfältet, så författaren inte
+behöver gissa sig till eller skriva om kategorin för hand. Visas bara
+när predikatet finns i `BIBLE_KIND_ADD_PREDICATES` (samma lista från
+v1.0.49) — en gammal Identity-fakta har ingen "Update"-knapp, eftersom
+den vägen inte längre erbjuds alls (konsekvent med förra versionens
+beslut). En statisk hint-rad under "Add fact"-rubriken förklarar
+mekaniken rakt ut, och Historik-rubriken fick en kort förklaring om
+att ersättning där nedan är vad som fyller på listan.
+
+**Verifiering.** Playwright-verifierat live: en Identity-rad saknar
+Update-knappen, en Trait-rad har den, klick fokuserar och scrollar
+till rätt fält med rätt förvald kategori, hint-texten renderar.
+`tsc --noEmit`, hela testsviten (885 tester, oförändrat antal — ren
+UI-tilläggsfunktion, inga nya datavägar att testa separat) och
+`npm run build` gröna.
+
+**Så avslutas de fyra punkterna från Novelcrafter-jämförelsen**
+(aliaser v1.0.48, exclusion-lista v1.0.48, förenklad kategori-väljare
+v1.0.49, tydligare tidsbunden-ändring-UX v1.0.50) — alla fyra byggda
+efter att ha läst både konkurrentens dokumentation OCH vår egen kod
+innan beslut togs, snarare än att anta att "konkurrenten gör X" per
+automatik betydde "vi saknar X".
+
+v1.0.49 → v1.0.50.
 
 ---
 

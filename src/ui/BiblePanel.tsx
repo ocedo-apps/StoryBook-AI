@@ -777,6 +777,16 @@ function EntityOverlay({
   const [predicateChoice, setPredicate] = useState<CorePredicate>(allowedPredicates[0]!);
   const predicate = allowedPredicates.includes(predicateChoice) ? predicateChoice : allowedPredicates[0]!;
   const [value, setValue] = useState("");
+  const updateValueRef = useRef<HTMLTextAreaElement>(null);
+
+  function requestUpdate(targetPredicate: CorePredicate) {
+    setPredicate(targetPredicate);
+    setValue("");
+    requestAnimationFrame(() => {
+      updateValueRef.current?.focus();
+      updateValueRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
   const [nameOffer, setNameOffer] = useState<{ from: string; to: string; hits: number } | null>(null);
@@ -912,12 +922,15 @@ function EntityOverlay({
             onSave={(next) => onSave(row.id, next)}
             onToggleHidden={() => onToggleFactHidden(row.id, row.hidden_from_ai !== true)}
             onCyclePositionOverride={() => onCycleFactPositionOverride(row.id, row.position_override)}
+            {...(allowedPredicates.includes(row.predicate) ? { onRequestUpdate: () => requestUpdate(row.predicate) } : {})}
           />
         ))}
       </ul>
       {history.length > 0 ? (
         <section className="bible-history">
-          <h3 className="bible-field-label">{m.bible.history}</h3>
+          <h3 className="bible-field-label">
+            {m.bible.history} <span className="bible-field-aside">{m.bible.historyAside}</span>
+          </h3>
           <ul className="bible-history-list">
             {history.map((chain) => (
               <li key={`${chain.predicate}-${chain.entries[0]!.id}`} className="bible-history-chain">
@@ -980,6 +993,7 @@ function EntityOverlay({
         }}
       >
         <h3>{m.bible.addFact}</h3>
+        <p className="quiet bible-add-fact-hint">{m.bible.addFactHint}</p>
         <select value={predicate} onChange={(event) => setPredicate(event.target.value as CorePredicate)}>
           {allowedPredicates.map((item) => (
             <option key={item} value={item}>
@@ -987,7 +1001,14 @@ function EntityOverlay({
             </option>
           ))}
         </select>
-        <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={m.bible.claimPlaceholder} rows={1} required />
+        <textarea
+          ref={updateValueRef}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={m.bible.claimPlaceholder}
+          rows={1}
+          required
+        />
         <button type="submit" className="primary" disabled={!value.trim()}>
           {m.bible.lockInto}
         </button>
@@ -1545,7 +1566,8 @@ function LockedFact({
   fact,
   onSave,
   onToggleHidden,
-  onCyclePositionOverride
+  onCyclePositionOverride,
+  onRequestUpdate
 }: {
   fact: {
     id: string;
@@ -1557,6 +1579,8 @@ function LockedFact({
   onSave: (value: string) => void;
   onToggleHidden: () => void;
   onCyclePositionOverride: () => void;
+  /** Missing when this predicate has no ongoing add-fact slot for the card's kind (e.g. Identity) — "Update" has nowhere to send the author. */
+  onRequestUpdate?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(fact.value);
@@ -1605,6 +1629,11 @@ function LockedFact({
           <button type="button" className="text-button fact-edit-btn" onClick={() => setEditing(true)}>
             {m.bible.edit}
           </button>
+          {onRequestUpdate ? (
+            <button type="button" className="text-button fact-update-btn" title={m.bible.updateFactHint} onClick={onRequestUpdate}>
+              {m.bible.updateFact}
+            </button>
+          ) : null}
         </div>
       </li>
     );

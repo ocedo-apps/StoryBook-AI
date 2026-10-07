@@ -9,6 +9,14 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.50] - 2026-10-07
+
+### Added
+- A new "Update…" button on a Story Bible fact that changes over the story (anything but Identity) jumps straight to Add fact, pre-filled with the same category and focused, instead of requiring you to retype the category by hand. A short note now explains what adding a claim under an existing category actually does: it offers to replace it, keeping the earlier value visible in History, anchored to the chapter you're writing.
+
+### Changed
+- "Edit" (which corrects what a claim always was) and "Update…" (which marks it as changing from this chapter onward) are now visually distinct actions on each fact, instead of one easy-to-miss "Add fact" form doing double duty for both.
+
 ## [1.0.49] - 2026-10-07
 
 ### Changed
