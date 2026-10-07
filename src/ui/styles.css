@@ -1602,20 +1602,34 @@ button:disabled {
  * height: 0;` to fill the leftover space and scroll internally, with
  * the head staying put above it. Wide enough for two full columns of
  * fields side by side — this is meant to "fylla upp sidan rejält" (fill
- * the page substantially), not sit as a narrow strip. Ask Manuscript
- * shares these dimensions deliberately ("lika stor som Settings").
+ * the page substantially), not sit as a narrow strip.
  * The rem cap on height is generous (not ~50rem like the chat-shaped
  * interview card) — Settings' two columns run tall, and the point is to
  * use whatever room a tall window has instead of forcing a scroll that
- * extra height would have avoided.
+ * extra height would have avoided. Ask Manuscript shares the height
+ * (still a tall chat-style window) but not the width — a single column
+ * of prose reads best at a fixed, narrower measure, so letting it share
+ * Settings' two-column width just left empty space on the right.
  */
 .edit-card.settings-card,
 .edit-card.ask-manuscript-card {
-  width: min(78rem, 100%);
   height: min(94vh, 70rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.edit-card.settings-card {
+  width: min(78rem, 100%);
+}
+
+/*
+ * Matches .ask-manuscript-answer's own 48rem reading measure, plus
+ * .edit-card's horizontal padding — the window follows the text width
+ * instead of the text sitting narrow inside a much wider card.
+ */
+.edit-card.ask-manuscript-card {
+  width: min(51rem, 100%);
 }
 
 .dialog-head {
@@ -4690,6 +4704,14 @@ button:disabled {
 }
 
 .ask-manuscript-form textarea {
+  /*
+   * `.edit-card textarea`'s generic min-height: 10rem (same cascade tie
+   * as the font-size bug fixed for Settings' Voice/Primer fields) was
+   * overriding the `rows={2}` attribute's natural height — a two-row
+   * field that rendered 160px tall regardless. `min-height: auto` lets
+   * the browser size it from `rows` again.
+   */
+  min-height: auto;
   font: inherit;
   padding: 0.6rem 0.75rem;
   border-radius: 10px;

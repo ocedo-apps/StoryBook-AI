@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.59
+Status: living document, v1.0.60
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1657,6 +1657,50 @@ layout-mönstret är dock identiskt verifierat-fungerande kod från
 Settings, inte en ny oprövad konstruktion.
 
 v1.0.58 → v1.0.59.
+
+---
+
+**Ändringslogg v1.0.59 → v1.0.60 (2026-10-07):** Mats testade Ask
+Manuscript live med en riktig modell och fick ett riktigt svar — första
+gången i hela sessionen jag faktiskt sett resultatet av en AI-funktion
+i en skärmdump, inte bara resonerat mig fram till att koden borde
+fungera. Två finjusteringar: (1) svarstexten har redan en läsbar
+max-bredd (48rem), men själva FÖNSTRET delade Settings breda
+tvåkolumns-mått (78rem) — mycket tom yta till höger om texten. Fönstret
+borde anpassa sig efter textbredden istället. (2) Frågefältet borde
+vara två textrader högt (var tre) och lika brett som svarstexten (var
+fullbrett över hela den breda dialogen).
+
+**Bredd, frikopplad från Settings.** `.edit-card.ask-manuscript-card`
+delar fortfarande HÖJDEN med Settings (`min(94vh,70rem)` — fortfarande
+ett högt chattfönster, det var aldrig problemet) men fick sin egen
+bredd: `min(51rem,100%)` — beräknat från svarstextens 48rem
+läsbredd plus `.edit-card`s egen padding (2×1.15rem), så kortet blir
+precis stort nog för innehållet istället för en godtycklig bredare
+siffra. Frågefältet behövde ingen egen bredd-regel: när kortet själv
+blev smalare matchar `.ask-manuscript-form`s fullbredd-stretch (grid-
+items stretchar som standard) nu i praktiken svarstextens bredd automatiskt.
+
+**Två rader, en andra cascade-bugg av exakt samma sort som
+Voice/Primer-fixen i v1.0.58.** Satte `rows={2}` i `AskManuscript.tsx`,
+men fältet förblev 160px högt — `.edit-card textarea`s generella
+`min-height:10rem` vann fortfarande över `rows`-attributets naturliga
+höjd, trots att `.ask-manuscript-form textarea`s egen `font: inherit`
+(samma specificitet, men SENARE i filen) redan bevisligen vann för
+typsnittet. Lade bara till `min-height: auto;` i samma regel — behövde
+ingen extra scope-klass den här gången eftersom källkodsordningen
+redan låg rätt till (samma mekanik som redan fungerade för `font:
+inherit`, bara en egenskap jag hade missat första gången).
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright `getBoundingClientRect`/
+`getComputedStyle`: kortet mäter nu exakt 816px (51rem) brett,
+frågefältet 777px brett (matchar svarstextens 768px/48rem inom någon
+pixels marginal) och 59px högt (genuint två rader, ner från 160px).
+Screenshot bekräftar visuellt: ingen tom yta kvar till höger, kompakt
+fönster som följer textens egen bredd.
+
+v1.0.59 → v1.0.60.
 
 ---
 

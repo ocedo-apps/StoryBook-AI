@@ -9,6 +9,14 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.60] - 2026-10-07
+
+### Changed
+- Ask Manuscript's dialog is now sized to match its own reading-width text column instead of sharing Settings' wide, two-column width — no more empty space down the right side. The question field is two lines tall and the same width as the answer text, instead of stretching full width at three lines.
+
+### Fixed
+- The question field's minimum height was stuck at a much taller generic value from the same kind of CSS specificity tie fixed in Settings for Voice and the writing-primer field — it's back to actually being as tall as its `rows` say.
+
 ## [1.0.59] - 2026-10-07
 
 ### Changed

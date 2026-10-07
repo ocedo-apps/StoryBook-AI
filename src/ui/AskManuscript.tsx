@@ -81,7 +81,7 @@ export function AskManuscriptPanel({
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             placeholder={m.askManuscript.placeholder}
-            rows={3}
+            rows={2}
             disabled={busy}
             required
           />
