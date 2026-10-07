@@ -45,6 +45,7 @@ import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "
 import { deleteEntity } from "@core/deleteEntity";
 import { storyTimeRankByChapterId } from "@core/timeline";
 import { entityIsHidden, nextPositionOverride, setFactHidden, setFactPositionOverride, toggleHiddenEntity } from "@core/visibility";
+import { trackingFor, upsertEntityTracking, type EntityTracking, type EntityTrackingInput } from "@core/entityTracking";
 import { count, format, useLocale } from "./i18n";
 import { picturesFromFile, EntityImageError } from "./entityImage";
 import { downloadJson } from "./downloadJson";
@@ -354,7 +355,7 @@ export function BiblePanel({
           profile={profileFor(book.profiles, openEntity.entity_ref)}
           pictures={picturesFor(book.media, openEntity.entity_ref)}
           history={chainsWithHistory(factHistoryForEntity(book.facts, openEntity.entity_ref))}
-          mentions={mentionsForEntity(book, openEntity.entity_label)}
+          mentions={mentionsForEntity(book, openEntity.entity_ref, openEntity.entity_label)}
           chapters={book.chapters}
           onJumpToChapter={(chapterId) => {
             setChapterId(chapterId);
@@ -392,6 +393,14 @@ export function BiblePanel({
           onProfile={(next) =>
             void patchBook((current) =>
               touch(current, { profiles: upsertCharacterProfile(current.profiles, { ...next, entity_ref: openEntity.entity_ref }) })
+            )
+          }
+          tracking={trackingFor(book.entity_tracking, openEntity.entity_ref)}
+          onTracking={(next) =>
+            void patchBook((current) =>
+              touch(current, {
+                entity_tracking: upsertEntityTracking(current.entity_tracking, { ...next, entity_ref: openEntity.entity_ref })
+              })
             )
           }
           eventProfile={eventProfileFor(book.event_profiles, openEntity.entity_ref)}
@@ -717,6 +726,8 @@ function EntityOverlay({
   onCycleFactPositionOverride,
   onKind,
   onProfile,
+  tracking,
+  onTracking,
   eventProfile,
   onEventProfile,
   locationOptions,
@@ -746,6 +757,8 @@ function EntityOverlay({
   onCycleFactPositionOverride: (factId: string, current: "include" | "exclude" | undefined) => void;
   onKind: (kind: BibleKind) => void;
   onProfile: (next: CharacterProfileInput) => void;
+  tracking: EntityTracking;
+  onTracking: (next: EntityTrackingInput) => void;
   eventProfile: EventProfile;
   onEventProfile: (next: EventProfileInput) => void;
   locationOptions: { ref: string; label: string }[];
@@ -922,6 +935,7 @@ function EntityOverlay({
           </ul>
         </section>
       ) : null}
+      <TrackingFields tracking={tracking} onChange={onTracking} />
       {mentions.length > 0 ? (
         <section className="bible-mentions">
           <h3 className="bible-field-label">
@@ -1228,6 +1242,105 @@ function CharacterFields({
         />
       </label>
     </div>
+  );
+}
+
+function TrackingFields({
+  tracking,
+  onChange
+}: {
+  tracking: EntityTracking;
+  onChange: (next: EntityTrackingInput) => void;
+}) {
+  const [aliasesText, setAliasesText] = useState(formatTagList(tracking.aliases));
+  const [exclusionsText, setExclusionsText] = useState(formatTagList(tracking.exclusions));
+  const aliasesRef = useRef(aliasesText);
+  const exclusionsRef = useRef(exclusionsText);
+  const onChangeRef = useRef(onChange);
+  const timerRef = useRef<number>(0);
+  const dirtyRef = useRef(false);
+  const { messages: m } = useLocale();
+
+  onChangeRef.current = onChange;
+  aliasesRef.current = aliasesText;
+  exclusionsRef.current = exclusionsText;
+
+  function flush() {
+    window.clearTimeout(timerRef.current);
+    if (!dirtyRef.current) return;
+    dirtyRef.current = false;
+    onChangeRef.current({
+      entity_ref: tracking.entity_ref,
+      aliases: parseTagList(aliasesRef.current),
+      exclusions: parseTagList(exclusionsRef.current)
+    });
+  }
+
+  function commit(nextAliasesText = aliasesRef.current, nextExclusionsText = exclusionsRef.current) {
+    dirtyRef.current = true;
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => {
+      dirtyRef.current = false;
+      onChangeRef.current({
+        entity_ref: tracking.entity_ref,
+        aliases: parseTagList(nextAliasesText),
+        exclusions: parseTagList(nextExclusionsText)
+      });
+    }, 160);
+  }
+
+  useEffect(() => {
+    setAliasesText(formatTagList(tracking.aliases));
+    setExclusionsText(formatTagList(tracking.exclusions));
+    aliasesRef.current = formatTagList(tracking.aliases);
+    exclusionsRef.current = formatTagList(tracking.exclusions);
+    return () => {
+      window.clearTimeout(timerRef.current);
+      if (!dirtyRef.current) return;
+      dirtyRef.current = false;
+      onChangeRef.current({
+        entity_ref: tracking.entity_ref,
+        aliases: parseTagList(aliasesRef.current),
+        exclusions: parseTagList(exclusionsRef.current)
+      });
+    };
+    // Re-bind only when the open card changes. Live book patches must not reset typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracking.entity_ref]);
+
+  return (
+    <section className="bible-card-fields bible-tracking">
+      <label className="bible-field">
+        <span className="bible-field-label">
+          {m.bible.aliases} <span className="bible-field-aside">{m.bible.aliasesAside}</span>
+        </span>
+        <input
+          value={aliasesText}
+          onChange={(event) => {
+            const next = event.target.value;
+            setAliasesText(next);
+            commit(next, exclusionsRef.current);
+          }}
+          onBlur={flush}
+          placeholder={m.bible.aliasesPlaceholder}
+        />
+      </label>
+      <label className="bible-field">
+        <span className="bible-field-label">
+          {m.bible.exclusions} <span className="bible-field-aside">{m.bible.exclusionsAside}</span>
+        </span>
+        <input
+          value={exclusionsText}
+          onChange={(event) => {
+            const next = event.target.value;
+            setExclusionsText(next);
+            commit(aliasesRef.current, next);
+          }}
+          onBlur={flush}
+          placeholder={m.bible.exclusionsPlaceholder}
+        />
+      </label>
+    </section>
   );
 }
 

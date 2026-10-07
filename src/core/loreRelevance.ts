@@ -2,6 +2,7 @@ import { entityNameTokens, normalizeWord } from "./proseStats";
 import { eventProfileFor } from "./eventProfile";
 import { plotlinesForChapter } from "./plotlines";
 import { chapterScenes } from "./bookScene";
+import { trackingFor, stripExclusions, type EntityTracking } from "./entityTracking";
 import type { Book, Chapter } from "./BookSchema";
 import type { NarrativeFact } from "./NarrativeFact";
 
@@ -47,9 +48,26 @@ function labelForRef(facts: NarrativeFact[], entityRef: string): string {
   return facts.find((fact) => fact.entity_ref === entityRef)?.entity_label ?? entityRef.replace(/-/g, " ");
 }
 
-function isNamed(label: string, contextTokens: Set<string>): boolean {
-  const tokens = entityNameTokens([label]);
-  return [...tokens].some((token) => contextTokens.has(token));
+/**
+ * Named if any of the entity's own name tokens (label + aliases) appear in
+ * the context. When the entity has exclusion phrases, the token set is
+ * recomputed from context text with those phrases blanked out first, so a
+ * name that doubles as an ordinary word ("Rose") doesn't false-positive on
+ * a phrase the author has specifically flagged as unrelated ("rose
+ * garden") — recomputed rather than shared, since exclusions are per
+ * entity while the plain context-token set is reused across every fact.
+ */
+function isNamed(
+  entityRef: string,
+  label: string,
+  contextText: string,
+  contextTokens: Set<string>,
+  tracking: EntityTracking[]
+): boolean {
+  const entry = trackingFor(tracking, entityRef);
+  const tokens = entityNameTokens([label, ...entry.aliases]);
+  const tokenSet = entry.exclusions.length > 0 ? textTokens(stripExclusions(contextText, entry.exclusions)) : contextTokens;
+  return [...tokens].some((token) => tokenSet.has(token));
 }
 
 /**
@@ -67,23 +85,24 @@ function isNamed(label: string, contextTokens: Set<string>): boolean {
  */
 export function isLoreFactRelevant(
   fact: NarrativeFact,
+  contextText: string,
   contextTokens: Set<string>,
-  book: Pick<Book, "facts" | "event_profiles">
+  book: Pick<Book, "facts" | "event_profiles" | "entity_tracking">
 ): boolean {
   if (fact.position_override === "include") return true;
-  if (isNamed(fact.entity_label, contextTokens)) return true;
+  if (isNamed(fact.entity_ref, fact.entity_label, contextText, contextTokens, book.entity_tracking)) return true;
 
   const profile = eventProfileFor(book.event_profiles, fact.entity_ref);
   const linkedRefs = [profile.where, ...profile.participants].filter((ref): ref is string => Boolean(ref));
-  return linkedRefs.some((ref) => isNamed(labelForRef(book.facts, ref), contextTokens));
+  return linkedRefs.some((ref) => isNamed(ref, labelForRef(book.facts, ref), contextText, contextTokens, book.entity_tracking));
 }
 
 /** Leaves every non-lore fact untouched; filters `origin: "lore"` facts by `isLoreFactRelevant`. */
 export function filterLoreFactsByRelevance(
   facts: NarrativeFact[],
-  book: Pick<Book, "facts" | "event_profiles">,
+  book: Pick<Book, "facts" | "event_profiles" | "entity_tracking">,
   contextText: string
 ): NarrativeFact[] {
   const contextTokens = textTokens(contextText);
-  return facts.filter((fact) => fact.origin !== "lore" || isLoreFactRelevant(fact, contextTokens, book));
+  return facts.filter((fact) => fact.origin !== "lore" || isLoreFactRelevant(fact, contextText, contextTokens, book));
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, discardChapter, updateChapter } from "@core/BookSchema";
 import { findNameHitsInText, mentionsForEntity, nameVariantsForLabel } from "@core/bibleMentions";
+import type { EntityTracking } from "@core/entityTracking";
 
 describe("nameVariantsForLabel", () => {
   it("includes the full label and its meaningful name tokens, longest first", () => {
@@ -14,13 +15,19 @@ describe("nameVariantsForLabel", () => {
   it("returns nothing for an empty label", () => {
     expect(nameVariantsForLabel("   ")).toEqual([]);
   });
+
+  it("includes aliases and their name tokens", () => {
+    expect(nameVariantsForLabel("Miriam Hald", ["Mimi"])).toEqual(
+      expect.arrayContaining(["Miriam Hald", "Mimi", "miriam", "hald"])
+    );
+  });
 });
 
 describe("mentionsForEntity", () => {
   it("counts a name mentioned once in a chapter", () => {
     let book = createBook("Night Keys");
     book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door behind her." });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits).toHaveLength(1);
     expect(hits[0]?.count).toBe(1);
     expect(hits[0]?.chapterTitle).toBe("The quay");
@@ -29,7 +36,7 @@ describe("mentionsForEntity", () => {
   it("counts multiple mentions in the same chapter", () => {
     let book = createBook("Night Keys");
     book = updateChapter(book, book.chapters[0]!.id, { prose: "Emma walked in. Emma sat down. Emma sighed." });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits[0]?.count).toBe(3);
   });
 
@@ -38,7 +45,7 @@ describe("mentionsForEntity", () => {
     book = updateChapter(book, book.chapters[0]!.id, {
       prose: "Henrik Andersson walked in. Later, Henrik left. Andersson never called."
     });
-    const hits = mentionsForEntity(book, "Henrik Andersson");
+    const hits = mentionsForEntity(book, "henrik-andersson", "Henrik Andersson");
     // "Henrik Andersson" (1) + "Henrik" (1) + "Andersson" (1) = 3, not 4 (the phrase isn't double-counted as its own parts).
     expect(hits[0]?.count).toBe(3);
   });
@@ -46,14 +53,14 @@ describe("mentionsForEntity", () => {
   it("is case-insensitive", () => {
     let book = createBook("Night Keys");
     book = updateChapter(book, book.chapters[0]!.id, { prose: "EMMA was here. emma left." });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits[0]?.count).toBe(2);
   });
 
   it("only matches whole words, not a name as a substring of another word", () => {
     let book = createBook("Night Keys");
     book = updateChapter(book, book.chapters[0]!.id, { prose: "The team was emmaculate in the emmasculine hallway." });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits).toEqual([]);
   });
 
@@ -63,7 +70,7 @@ describe("mentionsForEntity", () => {
     book = addChapter(book);
     const second = book.chapters[1]!;
     book = updateChapter(book, second.id, { title: "Two", prose: "Emma returned." });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits).toHaveLength(1);
     expect(hits[0]?.chapterTitle).toBe("Two");
   });
@@ -73,7 +80,7 @@ describe("mentionsForEntity", () => {
     book = updateChapter(book, book.chapters[0]!.id, { prose: "Emma was here." });
     book = addChapter(book);
     book = discardChapter(book, book.chapters[0]!.id);
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits).toEqual([]);
   });
 
@@ -82,14 +89,41 @@ describe("mentionsForEntity", () => {
     book = updateChapter(book, book.chapters[0]!.id, {
       prose: "Emma one. Emma two. Emma three. Emma four."
     });
-    const hits = mentionsForEntity(book, "Emma");
+    const hits = mentionsForEntity(book, "emma", "Emma");
     expect(hits[0]?.snippets.length).toBeLessThanOrEqual(2);
     expect(hits[0]?.snippets[0]).toContain("Emma");
   });
 
   it("returns nothing for an empty entity label", () => {
     const book = createBook("Night Keys");
-    expect(mentionsForEntity(book, "")).toEqual([]);
+    expect(mentionsForEntity(book, "emma", "")).toEqual([]);
+  });
+
+  it("counts a mention via an alias the label itself never uses", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { prose: "Mimi walked in. Mimi sat down." });
+    const tracking: EntityTracking[] = [{ entity_ref: "miriam", aliases: ["Mimi"], exclusions: [] }];
+    book = { ...book, entity_tracking: tracking };
+    const hits = mentionsForEntity(book, "miriam", "Miriam Hald");
+    expect(hits[0]?.count).toBe(2);
+  });
+
+  it("drops a mention that falls entirely inside an excluded phrase", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { prose: "They sat by the rose garden." });
+    const tracking: EntityTracking[] = [{ entity_ref: "rose", aliases: [], exclusions: ["rose garden"] }];
+    book = { ...book, entity_tracking: tracking };
+    const hits = mentionsForEntity(book, "rose", "Rose");
+    expect(hits).toEqual([]);
+  });
+
+  it("still counts a mention of the same name outside the excluded phrase", () => {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { prose: "Rose walked past the rose garden." });
+    const tracking: EntityTracking[] = [{ entity_ref: "rose", aliases: [], exclusions: ["rose garden"] }];
+    book = { ...book, entity_tracking: tracking };
+    const hits = mentionsForEntity(book, "rose", "Rose");
+    expect(hits[0]?.count).toBe(1);
   });
 });
 

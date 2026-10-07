@@ -9,6 +9,12 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.48] - 2026-10-07
+
+### Added
+- Story Bible entities can now have aliases — nicknames, titles, alter egos — that count as a mention alongside the main name, both in the Mentions tracker and in the lore-relevance filter (`filter_lore_by_relevance`). A character known as "Em" in the prose is now recognized even if her Story Bible card is named "Emma".
+- Entities can also have exclusion phrases: specific phrases that should never count as a mention even though the name appears inside them. For a name that doubles as an ordinary word, excluding "rose garden" stops every mention of the flower bed from being read as a sighting of a character named Rose.
+
 ## [1.0.47] - 2026-10-06
 
 ### Added

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { addChapter, createBook, updateChapter } from "@core/BookSchema";
 import { filterLoreFactsByRelevance, isLoreFactRelevant, relevantContextText } from "@core/loreRelevance";
 import type { NarrativeFact } from "@core/NarrativeFact";
+import type { EntityTracking } from "@core/entityTracking";
 
 const baseFact: NarrativeFact = {
   id: "1",
@@ -18,35 +19,81 @@ const baseFact: NarrativeFact = {
 describe("filterLoreFactsByRelevance", () => {
   it("keeps a chapter-origin fact unconditionally, even with no matching context", () => {
     const fact: NarrativeFact = { ...baseFact, origin: "chapter" };
-    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [] }, "nothing relevant here")).toEqual([
-      fact
-    ]);
+    expect(
+      filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [], entity_tracking: [] }, "nothing relevant here")
+    ).toEqual([fact]);
   });
 
   it("keeps a fact with no origin at all unconditionally (older saves predating the field)", () => {
     const fact: NarrativeFact = { ...baseFact };
-    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [] }, "")).toEqual([fact]);
+    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [], entity_tracking: [] }, "")).toEqual([
+      fact
+    ]);
   });
 
   it("drops a lore fact whose entity is never named in the context text", () => {
     const fact: NarrativeFact = { ...baseFact, origin: "lore" };
-    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [] }, "Jeff walked to the harbor")).toEqual(
-      []
-    );
+    expect(
+      filterLoreFactsByRelevance(
+        [fact],
+        { facts: [fact], event_profiles: [], entity_tracking: [] },
+        "Jeff walked to the harbor"
+      )
+    ).toEqual([]);
   });
 
   it("keeps a lore fact whose entity name appears in the context text", () => {
     const fact: NarrativeFact = { ...baseFact, origin: "lore" };
-    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [] }, "Emma walked to the harbor")).toEqual(
-      [fact]
-    );
+    expect(
+      filterLoreFactsByRelevance(
+        [fact],
+        { facts: [fact], event_profiles: [], entity_tracking: [] },
+        "Emma walked to the harbor"
+      )
+    ).toEqual([fact]);
   });
 
   it("keeps a pinned lore fact (position_override: include) regardless of context", () => {
     const fact: NarrativeFact = { ...baseFact, origin: "lore", position_override: "include" };
-    expect(filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [] }, "nothing relevant here")).toEqual([
-      fact
-    ]);
+    expect(
+      filterLoreFactsByRelevance([fact], { facts: [fact], event_profiles: [], entity_tracking: [] }, "nothing relevant here")
+    ).toEqual([fact]);
+  });
+
+  it("keeps a lore fact named only by an alias", () => {
+    const fact: NarrativeFact = { ...baseFact, origin: "lore" };
+    const tracking: EntityTracking[] = [{ entity_ref: "emma", aliases: ["Em"], exclusions: [] }];
+    expect(
+      filterLoreFactsByRelevance(
+        [fact],
+        { facts: [fact], event_profiles: [], entity_tracking: tracking },
+        "Em walked to the harbor"
+      )
+    ).toEqual([fact]);
+  });
+
+  it("drops a lore fact whose only mention falls inside an excluded phrase", () => {
+    const fact: NarrativeFact = { ...baseFact, entity_ref: "rose", entity_label: "Rose", origin: "lore" };
+    const tracking: EntityTracking[] = [{ entity_ref: "rose", aliases: [], exclusions: ["rose garden"] }];
+    expect(
+      filterLoreFactsByRelevance(
+        [fact],
+        { facts: [fact], event_profiles: [], entity_tracking: tracking },
+        "They sat by the rose garden."
+      )
+    ).toEqual([]);
+  });
+
+  it("keeps a lore fact named outside the excluded phrase", () => {
+    const fact: NarrativeFact = { ...baseFact, entity_ref: "rose", entity_label: "Rose", origin: "lore" };
+    const tracking: EntityTracking[] = [{ entity_ref: "rose", aliases: [], exclusions: ["rose garden"] }];
+    expect(
+      filterLoreFactsByRelevance(
+        [fact],
+        { facts: [fact], event_profiles: [], entity_tracking: tracking },
+        "Rose walked past the rose garden."
+      )
+    ).toEqual([fact]);
   });
 });
 
@@ -65,34 +112,40 @@ describe("isLoreFactRelevant — Event entities", () => {
   it("keeps an Event fact whose own name is never mentioned, when a participant is named instead", () => {
     const book = {
       facts,
-      event_profiles: [{ entity_ref: "patron-offer", participants: ["jeff"] }]
+      event_profiles: [{ entity_ref: "patron-offer", participants: ["jeff"] }],
+      entity_tracking: []
     };
+    const contextText = "Jeff walked home";
     const contextTokens = new Set(["jeff", "walked", "home"]);
-    expect(isLoreFactRelevant(patron, contextTokens, book)).toBe(true);
+    expect(isLoreFactRelevant(patron, contextText, contextTokens, book)).toBe(true);
   });
 
   it("keeps an Event fact when only its location is named", () => {
     const book = {
       facts,
-      event_profiles: [{ entity_ref: "patron-offer", where: "harbor", participants: [] }]
+      event_profiles: [{ entity_ref: "patron-offer", where: "harbor", participants: [] }],
+      entity_tracking: []
     };
+    const contextText = "Harbor fog";
     const contextTokens = new Set(["harbor", "fog"]);
-    expect(isLoreFactRelevant(patron, contextTokens, book)).toBe(true);
+    expect(isLoreFactRelevant(patron, contextText, contextTokens, book)).toBe(true);
   });
 
   it("drops an Event fact when neither its name, nor any participant, nor its location is named", () => {
     const book = {
       facts,
-      event_profiles: [{ entity_ref: "patron-offer", where: "harbor", participants: ["jeff"] }]
+      event_profiles: [{ entity_ref: "patron-offer", where: "harbor", participants: ["jeff"] }],
+      entity_tracking: []
     };
+    const contextText = "unrelated words";
     const contextTokens = new Set(["unrelated", "words"]);
-    expect(isLoreFactRelevant(patron, contextTokens, book)).toBe(false);
+    expect(isLoreFactRelevant(patron, contextText, contextTokens, book)).toBe(false);
   });
 
   it("drops an Event fact with no profile row at all, unless named directly", () => {
-    const book = { facts, event_profiles: [] };
-    expect(isLoreFactRelevant(patron, new Set(["jeff"]), book)).toBe(false);
-    expect(isLoreFactRelevant(patron, new Set(["patron's", "offer"]), book)).toBe(true);
+    const book = { facts, event_profiles: [], entity_tracking: [] };
+    expect(isLoreFactRelevant(patron, "jeff", new Set(["jeff"]), book)).toBe(false);
+    expect(isLoreFactRelevant(patron, "patron's offer", new Set(["patron's", "offer"]), book)).toBe(true);
   });
 });
 

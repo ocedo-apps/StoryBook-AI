@@ -4,6 +4,7 @@ import { CharacterProfileSchema } from "./characterProfile";
 import { EventProfileSchema } from "./eventProfile";
 import { EntityKindSchema } from "./bibleGroups";
 import { EntityMediaSchema, EntityPictureSchema } from "./entityMedia";
+import { EntityTrackingSchema } from "./entityTracking";
 import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
@@ -246,6 +247,14 @@ export const BookSchema = z.object({
    */
   entity_kinds: z.array(EntityKindSchema).default([]),
   /**
+   * Aliases (nicknames, titles) and exclusion phrases per entity — same
+   * side-table pattern as `profiles`/`entity_kinds`. Aliases widen name
+   * matching for the mentions tracker and the lore-relevance filter;
+   * exclusions stop a specific phrase from counting as a mention even
+   * though the name/alias appears inside it. Missing on older saves.
+   */
+  entity_tracking: z.array(EntityTrackingSchema).default([]),
+  /**
    * Filters locked Story Bible facts whose origin is lore import by
    * relevance to the chapter being drafted (roadmap-ideas.md #38),
    * instead of including every one of them unconditionally the way
@@ -336,6 +345,7 @@ export function createBook(title: string): Book {
     event_profiles: [],
     hidden_entities: [],
     entity_kinds: [],
+    entity_tracking: [],
     filter_lore_by_relevance: false,
     plotlines: [],
     created_at: timestamp,

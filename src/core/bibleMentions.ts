@@ -1,6 +1,7 @@
 import { sortedChapters, type Book } from "./BookSchema";
 import { snippetAround } from "./findReplace";
 import { entityNameTokens } from "./proseStats";
+import { excludedSpans, overlapsAny, trackingFor } from "./entityTracking";
 
 export type MentionHit = {
   chapterId: string;
@@ -17,21 +18,23 @@ function escapeRegExp(text: string): string {
 }
 
 /**
- * The full label plus its meaningful individual name tokens, so a bare
- * "Henrik" still counts as a mention of "Henrik Andersson". Longest first,
- * so a full-name match wins over a first-name-only match at the same spot
- * rather than the regex stopping early on the shorter alternative.
+ * The full label (plus any aliases) and their meaningful individual name
+ * tokens, so a bare "Henrik" still counts as a mention of "Henrik
+ * Andersson", and an alias like "Mimi" counts as a mention of "Miriam
+ * Hald". Longest first, so a full-name match wins over a first-name-only
+ * match at the same spot rather than the regex stopping early on the
+ * shorter alternative.
  */
-export function nameVariantsForLabel(label: string): string[] {
-  const trimmed = label.trim();
-  if (!trimmed) return [];
-  const tokens = [...entityNameTokens([trimmed])];
-  const variants = new Set<string>([trimmed, ...tokens]);
+export function nameVariantsForLabel(label: string, aliases: string[] = []): string[] {
+  const names = [label, ...aliases].map((name) => name.trim()).filter(Boolean);
+  if (names.length === 0) return [];
+  const tokens = [...entityNameTokens(names)];
+  const variants = new Set<string>([...names, ...tokens]);
   return [...variants].sort((a, b) => b.length - a.length);
 }
 
-function mentionPattern(label: string): RegExp | null {
-  const variants = nameVariantsForLabel(label).map(escapeRegExp);
+function mentionPattern(label: string, aliases: string[] = []): RegExp | null {
+  const variants = nameVariantsForLabel(label, aliases).map(escapeRegExp);
   if (variants.length === 0) return null;
   return new RegExp(`(?<![\\p{L}\\p{N}])(?:${variants.join("|")})(?![\\p{L}\\p{N}])`, "giu");
 }
@@ -79,16 +82,24 @@ export function findNameHitsInText(
 
 /**
  * Every live chapter whose prose mentions this entity by name — deterministic
- * substring matching against the label and its name tokens, no embeddings.
- * A later, semantic version of this ("her older brother", no name at all)
- * is a separate, later step.
+ * substring matching against the label, its aliases, and their name tokens,
+ * no embeddings. A mention that falls entirely inside one of the entity's
+ * exclusion phrases (`entity_tracking`) doesn't count — for a name that
+ * doubles as an ordinary word, that's how an author stops "rose garden"
+ * from reading as a sighting of a character named Rose. A later, semantic
+ * version of this ("her older brother", no name at all) is a separate,
+ * later step.
  */
-export function mentionsForEntity(book: Book, entityLabel: string): MentionHit[] {
-  const pattern = mentionPattern(entityLabel);
+export function mentionsForEntity(book: Book, entityRef: string, entityLabel: string): MentionHit[] {
+  const tracking = trackingFor(book.entity_tracking, entityRef);
+  const pattern = mentionPattern(entityLabel, tracking.aliases);
   if (!pattern) return [];
   const hits: MentionHit[] = [];
   for (const chapter of sortedChapters(book)) {
-    const matches = matchesFor(chapter.prose, pattern);
+    const allMatches = matchesFor(chapter.prose, pattern);
+    if (allMatches.length === 0) continue;
+    const excluded = tracking.exclusions.length > 0 ? excludedSpans(chapter.prose, tracking.exclusions) : [];
+    const matches = excluded.length > 0 ? allMatches.filter((match) => !overlapsAny(match, excluded)) : allMatches;
     if (matches.length === 0) continue;
     hits.push({
       chapterId: chapter.id,

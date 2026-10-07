@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.47
+Status: living document, v1.0.48
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1020,6 +1020,54 @@ om-körd med längre väntan bekräftade att det fungerade hela tiden),
 `npm run build` gröna.
 
 v1.0.46 → v1.0.47.
+
+---
+
+**Ändringslogg v1.0.47 → v1.0.48 (2026-10-07):** Mats bad mig utreda
+hur konkurrenter (NEO, Writingway 2, Novelcrafter) löser "appen minns
+hela manuskriptet"-löftet — research, inte bygge, till en början.
+NEO visade sig sakna AI-funktioner helt (ingen källa beskriver några).
+Writingway 2:s variant är helt manuell checkbox-markering, bekräftat
+genom att läsa källkoden rakt av. Novelcrafters "Codex" var den enda
+av de tre med en faktisk, byggd mekanism: automatisk namn/alias-
+detektering mot fri text, tre-läges AI-kontext per post (Always/Only
+when detected/Never), "Progressions" (tidsbundna tillägg/ersättningar
+i Codex, bara synliga från den scenen och framåt). Jämfört rakt mot
+vår egen kod innan jag drog slutsatser: `NarrativeFact.superseded_by`
++ `visibleLockedFactsAtPosition` (`visibility.ts`) är redan vår
+motsvarighet till Progressions — inget hål, bara sämre synliggjort.
+Men två genuina hål hittades: inga aliaser (`loreRelevance.ts`/
+`bibleMentions.ts` matchar bara mot `entity_label`), och ingen
+exclusion-lista (ett namn som råkar vara ett vanligt ord, typ "Rose",
+kan ge falska träffar). Mats: "Kör på dessa" — aliaser, exclusion-
+lista, förenklad Trait/Identity-väljare, och tydligare UX för
+tidsbundna ändringar (fyra punkter, byggs i separata versioner).
+
+**Den här versionen: aliaser + exclusion-lista.** Nytt sidotabell-
+schema `entityTracking.ts` (`entity_ref` → `aliases[]`, `exclusions[]`),
+samma mönster som `profiles`/`entity_kinds`. Trätt in i båda ställena
+namnmatchning redan fanns: `loreRelevance.ts`s `isNamed` tar nu med
+alias-tokens i matchningen, och räknar om kontext-tokenmängden med
+exclusion-fraser bortklippta när entiteten har några (annars återanvänds
+den delade mängden — ingen extra kostnad för entiteter utan exclusions).
+`bibleMentions.ts`s `mentionsForEntity` gör samma sak fast
+positionsmedvetet: hittar alla träffar som vanligt, filtrerar sedan bort
+de som faller helt inom en exclusion-fras-span, så att snippet-positionerna
+i originaltexten aldrig rubbas. Ny "Aliases"/"Exclusions"-sektion i
+Story Bible-kortet (`TrackingFields`, samma debounce-mönster som
+`CharacterFields`), placerad direkt ovanför Mentions — orsak före verkan,
+redigera aliaser/exclusions och se direkt vilka omnämnanden som räknas.
+
+**Verifiering.** Nya tester i `lore-relevance.test.ts` (alias-träff,
+exclusion döljer/avslöjar beroende på var i texten namnet står) och
+`bible-mentions.test.ts` (samma, plus en för `nameVariantsForLabel`
+med alias). Playwright-verifierat live: skapade en karaktär, fyllde i
+alias + exclusion, laddade om sidan — båda fälten överlevde
+(`Mimi, Miss Hald` / `hald mark`), layouten renderar rätt i kortet.
+`tsc --noEmit`, hela testsviten (882 tester, +9 sedan v1.0.47) och
+`npm run build` gröna.
+
+v1.0.47 → v1.0.48.
 
 ---
 
