@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.52] - 2026-10-07
+
+### Fixed
+- "Summarize chapter" asked the model for only a very small reply budget (far smaller than every other short-answer prompt in the app). A model that thinks or plans before writing its actual answer — increasingly common among local models, reasoning ones especially — could burn through that budget before ever reaching the summary, coming back empty or with just its own unfinished preamble (which can look like the chapter's opening echoed back). The budget is now generous enough to leave room for that before the real 2-4 sentence summary.
+
 ## [1.0.51] - 2026-10-07
 
 ### Changed

@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.51
+Status: living document, v1.0.52
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1212,6 +1212,57 @@ oförändrat): avpinnad + hover → `is-floating`, avpinnad + ingen hover
 → `is-collapsed` (tunn 0.6rem-remsa), båda med korrekt ny bredd.
 
 v1.0.50 → v1.0.51.
+
+---
+
+**Ändringslogg v1.0.51 → v1.0.52 (2026-10-07):** Första riktiga
+testarsvaret på kapitelsammanfattning (v1.0.47). Två symptom
+rapporterade: (1) kapitel 1 fick en bra sammanfattning, men alla
+andra kapitel bara "copy-paste:ar" början av kapiteltexten, samma
+modell/prompt; (2) Qwen3-14B-Instruct gav "model returned an empty
+response" i StoryBook trots att SAMMA modell via SAMMA LM Studio-
+anslutning fungerar fint i Writingway 2 med samma sammanfattnings-
+kommando. Testaren hade redan kontrollerat att kontexten som gick in
+var kapiteltext + systemprompt, inget annat — så felsökningen kunde
+starta direkt i vår egen anropskod istället för att misstänka
+testarens uppsättning.
+
+**Rotorsak, hittad genom att jämföra mot resten av filen, inte genom
+att gissa.** `summarizeChapter` (`BookStore.tsx`) satte `maxTokens:
+220` — grep:ade alla ~16 `maxTokens`-värden i filen och det var det
+UTAN JÄMFÖRELSE lägsta, lägre än även rena ett-ords-förslag (140) och
+betydligt lägre än andra "skriv en kort passage"-anrop (500–700).
+220 tokens räcker knappt för själva 2–4-meningars-sammanfattningen —
+och ger i praktiken NOLL utrymme för en modell som tänker/planerar
+innan den svarar, vilket är vanligt hos moderna lokala modeller,
+"reasoning"-modeller i synnerhet (Qwen3s inbyggda tankeläge, påslaget
+som standard om inget i anropet stänger av det — något StoryBook
+aldrig gjort, bekräftat genom att grep:a hela `src/llm/` efter
+think/reasoning-hantering: ingen finns). En modell som tänker färdigt
+EFTER 220 tokens aldrig hinner svara; antingen blir `content`-fältet
+tomt (om servern separerar tankedelen) eller så är det ofärdiga
+tankefragmentet — som ofta BÖRJAR med att modellen återger/citerar
+texten den ska sammanfatta — allt som finns kvar, vilket exakt matchar
+"copy-paste av kapitlets början".
+
+**Fix, smal och säker.** Höjde `maxTokens` 220 → 700 (i linje med
+andra kortsvars-anrop i samma fil), plus en kommentar som förklarar
+varför — annars ser 700 ut som ett godtyckligt högt tal för "bara 2–4
+meningar". Rörde inget annat: ingen ändring av systemprompten, ingen
+`/no_think`-disabling eller annan modell-specifik gissning, eftersom
+jag inte kan verifiera den sortens åtgärd utan tillgång till testarens
+faktiska modeller.
+
+**Verifiering, med en ärlig begränsning.** `tsc --noEmit`, hela
+testsviten (885 tester, oförändrat — ingen av dem anropar en riktig
+modell för just den här vägen) och `npm run build` gröna. Kunde INTE
+live-verifiera mot en riktig lokal modell (ingen Ollama/LM Studio
+kopplad i den här miljön) — rotorsaksanalysen vilar på kodläsning och
+jämförelse med resten av filens mönster, inte på att ha reproducerat
+och sedan fixat buggen framför ögonen. Sa det rakt ut till Mats istället
+för att låtsas vara säkrare än jag är.
+
+v1.0.51 → v1.0.52.
 
 ---
 

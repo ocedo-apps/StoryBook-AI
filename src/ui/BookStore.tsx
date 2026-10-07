@@ -2299,7 +2299,12 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
           { role: "user", content: summarizeChapterUserPrompt(chapter) }
         ];
         recordPrompt("summarize", reviewModel, summarizeMessages);
-        const raw = await provider.chat({ messages: summarizeMessages, temperature: 0.2, maxTokens: 220 });
+        // The wanted output is just 2-4 sentences, but a tight token budget
+        // starves any model that thinks/plans before answering (reasoning
+        // models especially) — it gets cut off mid-preamble, which reads as
+        // either an empty reply or the chapter's own opening echoed back.
+        // 700 leaves room for that before the real summary comes out.
+        const raw = await provider.chat({ messages: summarizeMessages, temperature: 0.2, maxTokens: 700 });
         recordPromptResponse(raw);
         const summary = manuscriptFromModel(raw, "");
         if (!summary) {
