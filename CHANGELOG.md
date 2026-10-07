@@ -9,6 +9,12 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.62] - 2026-10-07
+
+### Fixed
+- The scene-break line from v1.0.61 wasn't actually visible — it had no width and no spacing above or below it, just a 1-pixel-tall sliver, because of a CSS unit that unintentionally zeroed itself out. It's a proper short centered line now.
+- Typing `>` to start a quoted line, then continuing to type right after it without pressing Enter first, made everything you typed invisible (and could silently swallow the space after `>`). Both are fixed — the text you type now shows up as you type it, exactly as typed.
+
 ## [1.0.61] - 2026-10-07
 
 ### Fixed

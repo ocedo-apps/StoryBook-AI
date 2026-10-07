@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.61
+Status: living document, v1.0.62
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1792,6 +1792,76 @@ skärmdump-artefakt, inte en app-bugg — bekräftat genom att dumpa
 `innerHTML` direkt istället för att lita på en bild.
 
 v1.0.60 → v1.0.61.
+
+---
+
+**Ändringslogg v1.0.61 → v1.0.62 (2026-10-07):** Mats testade v1.0.61
+på riktigt och rapporterade två kvarvarande problem: (1) `---` gjorde
+"något" men ingen linje syntes, och Enter efteråt flyttade texten ner
+bara EN pixel (inte en normal radhöjd) — "känns som om fonten blir
+pytteliten"; (2) skriver man `>` och sedan text DIREKT (utan Enter
+emellan) syns ingenting alls — varken markören eller det man skriver —
+förrän man trycker Enter. Detta rättar också en felaktig slutsats i
+förra loggposten: skärmdumpen som inte visade något antogs vara en ren
+Playwright-artefakt — det var den delvis, men det fanns en äkta
+synlighets-bugg också, bara dold av att mina DOM-dumpar (som bekräftade
+`---` fanns i texten) inte fångar CSS-rendering.
+
+**Bugg 1, hittad genom `getComputedStyle`, inte gissning.** `.prose-hr`
+hade `width: 3.5em` OCH `font-size: 0` på SAMMA element — `em` räknas
+mot elementets EGEN font-size, så `3.5em` av `0` blev `0px` bredd.
+Samma sak med `margin: 1.1em auto` — också nollställd, därav "flyttas
+texten ner en pixel" (bara `height:1px` kvar, ingen marginal alls).
+Detta är en förmodat UR-GAMMAL bugg (fanns redan innan den här sessionens
+ändringar, bara aldrig upptäckt eftersom `---` tidigare bara renderades
+efter kapitelbyte/AI-redigering, aldrig faktiskt betraktat noga av en
+människa). Fix: `3.5em`/`1.1em` → `3.5rem`/`1.1rem` (rem räknas mot
+root, inte det egna, nollställda font-size-värdet).
+
+**Bugg 2, en konsekvens av v1.0.61:s egen fix, hittad genom att
+faktiskt läsa `window.getSelection()` efter varje tangenttryckning.**
+`.prose-quote-marker` göms på samma sätt (`font-size:0`). När `>`
+precis konverterats och inget brödtext finns än, landar markören
+(enda innehållet i stycket) EXAKT vid slutet av den gömda markör-
+textnoden — och eftersom en nollstor inline-box inte ger webbläsaren
+någon visuell "precis efter"-position skild från "fortfarande inuti",
+fortsatte varje ny tangenttryckning att FÖRLÄNGA den gömda markören
+istället för att bli synlig brödtext. Försökte först lösa det genom
+att explicit flytta markören till förälderns barn-index efter markör-
+spannet (`pointWithinBlock`) — fungerade för FÖRSTA tecknet men inte
+pålitligt för efterföljande (webbläsarens egen caret-hantering vid en
+nollstor box är inte pålitlig att styra med Range-positionering).
+
+**Den faktiska lösningen, mer robust.** Istället för att försöka
+kontrollera VAR tecken hamnar, upptäcker `blockMarkupNeedsSync` nu
+när markör-spannets EGET innehåll har växt förbi den matchade
+prefixen (`> `) — oavsett var tecknen råkade hamna i DOM:en — och
+tvingar samma ombyggnad som redan finns för andra mismatchningar,
+vilket flyttar de extra tecknen till synlig brödtext inom en
+renderingscykel. Två finjusteringar krävdes för att detta inte skulle
+äta bort det avsiktliga mellanslaget i "> ": (a) jämförelsen måste
+använda OTRIMMAD text (ett precis-nu-skrivet avslutande mellanslag är
+äkta innehåll, inte menings... löst skräp att trimma bort), och (b)
+webbläsaren konverterar ofta ett mellanslag i slutet av en inline-körd
+till en hårt mellanslag (` `) för att det inte ska kollapsa bort —
+måste normaliseras innan jämförelse eller så såg "> " (vanligt
+mellanslag, förväntat) och "> " (hårt mellanslag, verkligt DOM-
+innehåll) ut som en mismatch och tvingade fram en onödig ombyggnad som
+tappade mellanslaget varje gång.
+
+**Verifiering, upprepad tills alla fyra scenarion höll samtidigt.**
+`tsc --noEmit`, hela testsviten (885 tester, oförändrat), `npm run
+build` gröna. Playwright: `getComputedStyle` bekräftar nu `width:56px`
+(3.5rem) och korrekt marginal på HR-linjen; en fullständig skriv-
+sekvens (`---`, Enter, `> text`, Enter, mer text) ger korrekt DOM och
+en skärmdump där linjen faktiskt syns och citatet är korrekt indraget;
+mellanslaget efter `>` bevaras genom hela sekvensen; Enter direkt
+efter `---` fungerar fortfarande; infogning MITT i manuset fungerar
+fortfarande. Körde om alla tidigare scenarion, inte bara de nya, för
+att säkerställa att ingen av de nya fixarna rubbade det som redan
+fungerade.
+
+v1.0.61 → v1.0.62.
 
 ---
 

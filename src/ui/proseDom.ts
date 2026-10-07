@@ -118,10 +118,16 @@ export function flowBlocks(root: HTMLElement): HTMLElement[] {
  */
 export function blockMarkupNeedsSync(root: HTMLElement): boolean {
   for (const block of flowBlocks(root)) {
-    const text = (block.textContent ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+    // Collapsed but NOT trimmed — a trailing space the author just typed
+    // (the optional space in "> ") is real, current DOM content, not
+    // meaningless trailing whitespace yet; trimming it away here would
+    // make the marker-content check below think that space needs
+    // stripping on every single keystroke until body text follows it.
+    const rawText = (block.textContent ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ");
+    const text = rawText.trim();
     // A block the author just split off with Enter is briefly empty, but
     // native `insertParagraph` copies the split paragraph's class onto it
-    // (a fresh <p class="prose-hr"><br></p> right after an hr line) \u2014 that
+    // (a fresh <p class="prose-hr"><br></p> right after an hr line) — that
     // is not a real mismatch to fix, just a side effect of the split, and
     // `proseFromElement` ignores empty blocks entirely. Treating it as one
     // forced a rebuild from `value` (which has never heard of this new,
@@ -132,6 +138,28 @@ export function blockMarkupNeedsSync(root: HTMLElement): boolean {
     if (HR_BLOCK.test(text) !== isHrBlock) return true;
     const isQuoteBlock = block.classList.contains("prose-quote");
     if (QUOTE_PREFIX.test(text) !== isQuoteBlock) return true;
+    if (isQuoteBlock) {
+      // The marker span is the only hidden (font-size: 0) content in a
+      // quote paragraph, and typing right after it — the common case,
+      // nothing written yet when the `>` first converts — has nowhere
+      // else to land: a zero-size inline box gives the browser no visual
+      // "just past this" position to distinguish from "still inside it",
+      // so new characters keep extending the marker's own (invisible)
+      // text instead of becoming visible body text. Rather than fight
+      // that placement, catch it here: if the marker holds more than the
+      // matched prefix, force the rebuild that moves the extra characters
+      // into the visible body, same as any other markup mismatch above.
+      const marker = block.querySelector(":scope > .prose-quote-marker");
+      // A trailing space the browser just inserted at the very end of an
+      // inline run commonly becomes a non-breaking space (so it doesn't
+      // collapse away per normal HTML whitespace rules) — normalize it
+      // the same way `rawText` already is, or a real "> " marker reads as
+      // a false mismatch against "> " with a plain space and gets
+      // stripped back down on every keystroke.
+      const markerText = (marker?.textContent ?? "").replace(/ /g, " ");
+      const expectedMarker = rawText.match(QUOTE_PREFIX)?.[0] ?? "";
+      if (markerText !== expectedMarker) return true;
+    }
   }
   return false;
 }

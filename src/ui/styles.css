@@ -2938,8 +2938,11 @@ button:disabled {
 .prose .prose-hr {
   display: block;
   height: 1px;
-  margin: 1.1em auto;
-  width: 3.5em;
+  /* rem, not em: `font-size: 0` below means an em value on THIS element
+     resolves against its own (zero) font-size, collapsing to 0 — the line
+     had no width and no vertical spacing at all until this was caught. */
+  margin: 1.1rem auto;
+  width: 3.5rem;
   font-size: 0;
   line-height: 0;
   color: transparent;
