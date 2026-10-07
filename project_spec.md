@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.50
+Status: living document, v1.0.51
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1153,6 +1153,65 @@ innan beslut togs, snarare än att anta att "konkurrenten gör X" per
 automatik betydde "vi saknar X".
 
 v1.0.49 → v1.0.50.
+
+---
+
+**Ändringslogg v1.0.50 → v1.0.51 (2026-10-07):** Mats bad om en skiss
+(claude.ai Design-canvas, två artboards "Nu"/"Förslag") innan något
+byggdes — vi testade flera varianter interaktivt över ett flertal
+iterationer innan bygget: flytta vänsterpanelens lägesknappar upp,
+slå ihop dem med de befintliga åtgärdsknapparna till EN rad, gruppera
+filrelaterat under "Arkiv ▾" och verktyg under "Verktyg ▾" (ordning
+Arkiv · Verktyg · Inställningar · Sök/Ersätt), flytta ordräknaren från
+sin centrerade position i toppen ner till botten av vänsterpanelen.
+Två saker jag missade i skissen först och som Mats fångade:
+Korrekturläsning/Publicera fanns också i vänsterpanelen (inte bara de
+fyra jag först visade), och ordräknar-/målknappen ("1802 ord · Sätt
+mål") satt faktiskt centrerad i toppraden (`.progress-header`,
+`position:absolute; left:50%`) — båda hittade genom att läsa
+`Editor.tsx` på riktigt istället för att gissa utifrån skärmdumpar.
+
+**Byggt, inte bara skissat denna gång.** `Editor.tsx`s `<header
+className="editor-top">` gick från en 3-kolumns CSS-grid (titel /
+centrerad ordräknare / knappar) till en flex-rad: titel, skiljelinje,
+fem flikar (Brainstorm/Synopsis/Utvecklingsmetod/Dispositioner/
+Tidslinje — alla sex "riktiga vyer" utom Fråga manuset, som Mats ville
+ha grundad-fakta-verktyget separerat från den påhittande Intervjua-
+funktionen och därför lade i Verktyg-menyn istället), `margin-left:auto`
+på åtgärdsknapparna. Ny återanvändbar `TopMenu`-komponent (samma
+klick-utanför/Escape-mönster som `AppTopBar.tsx`s egna "Manuscripts"-
+meny, återanvänder dess CSS-klasser `app-top-menu*` rakt av istället
+för att hitta på nya). Vänsterpanelen tappade åtta knappar
+(Brainstorm/Synopsis/Utvecklingsmetod/Dispositioner/Fråga manuset/
+Tidslinje/Korrekturläsning/Publicera) och fick en ny `.progress-footer`-
+knapp (`margin-top:auto` i den redan flex-column:ade `.rail`) som
+ersätter den gamla centrerade `.progress-header`.
+
+**Breddändring, varsamt.** Båda sidopanelerna delade tidigare EN
+gemensam bredd (23.25rem) i alla lägen (fast, ihopfälld till 0.6rem,
+eller flytande 23.25rem vid hover på en opinnad panel). Delade upp till
+vänster 15rem / höger 28rem genomgående — `.editor-body`s
+grid-template-columns (tre varianter för kollapsat vänster/höger/
+båda) och `.rail-left.is-floating`/`.rail-right.is-floating`s
+bredd-regler, som tidigare delade en enda `.rail.is-floating { width:
+23.25rem }`. Pin/kollaps/flyt-mekaniken i sig (`leftRailExpanded`,
+hover-timers) rördes inte alls — bara vilka pixelvärden den slår mellan.
+
+**Verifiering, grundlig givet hur stor ändringen är.** `tsc --noEmit`,
+hela testsviten (885 tester, oförändrat — ren UI-omstrukturering,
+ingen ny kärnlogik), `npm run build` gröna. Playwright-verifierat live
+i flera omgångar: alla fem flikar synliga och klickbara, Arkiv-menyn
+visar exakt Säkerhetskopia/Exportera/Importera lore/Publicera,
+Verktyg-menyn visar exakt Konvertera markörer/Fråga manuset/
+Korrekturläsning, Inställningar och Sök/Ersätt fungerar som
+direktknappar, ordräknaren ("10 words · Set goal" efter att ha skrivit
+en testmening) sitter längst ner i vänsterpanelen och öppnar
+`ProgressCard` korrekt, Sök/Ersätt-panelen ankrar rätt i sin nya
+position. Pin/kollaps/flyt-testat explicit (inte bara antaget
+oförändrat): avpinnad + hover → `is-floating`, avpinnad + ingen hover
+→ `is-collapsed` (tunn 0.6rem-remsa), båda med korrekt ny bredd.
+
+v1.0.50 → v1.0.51.
 
 ---
 

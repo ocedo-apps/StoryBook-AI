@@ -335,6 +335,47 @@ function ModelAsideCallout({ asides, onDismiss }: { asides: string[]; onDismiss:
   );
 }
 
+/** A "File"/"Tools"-style dropdown for the manuscript top bar — same click-outside/Escape pattern as AppTopBar's own "Manuscripts" menu, reusing its CSS classes. */
+function TopMenu({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: MouseEvent) {
+      if (ref.current?.contains(event.target as Node)) return;
+      setOpen(false);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("mousedown", onPointer);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onPointer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="app-top-menu" ref={ref}>
+      <button
+        type="button"
+        className={open ? "text-button theme-toggle app-top-menu-trigger is-on" : "text-button theme-toggle app-top-menu-trigger"}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {label}
+      </button>
+      {open ? (
+        <div className="app-top-menu-panel" role="menu" onClick={() => setOpen(false)}>
+          {children}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function Editor() {
   const store = useBookStore();
   const { messages: m } = useLocale();
@@ -734,12 +775,153 @@ export function Editor() {
           onChange={(event) => void store.patchBook((current) => ({ ...current, title: event.target.value }))}
           aria-label={m.editor.manuscriptTitle}
         />
-        <button type="button" className="text-button theme-toggle progress-header" onClick={openProgress}>
-          {goalPace
-            ? format(m.progress.percentComplete, { percent: goalPace.percent })
-            : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
-        </button>
+        <div className="editor-top-divider" />
+        <div className="editor-top-tabs">
+          <button
+            type="button"
+            className={onBrainstorm && !onBoard ? "editor-top-tab is-active" : "editor-top-tab"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showBrainstorm();
+            }}
+          >
+            {m.editor.brainstorm}
+          </button>
+          <button
+            type="button"
+            className={onSynopsis && !onBoard ? "editor-top-tab is-active" : "editor-top-tab"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showSynopsis();
+            }}
+          >
+            {m.editor.synopsis}
+          </button>
+          <button
+            type="button"
+            className={onMethod && !onBoard ? "editor-top-tab is-active" : "editor-top-tab"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showMethod();
+            }}
+          >
+            {m.method.nav}
+          </button>
+          <button
+            type="button"
+            className={onBoard ? "editor-top-tab is-active" : "editor-top-tab"}
+            onClick={() => {
+              dismissProofread();
+              openBoard();
+            }}
+          >
+            {m.editor.briefs}
+          </button>
+          <button
+            type="button"
+            className={(onTimeline || onPlotlines) && !onBoard ? "editor-top-tab is-active" : "editor-top-tab"}
+            onClick={() => {
+              dismissProofread();
+              setBoardOpen(false);
+              store.showTimeline();
+            }}
+          >
+            {m.timeline.nav}
+          </button>
+        </div>
         <div className="model-fields">
+          <TopMenu label={m.editor.archiveNav}>
+            <button
+              type="button"
+              role="menuitem"
+              className={jsonBackupDue ? "app-top-menu-item backup-cue is-due" : "app-top-menu-item backup-cue"}
+              title={jsonBackupDue ? m.editor.backupDueTitle : m.editor.backupTitle}
+              onClick={() => {
+                setPublishOpen(false);
+                setProgressOpen(false);
+                setFindOpen(false);
+                setFindHighlight(null);
+                setBackupNote("");
+                setBackupFilename(manuscriptBackupBasename(book));
+                setBackupOpen(true);
+              }}
+            >
+              {jsonBackupDue ? m.editor.backupDue : m.editor.backup}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="app-top-menu-item"
+              title={m.editor.appExportTitle}
+              onClick={() => {
+                const packed = packManuscriptExport(book);
+                downloadJson(manuscriptAppExportFilename(book, packed.exportedAt), packed);
+              }}
+            >
+              {m.editor.appExport}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="app-top-menu-item"
+              onClick={() => {
+                setPublishOpen(false);
+                setFindOpen(false);
+                setFindHighlight(null);
+                setImportOpen(true);
+              }}
+            >
+              {m.bible.importLoreNav}
+            </button>
+            <div className="app-top-menu-divider" />
+            <button
+              type="button"
+              role="menuitem"
+              className={publishOpen ? "app-top-menu-item is-on" : "app-top-menu-item"}
+              onClick={openPublish}
+            >
+              {m.editor.publish}
+            </button>
+          </TopMenu>
+          <TopMenu label={m.editor.toolsNav}>
+            <button
+              type="button"
+              role="menuitem"
+              className="app-top-menu-item"
+              onClick={() => {
+                setPublishOpen(false);
+                setFindOpen(false);
+                setFindHighlight(null);
+                setMarkerConvertOpen(true);
+              }}
+            >
+              {m.markerConvert.nav}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={onAskManuscript && !onBoard ? "app-top-menu-item is-on" : "app-top-menu-item"}
+              onClick={() => {
+                dismissProofread();
+                setBoardOpen(false);
+                store.showAsk();
+              }}
+            >
+              {m.askManuscript.nav}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={proofreadOpen || busy === "proofread" ? "app-top-menu-item is-on" : "app-top-menu-item"}
+              onClick={openProofread}
+              disabled={busy !== null && busy !== "proofread"}
+            >
+              {m.editor.proofread}
+            </button>
+          </TopMenu>
           <button
             type="button"
             className={onSettings && !onBoard ? "text-button theme-toggle is-on" : "text-button theme-toggle"}
@@ -750,57 +932,6 @@ export function Editor() {
             }}
           >
             {m.editor.settings}
-          </button>
-          <button
-            type="button"
-            className={jsonBackupDue ? "text-button theme-toggle backup-cue is-due" : "text-button theme-toggle backup-cue"}
-            title={jsonBackupDue ? m.editor.backupDueTitle : m.editor.backupTitle}
-            onClick={() => {
-              setPublishOpen(false);
-              setProgressOpen(false);
-              setFindOpen(false);
-              setFindHighlight(null);
-              setBackupNote("");
-              setBackupFilename(manuscriptBackupBasename(book));
-              setBackupOpen(true);
-            }}
-          >
-            {jsonBackupDue ? m.editor.backupDue : m.editor.backup}
-          </button>
-          <button
-            type="button"
-            className="text-button theme-toggle"
-            title={m.editor.appExportTitle}
-            onClick={() => {
-              const packed = packManuscriptExport(book);
-              downloadJson(manuscriptAppExportFilename(book, packed.exportedAt), packed);
-            }}
-          >
-            {m.editor.appExport}
-          </button>
-          <button
-            type="button"
-            className="text-button theme-toggle"
-            onClick={() => {
-              setPublishOpen(false);
-              setFindOpen(false);
-              setFindHighlight(null);
-              setImportOpen(true);
-            }}
-          >
-            {m.bible.importLoreNav}
-          </button>
-          <button
-            type="button"
-            className="text-button theme-toggle"
-            onClick={() => {
-              setPublishOpen(false);
-              setFindOpen(false);
-              setFindHighlight(null);
-              setMarkerConvertOpen(true);
-            }}
-          >
-            {m.markerConvert.nav}
           </button>
           <div className="find-anchor">
             <button
@@ -885,67 +1016,6 @@ export function Editor() {
             onClick={() => setLeftRailPinned((on) => !on)}
           >
             {leftRailPinned ? "📌" : "📍"}
-          </button>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onBrainstorm && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showBrainstorm();
-              }}
-            >
-              {m.editor.brainstorm}
-            </button>
-            <GuideHelpButton
-              anchor="brainstorm-synopsis"
-              ariaLabel={format(m.guide.helpFor, { topic: m.editor.brainstorm })}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onSynopsis && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showSynopsis();
-              }}
-            >
-              {m.editor.synopsis}
-            </button>
-            <GuideHelpButton
-              anchor="brainstorm-synopsis"
-              ariaLabel={format(m.guide.helpFor, { topic: m.editor.synopsis })}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onMethod && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showMethod();
-              }}
-            >
-              {m.method.nav}
-            </button>
-            <GuideHelpButton
-              anchor="method"
-              ariaLabel={format(m.guide.helpFor, { topic: m.method.nav })}
-            />
-          </div>
-          <button
-            type="button"
-            className={onBoard ? "synopsis-item is-active" : "synopsis-item"}
-            onClick={() => {
-              dismissProofread();
-              openBoard();
-            }}
-          >
-            {m.editor.briefs}
           </button>
           <div className="rail-head">
             <span className="rail-head-title">
@@ -1175,70 +1245,7 @@ export function Editor() {
               );
             })}
           </ol>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={onAskManuscript && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showAsk();
-              }}
-            >
-              {m.askManuscript.nav}
-            </button>
-            <GuideHelpButton
-              anchor="ask-manuscript"
-              ariaLabel={format(m.guide.helpFor, { topic: m.askManuscript.nav })}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={(onTimeline || onPlotlines) && !onBoard ? "synopsis-item is-active" : "synopsis-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showTimeline();
-              }}
-            >
-              {m.timeline.nav}
-            </button>
-            <GuideHelpButton
-              anchor="timeline"
-              ariaLabel={format(m.guide.helpFor, { topic: m.timeline.nav })}
-            />
-          </div>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={
-                proofreadOpen || busy === "proofread" ? "synopsis-item proofread-item is-active" : "synopsis-item proofread-item"
-              }
-              onClick={openProofread}
-              disabled={busy !== null && busy !== "proofread"}
-            >
-              {m.editor.proofread}
-            </button>
-            <GuideHelpButton
-              anchor="proofread"
-              ariaLabel={format(m.guide.helpFor, { topic: m.editor.proofread })}
-            />
-          </div>
           </ChapterStrandOverlay>
-          <div className="synopsis-item-row">
-            <button
-              type="button"
-              className={publishOpen ? "synopsis-item publish-item is-active" : "synopsis-item publish-item"}
-              onClick={openPublish}
-            >
-              {m.editor.publish}
-            </button>
-            <GuideHelpButton
-              anchor="publish"
-              ariaLabel={format(m.guide.helpFor, { topic: m.editor.publish })}
-            />
-          </div>
           {discarded.length > 0 ? (
             <>
               <div className="rail-head">
@@ -1282,6 +1289,11 @@ export function Editor() {
               </ul>
             </>
           ) : null}
+          <button type="button" className="text-button theme-toggle progress-footer" onClick={openProgress}>
+            {goalPace
+              ? format(m.progress.percentComplete, { percent: goalPace.percent })
+              : `${count(currentWords, m.stats.wordsShort)} · ${m.progress.setGoal}`}
+          </button>
         </aside>
 
         {onSettings && !onBoard ? (

@@ -9,6 +9,12 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.51] - 2026-10-07
+
+### Changed
+- Reorganized the manuscript's top bar. Brainstorm, Synopsis, Development method, Briefs, and Timeline — previously a vertical list in the left panel — are now tabs on a single top row, next to the manuscript title. The remaining actions are grouped into two dropdown menus, "File" (Backup, Export for other apps, Import lore, Publish) and "Tools" (Convert markers, Ask Manuscript, Proofread), with Settings and the renamed "Find/Replace" staying as direct buttons. This clears up the crowded, sometimes overlapping row of buttons the top bar used to show at normal window widths.
+- The left panel is now narrower, holding only the chapter list and a word-count/goal indicator at the bottom. The Story Bible panel on the right is correspondingly wider, with more room for longer alias lists, trait text, and mentions.
+
 ## [1.0.50] - 2026-10-07
 
 ### Added

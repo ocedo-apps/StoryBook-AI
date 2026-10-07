@@ -81,6 +81,8 @@ export const nb: Messages = {
     appExport: "Eksporter for andre apper",
     appExportTitle: "Last ned en StoryCore-eksport av manuset — låste Story Bible-fakta og kapitler, til for at en søsterapp som ComicBook AI skal kunne importere. Et øyeblikksbilde, ingen levende kobling.",
     publish: "Publiser",
+    archiveNav: "Arkiv",
+    toolsNav: "Verktøy",
     settings: "Innstillinger",
     backToManuscript: "← Tilbake til manuskriptet",
     settingsLede:
@@ -945,7 +947,7 @@ export const nb: Messages = {
     targetReached: "Mål nådd"
   },
   find: {
-    action: "Søk",
+    action: "Søk/Erstatt",
     title: "Søk og erstatt",
     body: "Treffene markeres i tekstfeltet. Pilene hopper til neste eller forrige. Story Bible blir liggende. Brainstorm blir liggende med mindre du tar den med.",
     find: "Søk",

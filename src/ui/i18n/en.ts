@@ -379,6 +379,8 @@ export const en = {
     appExport: "Export for other apps",
     appExportTitle: "Download a StoryCore manuscript export — locked Story Bible facts and chapters, for a sibling app like ComicBook AI to import. A snapshot, not a live link.",
     publish: "Publish",
+    archiveNav: "File",
+    toolsNav: "Tools",
     settings: "Settings",
     backToManuscript: "← Back to manuscript",
     settingsLede:
@@ -955,7 +957,7 @@ export const en = {
     targetReached: "Target reached"
   },
   find: {
-    action: "Find",
+    action: "Find/Replace",
     title: "Find & replace",
     body: "Matches light up in the text. Arrows jump to the next or previous. Story Bible stays. Brainstorm stays unless you include it.",
     find: "Find",

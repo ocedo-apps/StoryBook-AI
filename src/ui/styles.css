@@ -887,10 +887,9 @@ button:disabled {
 }
 
 .editor-top {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 1rem;
+  display: flex;
   align-items: center;
+  gap: 1rem;
   padding: 0.7rem 1rem;
   border-bottom: 1px solid var(--border-soft);
   background: var(--panel);
@@ -900,21 +899,51 @@ button:disabled {
 }
 
 .title-input {
+  flex: 0 0 auto;
   font-family: var(--font-prose);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   background: transparent;
   border-color: transparent;
   padding-left: 0.2rem;
-  min-width: 20rem;
-  max-width: 40rem;
+  min-width: 8rem;
+  max-width: 16rem;
 }
 
-.progress-header {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+.editor-top-divider {
+  flex: 0 0 auto;
+  width: 1px;
+  align-self: stretch;
+  margin: 0.4rem 0;
+  background: var(--border-soft);
+}
+
+.editor-top-tabs {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editor-top-tab {
+  flex: 0 0 auto;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  padding: 0.5rem 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 550;
   white-space: nowrap;
+}
+
+.editor-top-tab:hover {
+  color: var(--text);
+}
+
+.editor-top-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--ink);
 }
 
 .title-input:hover,
@@ -925,10 +954,12 @@ button:disabled {
 
 .model-fields {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 0.75rem 1rem;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .model-field {
@@ -971,18 +1002,18 @@ button:disabled {
 
 .editor-body {
   display: grid;
-  grid-template-columns: 23.25rem minmax(0, 1fr) 23.25rem;
+  grid-template-columns: 15rem minmax(0, 1fr) 28rem;
   flex: 1;
   min-height: 0;
   position: relative;
 }
 
 .editor-body.is-left-collapsed {
-  grid-template-columns: 0.6rem minmax(0, 1fr) 23.25rem;
+  grid-template-columns: 0.6rem minmax(0, 1fr) 28rem;
 }
 
 .editor-body.is-right-collapsed {
-  grid-template-columns: 23.25rem minmax(0, 1fr) 0.6rem;
+  grid-template-columns: 15rem minmax(0, 1fr) 0.6rem;
 }
 
 .editor-body.is-left-collapsed.is-right-collapsed {
@@ -1032,7 +1063,6 @@ button:disabled {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 23.25rem;
   z-index: 25;
   padding: 1rem 0.9rem 1.2rem;
   box-shadow: var(--shadow);
@@ -1040,10 +1070,12 @@ button:disabled {
 
 .rail-left.is-floating {
   left: 0;
+  width: 15rem;
 }
 
 .rail-right.is-floating {
   right: 0;
+  width: 28rem;
 }
 
 .rail-pin {
@@ -1157,13 +1189,13 @@ button:disabled {
   color: var(--text);
 }
 
-.rail-left .proofread-item {
-  margin-top: 0.35rem;
-  margin-bottom: 0.35rem;
-}
-
-.rail-left .publish-item {
-  margin-top: 0.55rem;
+.progress-footer {
+  margin-top: auto;
+  align-self: stretch;
+  text-align: left;
+  white-space: nowrap;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-soft);
 }
 
 .rail-head {
