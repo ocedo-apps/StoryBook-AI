@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.55] - 2026-10-07
+
+### Changed
+- The Settings dialog now grows taller on a tall window instead of staying capped at a fixed height — less or no internal scrolling needed to see everything, with the same graceful scroll-within-the-dialog fallback on a shorter window.
+
 ## [1.0.54] - 2026-10-07
 
 ### Changed

@@ -1602,10 +1602,14 @@ button:disabled {
  * internally, with the head staying put above it. Wide enough for two
  * full columns of fields side by side — this is meant to "fylla upp
  * sidan rejält" (fill the page substantially), not sit as a narrow strip.
+ * The rem cap on height is generous (not ~50rem like the chat-shaped
+ * interview card) — Settings' two columns run tall, and the point is to
+ * use whatever room a tall window has instead of forcing a scroll that
+ * extra height would have avoided.
  */
 .edit-card.settings-card {
   width: min(78rem, 100%);
-  height: min(92vh, 54rem);
+  height: min(94vh, 70rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;

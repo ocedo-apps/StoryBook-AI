@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.54
+Status: living document, v1.0.55
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1402,6 +1402,34 @@ klippas av dialogens egen scroll), och dialogens höjd krymper märkbart
 nu när texterna inte längre tar permanent plats.
 
 v1.0.53 → v1.0.54.
+
+---
+
+**Ändringslogg v1.0.54 → v1.0.55 (2026-10-07):** Mats skickade en
+skärmdump av Settings-dialogen på ett högre fönster där den fortfarande
+klipptes av `height: min(92vh, 54rem)`s 54rem-tak (864px) långt innan
+92vh hann bli den begränsande faktorn — Illustrations-blocket och delar
+av AI-kolumnen krävde skroll trots gott om ledigt utrymme kvar i
+fönstret. Bad om att låta höjden växa när det finns plats, så man
+slipper skrolla.
+
+**Fix, en rad.** Höjde rem-taket från 54rem till 70rem och vh-andelen
+från 92vh till 94vh (`height: min(94vh, 70rem)`), med en uppdaterad
+kommentar som förklarar varför taket är högre än `.edit-card.interview-
+card`s ~50rem — Settings två kolumner är helt enkelt högre än den
+chattformade förlagan, och poängen nu är att utnyttja ett högt fönster
+istället för att tvinga fram skroll som extra höjd hade undvikit.
+
+**Verifiering, med tre fönsterhöjder.** `tsc --noEmit`, hela
+testsviten (885 tester, oförändrat), `npm run build` gröna.
+Playwright-verifierat live vid tre viewport-höjder: 1300px (dialogen
+växer till hela 70rem-taket, båda kolumnerna ryms utan skroll, ingen
+skev tomrymd i den kortare AI-kolumnen), ~1000px (nästan ingen skroll
+kvar — bara någon enstaka rad), och 700px (den gamla interna skroll-
+mekaniken fortfarande fungerar oförändrat som fallback på ett kort
+fönster).
+
+v1.0.54 → v1.0.55.
 
 ---
 
