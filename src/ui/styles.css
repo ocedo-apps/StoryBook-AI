@@ -1597,17 +1597,20 @@ button:disabled {
 
 /*
  * Same large-modal precedent as .edit-card.interview-card: a definite
- * height (not max-height) so .settings-card-columns below can rely on
- * `flex: 1 1 auto; min-height: 0;` to fill the leftover space and scroll
- * internally, with the head staying put above it. Wide enough for two
- * full columns of fields side by side — this is meant to "fylla upp
- * sidan rejält" (fill the page substantially), not sit as a narrow strip.
+ * height (not max-height) so the scrollable area below (.settings-card-
+ * columns, .ask-manuscript-scroll) can rely on `flex: 1 1 auto; min-
+ * height: 0;` to fill the leftover space and scroll internally, with
+ * the head staying put above it. Wide enough for two full columns of
+ * fields side by side — this is meant to "fylla upp sidan rejält" (fill
+ * the page substantially), not sit as a narrow strip. Ask Manuscript
+ * shares these dimensions deliberately ("lika stor som Settings").
  * The rem cap on height is generous (not ~50rem like the chat-shaped
  * interview card) — Settings' two columns run tall, and the point is to
  * use whatever room a tall window has instead of forcing a scroll that
  * extra height would have avoided.
  */
-.edit-card.settings-card {
+.edit-card.settings-card,
+.edit-card.ask-manuscript-card {
   width: min(78rem, 100%);
   height: min(94vh, 70rem);
   display: flex;
@@ -1615,7 +1618,7 @@ button:disabled {
   overflow: hidden;
 }
 
-.settings-card-head {
+.dialog-head {
   flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
@@ -4665,16 +4668,25 @@ button:disabled {
   font-style: italic;
 }
 
-.ask-manuscript {
-  overflow: auto;
-  padding-bottom: 2.5rem;
+/*
+ * Chat-style layout (Claude/Gemini/ChatGPT convention): the answer
+ * scrolls in its own area above, the question field stays pinned at
+ * the bottom of the dialog — so a long answer (or a long source list)
+ * never pushes the input out of the visible card, same reasoning as
+ * .settings-card-columns above.
+ */
+.ask-manuscript-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .ask-manuscript-form {
+  flex: 0 0 auto;
   display: grid;
   gap: 0.6rem;
-  max-width: 40rem;
-  margin-top: 1rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-soft);
 }
 
 .ask-manuscript-form textarea {
@@ -4693,8 +4705,7 @@ button:disabled {
 }
 
 .ask-manuscript-answer {
-  margin-top: 1.8rem;
-  max-width: 40rem;
+  max-width: 48rem;
 }
 
 .ask-manuscript-heading {
@@ -4730,10 +4741,6 @@ button:disabled {
   color: var(--text-faint);
   font-size: 0.85rem;
   font-style: italic;
-}
-
-.ask-manuscript-empty {
-  margin-top: 1.6rem;
 }
 
 .timeline-title {

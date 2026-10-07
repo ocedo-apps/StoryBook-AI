@@ -9,6 +9,13 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.59] - 2026-10-07
+
+### Changed
+- Ask Manuscript is now a large dialog (the same size as Settings) instead of its own full-page view, closing with its own Close button, by clicking outside it, or with Escape. The question field stays pinned at the bottom, with the answer and its sources scrolling in their own area above — so a long answer never pushes the question field out of view, the same convention Claude, Gemini, and ChatGPT use.
+- The explanatory text above and the empty-state hint below the question field are gone — the same information now lives in the field's own placeholder text.
+- "Versions per chapter" is now just "Revisions" — shorter, with the "?" tooltip still there for anyone wondering what it means.
+
 ## [1.0.58] - 2026-10-07
 
 ### Fixed

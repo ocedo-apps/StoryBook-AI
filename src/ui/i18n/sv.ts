@@ -109,7 +109,7 @@ export const sv: Messages = {
     contextWindowOpenAiNote: "För LM Studio och andra OpenAI-kompatibla servrar sätts kontextlängden när du laddar modellen där, inte här.",
     filterLoreLabel: "Visa bara relevant lore för Skriv utkast",
     filterLoreLede: "Avstängt som standard. Lore-fakta (importerade, inte skrivna i ett kapitel) tas annars alltid med, oavsett om kapitlet faktiskt handlar om dem. Slå på det här om din Story Bible har mycket importerad lore och prompten börjar bli för stor — då tas bara lore vars namn (eller, för Händelser, en deltagare eller plats) nämns i kapitlets brief eller text hittills. Pinna en enskild lore-fakta för att alltid ta med den oavsett, med samma knapp som redan finns i Story Bible.",
-    historyLimit: "Versioner per kapitel",
+    historyLimit: "Versioner",
     historyLimitLede:
       "Hur många tidigare versioner av ett kapitel som sparas, från Skriv utkast, Omskriv, Förläng, Utveckla och Skriv om. Så fort gränsen nås försvinner den äldsta versionen först. Det du skriver själv för hand sparas inte som en egen version — bara de här åtgärderna gör det.",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
@@ -331,14 +331,12 @@ export const sv: Messages = {
   askManuscript: {
     nav: "Fråga manuset",
     title: "Fråga ditt manus",
-    lede: "Ställ en fråga om din berättelse. Svaret använder bara det som faktiskt är skrivet — med de kapitel det hämtats från, så att du själv kan kontrollera det.",
-    placeholder: "Ställ en fråga om ditt manus…",
+    placeholder: "Ställ en fråga om din berättelse. Svaret använder bara det som faktiskt är skrivet — med de kapitel det hämtats från, så att du själv kan kontrollera det.",
     action: "Fråga",
     asking: "Frågar…",
     answerHeading: "Svar",
     sourcesHeading: "Källor",
-    jumpToChapter: "Öppna ”{chapter}”",
-    empty: "Ställ en fråga om ditt manus så visas svaret här, tillsammans med källorna."
+    jumpToChapter: "Öppna ”{chapter}”"
   },
   askPassage: {
     title: "Fråga om det här kapitlet",

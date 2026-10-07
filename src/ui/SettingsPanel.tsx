@@ -105,7 +105,7 @@ export function SettingsPanel({
         aria-labelledby="settings-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="settings-card-head">
+        <div className="dialog-head">
           <span className="settings-card-title">
             <h2 id="settings-title">{m.editor.settings}</h2>
             <HelpTip body={m.editor.settingsLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.settings })} />

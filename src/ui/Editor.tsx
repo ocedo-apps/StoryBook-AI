@@ -391,7 +391,6 @@ export function Editor() {
   if (!chapter) return null;
   const onBrainstorm = surface === "brainstorm";
   const onSynopsis = surface === "synopsis";
-  const onAskManuscript = surface === "ask";
   const onTimeline = surface === "timeline";
   const onPlotlines = surface === "plotlines";
   const onMethod = surface === "method";
@@ -454,6 +453,7 @@ export function Editor() {
   const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aiContextOpen, setAiContextOpen] = useState(false);
+  const [askManuscriptOpen, setAskManuscriptOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
   const [findKey, setFindKey] = useState(0);
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
@@ -497,7 +497,7 @@ export function Editor() {
       })
     : [];
   const pageText =
-    onAskManuscript || onTimeline || onPlotlines || onMethod
+    onTimeline || onPlotlines || onMethod
       ? ""
       : onBrainstorm
         ? book.brainstorm
@@ -506,7 +506,7 @@ export function Editor() {
           : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
   const activeReaderAge =
-    onBrainstorm || onSynopsis || onAskManuscript || onTimeline || onPlotlines || onMethod
+    onBrainstorm || onSynopsis || onTimeline || onPlotlines || onMethod
       ? book.reader_age
       : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
@@ -623,6 +623,17 @@ export function Editor() {
     setIllustrateOpen(false);
     setProgressOpen(false);
     setAiContextOpen(true);
+  }
+
+  function openAskManuscript() {
+    setBackupOpen(false);
+    setPublishOpen(false);
+    setFindOpen(false);
+    setFindHighlight(null);
+    setIllustrationLibraryOpen(false);
+    setIllustrateOpen(false);
+    setProgressOpen(false);
+    setAskManuscriptOpen(true);
   }
 
   function openFind() {
@@ -922,12 +933,8 @@ export function Editor() {
             <button
               type="button"
               role="menuitem"
-              className={onAskManuscript && !onBoard ? "app-top-menu-item is-on" : "app-top-menu-item"}
-              onClick={() => {
-                dismissProofread();
-                setBoardOpen(false);
-                store.showAsk();
-              }}
+              className={askManuscriptOpen ? "app-top-menu-item is-on" : "app-top-menu-item"}
+              onClick={openAskManuscript}
             >
               {m.askManuscript.nav}
             </button>
@@ -1395,13 +1402,6 @@ export function Editor() {
               />
             ) : null}
           </BrainstormBoard>
-        ) : onAskManuscript ? (
-          <AskManuscriptPanel
-            answer={store.askManuscriptAnswer}
-            busy={busy === "ask-manuscript"}
-            onAsk={(question) => void store.askManuscript(question)}
-            onJumpToChapter={store.setChapterId}
-          />
         ) : onTimeline || onPlotlines ? (
           <TimelineBoardPanel
             columns={timelineBoardColumns(book)}
@@ -1867,6 +1867,18 @@ export function Editor() {
         />
       ) : null}
       {aiContextOpen ? <PromptInspectorCard entry={store.lastPrompt} onClose={() => setAiContextOpen(false)} /> : null}
+      {askManuscriptOpen ? (
+        <AskManuscriptPanel
+          answer={store.askManuscriptAnswer}
+          busy={busy === "ask-manuscript"}
+          onAsk={(question) => void store.askManuscript(question)}
+          onJumpToChapter={(chapterId) => {
+            store.setChapterId(chapterId);
+            setAskManuscriptOpen(false);
+          }}
+          onClose={() => setAskManuscriptOpen(false)}
+        />
+      ) : null}
       {progressOpen ? (
         <ProgressCard
           book={book}

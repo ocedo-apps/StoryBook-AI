@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.58
+Status: living document, v1.0.59
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1581,6 +1581,82 @@ redan finns i tooltipen). Svarade med en rekommendation istället för
 att bygga direkt, väntar på bekräftelse.
 
 v1.0.57 → v1.0.58.
+
+---
+
+**Ändringslogg v1.0.58 → v1.0.59 (2026-10-07):** Mats bekräftade
+Revisions-namnbytet från förra rundan ("Byt till revision") och gick
+vidare till den sista kvarvarande helsides-ytan: Ask Manuscript (Fråga
+manuset), som fortfarande var en egen sida, inte en modal som alla
+andra verktyg. Bad om: samma storlek som Settings; ta bort texten ovanför
+frågefältet OCH tomt-läge-texten under det; lägg den borttagna
+förklaringen som frågefältets egen placeholder-text istället; och
+säkerställ att frågefältet inte knuffas ut ur rutan om svaret blir
+långt — med en direkt fråga om det borde bli samma mönster som
+Claude/Gemini/ChatGPT (chattfönster med frågan fastnålad längst ner,
+svaret scrollande ovanför).
+
+**Revisions.** Döpte om `historyLimit` i alla tre språkfiler — men INTE
+rakt av till det svenska ordet "revision" (som i vardagssvenska
+nästan uteslutande betyder bokföringsrevision/finansiell granskning,
+fel association för kapitelversioner). Engelska blev "Revisions" som
+Mats bad om; svenska/norska kortades istället ner till bara
+"Versioner"/"Versjoner" (samma riktning — kortare, tooltipen finns kvar
+för den som undrar — men utan att importera en missvisande term).
+
+**Ask Manuscript, samma modal-konvertering som Settings i v1.0.53.**
+`AskManuscriptPanel` (`AskManuscript.tsx`) skrev om till att äga sitt
+eget `.edit-overlay`/`.edit-card`-skal (samma ägarskaps-konvention som
+varje annan `XCard.tsx`), med `onClose`-prop + Escape-hantering. I
+`Editor.tsx`: tog bort `onAskManuscript = surface === "ask"` och dess
+användning i `pageText`/`activeReaderAge`-ternaryerna samt
+render-grenen i surface-kedjan (samma mönster som Settings — lämnade
+`EditorSurface`s `"ask"`-literal och `store.showAsk()` dö-men-ofarliga,
+av samma skäl: en gammal sparad `surface:"ask"` faller nu bara igenom
+till standardvyn). Ny `askManuscriptOpen`-state + `openAskManuscript()`
+(speglar `openAiContext()`s mönster: stänger syskon-overlays innan den
+öppnar). Extra genomtänkt detalj: `onJumpToChapter` stänger nu även
+modalen när man klickar en källa, eftersom det annars inte skulle synas
+att man faktiskt hoppat till kapitlet — BiblePanels motsvarande
+"hoppa till kapitel"-knapp (en ständigt synlig sidopanel, inte en
+modal) stänger ingenting, så detta är en medveten avvikelse för den
+nya modal-kontexten, inte en kopierad bugg.
+
+**Chat-layouten.** `.ask-manuscript-scroll { flex:1 1 auto; min-
+height:0; overflow-y:auto; }` + `.ask-manuscript-form { flex:0 0 auto;
+border-top:1px solid var(--border-soft); }` — exakt samma `flex:1 1
+auto`/`min-height:0`-mönster som `.settings-card-columns` redan
+bevisat löser "långt innehåll ska scrolla internt, inte knuffa ut
+resten av kortet". Bredd/höjd delas rakt av med Settings via en
+utökad selektor (`.edit-card.settings-card, .edit-card.ask-manuscript-
+card { width:min(78rem,100%); height:min(94vh,70rem); ... }`) istället
+för att duplicera värdena — "lika stor som Settings" blir bokstavligt
+sant, inte bara en ungefärlig matchning.
+
+**En liten namnstädning på vägen.** `.settings-card-head` (den delade
+rubrik+Close-knapp-raden) hette något Settings-specifikt trots att den
+nu återanvänds av en annan dialog — döpte om till `.dialog-head`
+(enda användningsstället i `SettingsPanel.tsx` uppdaterat i samma
+ändring) istället för att låta namnet vilseleda nästa person som läser
+koden.
+
+**Textflytt.** `askManuscript.lede` (den gamla texten ovanför fältet)
+blev `askManuscript.placeholder`s nya värde rakt av — orden var redan
+exakt vad Mats bad om, bara en flytt av VAR de visas. `askManuscript.empty`
+(tomt-läge-texten under fältet) togs bort helt utan ersättning, som
+uttryckligen bett om.
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright-verifierat live: dialogen
+matchar Settings storlek exakt, frågefältet visar rätt placeholder-text,
+varken lede- eller tomt-läge-texten finns kvar, frågetexten man skrivit
+bevaras i fältet, och samtliga tre stängningsvägar (Close-knapp, klick
+utanför, Escape) fungerar. Kunde INTE live-testa hela svars-scroll-
+flödet end-to-end (ingen lokal AI-modell kopplad i den här miljön) —
+layout-mönstret är dock identiskt verifierat-fungerande kod från
+Settings, inte en ny oprövad konstruktion.
+
+v1.0.58 → v1.0.59.
 
 ---
 

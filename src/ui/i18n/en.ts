@@ -407,7 +407,7 @@ export const en = {
     contextWindowOpenAiNote: "For LM Studio and other OpenAI-compatible servers, the context length is set when you load the model there, not here.",
     filterLoreLabel: "Only show relevant lore for Draft",
     filterLoreLede: "Off by default. Lore facts (imported, not written in a chapter) are otherwise always included, whether or not the chapter is actually about them. Turn this on if your Story Bible has a lot of imported lore and the prompt is getting too large — only lore whose name (or, for Events, a participant or location) is mentioned in the chapter's brief or text so far gets included. Pin an individual lore fact to always include it regardless, with the same button already in the Story Bible.",
-    historyLimit: "Versions per chapter",
+    historyLimit: "Revisions",
     historyLimitLede:
       "How many earlier versions of a chapter are kept, going back through Draft, Recast, Extend, Elaborate, and Rewrite. Once you go over the limit, the oldest version is dropped first. Typing on your own doesn't create a version — only those actions do.",
     uiLanguageStays: "The page language stays in the header.",
@@ -629,14 +629,12 @@ export const en = {
   askManuscript: {
     nav: "Ask Manuscript",
     title: "Ask your manuscript",
-    lede: "Ask a question about your story. The answer only uses what is actually written — with the chapters it drew from, so you can check it yourself.",
-    placeholder: "Ask a question about your manuscript…",
+    placeholder: "Ask a question about your story. The answer only uses what is actually written — with the chapters it drew from, so you can check it yourself.",
     action: "Ask",
     asking: "Asking…",
     answerHeading: "Answer",
     sourcesHeading: "Sources",
-    jumpToChapter: "Open “{chapter}”",
-    empty: "Ask a question about your manuscript and the answer will appear here, with its sources."
+    jumpToChapter: "Open “{chapter}”"
   },
   askPassage: {
     title: "Ask about this chapter",

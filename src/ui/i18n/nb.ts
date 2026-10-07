@@ -109,7 +109,7 @@ export const nb: Messages = {
     contextWindowOpenAiNote: "For LM Studio og andre OpenAI-kompatible servere settes kontekstlengden når du laster modellen der, ikke her.",
     filterLoreLabel: "Vis bare relevant lore for Skriv utkast",
     filterLoreLede: "Avslått som standard. Lore-fakta (importert, ikke skrevet i et kapittel) tas ellers alltid med, uansett om kapittelet faktisk handler om dem. Slå på denne hvis Story Bible-en din har mye importert lore og prompten begynner å bli for stor — da tas bare lore med hvis navnet (eller, for Hendelser, en deltaker eller et sted) nevnes i kapittelets brief eller tekst så langt. Pin en enkelt lore-fakta for å alltid ta den med uansett, med samme knapp som allerede finnes i Story Bible.",
-    historyLimit: "Versjoner per kapittel",
+    historyLimit: "Versjoner",
     historyLimitLede:
       "Hvor mange tidligere versjoner av et kapittel som lagres, fra Lag utkast, Omskriv, Forleng, Utdyp og Skriv om. Så snart grensen nås, forsvinner den eldste versjonen først. Det du skriver selv for hånd lagres ikke som en egen versjon — bare disse handlingene gjør det.",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
@@ -331,14 +331,12 @@ export const nb: Messages = {
   askManuscript: {
     nav: "Spør manuset",
     title: "Spør manuset ditt",
-    lede: "Still et spørsmål om historien din. Svaret bruker bare det som faktisk er skrevet — med kapitlene det er hentet fra, så du selv kan sjekke det.",
-    placeholder: "Still et spørsmål om manuset ditt…",
+    placeholder: "Still et spørsmål om historien din. Svaret bruker bare det som faktisk er skrevet — med kapitlene det er hentet fra, så du selv kan sjekke det.",
     action: "Spør",
     asking: "Spør…",
     answerHeading: "Svar",
     sourcesHeading: "Kilder",
-    jumpToChapter: "Åpne «{chapter}»",
-    empty: "Still et spørsmål om manuset ditt, så vises svaret her, sammen med kildene."
+    jumpToChapter: "Åpne «{chapter}»"
   },
   askPassage: {
     title: "Spør om dette kapittelet",
