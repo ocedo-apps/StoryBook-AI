@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.48
+Status: living document, v1.0.49
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1068,6 +1068,50 @@ alias + exclusion, laddade om sidan — båda fälten överlevde
 `npm run build` gröna.
 
 v1.0.47 → v1.0.48.
+
+---
+
+**Ändringslogg v1.0.48 → v1.0.49 (2026-10-07):** Andra punkten av fyra
+från samma Novelcrafter-genomgång: "Flexibla fält istället för fasta
+Trait/Identity-kategorier", direkt adresserat mot testarens klagomål
+("I still don't know which way is correct... I'm too used to UI where
+everything is in one field").
+
+**Övervägde en fullständig omskrivning** (fria, författardefinierade
+kategorier à la Novelcrafters "Codex Details") men avvisade den —
+`classifyEntity` (`bibleGroups.ts`) avgör karaktär/plats/objekt via
+EXAKT vilka predikat en entitet har, `ConsistencyGate` matchar konflikter
+på entity+predikat, och fakta-extraktionen (`extractFacts.ts`) är
+constrained mot `CORE_PREDICATES` för att AI-anrop ska vara pålitliga.
+Att göra kategorin fri text hade krävt att riva upp alla tre, med stor
+regressionsrisk, för ett problem som i grunden är ett UI-problem, inte
+ett datamodell-problem.
+
+**Vald lösning, UI-bara, noll schemaändring.** Två ställen bad
+författaren välja kategori manuellt: `NewEntityOverlay` (skapa nytt
+kort) och Add fact-formuläret i `EntityOverlay` (lägga till mer på ett
+befintligt kort). Första stället tog bort valet helt — allra första
+fakta på ett nytt kort låses tyst till kortets naturliga standard
+(`BIBLE_KIND_DEFAULT_PREDICATE`, Identity för karaktärer som förut,
+bara inte något författaren behöver fundera på i precis det ögonblick
+hen är mest osäker). Andra stället fick en ny, snävare lista per typ
+(`BIBLE_KIND_ADD_PREDICATES`, `bibleGroups.ts`): karaktärer ser bara
+"Trait" + "Relationship" — Identity är medvetet uteslutet eftersom den
+redan är satt vid skapandet, och att fråga igen var precis den
+förvirring testaren beskrev. Platser/objekt/grupper/händelser ser sin
+egen huvudkategori + "Concept" som uppsamlingsheap. Gamla, redan låsta
+Identity-fakta visas och fungerar precis som förut — bara den FRAMÅT-
+RIKTADE valmöjligheten är borttagen, inget migrerat eller omklassat.
+
+**Verifiering.** Nya tester i `bible-groups.test.ts` (Identity saknas
+ur varje typs lista, karaktärers lista är exakt Trait+Relationship,
+alla typer har minst ett val). Playwright-verifierat live: nytt kort
+har noll `<select>` i overlayn, befintligt korts Add fact-dropdown
+visar exakt `["Trait", "Relationship"]` för en karaktär.
+`tsc --noEmit`, hela testsviten (885 tester, +3 sedan v1.0.48) och
+`npm run build` gröna.
+
+v1.0.48 → v1.0.49.
 
 ---
 

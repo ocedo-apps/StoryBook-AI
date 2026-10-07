@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.49] - 2026-10-07
+
+### Changed
+- Creating a new Story Bible card no longer asks which category ("Identity", "Trait", etc.) the first fact belongs to — the right one is chosen automatically. Adding further facts to an existing character now offers a short, relevant list ("Trait", "Relationship") instead of the full eight-category list, so there's no longer a confusing choice between near-identical categories that worked the same way either way.
+
 ## [1.0.48] - 2026-10-07
 
 ### Added

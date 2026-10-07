@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  BIBLE_KIND_ADD_PREDICATES,
   BIBLE_KIND_DEFAULT_PREDICATE,
   BIBLE_KINDS,
   classifyEntity,
@@ -13,7 +14,7 @@ import {
 import { activeFacts, type FactOrigin, type NarrativeFact } from "@core/NarrativeFact";
 import { chainsWithHistory, factHistoryForEntity, factsAsOfSequence, type FactHistoryChain } from "@core/bibleHistory";
 import { mentionsForEntity, type MentionHit } from "@core/bibleMentions";
-import { CORE_PREDICATES, type CorePredicate } from "@core/predicates";
+import { type CorePredicate } from "@core/predicates";
 import { normalizeValue, slugify } from "@core/ids";
 import {
   CHARACTER_PRONOUNS,
@@ -772,7 +773,9 @@ function EntityOverlay({
   onDelete: () => void;
   onClose: () => void;
 }) {
-  const [predicate, setPredicate] = useState<CorePredicate>(entity.facts[0]?.predicate ?? "core.identity");
+  const allowedPredicates = BIBLE_KIND_ADD_PREDICATES[kind];
+  const [predicateChoice, setPredicate] = useState<CorePredicate>(allowedPredicates[0]!);
+  const predicate = allowedPredicates.includes(predicateChoice) ? predicateChoice : allowedPredicates[0]!;
   const [value, setValue] = useState("");
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
@@ -978,7 +981,7 @@ function EntityOverlay({
       >
         <h3>{m.bible.addFact}</h3>
         <select value={predicate} onChange={(event) => setPredicate(event.target.value as CorePredicate)}>
-          {CORE_PREDICATES.map((item) => (
+          {allowedPredicates.map((item) => (
             <option key={item} value={item}>
               {m.bible.predicates[item]}
             </option>
@@ -1449,7 +1452,6 @@ function NewEntityOverlay({
   onClose: () => void;
 }) {
   const [label, setLabel] = useState("");
-  const [predicate, setPredicate] = useState<CorePredicate>(BIBLE_KIND_DEFAULT_PREDICATE[kind]);
   const [value, setValue] = useState("");
   const { messages: m } = useLocale();
 
@@ -1463,17 +1465,10 @@ function NewEntityOverlay({
           const nextLabel = label.trim();
           const nextValue = value.trim();
           if (!nextLabel || !nextValue) return;
-          void onCreate(nextLabel, predicate, nextValue);
+          void onCreate(nextLabel, BIBLE_KIND_DEFAULT_PREDICATE[kind], nextValue);
         }}
       >
         <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder={m.bible.namePlaceholder} required autoFocus />
-        <select value={predicate} onChange={(event) => setPredicate(event.target.value as CorePredicate)}>
-          {CORE_PREDICATES.map((item) => (
-            <option key={item} value={item}>
-              {m.bible.predicates[item]}
-            </option>
-          ))}
-        </select>
         <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={m.bible.claimPlaceholder} rows={1} required />
         <div className="edit-actions">
           <button type="button" className="text-button" onClick={onClose}>

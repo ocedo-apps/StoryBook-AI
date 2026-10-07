@@ -41,6 +41,24 @@ export const BIBLE_KIND_DEFAULT_PREDICATE: Record<BibleKind, CorePredicate> = {
   concepts: "core.concept"
 };
 
+/**
+ * Predicate choices offered in the ongoing "Add fact" form for an existing
+ * card, kind by kind — narrower than the full `CORE_PREDICATES` list. A
+ * fresh card's very first (identity-establishing) claim still locks in as
+ * `core.identity` via `BIBLE_KIND_DEFAULT_PREDICATE`, just without asking
+ * the author to choose; `core.identity` is deliberately left out here so a
+ * character's later claims don't force a pick between two predicates whose
+ * difference rarely means anything to the author ("Trait" covers both).
+ */
+export const BIBLE_KIND_ADD_PREDICATES: Record<BibleKind, readonly CorePredicate[]> = {
+  characters: ["core.trait", "core.relationship"],
+  locations: ["core.place", "core.concept"],
+  objects: ["core.object", "core.concept"],
+  groups: ["core.group", "core.concept"],
+  events: ["core.event", "core.concept"],
+  concepts: ["core.concept"]
+};
+
 export const EntityKindSchema = z.object({
   entity_ref: z.string().min(1),
   kind: z.enum(BIBLE_KINDS)

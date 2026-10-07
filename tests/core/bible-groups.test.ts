@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyEntity, entityMatchesQuery, groupBibleEntities, peopleLabels } from "@core/bibleGroups";
+import { BIBLE_KIND_ADD_PREDICATES, BIBLE_KINDS, classifyEntity, entityMatchesQuery, groupBibleEntities, peopleLabels } from "@core/bibleGroups";
 import type { NarrativeFact } from "@core/NarrativeFact";
 
 function fact(
@@ -182,5 +182,23 @@ describe("entityMatchesQuery", () => {
     expect(entityMatchesQuery(emma, "counsel", profile)).toBe(true);
     expect(entityMatchesQuery(emma, "double", profile)).toBe(true);
     expect(entityMatchesQuery(emma, "stranger", profile)).toBe(false);
+  });
+});
+
+describe("BIBLE_KIND_ADD_PREDICATES", () => {
+  it("leaves Identity out of every kind's ongoing add-fact choices", () => {
+    for (const kind of BIBLE_KINDS) {
+      expect(BIBLE_KIND_ADD_PREDICATES[kind]).not.toContain("core.identity");
+    }
+  });
+
+  it("offers Trait and Relationship for characters", () => {
+    expect(BIBLE_KIND_ADD_PREDICATES.characters).toEqual(["core.trait", "core.relationship"]);
+  });
+
+  it("gives every kind at least one choice", () => {
+    for (const kind of BIBLE_KINDS) {
+      expect(BIBLE_KIND_ADD_PREDICATES[kind].length).toBeGreaterThan(0);
+    }
   });
 });
