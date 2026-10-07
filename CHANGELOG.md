@@ -9,6 +9,12 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.57] - 2026-10-07
+
+### Changed
+- "Suggest from model" is now a clear button right next to the Context window field in Settings, instead of a faint link underneath it.
+- "View AI context…" moved from Settings to the Tools menu — it inspects what was actually sent to the model, which fits better alongside Proofread and Ask Manuscript than among the writing settings.
+
 ## [1.0.56] - 2026-10-07
 
 ### Changed

@@ -114,6 +114,7 @@ import { FindReplaceCard, type FindHighlight, type FindLaunch } from "./FindRepl
 import { ProofreadCard } from "./ProofreadCard";
 import { ProofreadSetupCard } from "./ProofreadSetupCard";
 import { ProgressCard } from "./ProgressCard";
+import { PromptInspectorCard } from "./PromptInspector";
 import type { FindOccurrence } from "@core/findReplace";
 import { count, format, STORE_ERROR, translateError, type Messages, useLocale } from "./i18n";
 
@@ -452,6 +453,7 @@ export function Editor() {
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [aiContextOpen, setAiContextOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
   const [findKey, setFindKey] = useState(0);
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
@@ -610,6 +612,17 @@ export function Editor() {
     setIllustrationLibraryOpen(false);
     setIllustrateOpen(false);
     setProgressOpen(true);
+  }
+
+  function openAiContext() {
+    setBackupOpen(false);
+    setPublishOpen(false);
+    setFindOpen(false);
+    setFindHighlight(null);
+    setIllustrationLibraryOpen(false);
+    setIllustrateOpen(false);
+    setProgressOpen(false);
+    setAiContextOpen(true);
   }
 
   function openFind() {
@@ -926,6 +939,14 @@ export function Editor() {
               disabled={busy !== null && busy !== "proofread"}
             >
               {m.editor.proofread}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={aiContextOpen ? "app-top-menu-item is-on" : "app-top-menu-item"}
+              onClick={openAiContext}
+            >
+              {m.aiContext.trigger}
             </button>
           </TopMenu>
           <button
@@ -1831,7 +1852,6 @@ export function Editor() {
           writingPrimer={writingPrimer}
           historyLimit={store.historyLimit}
           illustrationStyles={illustrationStyles.styles}
-          lastPrompt={store.lastPrompt}
           onPatch={(mutate) => void store.patchBook(mutate)}
           onModel={store.setModel}
           onReviewModel={store.setReviewModel}
@@ -1846,6 +1866,7 @@ export function Editor() {
           onClose={() => setSettingsOpen(false)}
         />
       ) : null}
+      {aiContextOpen ? <PromptInspectorCard entry={store.lastPrompt} onClose={() => setAiContextOpen(false)} /> : null}
       {progressOpen ? (
         <ProgressCard
           book={book}

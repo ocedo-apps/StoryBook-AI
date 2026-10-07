@@ -18,8 +18,6 @@ import { MIN_CONTEXT_WINDOW, MAX_CONTEXT_WINDOW } from "@llm/contextWindow";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { HelpTip } from "./GuidePanel";
 import { format, useLocale } from "./i18n";
-import { PromptInspectorCard } from "./PromptInspector";
-import type { PromptDebugEntry } from "./promptDebug";
 
 export function SettingsPanel({
   book,
@@ -32,7 +30,6 @@ export function SettingsPanel({
   writingPrimer,
   historyLimit,
   illustrationStyles,
-  lastPrompt,
   onPatch,
   onModel,
   onReviewModel,
@@ -56,7 +53,6 @@ export function SettingsPanel({
   writingPrimer: string;
   historyLimit: number;
   illustrationStyles: IllustrationStyle[];
-  lastPrompt: PromptDebugEntry | null;
   onPatch: (mutate: (book: Book) => Book) => void;
   onModel: (name: string) => void;
   onReviewModel: (name: string) => void;
@@ -71,7 +67,6 @@ export function SettingsPanel({
   onClose: () => void;
 }) {
   const { messages: m } = useLocale();
-  const [contextOpen, setContextOpen] = useState(false);
   const [suggestingContext, setSuggestingContext] = useState(false);
   const [contextSuggestResult, setContextSuggestResult] = useState<"found" | "none" | null>(null);
   // Kept as a separate, uncommitted draft while typing — committing (and
@@ -325,44 +320,46 @@ export function SettingsPanel({
                   {m.editor.contextWindowLabel}
                   <HelpTip body={m.editor.contextWindowLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.contextWindowLabel })} />
                 </span>
-                <input
-                  type="number"
-                  min={MIN_CONTEXT_WINDOW}
-                  max={MAX_CONTEXT_WINDOW}
-                  inputMode="numeric"
-                  value={contextWindowDraft}
-                  aria-label={m.editor.contextWindowLabel}
-                  onChange={(event) => setContextWindowDraft(event.target.value)}
-                  onBlur={() => {
-                    const n = Number(contextWindowDraft);
-                    if (Number.isFinite(n)) onContextWindow(n);
-                    else setContextWindowDraft(String(contextWindow));
-                  }}
-                />
-              </label>
-              {engine === "ollama" ? (
-                <div className="edit-actions">
-                  <button
-                    type="button"
-                    className="text-button"
-                    disabled={suggestingContext}
-                    onClick={() => {
-                      setSuggestingContext(true);
-                      setContextSuggestResult(null);
-                      void onSuggestContextWindow().then((found) => {
-                        setSuggestingContext(false);
-                        setContextSuggestResult(found !== null ? "found" : "none");
-                      });
+                <div className="context-window-row">
+                  <input
+                    type="number"
+                    min={MIN_CONTEXT_WINDOW}
+                    max={MAX_CONTEXT_WINDOW}
+                    inputMode="numeric"
+                    value={contextWindowDraft}
+                    aria-label={m.editor.contextWindowLabel}
+                    onChange={(event) => setContextWindowDraft(event.target.value)}
+                    onBlur={() => {
+                      const n = Number(contextWindowDraft);
+                      if (Number.isFinite(n)) onContextWindow(n);
+                      else setContextWindowDraft(String(contextWindow));
                     }}
-                  >
-                    {suggestingContext ? m.editor.contextWindowSuggesting : m.editor.contextWindowSuggest}
-                  </button>
-                  {contextSuggestResult === "found" ? (
-                    <span className="quiet">{format(m.editor.contextWindowSuggested, { value: contextWindow })}</span>
-                  ) : contextSuggestResult === "none" ? (
-                    <span className="quiet">{m.editor.contextWindowSuggestError}</span>
+                  />
+                  {engine === "ollama" ? (
+                    <button
+                      type="button"
+                      className="text-button"
+                      disabled={suggestingContext}
+                      onClick={() => {
+                        setSuggestingContext(true);
+                        setContextSuggestResult(null);
+                        void onSuggestContextWindow().then((found) => {
+                          setSuggestingContext(false);
+                          setContextSuggestResult(found !== null ? "found" : "none");
+                        });
+                      }}
+                    >
+                      {suggestingContext ? m.editor.contextWindowSuggesting : m.editor.contextWindowSuggest}
+                    </button>
                   ) : null}
                 </div>
+              </label>
+              {engine === "ollama" ? (
+                contextSuggestResult === "found" ? (
+                  <p className="quiet">{format(m.editor.contextWindowSuggested, { value: contextWindow })}</p>
+                ) : contextSuggestResult === "none" ? (
+                  <p className="quiet">{m.editor.contextWindowSuggestError}</p>
+                ) : null
               ) : (
                 <p className="quiet">{m.editor.contextWindowOpenAiNote}</p>
               )}
@@ -377,12 +374,6 @@ export function SettingsPanel({
                 </label>
                 <HelpTip body={m.editor.filterLoreLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.filterLoreLabel })} />
               </div>
-              <div className="edit-actions">
-                <button type="button" className="text-button" onClick={() => setContextOpen(true)}>
-                  {m.aiContext.trigger}
-                </button>
-              </div>
-              {contextOpen ? <PromptInspectorCard entry={lastPrompt} onClose={() => setContextOpen(false)} /> : null}
               <label className="voice-field">
                 <span className="field-label-row">
                   {m.editor.primerTitle}

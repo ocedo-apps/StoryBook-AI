@@ -1710,6 +1710,27 @@ button:disabled {
   gap: 0.85rem;
 }
 
+/*
+ * Context window input + its "Suggest from model" action in one row —
+ * it used to sit as a faint text-button below the field, easy to miss
+ * as the one field with a built-in auto-detect. Bordering it like
+ * `.illustration-orientation-toggle .text-button` reads as an actual
+ * button instead of another label.
+ */
+.context-window-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.context-window-row .text-button {
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+}
+
 .marker-convert-rules {
   display: grid;
   gap: 0.5rem;

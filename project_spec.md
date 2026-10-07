@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.56
+Status: living document, v1.0.57
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1476,6 +1476,50 @@ krävde det antingen det höjda 70rem-taket från v1.0.55 ELLER ett
 högre fönster — nu räcker bara den kompaktare layouten på egen hand).
 
 v1.0.55 → v1.0.56.
+
+---
+
+**Ändringslogg v1.0.56 → v1.0.57 (2026-10-07):** Mats hade två följd-
+observationer på Settings: (1) "Suggest from model" borde ligga direkt
+bakom Context window-fältet och synas tydligare, kanske som en riktig
+knapp; (2) "View AI context…" — hör den verkligen hemma under Settings,
+eller borde den ligga i Verktyg-menyn istället? Svarade med en
+rekommendation för båda (knapp i rad med fältet; flytta till Verktyg
+eftersom det är en diagnostisk åtgärd — visa vad som faktiskt
+skickades — inte en inställning, samma kategori som Korrekturläsning/
+Konvertera markörer som redan ligger där). Mats bekräftade: bygg båda.
+
+**Suggest from model.** La input och knapp i en gemensam flex-rad
+(`.context-window-row`) inuti samma `<label>`, och gav knappen en
+kant/padding-variant av `.text-button` (samma knep som
+`.illustration-orientation-toggle .text-button` redan använder för
+Landscape/Portrait) så den läses som en riktig knapp istället för en
+diskret länk. Resultat-meddelandet ("Suggested X" / fel) flyttade ner
+till en egen rad under fält-raden istället för att dela rad med
+knappen, eftersom knappen inte längre har plats kvar bredvid sig i
+samma `edit-actions`-div.
+
+**View AI context, flyttad till Verktyg.** `PromptInspectorCard` ägde
+redan sitt eget fullständiga `.edit-overlay`/`.edit-card`-skal (samma
+etablerade mönster som varje `XCard.tsx`) och tog bara `entry`+`onClose`
+— inga ändringar i den komponenten behövdes. Tog bort triggerknappen +
+renderingen från `SettingsPanel.tsx` (och därmed `lastPrompt`-propen,
+`contextOpen`-state och `PromptInspectorCard`/`PromptDebugEntry`-
+importerna, nu obehövda där). Lade till `aiContextOpen`-state +
+`openAiContext()` i `Editor.tsx` (speglar `openProgress()`s mönster:
+stänger syskon-overlays innan den öppnar sig själv), ett nytt
+menuitem sist i Verktyg-menyn efter Korrekturläsning, och renderade
+`PromptInspectorCard` bland de andra överlagen längst ner i
+komponenten — `store.lastPrompt` fanns redan där, ingen ny data
+behövdes.
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright-verifierat live: knappen
+sitter bredvid fältet i Settings och "View AI context" finns inte
+längre där; Verktyg-menyn visar det nya menyvalet sist, och klick på
+det öppnar samma AI context-dialog som förut, oförändrad.
+
+v1.0.56 → v1.0.57.
 
 ---
 
