@@ -9,6 +9,13 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.58] - 2026-10-07
+
+### Fixed
+- Prose language, Reader, and Versions per chapter now line up on the same row in Settings — Reader's input used to sit a few pixels lower than the other two, since it was the only one of the three without a "?" tooltip button holding its label to the same height. Reader now has one too.
+- Prose language, Reader, and Versions per chapter are equally wide, matching the row below them (POV/Tense/Viewpoint) — Prose language no longer takes up twice the width for no reason.
+- Voice and the writing-primer text were rendering at a much larger serif size (matching manuscript prose) than intended, because of a CSS specificity tie going the wrong way. Both are back to their intended compact size, matching the chapter cards in the left panel.
+
 ## [1.0.57] - 2026-10-07
 
 ### Changed

@@ -1803,12 +1803,11 @@ button:disabled {
   min-width: 8rem;
 }
 
-/* Same idea for Prose language / Reader / Versions per chapter. Prose
-   language gets more width since free text needs more room than a
-   short dropdown or a 1-2 digit number. */
+/* Same idea for Prose language / Reader / Versions per chapter — equally
+   wide, matching the POV/Tense/Viewpoint row below it. */
 .settings-field-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.7rem;
   align-items: start;
 }
@@ -1819,6 +1818,38 @@ button:disabled {
   border-radius: 4px;
   padding: 0.55rem 0.7rem;
   width: 100%;
+}
+
+/*
+ * `.reader-field select` (Reader) already gets this padding; its sibling
+ * number inputs (Versions per chapter, Context window) didn't, so they
+ * rendered visibly shorter than the select next to them in the same row.
+ */
+.settings-card .reader-field input {
+  padding: 0.45rem 0.7rem;
+}
+
+/*
+ * `.edit-card textarea`'s generic prose styling (1.05rem Newsreader serif,
+ * min-height 10rem) was winning the cascade over these fields' own, much
+ * smaller intended styling — same specificity (class + element), so the
+ * later-declared generic rule took it regardless of order. Voice and the
+ * writing-primer text are meta/config text, not manuscript prose, and
+ * were always meant to stay small; the extra `.settings-card` class
+ * wins outright instead of relying on source order.
+ */
+.edit-card.settings-card .voice-field textarea {
+  min-height: 4.2rem;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.edit-card.settings-card .primer-field {
+  min-height: 8rem;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  line-height: 1.4;
 }
 
 .chapter-title {

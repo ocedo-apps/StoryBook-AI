@@ -133,10 +133,12 @@ export function SettingsPanel({
                   />
                 </label>
                 <label className="reader-field">
-                  <span>{m.editor.reader}</span>
+                  <span className="field-label-row">
+                    {m.editor.reader}
+                    <HelpTip body={m.editor.readerTitle} ariaLabel={format(m.common.infoAbout, { field: m.editor.reader })} />
+                  </span>
                   <select
                     value={book.reader_age === undefined ? "adult" : readerCategory(book.reader_age)}
-                    title={m.editor.readerTitle}
                     aria-label={m.editor.reader}
                     onChange={(event) => {
                       const category = event.target.value as ReaderCategory;

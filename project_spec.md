@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.57
+Status: living document, v1.0.58
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1520,6 +1520,67 @@ längre där; Verktyg-menyn visar det nya menyvalet sist, och klick på
 det öppnar samma AI context-dialog som förut, oförändrad.
 
 v1.0.56 → v1.0.57.
+
+---
+
+**Ändringslogg v1.0.57 → v1.0.58 (2026-10-07):** Mats skickade en
+skärmdump med tre buggar från General-raderna: (1) Reader-fältet (age)
+linjerade inte med Prose language/Versions per chapter, (2) Prose
+language-kolumnen var onödigt bred ("jag kunde skriva
+SwedishSwedishSwedish och det var ändå plats kvar") — gör kolumnerna
+lika breda som POV/Tense/Viewpoint-raden under, (3) texten i Voice och
+Start prompt renderades i 17px Newsreader-serif istället för 14px som
+kapitelkorten i vänsterpanelen.
+
+**Mätte innan jag gissade.** Playwright `getBoundingClientRect()` på
+varje fält istället för att resonera fram orsaken från skärmdumpen
+ensam. Resultat: Prose language/Versions inputs startade vid y=158.95,
+Reader-selecten vid y=149.56 — en skillnad på exakt 9.4px, samma som
+skillnaden mellan Prose languages etikett-höjd (22.4px, har en
+HelpTip-ikon) och Readers (13px, hade bara en osynlig `title=`-attribut,
+ingen ikon). Readers kortare etikett-rad gjorde att selecten under den
+startade högre — inte en layoutbugg i sig, utan en direkt konsekvens av
+att Reader var det enda fältet i raden utan en "?"-ikon.
+
+**Fix 1, samma mönster som redan finns.** Gav Reader en egen `HelpTip`
+(samma `m.editor.readerTitle`-text som redan fanns som osynlig
+`title=`-attribut) + `field-label-row`-klassen — löste både
+linjerings-buggen OCH gjorde Reader konsekvent med sina syskon i raden
+(alla tre har nu en synlig info-ikon, inte bara två av tre). Lade också
+till matchande padding på `.settings-card .reader-field input` (Versions
+per chapter, Context window) som tidigare renderade märkbart kortare än
+Readers select i samma rad, av samma "glömd styling"-anledning.
+
+**Fix 2.** `.settings-field-row`s `grid-template-columns` ändrad från
+`2fr 1fr 1fr` till `1fr 1fr 1fr` — matchar nu POV/Tense/Viewpoint-radens
+jämna tredjedelar rakt av, som Mats bad om.
+
+**Fix 3, samma rotorsak som historyLimit/contextWindow-dubbletterna i
+v1.0.54 men denna gång en äkta cascade-bugg.** `.voice-field textarea`
+(0.88rem) och `.primer-field` (0.92rem, sans) hade EXAKT samma
+specificitet som den generella `.edit-card textarea`-regeln (1.05rem,
+Newsreader-serif, min-height 10rem) — en ren källkodsordning-krock, och
+`.edit-card textarea` råkade stå SENARE i filen och vann. Bekräftade med
+Playwright `getComputedStyle` innan fix: båda textarea fick 16.8px
+Newsreader. Fixade genom att scope:a om reglerna till
+`.edit-card.settings-card .voice-field textarea` / `.primer-field` —
+två klasser istället för en, vinner deterministiskt oavsett
+källkodsordning, inte bara just nu av en slump.
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright `getBoundingClientRect`/
+`getComputedStyle` EFTER fixen bekräftade: alla tre fält i raden
+startar nu på exakt samma y-position, kolumnerna är lika breda, båda
+textarea renderar 14.08px Figtree (sans) istället för 16.8px Newsreader
+(serif). Screenshot bekräftar visuellt att allt fortfarande ryms utan
+skroll.
+
+**Inte byggt än, väntar på svar:** Mats undrade om "Versions per
+chapter" borde bli bara "Revisions" (kortare, eftersom fält-texten
+redan finns i tooltipen). Svarade med en rekommendation istället för
+att bygga direkt, väntar på bekräftelse.
+
+v1.0.57 → v1.0.58.
 
 ---
 
