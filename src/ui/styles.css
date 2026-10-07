@@ -1595,19 +1595,53 @@ button:disabled {
   padding: 1.5rem 8% 1rem;
 }
 
-.settings-page {
-  overflow: auto;
-  padding-bottom: 2.5rem;
+/*
+ * Same large-modal precedent as .edit-card.interview-card: a definite
+ * height (not max-height) so .settings-card-columns below can rely on
+ * `flex: 1 1 auto; min-height: 0;` to fill the leftover space and scroll
+ * internally, with the head staying put above it. Wide enough for two
+ * full columns of fields side by side — this is meant to "fylla upp
+ * sidan rejält" (fill the page substantially), not sit as a narrow strip.
+ */
+.edit-card.settings-card {
+  width: min(78rem, 100%);
+  height: min(92vh, 54rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.settings-back {
-  display: block;
-  margin: 0 0 0.9rem -0.4rem;
+.settings-card-head {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.settings-card-columns {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.settings-card-column {
+  display: grid;
+  gap: 1.1rem;
+  align-content: start;
 }
 
 .settings-block {
-  margin-top: 1.4rem;
-  max-width: 36rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.9rem 1rem 1rem;
 }
 
 .settings-heading {
@@ -1617,6 +1651,11 @@ button:disabled {
   text-transform: uppercase;
   color: var(--text-faint);
   font-weight: 600;
+}
+
+/* .settings-block's own `gap` already spaces the heading from what follows. */
+.settings-block .settings-heading {
+  margin: 0;
 }
 
 .settings-models {
@@ -1675,16 +1714,16 @@ button:disabled {
   min-width: 0;
 }
 
-.settings-page .voice-field,
-.settings-page .reader-field {
-  margin-top: 0.85rem;
-}
-
-.settings-page .craft-fields {
+.settings-card .voice-field,
+.settings-card .reader-field {
   margin-top: 0;
 }
 
-.settings-page .voice-field input {
+.settings-card .craft-fields {
+  margin-top: 0;
+}
+
+.settings-card .voice-field input {
   background: var(--paper);
   border: 1px solid var(--border);
   border-radius: 4px;

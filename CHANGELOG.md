@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.53] - 2026-10-07
+
+### Changed
+- Settings is now a large dialog opened from the top bar, instead of its own full-page view. It closes with its own Close button, by clicking outside it, or with Escape — returning to exactly the chapter or view you had open, instead of navigating away from it. Fields are reorganized into three clearly labeled groups — General, Illustrations, and AI settings — with "Versions per chapter" moved out of AI settings and into General, next to Prose language and Reader.
+
 ## [1.0.52] - 2026-10-07
 
 ### Fixed

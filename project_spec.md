@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.52
+Status: living document, v1.0.53
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1263,6 +1263,80 @@ och sedan fixat buggen framför ögonen. Sa det rakt ut till Mats istället
 för att låtsas vara säkrare än jag är.
 
 v1.0.51 → v1.0.52.
+
+---
+
+**Ändringslogg v1.0.52 → v1.0.53 (2026-10-07):** Mats delade en
+mockup-skärmdump av Settings och frågade om den borde bli ett fönster
+"ungefär som Convert makers men större" istället för en egen hel sida.
+Höll med — Settings var den enda "riktiga" ytan (`surface`-switch) som
+låtsades vara en vanlig header-knapp, inkonsekvent mot alla andra
+header-actions (Backup, Publicera, Konvertera markörer, m.fl.) som
+redan är overlay-dialoger. Mats bekräftade: bygg det, låt det fylla
+upp sidan rejält — och efter en avbruten första instruktion, ett
+förtydligande: skärmdumpen visar STORLEK, inte STIL — bygg stort, men
+stilmässikt likt de andra dialogerna, inte mockupens platta
+vit-med-svart-kant-look.
+
+**Research före kod, som vanligt.** Läste `SettingsPanel.tsx` (433
+rader) i sin helhet för att kartlägga varje fält/prop/handler som
+måste bevaras. Bekräftade via grep att `surface` SPARAS per bok
+(`readLastPosition`/`JSON.parse`) — vilket gjorde det riskabelt att
+riva ut `EditorSurface`s `"settings"`-literal eller `BookStore.tsx`s
+`showSettings`/`setSurface("settings")`-rörledning helt. Beslöt att
+lämna den dö-men-ofarlig (en gammal sparad `surface:"settings"`-rad
+faller nu bara igenom till standardvyn istället för att krascha) och
+bara ändra hur `Editor.tsx` själv konsumerar den. Läste
+`.edit-card.interview-card` och `.edit-card.bible-review-card` som
+CSS-förlagor för en stor, höjd-begränsad, internt scrollande dialog —
+samma mönster återanvändes rakt av, ingen ny layout uppfanns.
+
+**Bygget.** `SettingsPanel.tsx` fick en egen `.edit-overlay`/
+`.edit-card.settings-card`-skal (samma ägarskaps-konvention som varje
+annan `XCard.tsx`: komponenten äger sitt eget overlay, tar en
+`onClose`-callback istället för den gamla `onBack`), med Escape-stöd
+utöver klick-utanför och en explicit Close-knapp. Innehållet
+omorganiserades till två kolumner: General (prosaspråk, Läsare,
+"Versions per chapter" — flyttad hit från AI-sektionen, POV/Tempus/
+Synvinkel, Röst) + Illustrations till vänster, AI settings
+(motor/bas-URL, modellval, kontextfönster, lore-relevans-kryssruta,
+AI-kontext-inspektör, startprompt) till höger — var och en i ett
+bordrat `.settings-block`-delkort. `modelsHeading`-strängen ("Models"/
+"Modeller") döptes om till "AI settings"/"AI-inställningar" i alla tre
+språkfiler; nya `generalHeading`/`illustrationsHeading`-nycklar
+tillagda. `Editor.tsx` fick en ny `settingsOpen`-boolean + `openSettings()`
+(speglar `openProofread`s mönster: stänger syskon-overlays innan den
+öppnar), Settings-knappens `onClick` pekar dit istället för
+`store.showSettings()`, och surface-rendering-kedjans
+`onSettings && !onBoard ? <SettingsPanel/> : ...`-gren togs bort helt
+(den gamla `onSettings`-variabeln och dess användning i `pageText`/
+`activeReaderAge` togs också bort som nu obehövda).
+
+**Ett självrättat misstag under bygget:** skrev först om
+`.settings-heading`-CSS-regeln (en delad uppercase-etikett-stil) till
+en ny `.settings-block-title`, vilket av misstag hade raderat
+originalregeln — en grep avslöjade att `.settings-heading` återanvänds
+på flera andra ställen (`Home.tsx`, `QuickstartCards.tsx`,
+`GuidePanel.tsx`, `HandbookPanel.tsx`), inte bara i Settings. Återställde
+originalregeln orörd och lade istället till en smalt scopead
+`.settings-block .settings-heading { margin: 0 }`-override (blockets
+egen `gap` sköter avståndet istället), och bytte `SettingsPanel.tsx`s
+rubriker till att återanvända samma `settings-heading`-klass som
+"Models"-rubriken alltid haft, istället för att uppfinna en parallell
+stil.
+
+**Verifiering, fullständig.** `tsc --noEmit`, hela testsviten (885
+tester, oförändrat — ren UI-omstrukturering), `npm run build` gröna.
+Playwright-verifierat live: dialogen öppnas från header-knappen, båda
+kolumnerna renderar alla fält korrekt (inklusive den omplacerade
+"Versions per chapter" i General), intern scroll fungerar och visar
+resten av innehållet (Illustrations-blocket, modellval, startprompt),
+stängning fungerar via Close-knappen, klick-utanför OCH Escape — och i
+samtliga fall ligger den underliggande vyn (kapitlet) kvar oförändrad
+efteråt, precis den gamla "testare fastnade i Settings"-bugg-fixen
+(tidigare `onBack`) som nu löses naturligt av modal-mönstret istället.
+
+v1.0.52 → v1.0.53.
 
 ---
 

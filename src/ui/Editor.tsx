@@ -390,7 +390,6 @@ export function Editor() {
   if (!chapter) return null;
   const onBrainstorm = surface === "brainstorm";
   const onSynopsis = surface === "synopsis";
-  const onSettings = surface === "settings";
   const onAskManuscript = surface === "ask";
   const onTimeline = surface === "timeline";
   const onPlotlines = surface === "plotlines";
@@ -452,6 +451,7 @@ export function Editor() {
   const [markerConvertOpen, setMarkerConvertOpen] = useState(false);
   const [proofreadOpen, setProofreadOpen] = useState(false);
   const [proofreadSetupOpen, setProofreadSetupOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [findLaunch, setFindLaunch] = useState<FindLaunch>({});
   const [findKey, setFindKey] = useState(0);
   const [findHighlight, setFindHighlight] = useState<FindHighlight | null>(null);
@@ -495,7 +495,7 @@ export function Editor() {
       })
     : [];
   const pageText =
-    onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
+    onAskManuscript || onTimeline || onPlotlines || onMethod
       ? ""
       : onBrainstorm
         ? book.brainstorm
@@ -504,7 +504,7 @@ export function Editor() {
           : chapter.prose;
   const notes = chapterFeedback?.chapterId === chapter.id ? chapterFeedback : null;
   const activeReaderAge =
-    onBrainstorm || onSynopsis || onSettings || onAskManuscript || onTimeline || onPlotlines || onMethod
+    onBrainstorm || onSynopsis || onAskManuscript || onTimeline || onPlotlines || onMethod
       ? book.reader_age
       : resolveReader(book, chapter);
   const readerExtra = readerTuning(activeReaderAge).extraSyllables;
@@ -651,6 +651,12 @@ export function Editor() {
     if (busy === "proofread") return;
     setProofreadOpen(false);
     setProofreadSetupOpen(false);
+  }
+
+  function openSettings() {
+    dismissProofread();
+    setBoardOpen(false);
+    setSettingsOpen(true);
   }
 
   function findPhrase(phrase: string) {
@@ -924,12 +930,8 @@ export function Editor() {
           </TopMenu>
           <button
             type="button"
-            className={onSettings && !onBoard ? "text-button theme-toggle is-on" : "text-button theme-toggle"}
-            onClick={() => {
-              dismissProofread();
-              setBoardOpen(false);
-              store.showSettings();
-            }}
+            className={settingsOpen ? "text-button theme-toggle is-on" : "text-button theme-toggle"}
+            onClick={openSettings}
           >
             {m.editor.settings}
           </button>
@@ -1296,33 +1298,7 @@ export function Editor() {
           </button>
         </aside>
 
-        {onSettings && !onBoard ? (
-          <SettingsPanel
-            book={book}
-            models={models}
-            model={model}
-            reviewModel={reviewModel}
-            engine={store.engine}
-            baseUrl={store.baseUrl}
-            contextWindow={store.contextWindow}
-            writingPrimer={writingPrimer}
-            historyLimit={store.historyLimit}
-            illustrationStyles={illustrationStyles.styles}
-            lastPrompt={store.lastPrompt}
-            onPatch={(mutate) => void store.patchBook(mutate)}
-            onModel={store.setModel}
-            onReviewModel={store.setReviewModel}
-            onEngine={store.setEngine}
-            onBaseUrl={store.setBaseUrl}
-            onContextWindow={store.setContextWindow}
-            onSuggestContextWindow={store.suggestContextWindow}
-            onPrimer={store.setWritingPrimer}
-            onResetPrimer={store.resetWritingPrimer}
-            onHistoryLimit={store.setHistoryLimit}
-            onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
-            onBack={() => store.setChapterId(chapter.id)}
-          />
-        ) : onBoard ? (
+        {onBoard ? (
           <DispositionBoard
             book={book}
             chapters={chapters}
@@ -1841,6 +1817,33 @@ export function Editor() {
           liveProse={chapter.prose}
           onRestore={(revisionId) => void store.restoreChapterProse(revisionId)}
           onClose={() => setHistoryOpen(false)}
+        />
+      ) : null}
+      {settingsOpen ? (
+        <SettingsPanel
+          book={book}
+          models={models}
+          model={model}
+          reviewModel={reviewModel}
+          engine={store.engine}
+          baseUrl={store.baseUrl}
+          contextWindow={store.contextWindow}
+          writingPrimer={writingPrimer}
+          historyLimit={store.historyLimit}
+          illustrationStyles={illustrationStyles.styles}
+          lastPrompt={store.lastPrompt}
+          onPatch={(mutate) => void store.patchBook(mutate)}
+          onModel={store.setModel}
+          onReviewModel={store.setReviewModel}
+          onEngine={store.setEngine}
+          onBaseUrl={store.setBaseUrl}
+          onContextWindow={store.setContextWindow}
+          onSuggestContextWindow={store.suggestContextWindow}
+          onPrimer={store.setWritingPrimer}
+          onResetPrimer={store.resetWritingPrimer}
+          onHistoryLimit={store.setHistoryLimit}
+          onBrowseIllustrationLibrary={() => setIllustrationLibraryOpen(true)}
+          onClose={() => setSettingsOpen(false)}
         />
       ) : null}
       {progressOpen ? (
