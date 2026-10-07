@@ -1670,18 +1670,15 @@ button:disabled {
 }
 
 /*
- * Pairs a field's own label with its HelpTip "?" button. The label text
- * stays the small uppercase style from `span:first-child` below — this
- * just keeps the button inline with it instead of wrapping underneath,
- * and shrinks the button to match the label's own small scale (the
- * default 1.35rem size, right for a heading, overpowers an 0.68rem label).
- */
-/*
- * `span:first-child` further up this file (the shared voice-field/reader-
- * field/craft-field label style) is more specific than a bare class, so a
- * plain `.field-label-row { display: flex }` loses that fight and the
- * label text and its HelpTip button silently fall back to block stacking.
- * Matching the same selector shape, class included, wins cleanly.
+ * Pairs a field's own label with its HelpTip "?" button, keeping it
+ * inline instead of wrapping underneath, and shrinks the button to the
+ * label's own small scale (the default 1.35rem size, right for a
+ * heading, overpowers an 0.68rem label). `span:first-child` further up
+ * this file (the shared voice-field/reader-field/craft-field label
+ * style) is more specific than a bare class, so a plain `.field-label-
+ * row { display: flex }` loses that fight and silently falls back to
+ * block stacking — matching the same selector shape, class included,
+ * wins cleanly.
  */
 .voice-field span.field-label-row:first-child,
 .reader-field span.field-label-row:first-child,
@@ -1769,8 +1766,30 @@ button:disabled {
   margin-top: 0;
 }
 
+/*
+ * Same "equal flexible columns that wrap if the window gets narrow"
+ * pattern as `.chapter-head-top > .craft-field` — POV/Tense/Viewpoint
+ * side by side instead of stacked, to save vertical space.
+ */
 .settings-card .craft-fields {
   margin-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.settings-card .craft-fields > .craft-field {
+  flex: 1 1 0;
+  min-width: 8rem;
+}
+
+/* Same idea for Prose language / Reader / Versions per chapter. Prose
+   language gets more width since free text needs more room than a
+   short dropdown or a 1-2 digit number. */
+.settings-field-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.7rem;
+  align-items: start;
 }
 
 .settings-card .voice-field input {

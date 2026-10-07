@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.56] - 2026-10-07
+
+### Changed
+- Prose language, Reader, and Versions per chapter now sit side by side in Settings' General card, and so do POV, Tense, and Viewpoint — matching how they're grouped already, and leaving more height for everything below.
+
 ## [1.0.55] - 2026-10-07
 
 ### Changed

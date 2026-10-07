@@ -124,58 +124,60 @@ export function SettingsPanel({
           <div className="settings-card-column">
             <section className="settings-block">
               <h2 className="settings-heading">{m.editor.generalHeading}</h2>
-              <label className="voice-field">
-                <span className="field-label-row">
-                  {m.editor.proseLanguage}
-                  <HelpTip body={m.editor.proseLanguageTitle} ariaLabel={format(m.common.infoAbout, { field: m.editor.proseLanguage })} />
-                </span>
-                <input
-                  value={book.prose_language}
-                  onChange={(event) => onPatch((current) => ({ ...current, prose_language: event.target.value }))}
-                  placeholder={m.editor.proseLanguagePlaceholder}
-                  aria-label={m.editor.proseLanguage}
-                />
-              </label>
-              <label className="reader-field">
-                <span>{m.editor.reader}</span>
-                <select
-                  value={book.reader_age === undefined ? "adult" : readerCategory(book.reader_age)}
-                  title={m.editor.readerTitle}
-                  aria-label={m.editor.reader}
-                  onChange={(event) => {
-                    const category = event.target.value as ReaderCategory;
-                    const age = category === "adult" ? undefined : READER_TIER_AGE[category];
-                    onPatch((current) => applyReaderAge(current, age));
-                  }}
-                >
-                  {READER_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {m.editor.readerCategories[category]}
-                    </option>
-                  ))}
-                </select>
-                {readerCategory(book.reader_age) !== "adult" ? <p className="reader-hint">{m.editor.readerTierHint}</p> : null}
-              </label>
-              <label className="reader-field">
-                <span className="field-label-row">
-                  {m.editor.historyLimit}
-                  <HelpTip body={m.editor.historyLimitLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.historyLimit })} />
-                </span>
-                <input
-                  type="number"
-                  min={MIN_PROSE_HISTORY_LIMIT}
-                  max={MAX_PROSE_HISTORY_LIMIT}
-                  inputMode="numeric"
-                  value={historyLimitDraft}
-                  aria-label={m.editor.historyLimit}
-                  onChange={(event) => setHistoryLimitDraft(event.target.value)}
-                  onBlur={() => {
-                    const n = Number(historyLimitDraft);
-                    if (Number.isFinite(n)) onHistoryLimit(n);
-                    else setHistoryLimitDraft(String(historyLimit));
-                  }}
-                />
-              </label>
+              <div className="settings-field-row">
+                <label className="voice-field">
+                  <span className="field-label-row">
+                    {m.editor.proseLanguage}
+                    <HelpTip body={m.editor.proseLanguageTitle} ariaLabel={format(m.common.infoAbout, { field: m.editor.proseLanguage })} />
+                  </span>
+                  <input
+                    value={book.prose_language}
+                    onChange={(event) => onPatch((current) => ({ ...current, prose_language: event.target.value }))}
+                    placeholder={m.editor.proseLanguagePlaceholder}
+                    aria-label={m.editor.proseLanguage}
+                  />
+                </label>
+                <label className="reader-field">
+                  <span>{m.editor.reader}</span>
+                  <select
+                    value={book.reader_age === undefined ? "adult" : readerCategory(book.reader_age)}
+                    title={m.editor.readerTitle}
+                    aria-label={m.editor.reader}
+                    onChange={(event) => {
+                      const category = event.target.value as ReaderCategory;
+                      const age = category === "adult" ? undefined : READER_TIER_AGE[category];
+                      onPatch((current) => applyReaderAge(current, age));
+                    }}
+                  >
+                    {READER_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {m.editor.readerCategories[category]}
+                      </option>
+                    ))}
+                  </select>
+                  {readerCategory(book.reader_age) !== "adult" ? <p className="reader-hint">{m.editor.readerTierHint}</p> : null}
+                </label>
+                <label className="reader-field">
+                  <span className="field-label-row">
+                    {m.editor.historyLimit}
+                    <HelpTip body={m.editor.historyLimitLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.historyLimit })} />
+                  </span>
+                  <input
+                    type="number"
+                    min={MIN_PROSE_HISTORY_LIMIT}
+                    max={MAX_PROSE_HISTORY_LIMIT}
+                    inputMode="numeric"
+                    value={historyLimitDraft}
+                    aria-label={m.editor.historyLimit}
+                    onChange={(event) => setHistoryLimitDraft(event.target.value)}
+                    onBlur={() => {
+                      const n = Number(historyLimitDraft);
+                      if (Number.isFinite(n)) onHistoryLimit(n);
+                      else setHistoryLimitDraft(String(historyLimit));
+                    }}
+                  />
+                </label>
+              </div>
               <div className="craft-fields">
                 <label className="craft-field">
                   <span>{m.craft.pov}</span>

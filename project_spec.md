@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.55
+Status: living document, v1.0.56
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1430,6 +1430,52 @@ mekaniken fortfarande fungerar oförändrat som fallback på ett kort
 fönster).
 
 v1.0.54 → v1.0.55.
+
+---
+
+**Ändringslogg v1.0.55 → v1.0.56 (2026-10-07):** Mats påpekade att han i
+sin mockup hade lagt flera fält sida vid sida (Prose language, Reader,
+Versions per chapter samt POV, Tense, Viewpoint) för att spara plats,
+och frågade om det var knepigt att bygga. Svarade att det INTE var
+knepigt — `.craft-fields`/`.craft-field` är redan en grid-komponent,
+bara utan `grid-template-columns` i Settings-kontexten, och samma
+sida-vid-sida-mönster finns redan på riktigt i kapitelhuvudet
+(`.chapter-head-top > .craft-field { flex: 1 1 0 }`). Mats bekräftade:
+bygg det.
+
+**Återanvände exakt kapitelhuvudets mönster för POV/Tense/Viewpoint**
+istället för att uppfinna ett nytt: `.settings-card .craft-fields {
+display:flex; flex-wrap:wrap; }` + `> .craft-field { flex:1 1 0;
+min-width:8rem; }` — samma "lika breda flexibla kolumner som radbryter
+vid behov"-regel som redan finns för `.chapter-head-top`, bara scopead
+till Settings (`.craft-fields` har bara den enda användaren, verifierat
+med grep innan ändringen gjordes direkt på basregeln istället för en
+extra scopead override).
+
+**Ny rad-wrapper för Prose language/Reader/Versions per chapter**, som
+inte redan var `.craft-field`-element utan fristående `.voice-field`/
+`.reader-field`-etiketter: ny `.settings-field-row { display:grid;
+grid-template-columns: 2fr 1fr 1fr; gap:0.7rem; align-items:start; }`
+runt de tre — Prose language får dubbel bredd mot Reader/Versions
+eftersom fri text behöver mer plats än en kort dropdown eller en
+1-2-siffrig siffra, precis den avvägning jag flaggade när Mats frågade.
+`.settings-card .voice-field, .settings-card .reader-field { margin-
+top:0 }` fanns redan sedan tidigare och nollställde automatiskt den
+annars omaka marginal-skillnaden mellan `.voice-field` (0.75rem) och
+`.reader-field` (0.55rem) som annars hade gjort raden skev.
+
+**Städade en kvarglömd dubblett-kommentar** i samma CSS-område från en
+tidigare session (två kommentarsblock som förklarade samma sak, ett av
+dem syftade inte längre på någon regel) medan jag ändå var där.
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright-verifierat live: båda
+raderna renderar sida vid sida med rätt breddfördelning, och hela
+dialogen ryms nu UTAN skroll även vid bara 900px fönsterhöjd (tidigare
+krävde det antingen det höjda 70rem-taket från v1.0.55 ELLER ett
+högre fönster — nu räcker bara den kompaktare layouten på egen hand).
+
+v1.0.55 → v1.0.56.
 
 ---
 
