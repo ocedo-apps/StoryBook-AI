@@ -1626,6 +1626,35 @@ uppdaterad tooltip-text för `position_override`-knappen i
 
 ---
 
+### 39. Korrekturläsning: varna om öppna platshållare innan körning
+
+Mats observation: om man har satt platshållare (post-it-lappar på en
+textposition, `Chapter.placeholders`) så borde Korrekturläsning
+påpeka det innan man kör — annars är det lätt att glömma bort en
+olöst platshållare helt.
+
+**Research gjord, inte byggd.** Platshållare är redan separat
+metadata (inte inline-text i prosan), med en färdig `collectPlaceholders
+(chapters)` (`src/core/placeholders.ts`) som ger en bok-bred,
+grupperad-per-kapitel lista — exakt det en varning skulle behöva.
+Korrekturläsning har idag noll medvetenhet om platshållare (ingen
+träff i proofread.ts/proofreadRun.ts/proofreadSchema.ts).
+
+**Föreslagen lösning:** `ProofreadSetupCard.tsx` är redan pre-flight-
+dialogen som visas före varje körning (första start och "kör igen"),
+och vet redan om körningen är kapitel- eller manus-scopead — naturlig
+plats att räkna öppna platshållare (hela boken, eller bara det
+scopade kapitlet) och visa en varning som "Kapitel 2 har 3 öppna
+platshållar-noter" ovanför Start-knappen. Icke-blockerande (bara en
+påminnelse, inte ett hinder) — platshållare är medvetet designade att
+aldrig påverka vad som skickas till modellen, så det finns ingen
+teknisk anledning att hindra körningen.
+
+**Status: inte påbörjad.** Mats bad att spara idén här istället för
+att bygga direkt.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
