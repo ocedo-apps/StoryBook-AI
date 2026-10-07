@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.53
+Status: living document, v1.0.54
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1337,6 +1337,71 @@ efteråt, precis den gamla "testare fastnade i Settings"-bugg-fixen
 (tidigare `onBack`) som nu löses naturligt av modal-mönstret istället.
 
 v1.0.52 → v1.0.53.
+
+---
+
+**Ändringslogg v1.0.53 → v1.0.54 (2026-10-07):** Mats tittade på den
+nybyggda Settings-dialogen och tyckte de förklarande meningarna under
+varje fält tog för mycket plats. Skickade en liten rund ikon-bild som
+referens och bad om att lägga den bakom varje rubrik/fält-etikett med
+en tooltip som visar informationen istället för att den står permanent
+på sidan.
+
+**Återanvände en befintlig komponent istället för att bygga ny eller
+använda den skickade bilden rakt av.** En grep efter "tooltip" hittade
+`GuideHelpButton` i `GuidePanel.tsx` — en liten rund "?"-knapp som
+redan visar hover/fokus-tooltips via en portal (`position:fixed`,
+beräknad från knappens egen `getBoundingClientRect()`), byggd just för
+att inte klippas av överflödande scroll-containers. Exakt samma problem
+som Settings nya `.settings-card-columns{overflow-y:auto}` har. Den
+bifogade bild-filen (en rund platshållar-ikon) användes inte som en
+faktisk tillgång — en rastrerad skärmdump vore inkonsekvent med appens
+SVG/ikon-konventioner; byggde istället mönstret den visade.
+
+**Refaktor, bakåtkompatibel.** Bröt ut den generiska portal/position-
+logiken ur `GuideHelpButton` till en ny `HelpTip({ heading?, body,
+ariaLabel })`, och skrev om `GuideHelpButton` till ett tunt omslag
+(`<HelpTip heading={entry.heading} body={entry.body} .../>`) som slår
+upp Guide-sektionens text precis som förut. Själva den publika
+`GuideHelpButton`-signaturen rördes inte, så `BiblePanel.tsx`s och
+`Editor.tsx`s befintliga användningar av den (Story Bible-rubriken,
+m.fl.) förblev oförändrade.
+
+**I `SettingsPanel.tsx`:** tog bort alla ~10 `<p className="quiet">`-
+förklaringar (prosaspråk, versions-gräns, motor, bas-URL, kontext-
+fönster, lore-relevans, startprompt, samt den inledande dialog-ledan
+och "UI-språket stannar"-noten) och ersatte var och en med en `HelpTip`
+direkt efter respektive fälts egen `<span>`-etikett (eller, för de två
+som inte hör till ett enskilt fält, efter dialogens eget "Settings"-
+h2 respektive "AI settings"-h2). Tog samtidigt bort de duplicerade
+`title=`-attributen på inputs som redan visade samma text som en
+webbläsar-tooltip — nu bara en enda, synlig tooltip-väg per fält.
+Kryssrutan för lore-relevans fick en liten omstrukturering (egen
+flex-rad runt `<label>` + `HelpTip` som syskon, inte barn) för att
+undvika att klicka på hjälp-ikonen av misstag också skulle växla
+kryssrutan (en `<label>` växlar sin kopplade input vid klick var som
+helst inuti den).
+
+**Ett CSS-specificitetsfel, hittat och fixat innan commit.** Första
+försöket gav varje fält-etikett en ny `.field-label-row { display:
+flex }`-klass — men den förlorade mot den äldre, mer specifika
+`.voice-field span:first-child`-regeln (klass+pseudo-klass+element
+slår en ensam klass), så "?"-ikonen hamnade på en egen rad under
+etiketten istället för bredvid den. Fångades i en Playwright-
+skärmdump innan commit, inte efteråt. Fixat genom att matcha samma
+selektor-form med klassen inkluderad
+(`.voice-field span.field-label-row:first-child` osv.) istället för
+att gissa på `!important` eller flytta regeln i filen.
+
+**Verifiering.** `tsc --noEmit`, hela testsviten (885 tester,
+oförändrat), `npm run build` gröna. Playwright-verifierat live: alla
+nio "?"-ikoner hittas och går att hovra, varje tooltip visar exakt den
+text som togs bort (inklusive den långa kontext-fönster-förklaringen,
+som radbryter korrekt inom tooltipens fasta 280px-bredd utan att
+klippas av dialogens egen scroll), och dialogens höjd krymper märkbart
+nu när texterna inte längre tar permanent plats.
+
+v1.0.53 → v1.0.54.
 
 ---
 

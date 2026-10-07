@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.54] - 2026-10-07
+
+### Changed
+- The Settings dialog's explanatory sentences under each field no longer sit permanently on the page — they were taking up a lot of its height. Each field's label (and the dialog's own title, and the AI settings heading) now has a small "?" next to it; hover or focus it to see the same explanation as a tooltip.
+
 ## [1.0.53] - 2026-10-07
 
 ### Changed

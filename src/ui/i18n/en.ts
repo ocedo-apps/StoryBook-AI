@@ -305,7 +305,8 @@ export const en = {
     stop: "Stop",
     save: "Save",
     copy: "Copy",
-    copied: "Copied"
+    copied: "Copied",
+    infoAbout: "More about {field}"
   },
   app: {
     crash: "The app hit an error.",

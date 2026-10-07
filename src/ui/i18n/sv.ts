@@ -7,7 +7,8 @@ export const sv: Messages = {
     stop: "Stopp",
     save: "Spara",
     copy: "Kopiera",
-    copied: "Kopierat"
+    copied: "Kopierat",
+    infoAbout: "Mer om {field}"
   },
   app: {
     crash: "Appen stötte på ett fel.",

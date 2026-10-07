@@ -1615,8 +1615,15 @@ button:disabled {
   flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 1rem;
+}
+
+/* Pairs a heading with its HelpTip "?" button, in the dialog head and atop the AI settings block. */
+.settings-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .settings-card-columns {
@@ -1656,6 +1663,45 @@ button:disabled {
 /* .settings-block's own `gap` already spaces the heading from what follows. */
 .settings-block .settings-heading {
   margin: 0;
+}
+
+/*
+ * Pairs a field's own label with its HelpTip "?" button. The label text
+ * stays the small uppercase style from `span:first-child` below — this
+ * just keeps the button inline with it instead of wrapping underneath,
+ * and shrinks the button to match the label's own small scale (the
+ * default 1.35rem size, right for a heading, overpowers an 0.68rem label).
+ */
+/*
+ * `span:first-child` further up this file (the shared voice-field/reader-
+ * field/craft-field label style) is more specific than a bare class, so a
+ * plain `.field-label-row { display: flex }` loses that fight and the
+ * label text and its HelpTip button silently fall back to block stacking.
+ * Matching the same selector shape, class included, wins cleanly.
+ */
+.voice-field span.field-label-row:first-child,
+.reader-field span.field-label-row:first-child,
+.craft-field > span.field-label-row:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.field-label-row .guide-help-button {
+  width: 1rem;
+  height: 1rem;
+  font-size: 0.6rem;
+}
+
+.settings-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.settings-checkbox-row .settings-checkbox-field {
+  margin-top: 0;
 }
 
 .settings-models {

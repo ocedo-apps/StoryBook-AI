@@ -7,7 +7,8 @@ export const nb: Messages = {
     stop: "Stopp",
     save: "Lagre",
     copy: "Kopier",
-    copied: "Kopiert"
+    copied: "Kopiert",
+    infoAbout: "Mer om {field}"
   },
   app: {
     crash: "Appen støtte på en feil.",

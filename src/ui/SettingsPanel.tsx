@@ -16,6 +16,7 @@ import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
 import { MIN_CONTEXT_WINDOW, MAX_CONTEXT_WINDOW } from "@llm/contextWindow";
 import { BlobThumbnail } from "./BlobThumbnail";
+import { HelpTip } from "./GuidePanel";
 import { format, useLocale } from "./i18n";
 import { PromptInspectorCard } from "./PromptInspector";
 import type { PromptDebugEntry } from "./promptDebug";
@@ -110,28 +111,31 @@ export function SettingsPanel({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="settings-card-head">
-          <h2 id="settings-title">{m.editor.settings}</h2>
+          <span className="settings-card-title">
+            <h2 id="settings-title">{m.editor.settings}</h2>
+            <HelpTip body={m.editor.settingsLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.settings })} />
+          </span>
           <button type="button" className="text-button" onClick={onClose}>
             {m.common.close}
           </button>
         </div>
-        <p className="quiet">{m.editor.settingsLede}</p>
 
         <div className="settings-card-columns">
           <div className="settings-card-column">
             <section className="settings-block">
               <h2 className="settings-heading">{m.editor.generalHeading}</h2>
               <label className="voice-field">
-                <span>{m.editor.proseLanguage}</span>
+                <span className="field-label-row">
+                  {m.editor.proseLanguage}
+                  <HelpTip body={m.editor.proseLanguageTitle} ariaLabel={format(m.common.infoAbout, { field: m.editor.proseLanguage })} />
+                </span>
                 <input
                   value={book.prose_language}
                   onChange={(event) => onPatch((current) => ({ ...current, prose_language: event.target.value }))}
                   placeholder={m.editor.proseLanguagePlaceholder}
-                  title={m.editor.proseLanguageTitle}
                   aria-label={m.editor.proseLanguage}
                 />
               </label>
-              <p className="quiet">{m.editor.proseLanguageTitle}</p>
               <label className="reader-field">
                 <span>{m.editor.reader}</span>
                 <select
@@ -153,14 +157,16 @@ export function SettingsPanel({
                 {readerCategory(book.reader_age) !== "adult" ? <p className="reader-hint">{m.editor.readerTierHint}</p> : null}
               </label>
               <label className="reader-field">
-                <span>{m.editor.historyLimit}</span>
+                <span className="field-label-row">
+                  {m.editor.historyLimit}
+                  <HelpTip body={m.editor.historyLimitLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.historyLimit })} />
+                </span>
                 <input
                   type="number"
                   min={MIN_PROSE_HISTORY_LIMIT}
                   max={MAX_PROSE_HISTORY_LIMIT}
                   inputMode="numeric"
                   value={historyLimitDraft}
-                  title={m.editor.historyLimitLede}
                   aria-label={m.editor.historyLimit}
                   onChange={(event) => setHistoryLimitDraft(event.target.value)}
                   onBlur={() => {
@@ -170,7 +176,6 @@ export function SettingsPanel({
                   }}
                 />
               </label>
-              <p className="quiet">{m.editor.historyLimitLede}</p>
               <div className="craft-fields">
                 <label className="craft-field">
                   <span>{m.craft.pov}</span>
@@ -269,10 +274,16 @@ export function SettingsPanel({
 
           <div className="settings-card-column">
             <section className="settings-block">
-              <h2 className="settings-heading">{m.editor.modelsHeading}</h2>
+              <span className="settings-card-title">
+                <h2 className="settings-heading">{m.editor.modelsHeading}</h2>
+                <HelpTip body={m.editor.uiLanguageStays} ariaLabel={format(m.common.infoAbout, { field: m.editor.modelsHeading })} />
+              </span>
               <div className="settings-engine">
                 <label className="craft-field">
-                  <span>{m.editor.engineLabel}</span>
+                  <span className="field-label-row">
+                    {m.editor.engineLabel}
+                    <HelpTip body={m.editor.engineLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.engineLabel })} />
+                  </span>
                   <select
                     value={engine}
                     onChange={(event) => onEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
@@ -284,18 +295,19 @@ export function SettingsPanel({
                 </label>
                 {engine === "openai-compatible" ? (
                   <label className="voice-field">
-                    <span>{m.editor.baseUrlLabel}</span>
+                    <span className="field-label-row">
+                      {m.editor.baseUrlLabel}
+                      <HelpTip body={m.editor.baseUrlLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.baseUrlLabel })} />
+                    </span>
                     <input
                       value={baseUrl}
                       onChange={(event) => onBaseUrl(event.target.value)}
                       placeholder={m.editor.baseUrlPlaceholder}
-                      title={m.editor.baseUrlLede}
                       aria-label={m.editor.baseUrlLabel}
                     />
                   </label>
                 ) : null}
               </div>
-              <p className="quiet">{engine === "openai-compatible" ? m.editor.baseUrlLede : m.editor.engineLede}</p>
               <div className="settings-models">
                 <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={onModel} />
                 <ModelSelect
@@ -307,14 +319,16 @@ export function SettingsPanel({
                 />
               </div>
               <label className="reader-field">
-                <span>{m.editor.contextWindowLabel}</span>
+                <span className="field-label-row">
+                  {m.editor.contextWindowLabel}
+                  <HelpTip body={m.editor.contextWindowLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.contextWindowLabel })} />
+                </span>
                 <input
                   type="number"
                   min={MIN_CONTEXT_WINDOW}
                   max={MAX_CONTEXT_WINDOW}
                   inputMode="numeric"
                   value={contextWindowDraft}
-                  title={m.editor.contextWindowLede}
                   aria-label={m.editor.contextWindowLabel}
                   onChange={(event) => setContextWindowDraft(event.target.value)}
                   onBlur={() => {
@@ -324,7 +338,6 @@ export function SettingsPanel({
                   }}
                 />
               </label>
-              <p className="quiet">{m.editor.contextWindowLede}</p>
               {engine === "ollama" ? (
                 <div className="edit-actions">
                   <button
@@ -351,15 +364,17 @@ export function SettingsPanel({
               ) : (
                 <p className="quiet">{m.editor.contextWindowOpenAiNote}</p>
               )}
-              <label className="settings-checkbox-field">
-                <input
-                  type="checkbox"
-                  checked={book.filter_lore_by_relevance}
-                  onChange={(event) => onPatch((current) => ({ ...current, filter_lore_by_relevance: event.target.checked }))}
-                />
-                {m.editor.filterLoreLabel}
-              </label>
-              <p className="quiet">{m.editor.filterLoreLede}</p>
+              <div className="settings-checkbox-row">
+                <label className="settings-checkbox-field">
+                  <input
+                    type="checkbox"
+                    checked={book.filter_lore_by_relevance}
+                    onChange={(event) => onPatch((current) => ({ ...current, filter_lore_by_relevance: event.target.checked }))}
+                  />
+                  {m.editor.filterLoreLabel}
+                </label>
+                <HelpTip body={m.editor.filterLoreLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.filterLoreLabel })} />
+              </div>
               <div className="edit-actions">
                 <button type="button" className="text-button" onClick={() => setContextOpen(true)}>
                   {m.aiContext.trigger}
@@ -367,7 +382,10 @@ export function SettingsPanel({
               </div>
               {contextOpen ? <PromptInspectorCard entry={lastPrompt} onClose={() => setContextOpen(false)} /> : null}
               <label className="voice-field">
-                <span>{m.editor.primerTitle}</span>
+                <span className="field-label-row">
+                  {m.editor.primerTitle}
+                  <HelpTip body={m.editor.primerLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.primerTitle })} />
+                </span>
                 <textarea
                   className="primer-field"
                   value={writingPrimer}
@@ -376,7 +394,6 @@ export function SettingsPanel({
                   aria-label={format(m.editor.primerAria, { model })}
                 />
               </label>
-              <p className="quiet">{m.editor.primerLede}</p>
               <div className="edit-actions">
                 <button
                   type="button"
@@ -387,7 +404,6 @@ export function SettingsPanel({
                   {m.editor.primerRestore}
                 </button>
               </div>
-              <p className="quiet">{m.editor.uiLanguageStays}</p>
             </section>
           </div>
         </div>
