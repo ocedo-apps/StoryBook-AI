@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.61] - 2026-10-07
+
+### Fixed
+- A scene-break line (`---` on its own) or a quoted line (`>` at the start) typed by hand now turns into its visual line/indent immediately, instead of staying as plain dashes or a plain `>` until the chapter was closed and reopened. Also fixed: pressing Enter right after typing one of these used to do nothing at all, because of how the line was being hidden in the page — the scene-break line is built differently now so Enter works normally again.
+
 ## [1.0.60] - 2026-10-07
 
 ### Changed

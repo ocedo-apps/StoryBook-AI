@@ -1,4 +1,4 @@
-import { joinFlowParagraphs, splitFlowParagraphs } from "@core/proseFlow";
+import { HR_BLOCK, joinFlowParagraphs, QUOTE_PREFIX, splitFlowParagraphs } from "@core/proseFlow";
 import { normalizeSpan, type TextSpan } from "@core/textSpan";
 import {
   FORMATTING_STYLES,
@@ -58,6 +58,13 @@ export function isCaretAtEnd(root: HTMLElement): boolean {
   return offset === proseFromElement(root).length;
 }
 
+/** The caret's plain-text offset, or null with no collapsed caret inside `root` — used to restore the cursor when a keystroke forces a markup resync (see `blockMarkupNeedsSync`), since that rebuild isn't always at the end of the text the way a fresh AI edit is. */
+export function currentCaretOffset(root: HTMLElement): number | null {
+  const sel = window.getSelection();
+  if (!sel || !sel.isCollapsed || !sel.anchorNode || !root.contains(sel.anchorNode)) return null;
+  return caretToOffset(root, sel.anchorNode, sel.anchorOffset);
+}
+
 export function placeCaretAtEnd(root: HTMLElement): void {
   const last = root.querySelector("p:last-child") ?? root;
   const range = document.createRange();
@@ -88,10 +95,45 @@ function caretToOffset(root: HTMLElement, node: Node | null, offset: number): nu
   return pos;
 }
 
-function flowBlocks(root: HTMLElement): HTMLElement[] {
+export function flowBlocks(root: HTMLElement): HTMLElement[] {
   return Array.from(root.querySelectorAll(":scope > p, :scope > div")).filter(
     (el): el is HTMLElement => el instanceof HTMLElement
   );
+}
+
+/**
+ * True when some paragraph's plain text now calls for `.prose-hr`/
+ * `.prose-quote` markup (or has outgrown it) but the live DOM hasn't been
+ * rebuilt to match yet. The canvas's own reconcile effect normally skips
+ * rebuilding the DOM whenever the extracted text still equals `value` — the
+ * common case while typing, so a keystroke never fights the browser's own
+ * cursor handling. But `proseFromElement` reads the SAME plain text back
+ * from a plain `<p>---</p>` and from a rendered `<p class="prose-hr">---
+ * </p>` (the class just hides the dashes visually), so that check alone
+ * can never notice "this paragraph still needs upgrading" — typing `---`
+ * by hand stayed three bare dashes forever, only ever turning into a rule
+ * on the NEXT full rebuild (switching chapters, an AI edit), not when the
+ * author actually typed it. This is the extra check the effect runs to
+ * catch that case and force a rebuild.
+ */
+export function blockMarkupNeedsSync(root: HTMLElement): boolean {
+  for (const block of flowBlocks(root)) {
+    const text = (block.textContent ?? "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+    // A block the author just split off with Enter is briefly empty, but
+    // native `insertParagraph` copies the split paragraph's class onto it
+    // (a fresh <p class="prose-hr"><br></p> right after an hr line) \u2014 that
+    // is not a real mismatch to fix, just a side effect of the split, and
+    // `proseFromElement` ignores empty blocks entirely. Treating it as one
+    // forced a rebuild from `value` (which has never heard of this new,
+    // still-empty paragraph) that erased the split the browser had just
+    // made, so Enter right after an hr/quote line silently did nothing.
+    if (!text) continue;
+    const isHrBlock = block.classList.contains("prose-hr");
+    if (HR_BLOCK.test(text) !== isHrBlock) return true;
+    const isQuoteBlock = block.classList.contains("prose-quote");
+    if (QUOTE_PREFIX.test(text) !== isQuoteBlock) return true;
+  }
+  return false;
 }
 
 function textOffsetIn(block: HTMLElement, target: Node, targetOffset: number): number {

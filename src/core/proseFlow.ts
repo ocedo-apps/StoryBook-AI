@@ -38,11 +38,22 @@ function splitFlowParagraphsWithOffsets(text: string): { text: string; start: nu
 /** Model commentary glued onto a rewrite, e.g. `(Note: swapped the verbs…)`. */
 const ASIDE_HEAD = /^(Notes|Note|Nota|Notering|Anteckning|Anmärkning|Anm|Notat|Merknad|Merk|Obs|Not)\s*:/i;
 
-/** A scene-break paragraph on its own — the manuscript convention `---`. Rendered as a horizontal rule; the text itself is untouched. */
-const HR_BLOCK = /^-{3,}$/;
+/**
+ * A scene-break paragraph on its own — the manuscript convention `---`.
+ * Rendered as a horizontal rule; the text itself is untouched. Exported so
+ * `proseDom.ts` can tell whether a live-typed block still needs upgrading
+ * to that markup (see `blockMarkupNeedsSync`).
+ */
+export const HR_BLOCK = /^-{3,}$/;
 
-/** A quoted line — `>` at the start of a paragraph, the Markdown/email-reply convention. Renders as an indented block with a rule down the side (a letter, a note someone reads aloud); the marker itself is hidden, the rest of the line displays normally. */
-const QUOTE_PREFIX = /^>[ \t]?/;
+/**
+ * A quoted line — `>` at the start of a paragraph, the Markdown/email-reply
+ * convention. Renders as an indented block with a rule down the side (a
+ * letter, a note someone reads aloud); the marker itself is hidden, the
+ * rest of the line displays normally. Exported for the same reason as
+ * `HR_BLOCK` above.
+ */
+export const QUOTE_PREFIX = /^>[ \t]?/;
 
 /** Heading the model slaps on a rewrite, e.g. `Rewritten passage:`. */
 const REWRITE_WRAPPER =
@@ -141,6 +152,14 @@ export function htmlFromProse(text: string, formatting: ProseFormattingRange[] =
   if (paras.length === 0) return "<p><br></p>";
   return paras
     .map((para) => {
+      // The hr class sits on the <p> itself, not a <span> inside it — a
+      // <span> forced to display:block to render as a line silently broke
+      // the browser's own Enter-key paragraph split (execCommand
+      // "insertParagraph" just appends a sibling span instead of creating a
+      // new <p> when the caret is inside a block-ified inline element).
+      // The <p> is block-level by its tag already, so none of this CSS
+      // needs forcing an inline element's display, and Enter keeps working.
+      if (HR_BLOCK.test(para.text)) return `<p class="prose-hr">${escapeHtml(para.text)}</p>`;
       const cls = QUOTE_PREFIX.test(para.text) ? ' class="prose-quote"' : "";
       return `<p${cls}>${markupProseBlock(para.text, para.start, formatting)}</p>`;
     })
@@ -148,9 +167,6 @@ export function htmlFromProse(text: string, formatting: ProseFormattingRange[] =
 }
 
 function markupProseBlock(block: string, blockStart: number, formatting: ProseFormattingRange[]): string {
-  if (HR_BLOCK.test(block)) {
-    return `<span class="prose-hr">${escapeHtml(block)}</span>`;
-  }
   const quote = block.match(QUOTE_PREFIX);
   if (quote) {
     const marker = quote[0];

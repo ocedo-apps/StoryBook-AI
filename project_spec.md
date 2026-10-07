@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.60
+Status: living document, v1.0.61
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1701,6 +1701,97 @@ Screenshot bekräftar visuellt: ingen tom yta kvar till höger, kompakt
 fönster som följer textens egen bredd.
 
 v1.0.59 → v1.0.60.
+
+---
+
+**Ändringslogg v1.0.60 → v1.0.61 (2026-10-07):** Mats frågade om `---`
+och `>` skulle skapa linjer i manuskriptet — jag svarade (grundat på
+`proseFlow.ts`) att det redan var byggt och live. Han testade och det
+funkade INTE: skrev `---`/`>` för hand och det stod kvar som bokstavlig
+text. Min research var korrekt om VAD koden gör, men fel om NÄR den
+faktiskt kör.
+
+**Rotorsak #1, hittad genom att läsa reconciliation-effekten i
+`ProseCanvas.tsx`, inte genom att gissa.** Live-redigeringens DOM-synk
+(`useEffect` som jämför `proseFromElement(area)` mot `value`) hoppar
+över att skriva om DOM:en när den extraherade texten redan matchar
+`value` — medvetet, annars skulle varje knapptryckning slåss med
+webbläsarens egen markör-hantering. Men `proseFromElement` läser EXAKT
+samma text tillbaka oavsett om ett stycke är en vanlig `<p>---</p>`
+eller redan uppmärkt som `<span class="prose-hr">---</span>` (spannet
+göms bara visuellt) — så den jämförelsen kan ALDRIG upptäcka "det här
+stycket behöver fortfarande uppgraderas". Skriva `---` för hand stod
+därför kvar som tre bindestreck för alltid, och blev bara en linje vid
+NÄSTA fullständiga ombyggnad (kapitelbyte, en AI-redigering) — aldrig
+när författaren faktiskt skrev det.
+
+**Fix #1.** Ny `blockMarkupNeedsSync()` (`proseDom.ts`) som skannar
+varje styckes råtext mot `HR_BLOCK`/`QUOTE_PREFIX` (nu exporterade från
+`proseFlow.ts`) och jämför mot styckets FAKTISKA CSS-klass i DOM:en —
+en äkta mismatch (text säger `---` men klassen saknas, eller tvärtom)
+tvingar fram en ombyggnad som annars hoppats över. Eftersom en sådan
+ombyggnad inte alltid sker i slutet av texten (en scenbrytning mitt i
+manuset, t.ex.) byggdes också en ny `pendingCaretOffset`-mekanism
+(samma idé som den befintliga `pendingSelection` för formatterings-
+växling, men för en kollapsad markör-position istället för en
+markering) + `currentCaretOffset()` i `proseDom.ts`, så markören
+hamnar rätt efteråt oavsett var i manuset ombyggnaden sker.
+
+**Rotorsak #2, en EGEN bugg jag introducerade och fångade innan commit
+genom att faktiskt testa live, inte bara läsa koden.** Efter fix #1
+konverterades `---` korrekt till en linje medan man skrev — men
+Enter-tangenten direkt efter gjorde sedan ingenting alls. Playwright-
+isolerade experiment (ett separat scratch-HTML-dokument, inte appen)
+visade exakt varför: `document.execCommand("insertParagraph")`
+misslyckas TYST i Chromium när markören står i en `<span>` som är
+tvingad till `display:block` för att se ut som en linje — webbläsaren
+lägger bara till ett syskon-`<span>` i SAMMA `<p>` istället för att
+skapa ett nytt stycke. Verifierat genom att testa 10+ CSS-kombinationer
+isolerat: flyttar man samma styling till `<p>`-elementet istället
+(redan block-nivå av sin egen tagg, ingen `display:block`-tvingning av
+ett inline-element behövs) fungerar `execCommand` perfekt.
+
+**Fix #2.** `htmlFromProse` i `proseFlow.ts` skriver nu `class="prose-
+hr"` direkt på `<p>`:et för en scenbrytning istället för på ett inre
+`<span>` — texten ligger okapslad direkt i stycket. CSS:en
+(`.prose .prose-hr`) behövde inga ändringar, bara vilket element som
+bär klassen.
+
+**Rotorsak #3, hittad genom att faktiskt följa upp VARFÖR Enter
+fortfarande inte fungerade efter fix #2 — inte nöja sig med "borde
+funka nu".** Fix #2 löste execCommand-problemet i isolerade tester,
+men i appen gjorde Enter DIREKT efter en `---`-rad fortfarande
+ingenting. Orsak: webbläsarens `insertParagraph` KOPIERAR det delade
+styckets klass till det nya, tomma stycket (`<p class="prose-hr">
+<br></p>`) — och `blockMarkupNeedsSync` (fix #1) tolkade det tomma men
+fel-klassade stycket som en mismatch (tom text matchar inte
+`HR_BLOCK`, men klassen `prose-hr` fanns ändå), tvingade fram en
+ombyggnad FRÅN `value` — som aldrig hört talas om det nya tomma
+stycket — och raderade därmed precis det stycke webbläsaren just hade
+skapat. Enter "gjorde ingenting" eftersom resultatet omedelbart
+suddades ut igen.
+
+**Fix #3.** `blockMarkupNeedsSync` hoppar nu över tomma stycken helt —
+`proseFromElement` ignorerar dem ändå (de bidrar inget till den
+extraherade texten), så en tillfälligt fel-klassad tom rad direkt
+efter en Enter-delning är ofarlig och rättar sig själv automatiskt så
+fort författaren skriver något riktigt i den.
+
+**Verifiering, med upprepade live-tester tills det faktiskt
+fungerade, inte en enda lyckad körning.** `tsc --noEmit`, hela
+testsviten (885 tester, 3 uppdaterade för den nya `<p class="prose-
+hr">`-markeringen istället för `<span>`), `npm run build` gröna.
+Playwright, flera körningar: skrev `---` för hand → blev en linje
+direkt; Enter direkt efter → skapade korrekt ett nytt stycke (inte
+tyst ingenting); skrev `>` för hand → blev ett citat direkt; en
+scenbrytning infogad MITT i manuset (inte sist) → markören hamnade
+exakt rätt efteråt, bekräftat genom att fortsätta skriva och se texten
+landa på rätt ställe. Ett tidigt tecken på problemet (en skärmdump som
+inte visade den infogade texten alls) visade sig vara en Playwright-
+skärmdump-artefakt, inte en app-bugg — bekräftat genom att dumpa
+`innerHTML` direkt istället för att lita på en bild.
+
+v1.0.60 → v1.0.61.
 
 ---
 

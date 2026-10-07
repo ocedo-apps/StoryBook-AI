@@ -24,6 +24,8 @@ import { findAiTicHits } from "@core/aiTics";
 import { findNameHitsInText } from "@core/bibleMentions";
 import { findMarksByParagraph, type FindFlags } from "@core/findReplace";
 import {
+  blockMarkupNeedsSync,
+  currentCaretOffset,
   formattingFromElement,
   isCaretAtEnd,
   offsetFromPoint,
@@ -181,6 +183,7 @@ export function ProseCanvas({
   const [hoverTip, setHoverTip] = useState<{ x: number; y: number; text: string } | null>(null);
   const [formatBar, setFormatBar] = useState<{ x: number; y: number; span: TextSpan } | null>(null);
   const [pendingSelection, setPendingSelection] = useState<TextSpan | null>(null);
+  const [pendingCaretOffset, setPendingCaretOffset] = useState<number | null>(null);
   const formattingEnabled = Boolean(onFormatChange || onToggleFormat);
   const placeholdersEnabled = Boolean(onPlaceholdersChange);
   const darlingsEnabled = Boolean(onDarlingsChange);
@@ -486,7 +489,12 @@ export function ProseCanvas({
     const empty = !value.trim();
     const textChanged = empty ? current !== "" : current !== value;
     const formattingChanged = formattingEnabled && !formattingRangesEqual(formattingFromElement(area), formatting);
-    if (!textChanged && !formattingChanged) {
+    // `textChanged` alone can't see this: `---` reads back the same whether
+    // it's a bare <p> or already has its .prose-hr class (same for a
+    // >-quote), so typing one by hand would never pick up its markup
+    // without this extra check (see blockMarkupNeedsSync's own comment).
+    const markupChanged = !empty && blockMarkupNeedsSync(area);
+    if (!textChanged && !formattingChanged && !markupChanged) {
       // Nothing to reconcile against `value` — but a brand-new, never-typed-
       // in chapter still needs a real block to type into. Left as a plain
       // empty root, the first keystroke lands as a stray text node outside
@@ -505,10 +513,17 @@ export function ProseCanvas({
     if (pendingSelection) {
       placeSelectionAtSpan(area, pendingSelection);
       setPendingSelection(null);
+    } else if (pendingCaretOffset !== null) {
+      // A markup-sync rebuild isn't always at the end of the text (an HR
+      // typed in the middle of the manuscript, say) — restore the caret to
+      // where it actually was, same idea as pendingSelection above but for
+      // a collapsed caret instead of a selection range.
+      placeSelectionAtSpan(area, { start: pendingCaretOffset, end: pendingCaretOffset });
+      setPendingCaretOffset(null);
     } else if (focused && atEnd) {
       placeCaretAtEnd(area);
     }
-  }, [value, formatting, formattingEnabled, pendingSelection]);
+  }, [value, formatting, formattingEnabled, pendingSelection, pendingCaretOffset]);
 
   useEffect(() => {
     if (!placeholdersEnabled || placeholders.length === 0) {
@@ -549,6 +564,7 @@ export function ProseCanvas({
     const area = areaRef.current;
     if (!area) return;
     const next = proseFromElement(area);
+    if (blockMarkupNeedsSync(area)) setPendingCaretOffset(currentCaretOffset(area));
     onChange(next);
     if (formattingEnabled) onFormatChange?.(formattingFromElement(area));
     if ((placeholdersEnabled || darlingsEnabled) && next !== value) {
