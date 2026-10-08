@@ -458,8 +458,15 @@ export function BiblePanel({
       {overlay?.type === "new" ? (
         <NewEntityOverlay
           kind={overlay.kind}
-          onCreate={async (label, predicate, value) => {
+          onCreate={async (label, predicate, value, aliases) => {
             await addFact({ label, predicate, value });
+            if (aliases.length > 0) {
+              await patchBook((current) =>
+                touch(current, {
+                  entity_tracking: upsertEntityTracking(current.entity_tracking, { entity_ref: slugify(label), aliases })
+                })
+              );
+            }
             setOverlay({ type: "entity", ref: slugify(label) });
           }}
           onClose={() => setOverlay(null)}
@@ -1469,11 +1476,12 @@ function NewEntityOverlay({
   onClose
 }: {
   kind: BibleKind;
-  onCreate: (label: string, predicate: CorePredicate, value: string) => Promise<void>;
+  onCreate: (label: string, predicate: CorePredicate, value: string, aliases: string[]) => Promise<void>;
   onClose: () => void;
 }) {
   const [label, setLabel] = useState("");
   const [value, setValue] = useState("");
+  const [aliasesText, setAliasesText] = useState("");
   const { messages: m } = useLocale();
 
   return (
@@ -1486,11 +1494,21 @@ function NewEntityOverlay({
           const nextLabel = label.trim();
           const nextValue = value.trim();
           if (!nextLabel || !nextValue) return;
-          void onCreate(nextLabel, BIBLE_KIND_DEFAULT_PREDICATE[kind], nextValue);
+          void onCreate(nextLabel, BIBLE_KIND_DEFAULT_PREDICATE[kind], nextValue, parseTagList(aliasesText));
         }}
       >
         <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder={m.bible.namePlaceholder} required autoFocus />
         <textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder={m.bible.claimPlaceholder} rows={1} required />
+        <label className="bible-field">
+          <span className="bible-field-label">
+            {m.bible.aliases} <span className="bible-field-aside">{m.bible.aliasesAside}</span>
+          </span>
+          <input
+            value={aliasesText}
+            onChange={(event) => setAliasesText(event.target.value)}
+            placeholder={m.bible.aliasesPlaceholder}
+          />
+        </label>
         <div className="edit-actions">
           <button type="button" className="text-button" onClick={onClose}>
             {m.common.cancel}

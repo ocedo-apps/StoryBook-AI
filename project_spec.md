@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.63
+Status: living document, v1.0.64
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1954,6 +1954,43 @@ prompt-konstruktion/parsing i `core/`, ingen UI-interaktion ändrades,
 och grupperingslogiken i `ProofreadCard.tsx` lästes och lämnades orörd.
 
 v1.0.62 → v1.0.63.
+
+**Ändringslogg v1.0.63 → v1.0.64 (2026-10-08):** Mats lägger in Greven
+av Monte Cristo (115 kapitel, en karaktär som uppträder under flera
+namn — Edmond Dantès / Greven av Monte Cristo / Abbé Busoni / Lord
+Wilmore) och undrade om Alias saknades, eller om han bara missade det.
+Svaret: Alias finns (byggt tidigare i sessionen, task #1), men bara på
+en entitets kort EFTER att minst en fakta är låst (`TrackingFields` i
+`BiblePanel.tsx`, kräver en riktig `entity_ref`) — inte i
+`NewEntityOverlay`, dialogen för att skapa en ny karaktär/plats/objekt
+(bara Namn + ett första påstående). Mats, efter att ha fått det
+förklarat: "Jag tror att det är bästa tt kunna redigera alias redan
+när man skapar sin karaktär... flera som börjar med att bygga sin
+Värld/Lore först" — ett tydligt byggbeslut, inte bara en sparad idé.
+
+**Byggt:** `NewEntityOverlay` fick ett tredje fält, Alias
+(samma `m.bible.aliases`/`aliasesAside`/`aliasesPlaceholder`-copy och
+samma `.bible-field`-stil som det redan etablerade fältet på det låsta
+kortet), mellan påstående-fältet och knapparna. `onCreate` fick en
+fjärde parameter (`aliases: string[]`, parsad med befintliga
+`parseTagList`). Anropsstället (`BiblePanel.tsx`, vid `<NewEntityOverlay>`)
+kör `addFact` som vanligt och patchar därefter `entity_tracking` via
+samma `upsertEntityTracking(current.entity_tracking, { entity_ref:
+slugify(label), aliases })` + `touch(...)`-mönster som redan används av
+det låsta kortets `onTracking`-hanterare — ingen ny kärnlogik, bara
+samma byggsten anropad en gång till, direkt efter skapandet. Tomt
+Alias-fält patchar ingenting (samma `aliases.length > 0`-vakt som
+undviker en tom `entity_tracking`-rad).
+
+Verifierat live i Playwright: skapade "Edmond Dantès" med alias
+"Greven av Monte Cristo, Abbé Busoni, Lord Wilmore" i dialogen, öppnade
+sedan samma kort och läste av att Alias-fältet redan var ifyllt med
+exakt den strängen — hela vägen från dialog till sparad `entity_tracking`
+till det efterföljande kortet fungerar. `npx tsc --noEmit`, `npx vitest
+run` (889 tester, oförändrat — ingen ny kärnlogik att testa, bara en
+UI-koppling av befintliga funktioner) och `npm run build` gröna.
+
+v1.0.63 → v1.0.64.
 
 ---
 

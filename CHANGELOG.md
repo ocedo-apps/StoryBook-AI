@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.64] - 2026-10-08
+
+### Added
+- Aliases can now be set right when creating a new Story Bible character, place, or object — not just afterward. The "New…" dialog has an Aliases field alongside the name and first claim.
+
 ## [1.0.63] - 2026-10-08
 
 ### Fixed
