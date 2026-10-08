@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { peopleLabels, entityLabels, entityRefsAndLabels } from "@core/bibleGroups";
+import type { EntityPicture } from "@core/entityMedia";
 import { countWords } from "@core/proseStats";
 import { replaceCollapsedSentence } from "@core/sentenceSplit";
 import {
@@ -1529,11 +1530,9 @@ export function Editor() {
                 recastDisabled={busy !== null || !chapter.prose.trim()}
                 onRecast={() => void store.recastChapter()}
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
-              />
-              <ChapterStartImageBanner
-                image={chapter.startImage}
-                onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
-                onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
+                startImage={chapter.startImage}
+                onSetStartImage={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
+                onRemoveStartImage={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
               />
               <ScenesPanel
                 chapter={chapter}
@@ -2142,7 +2141,10 @@ function ChapterSettingsSection({
   recasting,
   recastDisabled,
   onRecast,
-  onPatch
+  onPatch,
+  startImage,
+  onSetStartImage,
+  onRemoveStartImage
 }: {
   book: Book;
   chapter: Chapter;
@@ -2152,6 +2154,9 @@ function ChapterSettingsSection({
   recastDisabled: boolean;
   onRecast: () => void;
   onPatch: (patch: ChapterSettingsPatch) => void;
+  startImage: EntityPicture | undefined;
+  onSetStartImage: (picture: EntityPicture) => void;
+  onRemoveStartImage: () => void;
 }) {
   const { messages: m } = useLocale();
   const [open, setOpen] = useState(chapterHasSettingsOverride(chapter));
@@ -2171,6 +2176,7 @@ function ChapterSettingsSection({
       </button>
       {open ? (
         <div className="chapter-settings-body">
+          <ChapterStartImageBanner image={startImage} onSet={onSetStartImage} onRemove={onRemoveStartImage} />
           <div className="chapter-head-top">
             <div className="craft-field">
               <span>{m.editor.voice}</span>

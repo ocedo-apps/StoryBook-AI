@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.67] - 2026-10-08
+
+### Changed
+- Add chapter illustration now lives inside Chapter settings — open it to reach the banner — instead of sitting next to it.
+
 ## [1.0.66] - 2026-10-08
 
 ### Changed

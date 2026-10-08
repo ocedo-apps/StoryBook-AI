@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.66
+Status: living document, v1.0.67
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2061,6 +2061,30 @@ centrerade kolumn. `npx tsc --noEmit`, `npx vitest run` (889 tester,
 oförändrat) och `npm run build` gröna.
 
 v1.0.65 → v1.0.66.
+
+**Ändringslogg v1.0.66 → v1.0.67 (2026-10-08):** Mats rättade mig
+direkt: "Jag tänkte att Add illustration ligger INUTI Chapter settings."
+— v1.0.66 hade bara placerat den som ett syskon direkt EFTER Chapter
+settings, inte faktiskt inuti den fällbara panelen.
+
+**Genomfört.** `ChapterSettingsSection` fick tre nya props
+(`startImage`, `onSetStartImage`, `onRemoveStartImage`, typad med
+`EntityPicture` från `@core/entityMedia`, nu importerad i Editor.tsx)
+och renderar `<ChapterStartImageBanner>` som första barn i
+`.chapter-settings-body` — alltså bara synlig när panelen är utfälld,
+ovanför Voice/Reader/POV/Tense/Viewpoint. Anropsstället i `.chapter-
+head` skickar nu bild-propsen in i `<ChapterSettingsSection>` istället
+för att rendera `<ChapterStartImageBanner>` som eget syskon.
+
+Verifierat live i Playwright: `.chapter-start-image` finns inte alls i
+DOM:en innan Chapter settings fälls ut (`count: 0`), dyker upp som
+`.chapter-settings-body`s FÖRSTA barn efter att ha klickat på toggle-
+knappen (`count: 1`, ordning `["chapter-start-image", "chapter-head-
+top", "chapter-craft"]`) — plus en skärmdump som bekräftar det
+visuellt. `npx tsc --noEmit`, `npx vitest run` (889 tester, oförändrat)
+och `npm run build` gröna.
+
+v1.0.66 → v1.0.67.
 
 ---
 
