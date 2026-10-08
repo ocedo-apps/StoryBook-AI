@@ -2086,6 +2086,42 @@ och `npm run build` gröna.
 
 v1.0.66 → v1.0.67.
 
+**docs/models.md uppdaterad (2026-10-08), ingen versions-bump.** En
+testare frågade om StoryBook AI skulle kunna stödja "Strata" ("works
+with any OpenAI- or Anthropic-compatible client"), och Mats undrade om
+svaret skulle vara "inte något vi jobbar med men vi följer frågan" —
+samma typ av avsteg-från-filosofin-fråga som API-diskussionen tidigare
+samma dag. Innan jag svarade sökte jag upp vad Strata faktiskt är
+istället för att gissa: en lokal, MIT-licensierad inferensmotor som
+kör på användarens egen dator och serverar ett OpenAI-kompatibelt API
+på `http://127.0.0.1:8080/v1` plus Anthropics Messages-API — alltså
+ingen molntjänst alls, bara ännu en lokal server av samma sort som
+LM Studio.
+
+**Verifierat live, inte bara i teorin:** byggde en liten Node-
+testserver som efterliknar Stratas API-form (`GET /v1/models`,
+`POST /v1/chat/completions` med SSE-streaming) och körde den riktiga
+appen mot den via Settings → Engine → "LM Studio / other local
+server". Första försöket gav "No local models found" tills jag insåg
+att testservern saknade CORS-headers — exakt samma krav som Ollama har
+(`OLLAMA_ORIGINS`). Med `Access-Control-Allow-Origin` tillagt
+fungerade hela kedjan: modellen listades, och en riktig Draft-körning
+skrev det strömmade svaret ("Hello from Strata.") till kapitlet.
+
+Slutsats till Mats: StoryBook AI stöder redan Strata och liknande
+lokala OpenAI-kompatibla servrar genom det befintliga "LM Studio /
+other local server"-alternativet — ingen kodändring behövs, bara
+dokumentation. Försökte först länka till Stratas GitHub-repo men sökte
+upp att namnet pekar mot flera olika, oklart vilket som är det
+kanoniska (`architectds/Strata` vs `kim-haneol/Strata` nämnda, ingen
+bekräftad som primär källa) — tog bort länken istället för att gissa,
+nämner bara namnet i text.
+
+`docs/models.md` fick Strata tillagt i exempel-listan av OpenAI-
+kompatibla servrar plus dess standardport (`127.0.0.1:8080`), och ett
+nytt stycke om CORS/allowed-origins-kravet som gäller generellt för
+alla sådana lokala servrar, inte bara Ollama. Inget app-kod ändrat.
+
 ---
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
