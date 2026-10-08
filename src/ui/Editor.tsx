@@ -1552,22 +1552,22 @@ export function Editor() {
                   ))}
                 </div>
               ) : null}
+              <ScenesPanel
+                chapter={chapter}
+                onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
+                onMergeWithNext={(sceneId) => store.mergeScene(sceneId)}
+                busy={busy !== null}
+                onDraftScene={(sceneId) => void store.draftScene(sceneId)}
+                onRecastScene={(sceneId) => void store.recastScene(sceneId)}
+                onAnalyzeScene={(sceneId) => {
+                  void store.analyzeScene(sceneId).then((ok) => {
+                    if (ok) setNotesOpen(true);
+                  });
+                }}
+                onExtractBrief={(sceneId) => void store.extractBrief(chapter.id, sceneId)}
+                extractingBrief={busy === "extract-brief"}
+              />
             </div>
-            <ScenesPanel
-              chapter={chapter}
-              onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
-              onMergeWithNext={(sceneId) => store.mergeScene(sceneId)}
-              busy={busy !== null}
-              onDraftScene={(sceneId) => void store.draftScene(sceneId)}
-              onRecastScene={(sceneId) => void store.recastScene(sceneId)}
-              onAnalyzeScene={(sceneId) => {
-                void store.analyzeScene(sceneId).then((ok) => {
-                  if (ok) setNotesOpen(true);
-                });
-              }}
-              onExtractBrief={(sceneId) => void store.extractBrief(chapter.id, sceneId)}
-              extractingBrief={busy === "extract-brief"}
-            />
             <ProseCanvas
               value={chapter.prose}
               onChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { prose: next }))}

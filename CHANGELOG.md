@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.65] - 2026-10-08
+
+### Fixed
+- Scenes sat outside the chapter's own centered column, so on a wide window the scene list visibly started further left than the chapter title, threads and prose above and below it. It now lives directly under Chapter settings, at the same width as the rest of the chapter.
+
 ## [1.0.64] - 2026-10-08
 
 ### Added

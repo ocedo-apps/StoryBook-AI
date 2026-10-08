@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.64
+Status: living document, v1.0.65
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1991,6 +1991,42 @@ run` (889 tester, oförändrat — ingen ny kärnlogik att testa, bara en
 UI-koppling av befintliga funktioner) och `npm run build` gröna.
 
 v1.0.63 → v1.0.64.
+
+**Ändringslogg v1.0.64 → v1.0.65 (2026-10-08):** Mats skickade en
+skärmdump: Scene-kortet låg synligt längre ut åt vänster än "Chapter
+settings", kapitelrubriken och själva prosan ovanför/under. Bad om att
+det skulle "läggas under Chapter Settings och få samma bredd som det
+övriga."
+
+**Root cause:** `<ScenesPanel>` renderades som ett SYSKON till
+`<div className="chapter-head">` i `Editor.tsx` (`<main
+className="manuscript">` → `.chapter-head` + `<ScenesPanel>` +
+`<ProseCanvas>` som tre separata direkta barn). `.chapter-head` har
+`align-self: center; max-width: 54rem` för att bli en centrerad,
+breddbegränsad kolumn i `.manuscript`s flex-column-layout — men
+`.scenes-panel` saknade samma regel och föll därför tillbaka på flex-
+standarden `align-self: stretch`, vilket gav den hela `.manuscript`s
+fulla bredd istället för att vara centrerad och kapad till 54rem som
+allt annat. På en bred skärm landar en full-bredd-box's vänsterkant
+längre ut åt vänster än en centrerad, smalare kolumns vänsterkant —
+exakt det Mats såg.
+
+**Fixen:** flyttade `<ScenesPanel>`-JSX:en in i `.chapter-head`-diven
+(efter `chapter-threads`, innan dess stängande tagg) istället för att
+duplicera bredd-CSS:en på ett till ställe — ärver samma centrering och
+54rem-tak automatiskt, och hamnar bokstavligen under Chapter settings
+som efterfrågat. Tog också bort `.scenes-panel`s egna
+`margin: 0.6rem 0.55rem 0.9rem` sido-marginal (0.6rem 0 0.9rem istället)
+så den blir flush med rubrik/trådar ovanför, inte 0.55rem indragen på
+var sida.
+
+Verifierat live i Playwright (1854px bred vy): `.chapter-head`,
+`.chapter-title` och `.scenes-panel` har nu identisk `x`-position (391)
+och bredd (864px) — pixel-exakt samma kolumn. `npx tsc --noEmit`,
+`npx vitest run` (889 tester, oförändrat — ren layoutändring) och
+`npm run build` gröna.
+
+v1.0.64 → v1.0.65.
 
 ---
 
