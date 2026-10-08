@@ -1883,6 +1883,19 @@ istället för att gissa, och skrev om de drabbade meningarna i "Run"-
 och "Loop"-avsnitten så de pekar på rätt meny/flik/dialog. Inget
 app-kod ändrades, bara dokumentationen.
 
+**README.md styckad till undersidor (2026-10-08), ingen versions-bump.**
+Mats, direkt efter föregående rättning: "Jag tänker också att det inte
+är en one-pager utan att det får bli undersidor." Flyttade innehållet
+från den ensidiga README.md till en ny `docs/`-mapp: `docs/running.md`
+(installation, starta-skript, `OLLAMA_ORIGINS`, Backup/Publicera/
+Framsteg), `docs/models.md` (Engine/Writing/Review-modeller,
+Context window), `docs/guide.md` (hela 18-stegs-loopen plus Analyze,
+som tidigare låg direkt i README) och `docs/testing.md` (testkommandon).
+`README.md` själv är nu en kort landningssida: pitch, syskon-
+projektnotis, språknotis, en snabbstart och en "Documentation"-lista
+med länkar till de fyra undersidorna, plus Changelog-länken. Inget
+app-kod ändrades.
+
 ---
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första

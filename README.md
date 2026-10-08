@@ -2,11 +2,11 @@
 
 A local-first prose tool. The Story Bible holds truth. The model drafts. You decide.
 
-This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export (this app → Sandbox campaigns) comes later. The other direction has a first piece: Sandbox's Storyboard can group campaign scenes into chapters and export chapter shells (title + brief, no prose) as JSON — this app does not read that file back in yet. No cloud API keys: StoryBook AI talks to a local model server on your own computer or network — [Ollama](https://ollama.com), or any OpenAI-compatible server such as LM Studio, llama.cpp, or vLLM (see Models below). Cloud providers (OpenAI, Anthropic, Google, and others) are deliberately excluded — the provider layer refuses to resolve to their hostnames, not just undocumented.
+This is a sibling of [Sandbox AI](https://github.com/ocedo-apps/Sandbox-AI), not a part of it. Campaign export (this app → Sandbox campaigns) comes later. The other direction has a first piece: Sandbox's Storyboard can group campaign scenes into chapters and export chapter shells (title + brief, no prose) as JSON — this app does not read that file back in yet. No cloud API keys: StoryBook AI talks to a local model server on your own computer or network — [Ollama](https://ollama.com), or any OpenAI-compatible server such as LM Studio, llama.cpp, or vLLM (see [Models](docs/models.md)). Cloud providers (OpenAI, Anthropic, Google, and others) are deliberately excluded — the provider layer refuses to resolve to their hostnames, not just undocumented.
 
 The UI is English, Swedish, or Norwegian Bokmål. **Prose language** on Settings is the language of the sentences. Export files and model prompts follow that field when it is set, otherwise the language of the manuscript.
 
-## Run
+## Quickstart
 
 On Windows, double-click **`starta.bat`**. On macOS, double-click **`starta.command`**. On Linux, run **`./starta.sh`** from a terminal (or double-click it, if your file manager runs executable scripts). Each installs dependencies on first run and then starts the app. Or, on any platform:
 
@@ -15,62 +15,14 @@ npm install
 npm run dev
 ```
 
-Opens on [http://localhost:5175](http://localhost:5175) so it does not collide with Sandbox (5173).
+Opens on [http://localhost:5175](http://localhost:5175) so it does not collide with Sandbox (5173). See [Running StoryBook AI](docs/running.md) for the Ollama origin setting and how Backup/Publish get your work out.
 
-Allow the origin:
+## Documentation
 
-```bash
-OLLAMA_ORIGINS=http://localhost:5175 ollama serve
-```
-
-You can still write and lock facts by hand if Ollama is off. Manuscripts live in this browser’s IndexedDB, not in the git repo. **Backup** writes a JSON file the app can read back. **Publish**, in the **File** menu (top bar), writes Markdown, plain text, RTF, ODT, HTML, ePub, or PDF — prose and chapter titles only, no Synopsis or chapter briefs. Every chapter starts its own page in RTF, ODT, and PDF, and its own file in ePub. HTML, ePub, and PDF can use one of four bundled OFL typefaces (Lora, Literata, Source Serif 4, Asap) instead of the default Times/Georgia look — RTF and ODT get the font by name only, since Scrivener and Word substitute from what's installed anyway.
-
-At the bottom of the left rail, **Progress** shows the manuscript's word count and, once you set an optional target and deadline, a percentage that opens onto a full pace readout — the daily words needed to make the deadline, recalculated fresh each time rather than just falling behind silently if a week gets missed.
-
-## Models
-
-**Engine**, under Settings, picks the local backend: **Ollama**, or **LM Studio / other local server** — any server speaking the OpenAI-compatible `/v1/chat/completions` API (LM Studio, llama.cpp, vLLM, text-generation-webui, LocalAI, and similar). The second option just needs a **Server address** (defaults to LM Studio's own port, `http://localhost:1234`); with Ollama there's nothing to configure, StoryBook finds it automatically. No cloud provider is offered — see above.
-
-Two model dropdowns under **Settings**, plus a **Context window** field (how much text the model can hold at once — with Ollama, a "Suggest from model" button reads the right value straight from it):
-
-- **Writing** (default `stheno-custom:latest`) — Draft, Recast, Extend, Elaborate, Rewrite, Brainstorm Ask, Interview, Development method suggestions.
-- **Review** (default `qwen2.5-coder:7b`) — Extract facts, Import lore, Interview fact-extraction, Ask Manuscript, word swap, sentence split, paragraph break, illustration prompts, Analyze, Proofread.
-
-## Loop
-
-1. Title a manuscript. A blank book opens on the **Handbook** — a short guided read on what the tools do; you don't need any of them to start, a book can be written with nothing but chapters and the editor. **Settings** (top bar) opens a dialog with camera, Voice, Reader, prose language, Context window, Illustration style, and which Writing and Review models to use. The page language stays in the header. **Browse library…** opens the app-wide illustration style library (searchable, grouped by genre tag) — selecting a style fills the field, it is never applied silently and stays editable after.
-2. **Brainstorm** (top bar tab) is private scratch: one note per idea, drag them, colour them. **Ask** writes onto a new note. Draft never reads this board.
-3. Drag a note into the **send** column when it should become plot. Order in that column is paragraph order. **Send to synopsis** appends them to the map, removes those notes, and opens **Synopsis** (top bar tab). Notes left on the board stay secret. **Development method** (top bar tab) offers a guided structure instead (Snowflake, three-act, Save the Cat, Hero's Journey) — every step just writes into Synopsis or Plotlines, nothing of its own; skip it entirely to write freeform.
-4. Open **Briefs** (top bar tab) to see every chapter brief as a card. Moving a card moves the chapter. The brief is a writing instruction, not canon.
-5. Open a chapter. The chapter can inherit the manuscript camera, Voice, and Reader, or override them. **Continues from** picks the strand. **Primer** on Settings is the start prompt for the Writing model. A long chapter can be split into **Scenes** — Draft, Recast, and Analyze can then each target just one.
-6. **Draft** fills or continues the chapter from the synopsis, the Story Bible, the brief, any Plotlines the chapter is tagged with, the camera, Reader, and prose language.
-7. Select a passage and right-click: **Extend** continues it, **Elaborate** expands it, **Rewrite…** opens chips that fill your instruction (POV leak, stronger verbs, active voice, show don’t tell, long sentence) — you still press **Rewrite**. **Illustration prompt…** asks the Review model for one image-generation prompt from the passage, any locked Story Bible facts for entities named in it, and the manuscript's Illustration style — Copy it, nothing is sent anywhere. **Manual Edit** rewrites the span by hand. **Find** searches and replaces across the manuscript, with quick searches for repeated words and phrases on this page.
-8. **Recast prose** rewrites the open chapter to the current camera. Same events and order; no new plot. Dropdowns do not recast on their own.
-9. **History** snapshots the chapter's prose from before every Draft, Recast, Extend, Elaborate, Rewrite, or Restore — newest first, up to **Revisions** on Settings (3–50, default 12). Compare any two versions (or a version against now) with a word-level diff. **Restore** jumps the chapter to that version — but never silently: if the current text differs from the target, it is saved as a new row first, so nothing is lost without its own row to jump back to.
-10. **Stats** shows how it reads (directness, pacing, vocabulary, echo, repeated phrase, POV leak, mixed-focus paragraphs). Click an echo or repeated phrase to find it. **Rare on** marks uncommon words; right-click one for Review alternatives.
-11. **Analyze** is an opt-in Review pass. It flags quotes; it does not rewrite. **Notes** reopens the last result.
-12. **Proofread** (Tools menu, top bar) is not a locked step. It is a slower last Review pass over the whole manuscript (grammar, repeated scenes, style between chapters, age report). Progress is saved as it goes. It does not rewrite. **Publish** (File menu, top bar) is where the workflow ends.
-13. **Extract facts** proposes Story Bible rows from the open chapter. Thicken them before Lock, or **Edit** a locked row later. **Add** on a name starts another fact about that person. **Import lore** (File menu, top bar) runs the same extractor over pasted or uploaded text instead of a chapter — paste a whole lorebook and it splits on headers into candidate articles you can pick from. **Interview** (top right of the Story Bible) lets you ask a locked entity questions in character — a place or object answers as a third-person worldbuilding collaborator instead — and turns the conversation into more proposed facts. **Export cards** sends locked people, places, and objects to Sandbox shelves.
-14. **Timeline** (top bar tab) merges reading order with story-time order and Plotlines into one board: chapters as columns in the order things actually happen (not the order they're written), threads as rows, a coloured bar wherever a thread runs through a chapter — a gap in the bar is a gap in the thread. **Edit** a thread to rename it, pick one of ten colours, add a short description (shown as a tooltip over its name and bars), or mark it **Hide from AI** so it stays visible to you while writing but never reaches a prompt. A chapter's tagged threads also show as a small reminder above its title while you write, and — unless hidden — as guidance in the Draft/Extend/Elaborate prompt.
-15. **Ask Manuscript** (Tools menu, top bar) answers questions about what's already written, sourced only from existing chapter prose (never the synopsis or brief), with a jump-to-chapter link on every answer. **View AI context…**, next to it in the Tools menu, shows the exact prompt the last AI action sent.
-16. Importing a manuscript written elsewhere often carries leftover markers (`*italic*` and similar) from the other tool — **Convert markers to formatting** (Tools menu, top bar) turns them into real formatting across the whole manuscript in one pass.
-17. Remove a chapter with **×**. It sits under Discarded chapters until you restore it or throw it away for good.
-18. Locked facts constrain the next draft. The synopsis stays the map. Brainstorm stays yours.
-
-## Analyze
-
-The review tries to find lines that neither reveal the character’s personality nor drive the scene forward.
-
-It may also flag named feelings (show vs tell), Voice drift when Voice is set, and beats that sit against a locked Story Bible trait. Click a flag to read the quote. Notes are not rewrites and do not touch the Story Bible.
-
-## Tests
-
-```bash
-npm test
-npm run typecheck
-```
-
-`npm test` covers the Story Bible schema, ConsistencyGate, extractor JSON recovery, craft/recast prompts, Analyze parsing, word-swap sense checks, IndexedDB round-trip, locales, find/replace, Reader, Continues from, brainstorm notes, prose history (revisions, restore, the no-silent-overwrite rule), the word-level diff, Timeline/Plotlines, and Development method.
+- [Running StoryBook AI](docs/running.md) — install, start, local AI server, backup and publish
+- [Models](docs/models.md) — picking an engine, Writing vs Review models, context window
+- [The Loop](docs/guide.md) — a full walkthrough of every tool, step by step, plus Analyze
+- [Testing](docs/testing.md) — running the test suite
 
 ## Changelog
 
