@@ -1655,6 +1655,62 @@ att bygga direkt.
 
 ---
 
+### 40. Korrekturläsning: gör Style-stegets textsampling och Scenes-stegets kandidattak hanterbara efter användarens dator
+
+Upptäckt under en diskussion om lokal vs moln-AI (Reddit-citat om en
+240k-ords molngenomgång på 1,5h, Mats jämförde med sin Nvidia P4000,
+8GB). Vid genomläsning av `proofreadScenes.ts`/`proofread.ts` hittade
+jag två medvetna, hårdkodade avvägningar — inte buggar som v1.0.63:s
+fix, utan gränser satta för att hålla Proofread snabbt på svag
+hårdvara:
+
+- **Style** (`styleUserPrompt` i `proofread.ts`) skickar bara varje
+  kapitels två första stycken (klippt till 420 tecken) och sista
+  stycket (klippt till 280 tecken) i ett enda anrop för hela manuset —
+  en registerglidning mitt i ett kapitel syns aldrig.
+- **Scenes** (`collectSceneScan` i `proofreadScenes.ts`) rankar alla
+  kandidatpar lexikalt gratis i JS, men bara **topp 24** (`MAX_CANDIDATES`)
+  skickas till modellen för verklig bedömning — ett manus med utbredd
+  upprepning kan ha fler riktiga dubbletter än de 24 som faktiskt prövas.
+
+Mats, efter att ha fått båda förklarade: spara som idé, och förmodligen
+bör det kolla användarens konfiguration och rekommendera vad som är
+hanterbart snarare än en fast gräns för alla.
+
+**Föreslagen lösning — två olika sorters gräns, två olika signaler:**
+
+1. **Style är en per-anrops-storleksfråga** — hur mycket text får plats
+   i en prompt. Detta mappar naturligt mot fältet **Context window**
+   som redan finns i Settings (manuellt satt, eller auto-ifyllt via
+   "Suggest from model" mot Ollama) — ett högre Context window kan
+   motivera att sampla mer än bara start/slut per kapitel (fler
+   mellanliggande stycken, eller hela kapitlet upp till en tokenbudget
+   härledd ur Context window-värdet), utan ny UI.
+2. **Scenes är en antal-anrop-fråga, inte en storleksfråga** — varje
+   kandidatpar är redan litet (två klipp på 900 tecken), så taket på
+   24 handlar om hur lång tid användaren är villig att vänta, inte vad
+   som får plats i kontexten. Context window är fel proxy för det här.
+   Antingen en enkel explicit nivå i Settings (t.ex. Snabb/Balanserad/
+   Grundlig, som skalar `MAX_CANDIDATES`) eller en försiktig höjning
+   kopplad till Context window som en grov — men ärligt sagt ofullständig
+   — gissning på hårdvarans kapacitet.
+3. **Viktig begränsning, oavsett lösning ovan:** `runProofread` kör
+   varje kapitel sekventiellt (`await io.complete(...)` i en for-loop,
+   `proofreadRun.ts`). Två GPU:er (t.ex. 2× Tesla P40, 24GB vardera)
+   ger i dagsläget inte dubbel hastighet på en enskild Proofread-körning
+   — en enda modell delad över två kort kör fortfarande lagren i
+   sekvens (ingen NVLink på P40, kommunikation går över PCIe). Den som
+   verkligen skulle utnyttja flera GPU:er/mer VRAM vore att köra flera
+   kapitel samtidigt (ett per GPU/modellinstans) — en separat, större
+   ändring av `runGrammar`/`runScenes` från sekventiell till parallell
+   dispatch. Värt att hålla isär från taken ovan: att höja
+   `MAX_CANDIDATES` eller Style-samplingen gör körningen mer grundlig,
+   inte nödvändigtvis snabbare på flerkorts-hårdvara.
+
+**Status: inte påbörjad, bara research.**
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
