@@ -1863,6 +1863,26 @@ fungerade.
 
 v1.0.61 → v1.0.62.
 
+**README.md uppdaterad (2026-10-08), ingen versions-bump.** Mats frågade
+om `project_spec.md` och `README.md` var i synk med senaste
+uppdateringarna. `project_spec.md` var redan aktuell (status-raden
+följer `package.json` vid varje release). `README.md` visade sig vara
+orörd sedan 29 september — före hela den här sessionen — och hade
+flera konkreta sakfel kvar efter v1.0.51:s ombyggnad av toppfältet
+(Brainstorm/Synopsis/Development method/Briefs/Timeline blev flikar;
+Backup/Export/Importera lore/Publicera/Konvertera markörer/Fråga
+manuset/Korrektur/Visa AI-kontext flyttade till Arkiv- och
+Verktygsmenyerna i headern) och efter v1.0.53/v1.0.59:s konvertering
+av Inställningar/Fråga manuset till modala dialoger: "Settings is
+first in the left rail", "Proofread sits under Chapters in the left
+rail... Publish is the last item in the rail", "Versions per chapter"
+(bytte namn till "Revisions" i v1.0.59). Läste hela filen (78 rader)
+innan jag rättade, kontrollerade mot faktisk kod (`Editor.tsx`:s
+`archiveNav`/`toolsNav`-menyer, `BookStore.tsx`:s modell-standardvärden)
+istället för att gissa, och skrev om de drabbade meningarna i "Run"-
+och "Loop"-avsnitten så de pekar på rätt meny/flik/dialog. Inget
+app-kod ändrades, bara dokumentationen.
+
 ---
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
