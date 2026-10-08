@@ -1,4 +1,5 @@
 import type { ChatMessage, CompletionRequest, LLMProvider, ProviderCapabilities, StreamChunk } from "./types";
+import { localServerFetch } from "./tauriFetch";
 
 export const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
 export const DEFAULT_OLLAMA_MODEL = "stheno-custom:latest";
@@ -15,7 +16,7 @@ export class OllamaRequestError extends Error {
 }
 
 function boundFetch(fetchImpl?: typeof fetch): typeof fetch {
-  return fetchImpl ?? globalThis.fetch.bind(globalThis);
+  return fetchImpl ?? localServerFetch();
 }
 
 export function normalizeBaseUrl(baseUrl?: string): string {

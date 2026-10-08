@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.68] - 2026-10-08
+
+### Fixed
+- The desktop app could refuse to connect to a local server (Ollama, LM Studio, Strata, and similar) that worked fine from the browser version, because that server's allowed-origins setting didn't recognize the desktop app's own internal address. The desktop app now reaches local servers directly through its own backend instead of its embedded browser window, so this no longer matters.
+
 ## [1.0.67] - 2026-10-08
 
 ### Changed

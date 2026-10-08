@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.67
+Status: living document, v1.0.68
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2121,6 +2121,64 @@ nämner bara namnet i text.
 kompatibla servrar plus dess standardport (`127.0.0.1:8080`), och ett
 nytt stycke om CORS/allowed-origins-kravet som gäller generellt för
 alla sådana lokala servrar, inte bara Ollama. Inget app-kod ändrat.
+
+**Ändringslogg v1.0.67 → v1.0.68 (2026-10-08):** Testarens uppföljnings-
+fråga ("the desktop and the browser both have the same origin, right?
+... the menus are inactive") gav bort rotorsaken: det gör de INTE.
+Webbläsarappen körs på `http://localhost:5175`, men Tauris produktions-
+bygge laddar från sin egen interna asset-protokoll-adress
+(`http://<scheme>.localhost/` på Windows, enligt en Tauri-säkerhets-
+rådgivning jag läste upp, inte gissade) — helt skild från `devUrl`,
+som bara används av `tauri dev`. Stratas (och de flesta lokala
+servrars) CORS-vitlistning var konfigurerad för webbläsar-origin,
+aldrig för skrivbordsappens egen; därav "ingen anslutning". Mats,
+efter att jag lagt fram alternativen: "Let's look into it through
+Rust instead."
+
+**Lösningen:** en native Rust-HTTP-klient omfattas aldrig av CORS
+överhuvudtaget — det är ett rent webbläsar/webview-koncept. Lade till
+Tauris egen, underhållna `tauri-plugin-http`/`@tauri-apps/plugin-http`
+(inte en hemsnickrad Rust-proxy via Tauri Channels, som hade krävt att
+manuellt återuppfinna streaming-SSE/Response-polyfill/AbortSignal-
+semantik som pluginet redan löser) — en nästan drop-in `fetch()`-
+ersättning där Rust-sidan faktiskt utför anropet. Ny
+`src/llm/tauriFetch.ts`: `localServerFetch()` väljer pluginets `fetch`
+i skrivbordsappen (`isTauri()` från `@tauri-apps/api/core`), annars
+webbläsarens egen — webbappen saknar en Rust-backend att gå via, så
+där gäller fortfarande serverns CORS-konfiguration precis som förut.
+
+Minimalt invasivt tack vare ett redan existerande mönster:
+`OllamaModelProvider`, `OpenAICompatibleLocalProvider`, `OllamaProvider`
+och de fristående Ollama-funktionerna tar alla redan en valfri
+`fetchImpl`-override, med exakt tre call-sites som satte defaulten
+till `globalThis.fetch.bind(globalThis)` — bytte bara ut DEN defaulten
+mot `localServerFetch()`, noll ändringar i själva request/response/
+streaming/parsnings-logiken. `src-tauri/capabilities/default.json`
+fick ett nytt scoped `http:default`-tillstånd (`{"url": "http://*"}` —
+jokertecken matchar vilken host som helst under http, bekräftat i
+pluginets egna Rust-enhetstester, men inget IP-intervall/CIDR-stöd).
+`assertLocalOnlyBaseUrl`:s molnvärd-blocklista (TypeScript-nivå)
+påverkas inte och gäller precis som förut, oavsett vilken `fetchImpl`
+som används — ett oberoende skyddslager.
+
+**Verifierat live, inte bara i teorin.** `cargo check`, `tsc --noEmit`,
+hela testsviten (891 tester, 2 nya för `localServerFetch`) och
+`npm run build` gröna. Byggde dessutom en fejkad Strata-server (Node,
+SSE-streaming) och körde det faktiska skrivbordsbygget headless under
+Xvfb (`cargo run`, 575 crates, ~1m30s kompilering) — appen startade
+rent (`Finished dev profile`, `Running target/debug/storybook-ai-
+desktop`, bara en ofarlig EGL/DRI3-varning som är förväntad utan GPU i
+en headless sandlåda). En viktig gräns att vara ärlig om: det är
+WebKitGTK på Linux, inte den riktiga Windows WebView2-binären
+testaren faktiskt kör — den fulla webview→Rust→nätverk-kedjan är bara
+bevisad i det här headless-läget, inte på Windows i produktion.
+
+`docs/models.md` uppdateras INTE i den här ändringen — dess nuvarande
+CORS/origin-råd gäller fortfarande fullt ut för webbappen, men är nu
+bara delvis sant för skrivbordsappen (som inte längre behöver det
+alls). Kvar att göra, inte bortglömt.
+
+v1.0.67 → v1.0.68.
 
 ---
 

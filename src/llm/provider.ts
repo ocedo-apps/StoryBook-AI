@@ -7,6 +7,7 @@ import {
   OllamaProvider,
   OllamaRequestError
 } from "./ollama";
+import { localServerFetch } from "./tauriFetch";
 
 export interface EmbeddingRequest {
   texts: string[];
@@ -152,7 +153,7 @@ export class OllamaModelProvider implements LocalModelProvider {
   }
 
   async embed(request: EmbeddingRequest): Promise<number[][]> {
-    const fetchImpl = this.fetchImpl ?? globalThis.fetch.bind(globalThis);
+    const fetchImpl = this.fetchImpl ?? localServerFetch();
     const response = await fetchImpl(`${normalizeBaseUrl(this.baseUrl ?? DEFAULT_OLLAMA_BASE_URL)}/api/embed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -191,7 +192,7 @@ export class OpenAICompatibleLocalProvider implements LocalModelProvider {
     this.model = config.model;
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
     this.name = config.name ?? `local-openai:${config.model}`;
-    this.fetchImpl = config.fetchImpl ?? globalThis.fetch.bind(globalThis);
+    this.fetchImpl = config.fetchImpl ?? localServerFetch();
   }
 
   private chatBody(messages: ChatMessage[], stream: boolean, temperature?: number, maxTokens?: number) {
