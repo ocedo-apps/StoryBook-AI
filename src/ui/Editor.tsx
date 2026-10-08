@@ -1530,6 +1530,26 @@ export function Editor() {
                 onRecast={() => void store.recastChapter()}
                 onPatch={(patch) => void store.patchBook((current) => updateChapter(current, chapter.id, patch))}
               />
+              <ChapterStartImageBanner
+                image={chapter.startImage}
+                onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
+                onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
+              />
+              <ScenesPanel
+                chapter={chapter}
+                onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
+                onMergeWithNext={(sceneId) => store.mergeScene(sceneId)}
+                busy={busy !== null}
+                onDraftScene={(sceneId) => void store.draftScene(sceneId)}
+                onRecastScene={(sceneId) => void store.recastScene(sceneId)}
+                onAnalyzeScene={(sceneId) => {
+                  void store.analyzeScene(sceneId).then((ok) => {
+                    if (ok) setNotesOpen(true);
+                  });
+                }}
+                onExtractBrief={(sceneId) => void store.extractBrief(chapter.id, sceneId)}
+                extractingBrief={busy === "extract-brief"}
+              />
               <input
                 className="chapter-title"
                 value={chapter.title}
@@ -1552,21 +1572,6 @@ export function Editor() {
                   ))}
                 </div>
               ) : null}
-              <ScenesPanel
-                chapter={chapter}
-                onPatch={(scenes) => void store.patchBook((current) => updateChapter(current, chapter.id, { scenes }))}
-                onMergeWithNext={(sceneId) => store.mergeScene(sceneId)}
-                busy={busy !== null}
-                onDraftScene={(sceneId) => void store.draftScene(sceneId)}
-                onRecastScene={(sceneId) => void store.recastScene(sceneId)}
-                onAnalyzeScene={(sceneId) => {
-                  void store.analyzeScene(sceneId).then((ok) => {
-                    if (ok) setNotesOpen(true);
-                  });
-                }}
-                onExtractBrief={(sceneId) => void store.extractBrief(chapter.id, sceneId)}
-                extractingBrief={busy === "extract-brief"}
-              />
             </div>
             <ProseCanvas
               value={chapter.prose}
@@ -1616,11 +1621,6 @@ export function Editor() {
               rewriteWho={rewriteWhoFrom(resolveCraft(book, chapter))}
               aside={
                 <>
-                  <ChapterStartImageBanner
-                    image={chapter.startImage}
-                    onSet={(picture) => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: picture }))}
-                    onRemove={() => void store.patchBook((current) => updateChapter(current, chapter.id, { startImage: undefined }))}
-                  />
                   <ContinuityWarning leaks={knowledgeLeaksForChapter(book, chapter.id)} onJumpToChapter={store.setChapterId} />
                   <PlaceholdersPanel
                     items={collectPlaceholders(chapters)}

@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.66] - 2026-10-08
+
+### Changed
+- Reordered the chapter header: Add chapter illustration now sits right under Chapter settings, and the chapter title (with its plotline threads) now sits under Scenes.
+
 ## [1.0.65] - 2026-10-08
 
 ### Fixed

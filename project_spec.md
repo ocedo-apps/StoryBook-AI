@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.65
+Status: living document, v1.0.66
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2027,6 +2027,40 @@ och bredd (864px) — pixel-exakt samma kolumn. `npx tsc --noEmit`,
 `npm run build` gröna.
 
 v1.0.64 → v1.0.65.
+
+**Ändringslogg v1.0.65 → v1.0.66 (2026-10-08):** Mats, direkt efter
+Scene-bredd-fixen, bad om ytterligare omflyttning i samma `.chapter-head`-
+kolumn: "Lägg in Add chapter illustration under Chapter settings och
+Lägg kapitelnamnet under Scene."
+
+**Genomfört.** `ChapterStartImageBanner` (omslagsbild för kapitlet)
+renderades tidigare inne i `ProseCanvas`s `aside`-prop, som en av fem
+saker i ett fragment (`ContinuityWarning`, `PlaceholdersPanel`,
+`DarlingsPanel`, `ModelAsideCallout`) — alltså visuellt placerad
+ovanför själva prosan, efter hela `.chapter-head`-blocket. Flyttade ut
+den ur det fragmentet och in i `.chapter-head` som egen rad direkt
+efter `<ChapterSettingsSection>`. Kapiteltitelns `<input>` och
+`chapter-threads`-diven (plotline-trådarna, som följer med titeln som
+en enhet) flyttades i sin tur till sist i `.chapter-head`, efter
+`<ScenesPanel>`. Ny ordning: Chapter settings → omslagsbild → Scene →
+kapiteltitel → trådar → (sedan prosan, med Continuity/Placeholders/
+Darlings/Model-aside kvar där de var, bara `ChapterStartImageBanner`
+borttagen ur den listan).
+
+`.chapter-start-image` hade redan `align-self:center; max-width:54rem`
+från tidigare (det tvingade den till samma bredd även när den satt
+inuti den bredare `.prose-wrap`) — overflödigt men ofarligt nu när den
+sitter i den redan breddbegränsade `.chapter-head`, så ingen CSS-ändring
+behövdes för själva bilden.
+
+Verifierat live i Playwright: läste `.chapter-head`s barnordning direkt
+ur DOM:en efter rendering — `["chapter-settings", "chapter-start-image",
+"scenes-panel", "chapter-title"]`, exakt den begärda ordningen — plus en
+skärmdump som bekräftar visuellt att allt ligger i samma smala,
+centrerade kolumn. `npx tsc --noEmit`, `npx vitest run` (889 tester,
+oförändrat) och `npm run build` gröna.
+
+v1.0.65 → v1.0.66.
 
 ---
 
