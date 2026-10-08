@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { addChapter, createBook, parseBook, updateChapter, type Book } from "@core/BookSchema";
 import {
+  ageUserPrompt,
   craftDriftNotes,
   flagStale,
+  grammarSystem,
   grammarUserPrompt,
+  manuscriptAgeStats,
   manuscriptPlaceChains,
   parseAgeResult,
   parseContinuityResult,
@@ -159,6 +162,61 @@ describe("prompts and parsers", () => {
       book
     );
     expect(parsed.items[0]?.category).toBe("content");
+  });
+
+  it("no longer asks the Age stage to read for content it was never shown", () => {
+    const { book } = twoChapters();
+    const kidBook = { ...book, reader_age: 8 };
+    const stats = manuscriptAgeStats(kidBook);
+    const prompt = ageUserPrompt(kidBook, stats);
+    expect(prompt).not.toMatch(/profanity|graphic violence|explicit content/i);
+  });
+
+  it("only asks Grammar to flag content when that chapter's Reader is under 18", () => {
+    const { book, first } = twoChapters();
+    const chapter = book.chapters.find((item) => item.id === first)!;
+    expect(grammarSystem(book, chapter)).not.toMatch(/profanity/i);
+
+    const kidBook = { ...book, reader_age: 8 };
+    const kidChapter = kidBook.chapters.find((item) => item.id === first)!;
+    const system = grammarSystem(kidBook, kidChapter);
+    expect(system).toMatch(/profanity/i);
+    expect(system).toMatch(/category":"content"/);
+  });
+
+  it("tells Grammar the chapter's resolved Reader age, only when it is under 18", () => {
+    const { book, first } = twoChapters();
+    const chapter = book.chapters.find((item) => item.id === first)!;
+    expect(grammarUserPrompt(book, chapter)).not.toContain("Reader (intended audience)");
+
+    const kidBook = { ...book, reader_age: 8 };
+    const kidChapter = kidBook.chapters.find((item) => item.id === first)!;
+    expect(grammarUserPrompt(kidBook, kidChapter)).toContain("Reader (intended audience): about 8.");
+  });
+
+  it("keeps a content flag only when its quote is verbatim in the chapter, and caps it apart from grammar items", () => {
+    const prose = "Emma locked the quay door and counted the night keys by the lamp on the wet planks.";
+    const real = parseGrammarItems(
+      `{"items":[{"quote":"counted the night keys","observation":"Fine.","category":"content"}]}`,
+      prose
+    );
+    expect(real).toHaveLength(1);
+    expect(real[0]?.category).toBe("content");
+    expect(real[0]?.suggestion).toBeUndefined();
+
+    const fabricated = parseGrammarItems(
+      `{"items":[{"quote":"a line that is not in the chapter at all","observation":"Made up.","category":"content"}]}`,
+      prose
+    );
+    expect(fabricated).toEqual([]);
+
+    const manyContent = Array.from({ length: 6 }, () => ({
+      quote: "counted the night keys",
+      observation: "Repeat.",
+      category: "content"
+    }));
+    const capped = parseGrammarItems(JSON.stringify({ items: manyContent }), prose);
+    expect(capped).toHaveLength(4);
   });
 });
 

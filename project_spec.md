@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.62
+Status: living document, v1.0.63
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -1895,6 +1895,65 @@ som tidigare låg direkt i README) och `docs/testing.md` (testkommandon).
 projektnotis, språknotis, en snabbstart och en "Documentation"-lista
 med länkar till de fyra undersidorna, plus Changelog-länken. Inget
 app-kod ändrades.
+
+**Ändringslogg v1.0.62 → v1.0.63 (2026-10-08):** Mats visade ett
+Reddit-citat om en molnlösning som tog 1,5h på ett 240k-ords manus,
+och undrade om hans Nvidia P4000 (8GB) skulle klara motsvarande i
+StoryBook AI:s Proofread. Jag läste `proofreadRun.ts`/`proofreadScenes.ts`
+istället för att gissa och förklarade varför arkitekturen redan är
+lokal-vänlig (scenjämförelsen görs med gratis lexikal förfiltrering i
+JS, bara topp-24 kandidater går till modellen; Grammar går kapitel för
+kapitel, inte hela boken i en kontext). Mats frågade uppföljningsfrågan:
+finns det en risk att detta missar saker jämfört med att skicka hela
+boken till en molnmodell? Vid genomläsning av Age-stegets prompt
+(`ageUserPrompt` i `proofread.ts`) hittade jag en riktig bugg, inte bara
+en avvägning: `AGE_SYSTEM` bad modellen "read closely for profanity,
+graphic violence, and sexual or explicit content" när Reader är under
+18 — men `ageUserPrompt` skickar bara aggregerad statistik (antal ord,
+meningslängd, andel ovanliga ord), aldrig den faktiska prosan. Modellen
+ombads alltså läsa text den aldrig fick se. Till skillnad från Grammar-
+stegets `parseGrammarItems` (som verifierar varje citat mot kapitlets
+riktiga text via `quoteInProse` innan det visas) gjorde `parseAgeResult`
+ingen sådan kontroll alls — ett påhittat citat hade kunnat slinka igenom
+oemotsagt.
+
+**Fixen:** flyttade innehållskontrollen till Grammar-steget, som redan
+läser varje kapitels fulla prosa (ett LLM-anrop per kapitel, inte hela
+boken) och redan har citatverifiering. `GRAMMAR_SYSTEM` (konstant) blev
+`grammarSystem(book, chapter)` (funktion) som lägger till en
+content-regel ("profanity, graphic violence, sexual or explicit
+content", tag `"category":"content"`, max 4 per kapitel utöver de 8
+grammatikflaggorna) bara när kapitlets resolvade Reader-ålder (via
+befintliga `resolveReader(book, chapter)`, samma per-kapitel-override-
+mönster som Camera/Voice redan använder) är under 18 — noll extra
+kostnad för vuxenmanus, som är det vanliga fallet. `grammarUserPrompt`
+fick en ny `Reader (intended audience): about N.`-rad, också bara när
+relevant. `parseGrammarItems` hanterar nu `category:"content"` med eget
+tak (4) separat från grammatik-taket (8), och validerar dess citat mot
+den riktiga prosan precis som grammatikflaggor redan gjorde — samma
+`quoteInProse`-skydd, ingen ny kod för det. Tog bort den trasiga
+instruktionen ur `AGE_SYSTEM`/`ageUserPrompt` och lade till en explicit
+rad om att modellen inte fått kapiteltexten och inte ska hitta på citat
+— skyddar även de kvarvarande "craft"-citaten (moral, vuxen tar beslutet
+istället för barnet) som har samma underliggande textlöshet men inte är
+lika allvarliga att flytta. `ProofreadFlagSchema`s kommentar om
+`category` uppdaterad till att beskriva grammar-steget, inte age-steget.
+UI:t (`ProofreadCard.tsx`) behövde ingen ändring — grupperingen är redan
+generisk på `flag.stage`, så content-flaggor dyker nu bara upp under
+"Grammar" istället för "Age", fortfarande med samma "Content check"-
+badge.
+
+Fem nya tester i `tests/core/proofread.test.ts`: content-regeln syns i
+`grammarSystem` bara för en ung Reader; `grammarUserPrompt`s Reader-rad
+likaså; `ageUserPrompt` nämner inte längre profanity/violence/explicit;
+`parseGrammarItems` behåller ett content-citat bara om det faktiskt
+finns i prosan, kapar vid 4, och ett påhittat citat ger `[]`. `npx tsc
+--noEmit`, `npx vitest run` (889 tester, alla gröna) och `npm run build`
+gröna. Ingen Playwright-körning denna gång — ändringen rör bara
+prompt-konstruktion/parsing i `core/`, ingen UI-interaktion ändrades,
+och grupperingslogiken i `ProofreadCard.tsx` lästes och lämnades orörd.
+
+v1.0.62 → v1.0.63.
 
 ---
 

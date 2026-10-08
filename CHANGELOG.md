@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.63] - 2026-10-08
+
+### Fixed
+- Proofread's Age stage was asked to "read closely" for profanity, violence, and sexual content unsuited to a young reader, but was never actually given the chapter text — only word-count and sentence-length numbers — so it had nothing real to check and could in principle report a quote that wasn't really there. Content screening for an under-18 Reader now happens during the Grammar stage instead, which already reads every chapter in full and already verifies every quote it reports against the real text before showing it.
+
 ## [1.0.62] - 2026-10-07
 
 ### Fixed

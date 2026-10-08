@@ -185,7 +185,19 @@ export function manuscriptAgeStats(book: Book): AgeStats {
   return row;
 }
 
-export const GRAMMAR_SYSTEM = `You proofread one chapter of fiction. You do not write prose.
+/**
+ * Content safety (profanity/violence/explicit content for an under-18 Reader)
+ * is asked for here, not in the Age stage: this is the only proofread call
+ * that sees the chapter's actual prose and verifies its quotes against it
+ * (parseGrammarItems), so it is the only stage that can honestly judge or
+ * cite content. The Age stage only ever sees aggregate numbers.
+ */
+export function grammarSystem(book: Book, chapter: Chapter): string {
+  const kid = kidlitReader(resolveReader(book, chapter));
+  const contentRule = kid
+    ? `\n\nThis chapter's Reader is under 18. Also flag profanity, graphic violence, and sexual or explicit content that does not fit that age, even where it otherwise serves the story. Tag these "category":"content" — observation explains what the content is and why it does not fit the stated reader age; never include a suggestion for these. Age-appropriate danger, fear, or loss is not itself a flag — only flag what a parent or librarian would call out as wrong for that specific age. At most 4 content flags, in addition to the 8 grammar flags below.`
+    : "";
+  return `You proofread one chapter of fiction. You do not write prose.
 Return JSON only, shaped as: {"items":[{"quote":"...","observation":"...","suggestion":"..."}]}
 
 Flag only:
@@ -199,16 +211,20 @@ Rules:
 - Do not flag Voice, dialect, fragments used as style, or Story Bible names.
 - Do not flag POV or tense that match the camera you were given.
 - Empty is allowed: {"items":[]}.
-- At most 8 items. Prefer the strongest flags.`;
+- At most 8 items. Prefer the strongest flags.${contentRule}`;
+}
 
 export function grammarUserPrompt(book: Book, chapter: Chapter): string {
   const craft = resolveCraft(book, chapter);
   const voice = resolveVoice(book, chapter);
   const names = entityLabels(book.facts, book.entity_kinds);
+  const readerAge = resolveReader(book, chapter);
+  const readerLine = kidlitReader(readerAge) ? `Reader (intended audience): about ${readerAge}.` : "";
   const parts = [
     `Manuscript: ${book.title}`,
     `Camera: ${summarizeCraft(craft)}`,
     voice ? `Voice:\n${voice}` : "Voice is unset.",
+    readerLine,
     names.length > 0 ? `Do not flag these names:\n${names.join(", ")}` : "",
     `Story Bible:\n${formatBibleForPrompt(book, "No locked facts yet.")}`,
     `Chapter ${chapter.sequence_index + 1}: ${chapter.title.trim() || "Untitled"}`,
@@ -228,17 +244,26 @@ export function parseGrammarItems(raw: string, prose: string): Omit<ProofreadFla
   const rows = (payload as { items?: unknown })?.items;
   if (!Array.isArray(rows)) return [];
   const items: Omit<ProofreadFlag, "id" | "stage" | "chapterId">[] = [];
+  let grammarCount = 0;
+  let contentCount = 0;
   for (const row of rows) {
-    if (items.length >= 8) break;
     if (!row || typeof row !== "object") continue;
     const rec = row as Record<string, unknown>;
+    const isContent = rec.category === "content";
+    if (isContent ? contentCount >= 4 : grammarCount >= 8) continue;
     const quote = typeof rec.quote === "string" ? rec.quote.trim() : "";
     const observation = typeof rec.observation === "string" ? rec.observation.trim() : "";
     if (quote.length < 4 || !observation) continue;
     if (!quoteInProse(prose, quote)) continue;
-    const suggestion = typeof rec.suggestion === "string" ? rec.suggestion.trim() : "";
     const item: Omit<ProofreadFlag, "id" | "stage" | "chapterId"> = { quote, observation };
-    if (suggestion && suggestion !== quote) item.suggestion = suggestion;
+    if (isContent) {
+      item.category = "content";
+      contentCount += 1;
+    } else {
+      const suggestion = typeof rec.suggestion === "string" ? rec.suggestion.trim() : "";
+      if (suggestion && suggestion !== quote) item.suggestion = suggestion;
+      grammarCount += 1;
+    }
     items.push(item);
   }
   return items;
@@ -357,7 +382,7 @@ Return JSON only: {"report":"...","items":[{"chapter":1,"quote":"...","observati
 
 report is 2–5 sentences. It may use the numbers you were given. It is not a rewrite and not a request to bowdlerize.
 items are optional quotes that would lose that reader, or — when Reader is under 18 — an adult taking the decisive move, or a moral stated instead of earned. Tag these "category":"craft".
-When Reader is under 18, also read for profanity, graphic violence, and sexual or explicit content that does not fit that age, even where it otherwise serves the story. Tag these "category":"content". Age-appropriate danger, fear, or loss is not itself a flag — only flag what a parent or librarian would call out as wrong for that specific age.
+You were not given the chapter text, only aggregate numbers — do not invent a quote you have not been shown. Leave items empty rather than guess one.
 Empty items are allowed. At most 6 items.`;
 
 export function ageUserPrompt(book: Book, stats: AgeStats): string {
@@ -372,9 +397,6 @@ export function ageUserPrompt(book: Book, stats: AgeStats): string {
     reader,
     `Numbers (whole manuscript, live chapters only): ${stats.chapters} chapters, ${stats.words} words, typical sentence ${stats.meanSentence.toFixed(1)} words, ${stats.longCount} long sentences, ${share}% uncommon words.`,
     kid ? "Use child_agency and lecture when they apply." : "Skip child_agency and lecture.",
-    kid
-      ? "This is a children's/YA manuscript. Read closely for profanity, graphic violence, and sexual or explicit content unsuited to this reader, and tag any as content."
-      : "",
     "Do not mention brainstorm. JSON only."
   ]
     .filter(Boolean)

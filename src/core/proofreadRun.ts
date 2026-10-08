@@ -8,7 +8,6 @@ import { EXTRACTOR_SYSTEM, extractorUserPrompt, parseExtractorPayload } from "./
 import {
   AGE_SYSTEM,
   CONTINUITY_SYSTEM,
-  GRAMMAR_SYSTEM,
   SCENE_SYSTEM,
   SETUP_SYSTEM,
   STYLE_SYSTEM,
@@ -16,6 +15,7 @@ import {
   continuityUserPrompt,
   craftDriftNotes,
   factsObservation,
+  grammarSystem,
   grammarUserPrompt,
   makeFlag,
   manuscriptAgeStats,
@@ -72,7 +72,7 @@ async function runGrammar(job: ProofreadJob, io: ProofreadIO, signal: AbortSigna
       detail: `grammar:${chapter.sequence_index + 1}`
     });
     await io.save(current);
-    const raw = await io.complete(GRAMMAR_SYSTEM, grammarUserPrompt(book, chapter), signal);
+    const raw = await io.complete(grammarSystem(book, chapter), grammarUserPrompt(book, chapter), signal);
     const parsed = parseGrammarItems(raw, chapter.prose);
     const flags = [
       ...current.flags,
