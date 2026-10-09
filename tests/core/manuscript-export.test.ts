@@ -255,7 +255,7 @@ describe("manuscript export formats", () => {
     const html = formatExportHtml(doc, LORA);
     expect(html).toContain("@font-face{font-family:'Lora';font-weight:400;src:url(data:font/ttf;base64,");
     expect(html).toContain("@font-face{font-family:'Lora';font-weight:700;src:url(data:font/ttf;base64,");
-    expect(html).toContain("body{font-family:Lora, Georgia, serif}");
+    expect(html).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
   });
 
   it("embeds the chosen font as real files inside the ePub package", () => {
@@ -265,7 +265,7 @@ describe("manuscript export formats", () => {
     expect(text).toContain("OEBPS/fonts/regular.ttf");
     expect(text).toContain("OEBPS/fonts/bold.ttf");
     expect(text).toContain('href="fonts/regular.ttf" media-type="application/x-font-ttf"');
-    expect(text).toContain("body{font-family:Lora, Georgia, serif}");
+    expect(text).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
     // The embedded TTF bytes themselves should be present in the archive, uncompressed.
     const magic = Array.from(LORA.embed!.regular.slice(0, 4));
     const bytes = Array.from(epub);
@@ -477,5 +477,55 @@ describe("drop cap", () => {
     const bytes = await packPdf(doc);
     const loaded = await PDFDocument.load(bytes);
     expect(loaded.getPageCount()).toBeGreaterThan(0);
+  });
+});
+
+describe("body text weight", () => {
+  function bookForWeight() {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door." });
+    return book;
+  }
+
+  it("is regular by default — no font-weight override in HTML/ePub, no fo:font-weight on Standard in ODT", () => {
+    const doc = buildManuscriptExport(bookForWeight());
+    expect(formatExportHtml(doc, LORA)).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
+    const epubText = new TextDecoder().decode(packEpub(doc, LORA));
+    expect(epubText).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
+    const odtText = new TextDecoder().decode(packOdt(doc, LORA));
+    expect(odtText).toContain('style:font-name="Lora" fo:font-size="12pt"/>');
+  });
+
+  it("sets body{font-weight:700} in HTML and ePub when bold", () => {
+    const doc = buildManuscriptExport(bookForWeight());
+    expect(formatExportHtml(doc, LORA, "spaced", "bold")).toContain("body{font-family:Lora, Georgia, serif;font-weight:700}");
+    const epubText = new TextDecoder().decode(packEpub(doc, LORA, "spaced", "bold"));
+    expect(epubText).toContain("body{font-family:Lora, Georgia, serif;font-weight:700}");
+  });
+
+  it("adds fo:font-weight=\"bold\" to ODT's Standard style when bold", () => {
+    const doc = buildManuscriptExport(bookForWeight());
+    const odtText = new TextDecoder().decode(packOdt(doc, LORA, "spaced", "bold"));
+    expect(odtText).toContain('style:font-name="Lora" fo:font-size="12pt" fo:font-weight="bold"/>');
+  });
+
+  it("opens with \\b in RTF when bold, leaving a regular export without it", () => {
+    const doc = buildManuscriptExport(bookForWeight());
+    const regular = formatExportRtf(doc, LORA);
+    expect(regular).toContain("\\f0\\fs24\n");
+    const bold = formatExportRtf(doc, LORA, "spaced", "bold");
+    expect(bold).toContain("\\f0\\fs24\\b\n");
+    expect(bold).toContain("Emma locked the door.");
+  });
+
+  it("produces different PDF bytes for bold body text, both still valid", async () => {
+    const doc = buildManuscriptExport(bookForWeight());
+    const regularBytes = await packPdf(doc, LORA);
+    const boldBytes = await packPdf(doc, LORA, "spaced", "bold");
+    expect(boldBytes).not.toEqual(regularBytes);
+    const regularPdf = await PDFDocument.load(regularBytes);
+    const boldPdf = await PDFDocument.load(boldBytes);
+    expect(regularPdf.getPageCount()).toBeGreaterThan(0);
+    expect(boldPdf.getPageCount()).toBeGreaterThan(0);
   });
 });

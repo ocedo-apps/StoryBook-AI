@@ -428,6 +428,11 @@ export const en = {
       "The typeface for the manuscript's prose — in the editor itself, and carried into every Publish export, so there's one choice instead of a separate, unsaved pick each time.",
     fontCategorySerif: "Serif",
     fontCategorySans: "Sans serif",
+    bodyWeightLabel: "Weight",
+    bodyWeightLede:
+      "How heavy the manuscript's prose sits on the page — in the editor itself, and carried into every Publish export, same as Font. Only Regular and Bold because that's what each bundled typeface actually ships.",
+    bodyWeightRegular: "Regular",
+    bodyWeightBold: "Bold",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

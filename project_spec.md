@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.75
+Status: living document, v1.0.76
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2587,6 +2587,86 @@ hela 13-fonts-katalogen att välja ur istället för 5, som var hela
 poängen med att göra detta steg först.
 
 v1.0.74 → v1.0.75.
+
+---
+
+**Ändringslogg v1.0.75 → v1.0.76 (2026-10-09):** Mats frågade rakt av
+"Ska vi då rulla vidare med typografin?" efter att ha sparat
+scenbrytar-idén — ja, och nästa i Mats egen ursprungliga ordning
+(Brödtext: Font/Vikt/Punktstorlek/Färg, Rubrik: samma fyra, Anfang:
+Font/Vikt/Färg) är Brödtextens Vikt.
+
+**Begränsning, inte gissning.** Varje bundlat typsnitt har bara två
+inbäddade vikter (Regular 400, Bold 700 — se `publishFonts.ts`), så
+"Vikt" blev ett binärt Normal/Fet-val, inte en fri skala. En finare
+skala (Light/Medium/SemiBold/...) hade krävt fler fontfiler per
+familj — 13 typsnitt × fler vikter, en betydligt större hämtnings-
+insats. Dokumenterat som medveten avgränsning i schemakommentaren,
+inte tyst antagande.
+
+**Arkitektur-utredning innan kod.** Läste igenom `manuscriptExport.ts`s
+fem format-funktioner för att förstå hur "bold" redan användes — det
+visade sig att `embed.bold` idag ENDAST används för rubriker (kapitel-
+titlar, Story Bible-namn), aldrig för brödtexten själv; ingen
+inline **fet**-markup i prosan finns. Så en Vikt-inställning för
+Brödtext är en helt ny, oberoende axel, inte en konflikt med
+rubrikernas befintliga fetstil. Per format:
+
+- **HTML/ePub** — `body{font-weight:700}` i den delade CSS:en.
+  Rubriker (`<h1>`-`<h3>`) ärver INTE detta eftersom webbläsarens UA-
+  stilmall redan ger dem sin egen explicita `font-weight:bold`, mer
+  specifik än den ärvda body-regeln — kontrasten mot rubriker bevaras
+  automatiskt, inget särfall behövdes.
+- **ODT** — `fo:font-weight="bold"` på "Standard"-stycket. Rubrikerna
+  (Title/Heading_20_1/Heading_20_2) ärver `parent-style-name="Standard"`
+  men sätter redan sin egen `fo:font-weight="bold"` explicit, så
+  samma icke-regression som HTML.
+- **RTF** — visade sig enklare än väntat: RTF:s fonttabell refererar
+  bara ett typsnittsnamn, bäddar inga faktiska bytes (`\b` är en ren
+  control word som läsarens egen fetstils-rendering av samma
+  `\f0`-referens, inte ett separat inbäddat typsnitt). Så bara `\b`
+  direkt efter `\f0\fs24` i dokumentets öppningsgrupp — rubrikerna är
+  redan egna `{...}`-scopade grupper med sin egen `\b`, påverkas inte.
+- **PDF** — `PdfWriter`s body-parameter blir `bold`-fonten istället
+  för `body`-fonten när Vikt=Fet, rubrikerna fortsätter oförändrat
+  använda `bold`. Känd, dokumenterad begränsning: med bara två vikter
+  blir rubrik och fet brödtext visuellt identiska i PDF/RTF/ODT (till
+  skillnad från HTML/ePub där UA-stilmallen räddar kontrasten) — samma
+  typ av avvägning som redan finns i hela 2-vikts-arkitekturen, inget
+  nytt den här ändringen introducerar.
+
+**Byggt:** `body_font_weight: z.enum(["regular","bold"]).default
+("regular")` i `BookSchema.ts`. Alla fem exportfunktioner
+(`formatExportHtml`, `formatExportRtf`, `packOdt`, `packEpub`,
+`packPdf`) fick en ny fjärde parameter `bodyWeight`, bakåtkompatibel
+tack vare default-värdet — inga andra anrops-platser än `Editor.tsx`
+behövde ändras. `ProseCanvas.tsx` fick en `bodyFontWeight`-prop,
+samma mönster som `bodyFontStack`. Ny Vikt-`<select>` i Settings →
+Typography, direkt efter Font. Ny i18n (`bodyWeightLabel`/
+`bodyWeightLede`/`bodyWeightRegular`/`bodyWeightBold`) i alla tre
+språk.
+
+**Test.** Nytt `describe("body text weight", ...)`-block i
+`manuscript-export.test.ts` (5 nya tester, totalt 910): default
+ger ingen `font-weight`-override i HTML/ePub och ingen
+`fo:font-weight` i ODT; Fet ger `font-weight:700` i HTML/ePub,
+`fo:font-weight="bold"` i ODT, `\b` i RTF-preamblen, och olika PDF-
+bytes (båda fortsatt giltiga, laddningsbara PDF:er) jämfört med
+Normal. Två äldre tester som asserterade den exakta `body{...}`-CSS-
+strängen uppdaterade för det nya `;font-weight:400`-tillägget.
+
+**Verifierat live.** Skapade en bok, kontrollerade `.prose`s
+`font-weight` i webbläsaren: 400 som grunddefault, 700 omedelbart
+efter att ha valt Fet i Settings och stängt dialogen — både mätt via
+`getComputedStyle` och synligt i en skärmdump (placeholder-texten
+syns tydligt fetare). `tsc --noEmit` rent, 910 tester gröna,
+`npm run build` grön.
+
+**Kvar, uttryckligen inte med i detta steg:** Punktstorlek och Färg
+för Brödtext, hela Rubrik-typografin, och Anfangs egna Font/Vikt/
+Färg.
+
+v1.0.75 → v1.0.76.
 
 ---
 

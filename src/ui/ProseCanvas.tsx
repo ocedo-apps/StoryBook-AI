@@ -104,7 +104,8 @@ export function ProseCanvas({
   onDarlingsChange,
   onCutToDarling,
   dropCapLines = 0,
-  bodyFontStack
+  bodyFontStack,
+  bodyFontWeight
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -166,6 +167,8 @@ export function ProseCanvas({
   dropCapLines?: number;
   /** CSS font-family stack for the manuscript's chosen body typeface (Settings → Typography → Font). Omitted keeps the app's own default prose font — Synopsis and Brainstorm never pass this, only chapter prose does. */
   bodyFontStack?: string;
+  /** Body text weight (Settings → Typography → Weight). Omitted keeps the normal weight — Synopsis and Brainstorm never pass this, only chapter prose does. */
+  bodyFontWeight?: "regular" | "bold";
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -620,7 +623,8 @@ export function ProseCanvas({
         style={
           {
             ...(dropCapLines > 0 ? { "--drop-cap-lines": dropCapLines } : {}),
-            ...(bodyFontStack ? { fontFamily: bodyFontStack } : {})
+            ...(bodyFontStack ? { fontFamily: bodyFontStack } : {}),
+            ...(bodyFontWeight === "bold" ? { fontWeight: 700 } : {})
           } as React.CSSProperties
         }
         contentEditable={!disabled}

@@ -24,6 +24,9 @@ export type PublishFont = {
  */
 export type ParagraphStyle = "spaced" | "indented";
 
+/** Body text weight (BookSchema's body_font_weight) — "bold" uses the font's own bold-embedded weight for everything but headings, which already render bold regardless and so don't visually separate from bold body text. Only two values because that's what's actually embedded per font (see PublishFont above). */
+export type BodyWeight = "regular" | "bold";
+
 function exportProse(text: string): string {
   return peelModelAsides(text).prose.trim();
 }
@@ -208,13 +211,13 @@ function bytesFromDataUrl(dataUrl: string): Uint8Array {
   return bytes;
 }
 
-function htmlFontCss(font: PublishFont | undefined): string {
+function htmlFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight): string {
   const stack = font?.stack ?? HTML_DEFAULT_STACK;
   const faces = font?.embed
     ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.regular)}) format('truetype')}` +
       `@font-face{font-family:'${font.name}';font-weight:700;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.bold)}) format('truetype')}`
     : "";
-  return `${faces}body{font-family:${stack}}`;
+  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}}`;
 }
 
 function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle, dropCap: boolean): string {
@@ -239,7 +242,12 @@ function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle, dropCap: b
     .join("\n");
 }
 
-export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
+export function formatExportHtml(
+  doc: ManuscriptExport,
+  font?: PublishFont,
+  paragraphStyle: ParagraphStyle = "spaced",
+  bodyWeight: BodyWeight = "regular"
+): string {
   const body: string[] = [`<h1>${xmlEscape(doc.title)}</h1>`, `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`];
   if (doc.note) body.push(`<p class="meta">${xmlEscape(doc.note)}</p>`);
   if (doc.voice || doc.viewpoint || doc.readerAge !== undefined) {
@@ -275,7 +283,7 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, para
 <head>
 <meta charset="utf-8"/>
 <title>${xmlEscape(doc.title)}</title>
-<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${dropCapCss(doc.dropCapLines)}${htmlFontCss(font)}</style>
+<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${dropCapCss(doc.dropCapLines)}${htmlFontCss(font, bodyWeight)}</style>
 </head>
 <body${bodyClasses.length > 0 ? ` class="${bodyClasses.join(" ")}"` : ""}>
 ${body.join("\n")}
@@ -292,11 +300,16 @@ ${body.join("\n")}
  * than shipping something fragile; HTML/ePub/ODT all have a real,
  * well-supported mechanism and get it.
  */
-export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
+export function formatExportRtf(
+  doc: ManuscriptExport,
+  font?: PublishFont,
+  paragraphStyle: ParagraphStyle = "spaced",
+  bodyWeight: BodyWeight = "regular"
+): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
     `{\\fonttbl{\\f0\\froman ${rtfEscape(font?.name ?? "Times New Roman")};}}`,
-    "\\f0\\fs24",
+    bodyWeight === "bold" ? "\\f0\\fs24\\b" : "\\f0\\fs24",
     `{\\fs40\\b ${rtfEscape(doc.title)}}\\par`,
     "\\par",
     `${rtfEscape(doc.exportedLabel)}\\par`
@@ -329,11 +342,16 @@ export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont, parag
   return parts.join("\n");
 }
 
-export function packOdt(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Uint8Array {
+export function packOdt(
+  doc: ManuscriptExport,
+  font?: PublishFont,
+  paragraphStyle: ParagraphStyle = "spaced",
+  bodyWeight: BodyWeight = "regular"
+): Uint8Array {
   return zipStore([
     { name: "mimetype", data: utf8("application/vnd.oasis.opendocument.text") },
     { name: "content.xml", data: utf8(odtContentXml(doc, paragraphStyle)) },
-    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif", doc.dropCapLines)) },
+    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif", doc.dropCapLines, bodyWeight)) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
   ]);
 }
@@ -341,13 +359,13 @@ export function packOdt(doc: ManuscriptExport, font?: PublishFont, paragraphStyl
 const EPUB_CSS_BASE = `body{line-height:1.6;margin:1.25em}h1{font-size:1.6em}h2{font-size:1.3em}.meta{color:#555;font-size:0.9em}`;
 const EPUB_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 
-function epubFontCss(font: PublishFont | undefined): string {
+function epubFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight): string {
   const stack = font?.stack ?? EPUB_DEFAULT_STACK;
   const faces = font?.embed
     ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(../fonts/regular.ttf) format('truetype')}` +
       `@font-face{font-family:'${font.name}';font-weight:700;src:url(../fonts/bold.ttf) format('truetype')}`
     : "";
-  return `${faces}body{font-family:${stack}}`;
+  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}}`;
 }
 
 type EpubPage = { id: string; file: string; title: string; body: string; bodyClass?: string };
@@ -365,7 +383,12 @@ ${body}
 
 type EpubImage = { id: string; name: string; data: Uint8Array };
 
-export function packEpub(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Uint8Array {
+export function packEpub(
+  doc: ManuscriptExport,
+  font?: PublishFont,
+  paragraphStyle: ParagraphStyle = "spaced",
+  bodyWeight: BodyWeight = "regular"
+): Uint8Array {
   const pages: EpubPage[] = [];
   const images: EpubImage[] = [];
 
@@ -485,7 +508,7 @@ ${navList}
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
     {
       name: "OEBPS/styles/stylesheet.css",
-      data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + dropCapCss(doc.dropCapLines) + epubFontCss(font))
+      data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + dropCapCss(doc.dropCapLines) + epubFontCss(font, bodyWeight))
     },
     ...images.map((image) => ({ name: `OEBPS/images/${image.name}`, data: image.data })),
     ...(font?.embed
@@ -641,7 +664,12 @@ class PdfWriter {
  * line rather than the single `maxWidth` `wrap()` uses today. Worth doing
  * as a follow-up; HTML/ePub/ODT already get a real one in the meantime.
  */
-export async function packPdf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Promise<Uint8Array> {
+export async function packPdf(
+  doc: ManuscriptExport,
+  font?: PublishFont,
+  paragraphStyle: ParagraphStyle = "spaced",
+  bodyWeight: BodyWeight = "regular"
+): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(doc.title);
   let body: PDFFont;
@@ -656,7 +684,7 @@ export async function packPdf(doc: ManuscriptExport, font?: PublishFont, paragra
     body = await pdf.embedFont(StandardFonts.TimesRoman);
     bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   }
-  const writer = new PdfWriter(pdf, body, bold);
+  const writer = new PdfWriter(pdf, bodyWeight === "bold" ? bold : body, bold);
 
   writer.heading(doc.title, 22);
   writer.lines(doc.exportedLabel, { size: 9, meta: true });
@@ -794,7 +822,7 @@ function odtContentXml(doc: ManuscriptExport, paragraphStyle: ParagraphStyle): s
 `;
 }
 
-function odtStyles(fontName: string, dropCapLines = 0): string {
+function odtStyles(fontName: string, dropCapLines = 0, bodyWeight: BodyWeight = "regular"): string {
   const dropCapStyles =
     dropCapLines > 0
       ? `
@@ -809,7 +837,9 @@ function odtStyles(fontName: string, dropCapLines = 0): string {
 <office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" office:version="1.3">
   <office:styles>
     <style:style style:name="Standard" style:family="paragraph">
-      <style:text-properties style:font-name="${xmlEscape(fontName)}" fo:font-size="12pt"/>
+      <style:text-properties style:font-name="${xmlEscape(fontName)}" fo:font-size="12pt"${
+        bodyWeight === "bold" ? ` fo:font-weight="bold"` : ""
+      }/>
     </style:style>
     <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="22pt" fo:font-weight="bold"/>

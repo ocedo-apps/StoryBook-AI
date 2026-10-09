@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.76] - 2026-10-09
+
+### Added
+- Settings → Typography gets a Weight choice (Regular or Bold) alongside Font — the manuscript's prose can now sit heavier on the page, in the editor and in every Publish export.
+
 ## [1.0.75] - 2026-10-09
 
 ### Added

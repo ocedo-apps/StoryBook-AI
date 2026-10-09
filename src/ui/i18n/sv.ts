@@ -130,6 +130,11 @@ export const sv: Messages = {
       "Typsnittet för manusets brödtext — i själva redigeraren, och med i varje export från Publish, så det blir ett val istället för ett separat, osparat val varje gång.",
     fontCategorySerif: "Serif",
     fontCategorySans: "Sans serif",
+    bodyWeightLabel: "Vikt",
+    bodyWeightLede:
+      "Hur tung manusets brödtext ligger på sidan — i själva redigeraren, och med i varje export från Publish, precis som Font. Bara Normal och Fet eftersom det är vad varje bundlat typsnitt faktiskt levererar.",
+    bodyWeightRegular: "Normal",
+    bodyWeightBold: "Fet",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

@@ -216,6 +216,16 @@ export const BookSchema = z.object({
    */
   body_font: z.enum(PUBLISH_FONT_IDS).default("literata"),
   /**
+   * Body-text weight — the second piece of Typography (after body_font;
+   * size/color and a matching heading typeface are still follow-ups, see
+   * roadmap-ideas.md). Only "regular"/"bold" because that's what every
+   * bundled font actually embeds (publishFonts.ts loads just those two
+   * static weights per family) — a finer scale would need more font files
+   * per family. Same live-editor-plus-export wiring as body_font. Missing
+   * on older saves — "regular" keeps today's look.
+   */
+  body_font_weight: z.enum(["regular", "bold"]).default("regular"),
+  /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
    */
@@ -359,6 +369,7 @@ export function createBook(title: string): Book {
     illustration_orientation: "landscape",
     drop_cap_lines: 0,
     body_font: "literata",
+    body_font_weight: "regular",
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],

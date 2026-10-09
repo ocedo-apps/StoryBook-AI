@@ -266,6 +266,25 @@ export function SettingsPanel({
                 </label>
                 <label className="craft-field">
                   <span className="field-label-row">
+                    {m.editor.bodyWeightLabel}
+                    <HelpTip
+                      body={m.editor.bodyWeightLede}
+                      ariaLabel={format(m.common.infoAbout, { field: m.editor.bodyWeightLabel })}
+                    />
+                  </span>
+                  <select
+                    value={book.body_font_weight}
+                    onChange={(event) =>
+                      onPatch((current) => ({ ...current, body_font_weight: event.target.value as Book["body_font_weight"] }))
+                    }
+                    aria-label={m.editor.bodyWeightLabel}
+                  >
+                    <option value="regular">{m.editor.bodyWeightRegular}</option>
+                    <option value="bold">{m.editor.bodyWeightBold}</option>
+                  </select>
+                </label>
+                <label className="craft-field">
+                  <span className="field-label-row">
                     {m.editor.dropCapLabel}
                     <HelpTip body={m.editor.dropCapLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.dropCapLabel })} />
                   </span>
