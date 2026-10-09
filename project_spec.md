@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.68
+Status: living document, v1.0.69
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2179,6 +2179,52 @@ bara delvis sant för skrivbordsappen (som inte längre behöver det
 alls). Kvar att göra, inte bortglömt.
 
 v1.0.67 → v1.0.68.
+
+**Ändringslogg v1.0.68 → v1.0.69 (2026-10-09):** Testaren som provade
+Strata på riktigt (via Mats) fick ett NYTT, mer specifikt fel efter
+1.0.68: `url not allowed on the configured scope:
+http://127.0.0.1:8080/v1/models` — framsteg (begäran går nu faktiskt
+via Rust, det förra problemet är borta), men blockerad av Tauris egen
+HTTP-scope, inte av CORS.
+
+**Rotorsaken, denna gång verifierad direkt mot källkoden och
+EMPIRISKT, inte bara läst och antagen.** `src-tauri/capabilities/
+default.json` gav `tauri-plugin-http` tillståndet `"http://*"`, och
+mitt eget påstående i förra loggposten att det här mönstret "matchar
+vilken host som helst under http" byggde på pluginets egna Rust-
+enhetstester (`scope.rs`) — men det testet (`domain_wildcard`) råkade
+aldrig testa en URL med en icke-standard-port, så slutsatsen var en
+övergeneralisering. Läste pluginets `build.rs`, som dokumenterar
+mönstren rakt upp och ner: `"https://*"` tillåter bara port 443 (HTTPS
+standardport) — INTE valfri port. Samma gäller `"http://*"` mot port
+80. Eftersom varken Ollama (11434), LM Studio (1234) eller Strata
+(8080) kör på port 80, blockerade scopet varje riktig lokal server —
+mitt fix i 1.0.68 fungerade aldrig i praktiken för en enda verklig
+installation, bara av misstag mot min egen testserver om den råkat
+använda port 80 (den gjorde inte det heller, men den delen av
+verifieringen — faktiskt låta webview-fönstret hämta modellistan, inte
+bara se appen starta — blev aldrig klar innan jag skeppade).
+
+Byggde ett litet fristående Rust-testprogram (`scope-check/`, samma
+`urlpattern`-crate och samma parsningslogik som pluginet använder) och
+körde det mot exakt testarens felande URL:
+`http://*` → **matchar INTE** `http://127.0.0.1:8080/v1/models`
+(bekräftar buggen med kod, inte gissning). `http://*:*` → matchar.
+Ändrade `capabilities/default.json` till `"http://*:*"` — pluginets
+egen dokumenterade syntax för "alla portar".
+
+**Lärdom att skriva ner rakt ut:** "jag läste källkoden och ett test
+som liknar fallet" räcker inte som verifiering när testet inte
+faktiskt täcker det specifika fallet (port). Den riktiga
+verifieringen den här gången var att reproducera exakt samma
+matchning mot exakt samma felande URL, inte bara läsa om en
+närliggande testfunktion och anta att den generaliserar.
+
+`cargo check`, `tsc --noEmit`, hela testsviten (891 tester, oförändrat
+— det här är en ren Rust-konfigurationsändring, ingen TypeScript-
+logik rörd) och `npm run build` gröna.
+
+v1.0.68 → v1.0.69.
 
 ---
 

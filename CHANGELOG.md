@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.69] - 2026-10-09
+
+### Fixed
+- The desktop app's own last fix (1.0.68) still refused local servers running on a non-default port — which is every real one (Ollama, LM Studio, Strata, and similar all use a custom port). The permission the desktop app was given only covered the plain default port for a plain web address, not a custom one. It now covers any port.
+
 ## [1.0.68] - 2026-10-08
 
 ### Fixed
