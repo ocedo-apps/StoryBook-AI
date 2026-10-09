@@ -183,16 +183,23 @@ const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 /**
  * Anfang/drop-cap CSS for one document's chosen line count (BookSchema's
  * drop_cap_lines — 0 means off, so callers skip this entirely then). The
- * 1.8em-per-line multiplier is the same calibrated approximation the live
- * editor preview uses (styles.css, .prose.has-drop-cap), so the exported
- * book roughly matches what the author already saw while writing.
+ * 1.5em-per-line multiplier (and no top padding) is the same, separately
+ * bisected fix as the live editor preview's (styles.css,
+ * .prose.has-drop-cap — see its comment for why 1.8, and even the exact
+ * line-height-matching 1.65, wraps text one line too far: a tester
+ * reported it, "anfangen är för långt ner nu", across every font tried).
+ * This CSS runs against its own, different base (HTML_EXPORT_CSS_BASE/
+ * EPUB_CSS_BASE's line-height:1.6 at the browser default font-size,
+ * rather than .prose's 1.65 at 1.2rem), so 1.5 here isn't inherited from
+ * that fix — it was independently bisected live against real wrapped
+ * paragraphs in this export's own CSS and landed on the same number.
  * line-height stays at 1 for the same reason it does there: anything
  * tighter makes the line box shorter than the glyph and clips its top.
  */
 function dropCapCss(lines: number): string {
   if (lines <= 0) return "";
-  const size = (lines * 1.8).toFixed(2);
-  return `.has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:${size}em;line-height:1;padding:0.05em 0.08em 0 0}`;
+  const size = (lines * 1.5).toFixed(2);
+  return `.has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:${size}em;line-height:1;padding:0 0.08em 0 0}`;
 }
 
 function base64FromBytes(bytes: Uint8Array): string {

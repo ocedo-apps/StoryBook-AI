@@ -434,14 +434,14 @@ describe("drop cap", () => {
     expect(html).toContain('<body class="has-drop-cap">');
     expect(html).toContain('<p class="drop-cap">Emma locked the door.</p>');
     expect(html).toContain("<p>She waited for the tide.</p>");
-    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:5.40em");
+    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:4.50em");
   });
 
   it("combines with the first-paragraph-flush indented style instead of replacing it", () => {
     const doc = buildManuscriptExport(bookWithDropCap(4));
     const html = formatExportHtml(doc, undefined, "indented");
     expect(html).toContain('<p class="first drop-cap">Emma locked the door.</p>');
-    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:7.20em");
+    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:6.00em");
   });
 
   it("does the same in ePub, with the rule in the shared stylesheet", () => {
@@ -449,7 +449,7 @@ describe("drop cap", () => {
     const text = new TextDecoder().decode(packEpub(doc));
     expect(text).toContain('<body class="has-drop-cap">');
     expect(text).toContain('<p class="drop-cap">Emma locked the door.</p>');
-    expect(text).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:3.60em");
+    expect(text).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:3.00em");
   });
 
   it("uses ODF's own style:drop-cap element on the first paragraph's style only, in spaced mode", () => {

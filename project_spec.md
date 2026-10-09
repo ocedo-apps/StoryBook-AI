@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.76
+Status: living document, v1.0.77
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2667,6 +2667,67 @@ för Brödtext, hela Rubrik-typografin, och Anfangs egna Font/Vikt/
 Färg.
 
 v1.0.75 → v1.0.76.
+
+---
+
+**Ändringslogg v1.0.76 → v1.0.77 (2026-10-09):** Mats, med en
+skärmdump: "Nu är jag kinkig, men det finns inga genvägar till den
+perfekta appen :) Det känns som om anfangen är för långt ner nu? Jag
+har testat olika typsnitt med samma resultat." — bokstaven "O" sträckte
+sig synligt in i en extra textrad under den avsedda höjden.
+
+**Reproducerat innan något ändrades.** Byggde en bok med exakt Mats
+text/struktur (samma sorts mening, drop_cap_lines=3) i Playwright och
+fick identiskt resultat: en fjärde rad indragen istället för tre.
+"Testat olika typsnitt, samma resultat" var en viktig ledtråd —
+pekade mot ett räknefel i CSS:en snarare än ett font-specifikt
+glyfproblem, eftersom `line-height:1` gör float-boxens höjd till ren
+`font-size`, oberoende av vilket typsnitt som faktiskt är valt.
+
+**Räknat ut, inte gissat.** Med `line-height:1` ska boxens höjd
+(font-size) matcha N riktiga textrader (`N × .prose's font-size ×
+line-height`) för att floaten ska sluta exakt vid rad N. Den gamla
+`1.8em`-per-rad-multipeln var ~9% för stor jämfört med `.prose`s
+egna 1.65-kvot — tillräckligt för att boxen skulle svälla in i en
+extra rad. Men den "matematiskt exakta" ersättningen (multipel =
+line-height-kvoten, 1.65) visade sig INTE vara säker heller: uppmätt
+live tippade den över i en extra rad ändå, av en sub-pixel-marginal
+— float-wrap-beräkningen i webbläsaren är tydligen inte pixel-exakt
+mot teorin. Bisekterade istället live mot riktiga, radbrutna stycken
+(Playwright, `Range.getClientRects()` för att räkna exakt hur många
+rader som faktiskt indragits) tills jag hittade ett värde med
+ordentlig marginal: **1.5**, verifierat korrekt vid alla
+drop_cap_lines-värden (2–5), i både live-redigeraren (`.prose`s
+1.65-kvot) och HTML/ePub-exportens helt andra bas
+(`HTML_EXPORT_CSS_BASE`/`EPUB_CSS_BASE`s 1.6-kvot vid webbläsarens
+standard-16px) — två separata bisektioner, båda landade oberoende på
+samma tal.
+
+**En andra bidragande orsak hittades under tiden:** `padding-top:
+0.05em` på `::first-letter` lade till ytterligare höjd ovanpå boxen
+(floatens botten flyttas nedåt av padding-top precis som av ett för
+stort font-size) — tillräckligt för att själv tippa gränsen vid
+exakt träff. Togs bort helt (kvar: `0.08em` höger-padding som
+andningsrum mot följande text).
+
+**Byggt:** `1.5em`-multipel och `padding: 0 0.08em 0 0` (ingen
+topp-padding) i både `styles.css` (`.prose.has-drop-cap`) och
+`manuscriptExport.ts`s `dropCapCss()`. ODT opåverkad — den använder
+ODF:s egna `style:drop-cap`-element, ingen CSS-räkning inblandad.
+Tre äldre tester som asserterade de gamla `1.8×N`-font-size-värdena
+(`5.40em`/`7.20em`/`3.60em`) uppdaterade till de nya `1.5×N`-värdena
+(`4.50em`/`6.00em`/`3.00em`).
+
+**Verifierat live, flera lager.** (1) Mät antal faktiskt indragna
+rader via `Range.getClientRects()` i live-redigeraren — exakt 3 vid
+drop_cap_lines=3, för alla N 2–5. (2) Samma mätning mot en
+fristående HTML-fil med exportens egna CSS-bas. (3) Laddade ner en
+RIKTIG export via Publish-dialogen (inte bara simulerad CSS) och mätte
+samma sak i den nedladdade filen — också exakt 3 rader, skärmdump
+bekräftar en ren, odragen anfang. `tsc --noEmit` rent, alla 910
+tester gröna, `npm run build` grön.
+
+v1.0.76 → v1.0.77.
 
 ---
 

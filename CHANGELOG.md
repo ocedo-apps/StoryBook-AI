@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.77] - 2026-10-09
+
+### Fixed
+- The drop cap ("anfang") sat lower than it should across every typeface — its box was sized about 9% taller than the number of lines it was meant to span, wrapping one extra line of text below the target instead of stopping cleanly. Fixed in the live editor and in HTML/ePub exports.
+
 ## [1.0.76] - 2026-10-09
 
 ### Added

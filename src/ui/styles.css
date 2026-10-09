@@ -3223,10 +3223,26 @@ button:disabled {
 
 /*
  * Live preview of the "anfang" Publish also sets (BookSchema's
- * drop_cap_lines) — 1.8em per requested line is a calibrated
- * approximation (not exact type-level kerning) against .prose's own
- * 1.2rem/1.65 line-height, so an author sees roughly the shape they'll
- * get in the exported book while writing, not just at export time.
+ * drop_cap_lines). With line-height:1 (see below), the float's box
+ * height is exactly its font-size, so to make that box span N real
+ * text lines the per-line em multiplier needs to be at most .prose's
+ * own line-height ratio (1.65) — 1.8 was an arbitrary guess instead,
+ * overshooting by ~9%, tall enough to visibly wrap an extra line below
+ * the target (Mats, testing several fonts: "anfangen är för långt ner
+ * nu" — a flat per-line multiplier bigger than the line-height always
+ * does this, regardless of font, which is why switching fonts never
+ * fixed it). The exact line-height value (1.65) itself isn't safe
+ * either — measured live, it tips into wrapping one line too many by a
+ * sub-pixel margin (float-clears-line math apparently isn't exact to
+ * the pixel the theory suggests). 1.5 measured correctly at every
+ * drop_cap_lines value (2-5) with real wrapped paragraphs before this
+ * shipped, with margin below where it tips — bisected live, not
+ * derived on paper alone (manuscriptExport.ts's dropCapCss uses the
+ * same 1.5, independently bisected against its own, different line-
+ * height/font-size base, and landed on the same number). padding-top
+ * removed too: it silently added to the float's total height the same
+ * way an oversized font-size did, enough on its own to tip the count
+ * by one line at the boundary.
  * line-height must stay >= 1: a tighter value (e.g. the 0.82 this
  * started with, to visually compress the box toward the target line
  * count) makes the line box shorter than the glyph itself, so the
@@ -3237,9 +3253,9 @@ button:disabled {
 .prose.has-drop-cap > p:first-child::first-letter {
   float: left;
   font-weight: 600;
-  font-size: calc(var(--drop-cap-lines, 3) * 1.8em);
+  font-size: calc(var(--drop-cap-lines, 3) * 1.5em);
   line-height: 1;
-  padding: 0.05em 0.08em 0 0;
+  padding: 0 0.08em 0 0;
 }
 
 .prose p,
