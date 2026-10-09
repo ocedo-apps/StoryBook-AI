@@ -1711,6 +1711,43 @@ hanterbart snarare än en fast gräns för alla.
 
 ---
 
+### 41. Dekorativa scenbrytare (HR-vinjetter) — egen Setting, likt Drop cap
+
+Mats visade en bild med fyra CSS-stilar för scenbrytare (`<hr>`) —
+t.ex. "Klassisk bokvinjett": en gradientlinje som tonar ut mot
+kanterna med en centrerad Unicode-symbol (❦, ⚜, ❖, ✦) ovanpå,
+positionerad med `::after`. Frågade om det går att bygga, och om det
+fungerar vid export.
+
+**Svar: ja, men med olika trohet per format** — samma mönster som
+Anfang redan visade (en live-CSS-variant för redigeraren/HTML/ePub,
+och en separat, enklare lösning för format utan CSS):
+
+- **HTML/ePub** — exakt looken i bilden, rakt av. Samma `::after`-
+  trick som Anfangens `::first-letter` redan använder.
+- **ODT/RTF** — inget stöd för gradientlinjer. En centrerad symbol som
+  egen rad/stycke går bra (ODF/RTF har båda centrerad text och enkla
+  kantlinjer), men blir en förenklad version, ingen uttoning.
+- **PDF** — mest jobb. PDF-skrivaren (`manuscriptExport.ts`s
+  `packPdf`) lägger text rad för rad för hand (samma skäl Anfang
+  hoppade över PDF i v1.0.71), så linjen och symbolen måste
+  positioneras manuellt. Dessutom saknar de flesta brödtextfonter
+  (Lora, Literata, etc.) glyfer för ❦/⚜/❖ — kan kräva en bundlad
+  symbolfont utöver de 13 brödtextfonterna (se #ändringslogg
+  v1.0.74–75), annars risk för "tofu"-rutor istället för symbolen.
+
+**Föreslagen plats:** en egen Setting under Typography, i stil med
+Drop cap — ett urval av fördefinierade scenbrytarstilar (inte fri
+CSS/symbol-inmatning), så export-koden bara behöver känna till ett
+fast antal kombinationer av linje+symbol per format.
+
+**Status: inte påbörjad.** Mats bad att spara idén här. Naturlig
+uppföljning efter Rubrik- och Anfang-kontrollerna i det pågående
+Typography-arbetet (steg 2), eftersom den delar samma
+Settings-sektion.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
