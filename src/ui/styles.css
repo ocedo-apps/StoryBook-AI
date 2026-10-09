@@ -1784,6 +1784,113 @@ button:disabled {
   margin-bottom: 0.6rem;
 }
 
+.connection-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.connection-preset {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--paper);
+}
+
+.connection-preset.is-active {
+  border-color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--ink);
+}
+
+.connection-preset-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  background: none;
+  border: 0;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.connection-preset-head-static {
+  cursor: default;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
+.connection-preset-head .chevron {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
+.connection-preset-name-label,
+.connection-preset-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.connection-preset-name-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.connection-preset-subtitle {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.connection-preset-name {
+  background: none;
+  border: 0;
+  border-bottom: 1px dashed var(--border);
+  padding: 0 0 0.1rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.connection-preset-active {
+  flex: 0 0 auto;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  white-space: nowrap;
+}
+
+.connection-preset-body {
+  padding: 0 0.7rem 0.7rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.connection-preset-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.connection-preset-add {
+  align-self: flex-start;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .settings-model {
   display: block;
   margin: 0;

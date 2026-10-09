@@ -15,6 +15,13 @@ import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyl
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
 import { MIN_CONTEXT_WINDOW, MAX_CONTEXT_WINDOW } from "@llm/contextWindow";
+import {
+  loadConnectionPresets,
+  matchesPreset,
+  newConnectionPreset,
+  saveConnectionPresets,
+  type ConnectionPreset
+} from "@llm/connectionPresets";
 import { BlobThumbnail } from "./BlobThumbnail";
 import { HelpTip } from "./GuidePanel";
 import { format, useLocale } from "./i18n";
@@ -278,34 +285,7 @@ export function SettingsPanel({
                 <HelpTip body={m.editor.uiLanguageStays} ariaLabel={format(m.common.infoAbout, { field: m.editor.modelsHeading })} />
               </span>
               <div className="settings-engine">
-                <label className="craft-field">
-                  <span className="field-label-row">
-                    {m.editor.engineLabel}
-                    <HelpTip body={m.editor.engineLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.engineLabel })} />
-                  </span>
-                  <select
-                    value={engine}
-                    onChange={(event) => onEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
-                    aria-label={m.editor.engineLabel}
-                  >
-                    <option value="ollama">{m.editor.engineOllama}</option>
-                    <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
-                  </select>
-                </label>
-                {engine === "openai-compatible" ? (
-                  <label className="voice-field">
-                    <span className="field-label-row">
-                      {m.editor.baseUrlLabel}
-                      <HelpTip body={m.editor.baseUrlLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.baseUrlLabel })} />
-                    </span>
-                    <input
-                      value={baseUrl}
-                      onChange={(event) => onBaseUrl(event.target.value)}
-                      placeholder={m.editor.baseUrlPlaceholder}
-                      aria-label={m.editor.baseUrlLabel}
-                    />
-                  </label>
-                ) : null}
+                <ConnectionPresetList engine={engine} baseUrl={baseUrl} onEngine={onEngine} onBaseUrl={onBaseUrl} />
               </div>
               <div className="settings-models">
                 <ModelSelect label={m.editor.writing} value={model} models={models} emptyLabel={m.editor.noModels} onChange={onModel} />
@@ -403,6 +383,196 @@ export function SettingsPanel({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * A named engine+address combination the author can expand to see or
+ * change, and switch to by expanding it — one tile per saved local server,
+ * so swapping between e.g. Ollama, LM Studio, and a test rig like Strata
+ * doesn't mean retyping the address each time (roadmap-ideas.md, tester
+ * feedback 2026-10-09). When the live engine/address doesn't match any
+ * saved preset (first run, or an edit not saved yet), an unsaved "Current
+ * connection" tile fills in so the fields are never hidden — "+ New model"
+ * always saves whatever is live right now under a new name.
+ */
+function ConnectionPresetList({
+  engine,
+  baseUrl,
+  onEngine,
+  onBaseUrl
+}: {
+  engine: LlmEngine;
+  baseUrl: string;
+  onEngine: (engine: LlmEngine) => void;
+  onBaseUrl: (url: string) => void;
+}) {
+  const { messages: m } = useLocale();
+  const [presets, setPresets] = useState<ConnectionPreset[]>(() => loadConnectionPresets());
+  const [expandedId, setExpandedId] = useState<string | null>(
+    () => presets.find((preset) => matchesPreset(preset, engine, baseUrl))?.id ?? null
+  );
+  const [justCreatedId, setJustCreatedId] = useState<string | null>(null);
+
+  const updatePresets = (next: ConnectionPreset[]) => {
+    setPresets(next);
+    saveConnectionPresets(next);
+  };
+
+  const selectPreset = (preset: ConnectionPreset) => {
+    if (expandedId === preset.id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(preset.id);
+    onEngine(preset.engine);
+    if (preset.engine === "openai-compatible") onBaseUrl(preset.baseUrl);
+  };
+
+  const hasActivePreset = presets.some((preset) => matchesPreset(preset, engine, baseUrl));
+
+  const engineField = (
+    <label className="craft-field">
+      <span className="field-label-row">
+        {m.editor.engineLabel}
+        <HelpTip body={m.editor.engineLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.engineLabel })} />
+      </span>
+      <select
+        value={engine}
+        onChange={(event) => onEngine(event.target.value === "openai-compatible" ? "openai-compatible" : "ollama")}
+        aria-label={m.editor.engineLabel}
+      >
+        <option value="ollama">{m.editor.engineOllama}</option>
+        <option value="openai-compatible">{m.editor.engineOpenAiCompatible}</option>
+      </select>
+    </label>
+  );
+
+  const baseUrlField = engine === "openai-compatible" ? (
+    <label className="voice-field">
+      <span className="field-label-row">
+        {m.editor.baseUrlLabel}
+        <HelpTip body={m.editor.baseUrlLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.baseUrlLabel })} />
+      </span>
+      <input
+        value={baseUrl}
+        onChange={(event) => onBaseUrl(event.target.value)}
+        placeholder={m.editor.baseUrlPlaceholder}
+        aria-label={m.editor.baseUrlLabel}
+      />
+    </label>
+  ) : null;
+
+  return (
+    <div className="connection-presets">
+      {hasActivePreset ? null : (
+        <div className="connection-preset is-active">
+          <div className="connection-preset-head connection-preset-head-static">
+            <span>{m.editor.connectionPresetsCurrentLabel}</span>
+          </div>
+          <div className="connection-preset-body">
+            {engineField}
+            {baseUrlField}
+          </div>
+        </div>
+      )}
+      {presets.map((preset) => {
+        const isOpen = expandedId === preset.id;
+        const isActive = matchesPreset(preset, engine, baseUrl);
+        return (
+          <div className={isActive ? "connection-preset is-active" : "connection-preset"} key={preset.id}>
+            {isOpen ? (
+              <div className="connection-preset-head">
+                <input
+                  className="connection-preset-name"
+                  value={preset.name}
+                  onChange={(event) =>
+                    updatePresets(presets.map((item) => (item.id === preset.id ? { ...item, name: event.target.value } : item)))
+                  }
+                  aria-label={m.editor.connectionPresetNameLabel}
+                  autoFocus={preset.id === justCreatedId}
+                  onFocus={(event) => event.target.select()}
+                  onBlur={() => setJustCreatedId(null)}
+                />
+                {isActive ? <span className="connection-preset-active">{m.editor.connectionPresetActive}</span> : null}
+                <button
+                  type="button"
+                  className="icon-button chevron"
+                  aria-expanded={isOpen}
+                  aria-label={`${m.common.close}: ${preset.name}`}
+                  onClick={() => setExpandedId(null)}
+                >
+                  ▾
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="connection-preset-head"
+                aria-expanded={isOpen}
+                onClick={() => selectPreset(preset)}
+              >
+                <span className="connection-preset-name-label">
+                  {preset.name}
+                  <span className="connection-preset-subtitle">
+                    {preset.engine === "ollama" ? m.editor.engineOllama : preset.baseUrl || m.editor.engineOpenAiCompatible}
+                  </span>
+                </span>
+                {isActive ? <span className="connection-preset-active">{m.editor.connectionPresetActive}</span> : null}
+                <span className="chevron" aria-hidden="true">
+                  ▸
+                </span>
+              </button>
+            )}
+            {isOpen ? (
+              <div className="connection-preset-body">
+                {engineField}
+                {baseUrlField}
+                <div className="connection-preset-actions">
+                  <button
+                    type="button"
+                    className="icon-button"
+                    aria-label={`${m.editor.connectionPresetDelete}: ${preset.name}`}
+                    onClick={() => {
+                      if (!window.confirm(format(m.editor.connectionPresetDeleteConfirm, { name: preset.name }))) return;
+                      updatePresets(presets.filter((item) => item.id !== preset.id));
+                      setExpandedId(null);
+                    }}
+                  >
+                    ×
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() =>
+                      updatePresets(presets.map((item) => (item.id === preset.id ? { ...item, engine, baseUrl } : item)))
+                    }
+                  >
+                    {m.editor.connectionPresetUpdate}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        className="text-button connection-preset-add"
+        onClick={() => {
+          const preset = newConnectionPreset(
+            engine,
+            baseUrl,
+            presets.map((item) => item.name)
+          );
+          updatePresets([...presets, preset]);
+          setExpandedId(preset.id);
+          setJustCreatedId(preset.id);
+        }}
+      >
+        {m.editor.connectionPresetNew}
+      </button>
     </div>
   );
 }

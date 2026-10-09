@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.69
+Status: living document, v1.0.70
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2225,6 +2225,90 @@ närliggande testfunktion och anta att den generaliserar.
 logik rörd) och `npm run build` gröna.
 
 v1.0.68 → v1.0.69.
+
+**Ändringslogg v1.0.69 → v1.0.70 (2026-10-09):** Samma testare (via Mats)
+rapporterade tre saker efter 1.0.69: anslutningen fungerar och Draft
+går igenom, men Analyze misslyckas med `error sending request for
+url` (ett transportfel, inte CORS/scope — misstänkt Strata-specifikt,
+oklart ännu), "Write a beat" verkar inte generera något, och — ett
+konkret förslag — stöd för att spara flera anslutningar så man
+slipper skriva om adressen varje gång man byter mellan Ollama/LM
+Studio/Strata. Draftade ett svar till testaren (tack + frågor om
+LM Studio-jämförelsen och Stratas egen serverlogg, för att skilja
+"Stratas fel" från "vårt fel"), och Mats frågade "Ska vi fixa
+Connection preset?" — ja, och byggde den.
+
+**Designprocess, itererad live i en Design-canvas-artifact innan en
+rad kod skrevs.** Första utkastet: en dropdown ovanför Engine/Server
+address, öppen lista med sparade servrar. Mats skickade en skärmdump
+av sin egen redigering i canvasen (en "UPDATE"-knapp och två tomma
+fält inuti det valda alternativet) och förtydligade: varje sparad
+modell ska vara sin egen expanderbara "platta" som visar just DEN
+modellens inställningar när den fälls ut — inte en enda delad
+redigeringsyta. Byggde om mockupen till en lista av individuellt
+expanderbara plattor, Mats godkände ("Japp nu är vi hemma") med två
+sista justeringar (ta bort "Tap a tile..."-texten och NEW-märket).
+
+**Riktig implementation.** Ny `src/llm/connectionPresets.ts` (inte
+`core/` — modulen behöver `LlmEngine` från `./provider`, och ingen
+annan fil i `core/` importerar från `llm/` eller tvärtom; höll samma
+lagerindelning): `ConnectionPreset {id, name, engine, baseUrl}`,
+`loadConnectionPresets`/`saveConnectionPresets` med samma
+injicerbara-`Storage`-mönster som `contextWindow.ts` redan använder
+(`store: Pick<Storage,...> = localStorage` — testbart utan jsdom,
+projektets `vitest.config.ts` kör `environment:"node"`),
+`matchesPreset` (en preset är "aktiv" när dess engine+adress matchar
+det som faktiskt är live — Ollama jämförs bara på engine, ingen
+adress att jämföra), `newConnectionPreset` med auto-namngivning
+("New connection", "New connection 2", …). 9 nya enhetstester.
+
+Ny `ConnectionPresetList`-komponent i `SettingsPanel.tsx`, ersätter
+de tidigare fristående Engine/Server address-fälten helt. En lista av
+plattor; den som matchar live-inställningarna är märkt "Active" och
+startar utfälld. Klick på en ihopfälld platta fäller ut den OCH
+applicerar dess sparade engine+adress direkt (samma handlingar som
+redan fanns, `onEngine`/`onBaseUrl` — inget nytt draft-tillstånd
+behövdes). Matchar inget sparat preset de faktiska live-
+inställningarna (första körningen, eller en redigering som inte
+sparats än) visas en "Current connection"-platta istället, alltid
+synlig och redigerbar, så fälten aldrig kan bli onåbara bara för att
+inga presets finns än. "Update" sparar de nuvarande live-värdena till
+den utfällda plattans post; "+ New model" sparar dem som ett helt
+nytt, namngivet preset.
+
+**Två riktiga buggar hittade genom att faktiskt driva funktionen live
+i webbläsaren (Playwright), inte bara genom `tsc`/`vitest`.** (1)
+Namnbytet av ett nyskapat preset använde en inline ref-callback
+(`ref={(el) => { if (...) { el.focus(); el.select(); } }}`) för att
+fokusera fältet — klassisk React-fälla: en inline-funktion som
+ref-prop är en NY funktionsreferens vid varje render, så React
+anropar den på nytt vid varje omrendering, vilket betydde att
+`el.select()` kördes efter VARJE tangenttryckning och markerade om
+hela fältet — skrev man "Strata test rig" blev resultatet bara sista
+tecknet, resten skrevs över av nästa markering. Fixat genom att byta
+till `autoFocus` + `onFocus={(e) => e.target.select()}`, som bara
+triggas vid faktisk fokusering, inte vid varje render. (2) Samma
+textfält låg inuti en `<button>` (hela plattans huvud var en knapp,
+med namnet som ett `<input>` inuti) — ogiltig HTML, och mellanslags-
+tangenten under skrivning triggade knappens inbyggda "aktivera vid
+mellanslag"-beteende istället för att skriva ett mellanslag, vilket
+klippte av namnet vid första ordet. Löst genom att separera: en
+ihopfälld platta är en riktig `<button>` (inget fält inuti, säkert),
+en utfälld platta är en `<div>` med namnfältet som syskon till en
+separat liten ihopfäll-knapp — aldrig ett fält inuti en knapp.
+
+**Verifierat live, end-to-end, inte bara i teorin.** Körde appen i
+en riktig webbläsare: skapade ett nytt preset, bytte namn (nu med
+hela namnet bevarat), bekräftade "Active"-märket och att "Current
+connection"-plattan försvann, skapade ett andra preset för Ollama,
+bytte ENGINE till openai-compatible via att klicka på Strata-plattan
+och bekräftade att både engine OCH adress återställdes exakt rätt,
+tog bort Ollama-presetet med bekräftelsedialogen och bekräftade att
+"Current connection" dök upp igen (inget sparat preset matchade
+längre den levande anslutningen). `tsc --noEmit`, hela testsviten
+(898 tester, 9 nya) och `npm run build` gröna.
+
+v1.0.69 → v1.0.70.
 
 ---
 

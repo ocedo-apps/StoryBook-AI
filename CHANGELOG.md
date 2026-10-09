@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.70] - 2026-10-09
+
+### Added
+- Connection presets under Settings → Models. Save your Engine and Server address as a named tile — Ollama, LM Studio, a test rig, whatever you switch between — and click a tile to use it again instead of retyping the address. Each tile expands to show (and edit) its own settings, with an Update button to save changes and a delete button to remove it. Whatever is live right now, saved or not, always stays visible and editable.
+
 ## [1.0.69] - 2026-10-09
 
 ### Fixed
