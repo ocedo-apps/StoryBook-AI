@@ -248,11 +248,20 @@ export function SettingsPanel({
                     onChange={(event) => onPatch((current) => ({ ...current, body_font: event.target.value as Book["body_font"] }))}
                     aria-label={m.editor.bodyFontLabel}
                   >
-                    {PUBLISH_FONTS.map((font) => (
-                      <option key={font.id} value={font.id}>
-                        {font.id === "system" ? m.publish.systemFont : font.label}
-                      </option>
-                    ))}
+                    <optgroup label={m.editor.fontCategorySerif}>
+                      {PUBLISH_FONTS.filter((font) => font.category === "serif").map((font) => (
+                        <option key={font.id} value={font.id} style={{ fontFamily: font.stack }}>
+                          {font.id === "system" ? m.publish.systemFont : font.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label={m.editor.fontCategorySans}>
+                      {PUBLISH_FONTS.filter((font) => font.category === "sans").map((font) => (
+                        <option key={font.id} value={font.id} style={{ fontFamily: font.stack }}>
+                          {font.label}
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                 </label>
                 <label className="craft-field">

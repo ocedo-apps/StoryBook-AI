@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.74
+Status: living document, v1.0.75
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2510,6 +2510,83 @@ plumbing), `npm run build` grön (de 4 export-TTF:erna syns fortfarande
 i `dist/assets` som förut, nu dessutom refererade från `index.css`).
 
 v1.0.73 → v1.0.74.
+
+---
+
+**Ändringslogg v1.0.74 → v1.0.75 (2026-10-09):** Fontbiblioteks-
+utbyggnaden — nästa del av Typografi-steg 2. Frågade Mats om ordning
+(fontbibliotek vs. Rubrik/Anfang-kontroller) och rekommenderade
+fonterna först, eftersom Rubrik och Anfang ändå kommer vilja välja ur
+samma utökade katalog — bygga dem mot dagens 5 fonter nu hade
+betytt att göra om fontväljarna en gång till. Mats höll med, och
+lade på två konkreta krav: gruppera listan på Serif/Sans serif, och
+visa hur varje typsnitt faktiskt ser ut i listan man väljer ur.
+
+**Hämtning.** `fonts.google.com` (själva webbsidan) är blockerad i
+den här miljöns nätverkspolicy, men `fonts.googleapis.com`s CSS2-API
+och dess `fonts.gstatic.com`-filserver är det INTE — testade innan
+jag antog något. CSS2-API:et gav exakta `.ttf`-URL:er per familj och
+vikt (`?family=Alegreya:wght@400;700`), så Alegreya, Fraunces,
+Spectral, PT Serif, PT Sans, Chivo, Open Sans och Rubik hämtades
+därifrån, Regular + Bold var. "Source Serif Pro" i Mats lista är
+samma typsnitt som redan bundlade "Source Serif 4" (Adobe/Google döpte
+om det) — ingen ny hämtning, bara samma katalogpost som förut.
+Licenstexter (`OFL.txt`) hämtade separat från `google/fonts`-repots
+`raw.githubusercontent.com`-speglar (fungerar, även om GitHubs eget
+API är låst till det här projektets repo-scope).
+
+**Verifierat, inte antaget.** Alla åtta nedladdade filer kontrollerade
+med `fontTools` mot sin egen `name`-tabell (samma metod som för
+Libron förra steget): rätt familj, rätt vikt (Regular/Bold skilde sig
+faktiskt åt, inte samma fil två gånger), och licensfältet (14) pekar
+på `scripts.sil.org/OFL` för samtliga — OFL 1.1, inklusive Open Sans
+som Google numera licensierar under OFL (inte längre Apache 2.0, vilket
+var värt att kolla snarare än att gissa från minnet). Libron-zippen
+saknade en egen `OFL.txt` — byggde en ihop av fontens egen
+copyright-kedja ur dess `name`-tabell (Newsreader → Readerly → Libron,
+Nico Verbruggens Reserved-Font-Name-notis, allt redan verifierat förra
+steget) plus den kanoniska OFL 1.1-brödtexten, hämtad från Newsreader-
+fontens egen `OFL.txt` i samma GitHub-spegel eftersom Libron ärver just
+den.
+
+**Bundling.** Nio nya mappar under `src/assets/fonts/` (alegreya,
+fraunces, spectral, pt-serif, pt-sans, chivo, open-sans, rubik,
+libron), var och en med Regular+Bold-TTF och sin `OFL.txt`, i samma
+struktur som de fyra existerande. `publishFonts.ts`: `PUBLISH_FONT_IDS`
+växte från 5 till 14 (13 riktiga typsnitt + `system`), i Mats
+ursprungliga ordning inom varje kategori; `PUBLISH_FONT_FILES`-kartan
+fick motsvarande nya poster. Export-koden (`manuscriptExport.ts`)
+rörde jag inte alls — den är redan helt generisk över `PublishFont`
+(namn/stack/embed-bytes som data, inget hårdkodat per font-id), så
+PDF/RTF/ODT/HTML/ePub fick de nya typsnitten gratis. `styles.css` fick
+18 nya `@font-face`-regler (9 familjer × 2 vikter), samma mönster och
+samma TTF-filer som export redan bundlar.
+
+**UI: gruppering + förhandsvisning.** Bytte `SettingsPanel.tsx`s
+Font-`<select>` till två `<optgroup>` (Serif/Sans serif, filtrerat på
+`font.category`) med `style={{fontFamily: font.stack}}` på varje
+`<option>`. Osäker på om webbläsare faktiskt renderar fontinställd
+`<option>`-text i den öppna rullgardinen — verifierade live istället
+för att anta: skärmdump av den faktiskt öppnade listan i Chromium (= samma
+motor som Tauri-appens WebView2 på Windows) visar tydligt olika
+bokstavsformer per rad — Fraunces, Libron och Spectral syns omedelbart
+som egna typsnitt, inte bara olika text. Ny i18n-nyckel
+`fontCategorySerif`/`fontCategorySans` i alla tre språk.
+
+**Verifierat live i övrigt.** Bytte till Fraunces i Settings, stängde
+dialogen: kapitlets `.prose` blev omedelbart `Fraunces, Georgia,
+serif`. `document.fonts` bekräftar att alla 13 familjer (26
+vikt-instanser) laddar och status blir "loaded" när de faktiskt
+används. `tsc --noEmit` rent, 905 tester gröna (oförändrat — ren
+data-/katalogutökning, ingen ny testad logik), `npm run build` grön
+med alla 26 TTF-filer synliga i `dist/assets`.
+
+**Kvar, uttryckligen inte med i detta steg:** Vikt/Punktstorlek/Färg-
+kontroller, Rubrik-typografi, och Anfangs egna Font/Vikt/Färg — nu med
+hela 13-fonts-katalogen att välja ur istället för 5, som var hela
+poängen med att göra detta steg först.
+
+v1.0.74 → v1.0.75.
 
 ---
 

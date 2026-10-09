@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.75] - 2026-10-09
+
+### Added
+- Settings → Typography's Font list grows from 5 to 13 typefaces — Alegreya, Fraunces, Literata, Lora, Libron, Spectral, PT Serif and Source Serif 4 under Serif; PT Sans, Chivo, Asap, Open Sans and Rubik under Sans serif. The list is grouped by those two headings, and each entry shows in its own typeface so you can tell them apart before picking one.
+
 ## [1.0.74] - 2026-10-09
 
 ### Changed

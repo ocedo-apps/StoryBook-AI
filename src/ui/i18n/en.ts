@@ -426,6 +426,8 @@ export const en = {
     bodyFontLabel: "Font",
     bodyFontLede:
       "The typeface for the manuscript's prose — in the editor itself, and carried into every Publish export, so there's one choice instead of a separate, unsaved pick each time.",
+    fontCategorySerif: "Serif",
+    fontCategorySans: "Sans serif",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

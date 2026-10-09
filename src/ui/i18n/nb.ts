@@ -128,6 +128,8 @@ export const nb: Messages = {
     bodyFontLabel: "Skrift",
     bodyFontLede:
       "Skrifttypen for manusets brødtekst — i selve redigeringen, og med i hver eksport fra Publish, så det blir ett valg istedenfor et separat, ulagret valg hver gang.",
+    fontCategorySerif: "Serif",
+    fontCategorySans: "Grotesk (sans serif)",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
