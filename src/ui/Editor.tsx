@@ -1590,6 +1590,7 @@ export function Editor() {
               darlings={chapter.darlings ?? []}
               onDarlingsChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { darlings: next }))}
               onCutToDarling={(span) => void store.cutChapterDarling(span)}
+              dropCapLines={book.drop_cap_lines}
               placeholder={chapter.brief.trim() || m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}

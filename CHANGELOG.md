@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.71] - 2026-10-09
+
+### Added
+- Drop cap ("anfang") under Settings → General: choose off or 2–5 lines, and each chapter's opening letter grows to match — live while you write, and carried into Publish's HTML, ePub, and ODT exports. (RTF and PDF don't support it yet.)
+
 ## [1.0.70] - 2026-10-09
 
 ### Added

@@ -410,3 +410,72 @@ describe("paragraph style", () => {
     expect(formatExportMarkdown(doc)).toContain("Emma locked the door.\n\nShe waited for the tide.");
   });
 });
+
+describe("drop cap", () => {
+  function bookWithDropCap(lines: number) {
+    let book = { ...createBook("Night Keys"), drop_cap_lines: lines };
+    book = updateChapter(book, book.chapters[0]!.id, {
+      title: "The quay",
+      prose: "Emma locked the door.\n\nShe waited for the tide."
+    });
+    return book;
+  }
+
+  it("is off by default — no markup, no rule", () => {
+    const doc = buildManuscriptExport({ ...createBook("Night Keys") });
+    expect(doc.dropCapLines).toBe(0);
+    const html = formatExportHtml(doc);
+    expect(html).not.toContain("drop-cap");
+  });
+
+  it("marks only the chapter's first paragraph in HTML (spaced), and sizes the rule from the line count", () => {
+    const doc = buildManuscriptExport(bookWithDropCap(3));
+    const html = formatExportHtml(doc);
+    expect(html).toContain('<body class="has-drop-cap">');
+    expect(html).toContain('<p class="drop-cap">Emma locked the door.</p>');
+    expect(html).toContain("<p>She waited for the tide.</p>");
+    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:5.40em");
+  });
+
+  it("combines with the first-paragraph-flush indented style instead of replacing it", () => {
+    const doc = buildManuscriptExport(bookWithDropCap(4));
+    const html = formatExportHtml(doc, undefined, "indented");
+    expect(html).toContain('<p class="first drop-cap">Emma locked the door.</p>');
+    expect(html).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:7.20em");
+  });
+
+  it("does the same in ePub, with the rule in the shared stylesheet", () => {
+    const doc = buildManuscriptExport(bookWithDropCap(2));
+    const text = new TextDecoder().decode(packEpub(doc));
+    expect(text).toContain('<body class="has-drop-cap">');
+    expect(text).toContain('<p class="drop-cap">Emma locked the door.</p>');
+    expect(text).toContain(".has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:3.60em");
+  });
+
+  it("uses ODF's own style:drop-cap element on the first paragraph's style only, in spaced mode", () => {
+    const doc = buildManuscriptExport(bookWithDropCap(5));
+    const odtText = new TextDecoder().decode(packOdt(doc));
+    expect(odtText).toContain('<text:p text:style-name="StandardDropCap">Emma locked the door.</text:p>');
+    expect(odtText).toContain('<text:p text:style-name="Standard">She waited for the tide.</text:p>');
+    expect(odtText).toContain('<style:style style:name="StandardDropCap"');
+    expect(odtText).toContain('<style:drop-cap style:lines="5" style:length="1"/>');
+  });
+
+  it("uses the indented-first variant in indented mode", () => {
+    const doc = buildManuscriptExport(bookWithDropCap(3));
+    const odtText = new TextDecoder().decode(packOdt(doc, undefined, "indented"));
+    expect(odtText).toContain('<text:p text:style-name="IndentedFirstDropCap">Emma locked the door.</text:p>');
+    expect(odtText).toContain('<text:p text:style-name="Indented">She waited for the tide.</text:p>');
+    expect(odtText).toContain('<style:style style:name="IndentedFirstDropCap"');
+  });
+
+  it("leaves RTF and PDF plain for now — neither has a real drop cap mechanism yet", async () => {
+    const doc = buildManuscriptExport(bookWithDropCap(3));
+    const rtf = formatExportRtf(doc);
+    expect(rtf).toContain("Emma locked the door.");
+    expect(rtf).not.toContain("dropcap");
+    const bytes = await packPdf(doc);
+    const loaded = await PDFDocument.load(bytes);
+    expect(loaded.getPageCount()).toBeGreaterThan(0);
+  });
+});

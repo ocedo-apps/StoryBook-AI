@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.70
+Status: living document, v1.0.71
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2309,6 +2309,71 @@ längre den levande anslutningen). `tsc --noEmit`, hela testsviten
 (898 tester, 9 nya) och `npm run build` gröna.
 
 v1.0.69 → v1.0.70.
+
+**Ändringslogg v1.0.70 → v1.0.71 (2026-10-09):** Mats skickade en bild
+av en bokskannad sida med en klassisk stor begynnelsebokstav och
+frågade om StoryBook kunde göra samma sak — "heter det anfang?" (ja).
+Diskuterade var den skulle höra hemma: först föreslog jag ett
+Publish-tidsval (samma mönster som den befintliga paragraphStyle-
+växeln, "spaced"/"indented"), men Mats påpekade det uppenbara jag
+missat — om man inte ser anfangen förrän man exporterar kan man ju
+inte skriva MED den i sikte. Det ändrade designen: en riktig Setting
+på manuset (`Book.drop_cap_lines`, 0–5, 0 = av) som styr både en
+live-förhandsvisning i skrivytan OCH export, istället för två
+separata val att hålla synkade.
+
+**Implementation.** `BookSchema.ts`: nytt fält `drop_cap_lines:
+z.number().int().min(0).max(5).default(0)` — samma
+`.default()`-mönster som alla andra inställningar för bakåtkompatibla
+sparfiler, ingen separat migrering behövs. Settings fick en ny
+dropdown ("Av" / "2–5 rader") i General, bredvid POV/Tense/Viewpoint.
+
+**Live förhandsvisning:** `ProseCanvas` fick en ny valfri
+`dropCapLines`-prop (bara satt av Editor för kapitelprosa, aldrig för
+Synopsis/Brainstorm), som lägger till en `--drop-cap-lines`-CSS-
+variabel och klassen `has-drop-cap` på skrivytan. Ren CSS gör resten:
+`.prose.has-drop-cap > p:first-child::first-letter` — webbläsarens
+egen `::first-letter`-pseudoelement, ingen JavaScript-radbrytnings-
+logik. Storleksformeln (`N * 1.8em`) är en kalibrerad approximation
+mot `.prose`:s egna `1.2rem`/`1.65`-radhöjd, inte exakt typografisk
+kerning, men tillräckligt nära för att författaren ska se ungefär vad
+de får.
+
+**Export, tre format på riktigt, två medvetet uteslutna.** HTML och
+ePub (samma `htmlParagraphs()`-funktion, ePub är bara HTML-sidor i en
+zip) får samma `::first-letter`-CSS-trick som editorn, med en ny
+`drop-cap`-klass bara på kapitlets FÖRSTA riktiga stycke (inte på
+tomradsfiller-styckena). ODT fick den finaste lösningen: ODF-
+standarden har ett eget, riktigt `<style:drop-cap style:lines="N"
+style:length="1"/>`-element inom en styckestils `paragraph-
+properties` — LibreOffice stödjer det direkt, så ODT:n får en äkta
+anfang utan CSS-trick alls. RTF och PDF lämnades medvetet orörda,
+med en förklarande kommentar i koden varför: RTF har inget enkelt
+anfang-kontrollord (Words egen export gör det via en absolut-
+positionerad ram, skört och inkonsekvent stöd mellan RTF-läsare);
+PDF-skrivaren (`manuscriptExport.ts`s `PdfWriter`) lägger text rad
+för rad för hand (pdf-lib, ingen webbläsarmotor bakom) och skulle
+kräva att räkna ut en smalare radbredd för just de rader som ligger
+bredvid den stora bokstaven — en riktig uppföljning, inte gjord nu.
+
+`ManuscriptExport`-typen fick ett nytt obligatoriskt fält
+`dropCapLines: number`, populerat från `book.drop_cap_lines` i
+`buildManuscriptExport` — `tsc` hittade direkt att inget annat ställe
+i kodbasen byggde en `ManuscriptExport`-literal för hand, så ingen
+annan kod behövde röras.
+
+**Verifierat live, inte bara i teorin.** Skapade ett nytt manus,
+skrev en öppningsmening ("We will leave Danglars struggling..."),
+slog på Anfang (3 rader) i Settings, och tog en skärmdump — en
+proportionerlig stor "W" som texten flyter runt, visuellt mycket likt
+bilden Mats skickade. Bekräftade även i webbläsaren att det beräknade
+`font-size` på `::first-letter` var exakt `3 × 1.8em × 1.2rem =
+103.68px`, inte bara "ser ut att stämma". 7 nya tester för export-
+sidan (av/på, HTML spaced/indented, ePub, ODT spaced/indented,
+bekräftelse att RTF/PDF förblir orörda). `tsc --noEmit`, hela
+testsviten (905 tester, 7 nya) och `npm run build` gröna.
+
+v1.0.70 → v1.0.71.
 
 ---
 

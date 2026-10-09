@@ -119,6 +119,11 @@ export const sv: Messages = {
     historyLimit: "Versioner",
     historyLimitLede:
       "Hur många tidigare versioner av ett kapitel som sparas, från Skriv utkast, Omskriv, Förläng, Utveckla och Skriv om. Så fort gränsen nås försvinner den äldsta versionen först. Det du skriver själv för hand sparas inte som en egen version — bara de här åtgärderna gör det.",
+    dropCapLabel: "Anfang",
+    dropCapLede:
+      "En stor begynnelsebokstav på varje kapitels första stycke, som sträcker sig över valt antal rader. Visas direkt i skrivytan och följer med till Publish-export (HTML, ePub, RTF, ODT; PDF inte än).",
+    dropCapOff: "Av",
+    dropCapLines: "{n} rader",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

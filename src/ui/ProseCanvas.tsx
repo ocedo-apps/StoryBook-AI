@@ -102,7 +102,8 @@ export function ProseCanvas({
   activePlaceholderId,
   darlings = [],
   onDarlingsChange,
-  onCutToDarling
+  onCutToDarling,
+  dropCapLines = 0
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -160,6 +161,8 @@ export function ProseCanvas({
   onDarlingsChange?: (next: Darling[]) => void;
   /** Cuts the selected span out to the Darlings tray — a history row, unlike an ordinary edit. Omitted hides the "Cut to Darlings" menu action entirely — Synopsis and Brainstorm have no use for it. */
   onCutToDarling?: (span: TextSpan) => void;
+  /** Drop-cap ("anfang") height in lines for the opening letter of the first paragraph — 0 (the default) renders plainly. Chapter prose only; Synopsis and Brainstorm never pass this. */
+  dropCapLines?: number;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -610,7 +613,8 @@ export function ProseCanvas({
       ) : null}
       <div
         ref={areaRef}
-        className="prose"
+        className={dropCapLines > 0 ? "prose has-drop-cap" : "prose"}
+        style={dropCapLines > 0 ? ({ "--drop-cap-lines": dropCapLines } as React.CSSProperties) : undefined}
         contentEditable={!disabled}
         role="textbox"
         aria-multiline="true"

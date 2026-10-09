@@ -203,6 +203,24 @@ export function SettingsPanel({
                     ))}
                   </select>
                 </label>
+                <label className="craft-field">
+                  <span className="field-label-row">
+                    {m.editor.dropCapLabel}
+                    <HelpTip body={m.editor.dropCapLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.dropCapLabel })} />
+                  </span>
+                  <select
+                    value={String(book.drop_cap_lines)}
+                    onChange={(event) => onPatch((current) => ({ ...current, drop_cap_lines: Number(event.target.value) }))}
+                    aria-label={m.editor.dropCapLabel}
+                  >
+                    <option value="0">{m.editor.dropCapOff}</option>
+                    {[2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {format(m.editor.dropCapLines, { n })}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 {showViewpoint ? (
                   <label className="craft-field">
                     <span>{m.craft.viewpoint}</span>

@@ -53,6 +53,8 @@ export type ManuscriptExport = {
   voice: string;
   viewpoint: string;
   readerAge?: number;
+  /** Drop-cap ("anfang") height in lines for each chapter's opening letter — 0 turns it off (BookSchema's drop_cap_lines). */
+  dropCapLines: number;
   chapters: ManuscriptExportChapter[];
   bible: ManuscriptExportSection[];
 };
@@ -83,6 +85,7 @@ export function buildManuscriptExport(book: Book, note = "", exportedAt = new Da
     voice: book.voice.trim(),
     viewpoint: book.viewpoint.trim(),
     ...(book.reader_age !== undefined ? { readerAge: book.reader_age } : {}),
+    dropCapLines: book.drop_cap_lines,
     chapters: sortedChapters(book).map((chapter) => ({
       heading: `${chapter.sequence_index + 1}. ${chapter.title.trim() || `Chapter ${chapter.sequence_index + 1}`}`,
       voice: chapter.voice?.trim() ?? "",
@@ -174,6 +177,19 @@ const HTML_EXPORT_CSS_BASE = `body{max-width:42rem;margin:2.5rem auto;padding:0 
 const INDENTED_PARAGRAPHS_CSS = `.indented p{margin:0;text-indent:1.5em}.indented p.first{text-indent:0}`;
 const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 
+/**
+ * Anfang/drop-cap CSS for one document's chosen line count (BookSchema's
+ * drop_cap_lines — 0 means off, so callers skip this entirely then). The
+ * 1.8em-per-line multiplier is the same calibrated approximation the live
+ * editor preview uses (styles.css, .prose.has-drop-cap), so the exported
+ * book roughly matches what the author already saw while writing.
+ */
+function dropCapCss(lines: number): string {
+  if (lines <= 0) return "";
+  const size = (lines * 1.8).toFixed(2);
+  return `.has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:${size}em;line-height:0.82;padding:0.05em 0.08em 0 0}`;
+}
+
 function base64FromBytes(bytes: Uint8Array): string {
   let binary = "";
   const chunkSize = 0x8000;
@@ -199,15 +215,26 @@ function htmlFontCss(font: PublishFont | undefined): string {
   return `${faces}body{font-family:${stack}}`;
 }
 
-function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle): string {
+function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle, dropCap: boolean): string {
   if (paragraphStyle === "indented") {
     return splitFlowParagraphs(text)
-      .map((paragraph, index) => `<p${index === 0 ? ' class="first"' : ""}>${xmlEscape(paragraph)}</p>`)
+      .map((paragraph, index) => {
+        const classes = [index === 0 ? "first" : "", index === 0 && dropCap ? "drop-cap" : ""].filter(Boolean);
+        return `<p${classes.length > 0 ? ` class="${classes.join(" ")}"` : ""}>${xmlEscape(paragraph)}</p>`;
+      })
       .join("\n");
   }
   const lines = text.split(/\r\n|\n|\r/);
   if (lines.length === 0) return "";
-  return lines.map((line) => (line ? `<p>${xmlEscape(line)}</p>` : "<p><br/></p>")).join("\n");
+  let dropCapUsed = !dropCap;
+  return lines
+    .map((line) => {
+      if (!line) return "<p><br/></p>";
+      const cls = dropCapUsed ? "" : ' class="drop-cap"';
+      dropCapUsed = true;
+      return `<p${cls}>${xmlEscape(line)}</p>`;
+    })
+    .join("\n");
 }
 
 export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
@@ -224,7 +251,7 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, para
     body.push(`<h2 class="chapter">${xmlEscape(chapter.heading)}</h2>`);
     if (chapter.startImageDataUrl) body.push(`<img class="chapter-image" src="${chapter.startImageDataUrl}" alt=""/>`);
     if (chapter.voice) body.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
-    if (chapter.prose) body.push(htmlParagraphs(chapter.prose, paragraphStyle));
+    if (chapter.prose) body.push(htmlParagraphs(chapter.prose, paragraphStyle, doc.dropCapLines > 0));
   }
   if (doc.bible.length > 0) {
     body.push("<h2>Story Bible</h2>");
@@ -238,20 +265,31 @@ export function formatExportHtml(doc: ManuscriptExport, font?: PublishFont, para
       }
     }
   }
+  const bodyClasses = [paragraphStyle === "indented" ? "indented" : "", doc.dropCapLines > 0 ? "has-drop-cap" : ""].filter(
+    Boolean
+  );
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <title>${xmlEscape(doc.title)}</title>
-<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${htmlFontCss(font)}</style>
+<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${dropCapCss(doc.dropCapLines)}${htmlFontCss(font)}</style>
 </head>
-<body${paragraphStyle === "indented" ? ' class="indented"' : ""}>
+<body${bodyClasses.length > 0 ? ` class="${bodyClasses.join(" ")}"` : ""}>
 ${body.join("\n")}
 </body>
 </html>
 `;
 }
 
+/**
+ * `doc.dropCapLines` is intentionally not applied here. RTF has no simple
+ * drop-cap control word — real ones (as Word itself writes them) are an
+ * absolutely-positioned frame around the letter, which is fiddly to get
+ * right and inconsistently supported by RTF readers. Left plain rather
+ * than shipping something fragile; HTML/ePub/ODT all have a real,
+ * well-supported mechanism and get it.
+ */
 export function formatExportRtf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
@@ -293,7 +331,7 @@ export function packOdt(doc: ManuscriptExport, font?: PublishFont, paragraphStyl
   return zipStore([
     { name: "mimetype", data: utf8("application/vnd.oasis.opendocument.text") },
     { name: "content.xml", data: utf8(odtContentXml(doc, paragraphStyle)) },
-    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif")) },
+    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif", doc.dropCapLines)) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
   ]);
 }
@@ -351,13 +389,16 @@ export function packEpub(doc: ManuscriptExport, font?: PublishFont, paragraphSty
       parts.push(`<img src="../images/chapter-${index}.jpg" alt=""/>`);
     }
     if (chapter.voice) parts.push(`<p class="meta">Voice: ${xmlEscape(chapter.voice)}</p>`);
-    if (chapter.prose) parts.push(htmlParagraphs(chapter.prose, paragraphStyle));
+    if (chapter.prose) parts.push(htmlParagraphs(chapter.prose, paragraphStyle, doc.dropCapLines > 0));
+    const bodyClasses = [paragraphStyle === "indented" ? "indented" : "", doc.dropCapLines > 0 ? "has-drop-cap" : ""].filter(
+      Boolean
+    );
     pages.push({
       id: `chapter-${index}`,
       file: `text/chapter-${index}.xhtml`,
       title: chapter.heading,
       body: parts.join("\n"),
-      ...(paragraphStyle === "indented" ? { bodyClass: "indented" } : {})
+      ...(bodyClasses.length > 0 ? { bodyClass: bodyClasses.join(" ") } : {})
     });
   });
 
@@ -440,7 +481,10 @@ ${navList}
     { name: "META-INF/container.xml", data: utf8(container) },
     { name: "OEBPS/content.opf", data: utf8(opf) },
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
-    { name: "OEBPS/styles/stylesheet.css", data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + epubFontCss(font)) },
+    {
+      name: "OEBPS/styles/stylesheet.css",
+      data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + dropCapCss(doc.dropCapLines) + epubFontCss(font))
+    },
     ...images.map((image) => ({ name: `OEBPS/images/${image.name}`, data: image.data })),
     ...(font?.embed
       ? [
@@ -587,6 +631,14 @@ class PdfWriter {
   }
 }
 
+/**
+ * `doc.dropCapLines` is intentionally not applied here (yet). This writer
+ * lays out text by hand (pdf-lib, no browser engine behind it) — a real
+ * drop cap needs the body text to wrap around the big letter's width for
+ * its first few lines, which means computing a narrower wrap width per
+ * line rather than the single `maxWidth` `wrap()` uses today. Worth doing
+ * as a follow-up; HTML/ePub/ODT already get a real one in the meantime.
+ */
 export async function packPdf(doc: ManuscriptExport, font?: PublishFont, paragraphStyle: ParagraphStyle = "spaced"): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(doc.title);
@@ -676,22 +728,27 @@ function xmlEscape(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function odtParagraphs(text: string, style = "Standard"): string {
+function odtParagraphs(text: string, style = "Standard", firstStyle = style): string {
   const lines = text.split(/\r\n|\n|\r/);
   if (lines.length === 0) return `<text:p text:style-name="${style}"/>`;
+  let firstUsed = false;
   return lines
-    .map((line) =>
-      line
-        ? `<text:p text:style-name="${style}">${xmlEscape(line)}</text:p>`
-        : `<text:p text:style-name="${style}"/>`
-    )
+    .map((line) => {
+      if (!line) return `<text:p text:style-name="${style}"/>`;
+      const lineStyle = firstUsed ? style : firstStyle;
+      firstUsed = true;
+      return `<text:p text:style-name="${lineStyle}">${xmlEscape(line)}</text:p>`;
+    })
     .join("");
 }
 
-function odtProse(text: string, paragraphStyle: ParagraphStyle): string {
-  if (paragraphStyle === "spaced") return odtParagraphs(text);
+function odtProse(text: string, paragraphStyle: ParagraphStyle, dropCap: boolean): string {
+  if (paragraphStyle === "spaced") return odtParagraphs(text, "Standard", dropCap ? "StandardDropCap" : "Standard");
   return splitFlowParagraphs(text)
-    .map((paragraph, index) => `<text:p text:style-name="${index === 0 ? "IndentedFirst" : "Indented"}">${xmlEscape(paragraph)}</text:p>`)
+    .map((paragraph, index) => {
+      const firstStyle = dropCap ? "IndentedFirstDropCap" : "IndentedFirst";
+      return `<text:p text:style-name="${index === 0 ? firstStyle : "Indented"}">${xmlEscape(paragraph)}</text:p>`;
+    })
     .join("");
 }
 
@@ -713,7 +770,7 @@ function odtContentXml(doc: ManuscriptExport, paragraphStyle: ParagraphStyle): s
   for (const chapter of doc.chapters) {
     body.push(odtChapterHeading(chapter.heading));
     if (chapter.voice) body.push(odtParagraphs(`Voice: ${chapter.voice}`));
-    if (chapter.prose) body.push(odtProse(chapter.prose, paragraphStyle));
+    if (chapter.prose) body.push(odtProse(chapter.prose, paragraphStyle, doc.dropCapLines > 0));
   }
   if (doc.bible.length > 0) {
     body.push(odtHeading(2, "Story Bible"));
@@ -735,7 +792,17 @@ function odtContentXml(doc: ManuscriptExport, paragraphStyle: ParagraphStyle): s
 `;
 }
 
-function odtStyles(fontName: string): string {
+function odtStyles(fontName: string, dropCapLines = 0): string {
+  const dropCapStyles =
+    dropCapLines > 0
+      ? `
+    <style:style style:name="StandardDropCap" style:family="paragraph" style:parent-style-name="Standard">
+      <style:paragraph-properties><style:drop-cap style:lines="${dropCapLines}" style:length="1"/></style:paragraph-properties>
+    </style:style>
+    <style:style style:name="IndentedFirstDropCap" style:family="paragraph" style:parent-style-name="IndentedFirst">
+      <style:paragraph-properties><style:drop-cap style:lines="${dropCapLines}" style:length="1"/></style:paragraph-properties>
+    </style:style>`
+      : "";
   return `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" office:version="1.3">
   <office:styles>
@@ -762,7 +829,7 @@ function odtStyles(fontName: string): string {
     </style:style>
     <style:style style:name="IndentedFirst" style:family="paragraph" style:parent-style-name="Standard">
       <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" fo:text-indent="0in"/>
-    </style:style>
+    </style:style>${dropCapStyles}
   </office:styles>
 </office:document-styles>
 `;

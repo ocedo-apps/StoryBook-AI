@@ -417,6 +417,11 @@ export const en = {
     historyLimit: "Revisions",
     historyLimitLede:
       "How many earlier versions of a chapter are kept, going back through Draft, Recast, Extend, Elaborate, and Rewrite. Once you go over the limit, the oldest version is dropped first. Typing on your own doesn't create a version — only those actions do.",
+    dropCapLabel: "Drop cap",
+    dropCapLede:
+      'A large opening letter for each chapter\'s first paragraph, spanning the chosen number of lines — sometimes called an "anfang". Shows live in the editor and carries into Publish exports (HTML, ePub, RTF, ODT; PDF not yet).',
+    dropCapOff: "Off",
+    dropCapLines: "{n} lines",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

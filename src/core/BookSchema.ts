@@ -193,6 +193,16 @@ export const BookSchema = z.object({
    */
   illustration_orientation: z.enum(ILLUSTRATION_ORIENTATIONS).default("landscape"),
   /**
+   * Drop-cap ("anfang") height, in lines, for each chapter's opening
+   * letter — 0 turns it off. A manuscript-wide typesetting choice, not a
+   * writing instruction, so it lives here rather than as a one-off Publish
+   * option: the same value both previews live in the editor (on the first
+   * paragraph of each chapter) and carries into Publish's exports, instead
+   * of the author having to remember to re-pick it at export time. Missing
+   * on older saves — 0 keeps today's plain-paragraph look.
+   */
+  drop_cap_lines: z.number().int().min(0).max(5).default(0),
+  /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
    */
@@ -334,6 +344,7 @@ export function createBook(title: string): Book {
     voice: "",
     illustration_style: "",
     illustration_orientation: "landscape",
+    drop_cap_lines: 0,
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],
