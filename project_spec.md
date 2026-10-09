@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.72
+Status: living document, v1.0.73
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2406,6 +2406,47 @@ assertions bröts, de kollar bara på `font-size`-prefixet i CSS-
 strängen) och `npm run build` gröna.
 
 v1.0.71 → v1.0.72.
+
+**Ändringslogg v1.0.72 → v1.0.73 (2026-10-09):** Mats, direkt efter
+klippnings-fixen: Anfang känns "insprängd" bland POV/Tense/Viewpoint,
+och föreslog en egen "Typografi"-sektion i Settings — med en betydligt
+större vision bifogad: Brödtext (Font/Vikt/Punktstorlek/Färg), Rubrik
+(samma fyra), och Anfang ON/OFF + Font/Vikt/Färg när på.
+
+**Stannade upp innan jag byggde, eftersom detta är mycket större än
+Anfang var.** Två öppna designfrågor som bara Mats kunde svara på:
+(1) ska Brödtext/Rubrik-typografin även styra LIVE i skrivytan (samma
+princip som Anfang: se vad man får medan man skriver) eller bara
+Publish-export (som dagens enda typsnittsval, `PUBLISH_FONTS` i
+`publishFonts.ts`, redan gör)? (2) hur stort ska första leveransen
+vara? Mats svar: live i editorn OCKSÅ — men med en egen twist jag
+inte föreslagit: TVÅ färger, en för mörkt och en för ljust manus-läge,
+och frågade rent ut om det underlättar eller krånglar till det för
+mig. Ärligt svar: underlättar — appens eget tema har redan exakt det
+mönstret (`[data-theme="light"]`-overrides av samma CSS-variabler),
+så två färger är den tekniskt KORREKTA lösningen, inte en genväg. En
+enda färg hade garanterat sett fel ut i det ena läget och krävt
+särbehandling ändå. Och: dela upp i två steg — sektionen + flytta
+Anfang nu, Font/Vikt/Storlek/Färg-kontrollerna som uppföljning.
+
+**Steg 1, genomfört.** Ny `<section>` "Typography" i `SettingsPanel.tsx`,
+mellan General och Illustrations. Anfang-fältet flyttat dit från
+`.craft-fields`-raden (som nu bara har POV/Tense/Viewpoint kvar, som
+tänkt från början). Ren UI-flytt, ingen ny data, inget nytt schema-
+fält — `drop_cap_lines` och all logik runt det orört. Ny i18n-nyckel
+`typographyHeading` i alla tre språk.
+
+**Verifierat live.** Skärmdump av Settings bekräftar: General →
+Typography (Drop cap, tydligt egen rubrik) → Illustrations, exakt
+layouten Mats bad om. `tsc --noEmit`, hela testsviten (905 tester,
+oförändrat — en ren UI-flytt rör ingen testad logik) och
+`npm run build` gröna.
+
+Steg 2 (Font/Vikt/Punktstorlek/Färg för Brödtext och Rubrik, Font/
+Vikt/Färg för Anfang, tvåfärgsschemat för mörkt/ljust) är INTE gjort
+än — nästa uppföljning.
+
+v1.0.72 → v1.0.73.
 
 ---
 

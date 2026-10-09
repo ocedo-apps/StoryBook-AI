@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.73] - 2026-10-09
+
+### Changed
+- Settings has a new Typography section — Drop cap moved there from among POV/Tense/Viewpoint, making room for more typography controls to come.
+
 ## [1.0.72] - 2026-10-09
 
 ### Fixed

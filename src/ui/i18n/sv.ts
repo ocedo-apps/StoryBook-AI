@@ -88,6 +88,7 @@ export const sv: Messages = {
     settingsLede:
       "Hur det här manuset skrivs. Inte Story Bible. Kapitlen kan fortfarande överstyra kamera, röst och Läsare.",
     generalHeading: "Allmänt",
+    typographyHeading: "Typografi",
     illustrationsHeading: "Illustrationer",
     proseLanguage: "Prosans språk",
     proseLanguagePlaceholder: "t.ex. engelska",

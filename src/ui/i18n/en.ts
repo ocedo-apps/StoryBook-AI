@@ -386,6 +386,7 @@ export const en = {
     settingsLede:
       "How this manuscript is written. Not Story Bible. Chapters can still override camera, Voice, and Reader.",
     generalHeading: "General",
+    typographyHeading: "Typography",
     illustrationsHeading: "Illustrations",
     proseLanguage: "Prose language",
     proseLanguagePlaceholder: "e.g. English",

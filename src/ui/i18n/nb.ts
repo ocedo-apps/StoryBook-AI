@@ -88,6 +88,7 @@ export const nb: Messages = {
     settingsLede:
       "Hvordan dette manuskriptet skrives. Ikke Story Bible. Kapitlene kan fortsatt overstyre kamera, stemme og Leser.",
     generalHeading: "Generelt",
+    typographyHeading: "Typografi",
     illustrationsHeading: "Illustrasjoner",
     proseLanguage: "Prosaens språk",
     proseLanguagePlaceholder: "f.eks. engelsk",
