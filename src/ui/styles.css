@@ -3030,12 +3030,18 @@ button:disabled {
  * approximation (not exact type-level kerning) against .prose's own
  * 1.2rem/1.65 line-height, so an author sees roughly the shape they'll
  * get in the exported book while writing, not just at export time.
+ * line-height must stay >= 1: a tighter value (e.g. the 0.82 this
+ * started with, to visually compress the box toward the target line
+ * count) makes the line box shorter than the glyph itself, so the
+ * browser clips the top of the letter instead of just "shrinking" it —
+ * confirmed live (a tester's screenshot: a flat-topped "O" with a gap
+ * below it) before landing on 1.
  */
 .prose.has-drop-cap > p:first-child::first-letter {
   float: left;
   font-weight: 600;
   font-size: calc(var(--drop-cap-lines, 3) * 1.8em);
-  line-height: 0.82;
+  line-height: 1;
   padding: 0.05em 0.08em 0 0;
 }
 

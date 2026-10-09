@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.72] - 2026-10-09
+
+### Fixed
+- The drop cap's own letter was being clipped at the top, with an odd gap underneath — a too-tight line spacing made its box shorter than the letter itself. Fixed in the editor, and in HTML/ePub exports.
+
 ## [1.0.71] - 2026-10-09
 
 ### Added

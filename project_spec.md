@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.71
+Status: living document, v1.0.72
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2374,6 +2374,38 @@ bekräftelse att RTF/PDF förblir orörda). `tsc --noEmit`, hela
 testsviten (905 tester, 7 nya) och `npm run build` gröna.
 
 v1.0.70 → v1.0.71.
+
+**Ändringslogg v1.0.71 → v1.0.72 (2026-10-09):** Mats testade anfangen
+på riktigt och skickade en skärmdump: ett stort "O" med platt
+avklippt topp och ett konstigt tomrum under — "trycks uppåt?".
+
+**Rotorsak, reproducerad live innan jag gissade på en fix.** Startade
+dev-servern, skrev en öppningsmening med riktiga Newsreader-typsnittet
+och slog på Anfang (3 rader) — samma platta topp, bekräftat. Läste av
+de faktiska beräknade CSS-värdena i webbläsaren:
+`font-size: 103.68px` men `line-height: 85.0176px` — radboxen var
+alltså KORTARE än själva bokstaven (85px mot bokstavens ~104px).
+`line-height: 0.82` hade varit tänkt att visuellt krympa boxen mot
+antal rader, men gör istället att webbläsaren klipper bokstavens topp
+istället för att skala ner den, med utrymmet den "borde" ta upp kvar
+som tomrum under — exakt det Mats såg.
+
+**Fixen:** `line-height: 1` istället för `0.82`, både i editorns
+`.prose.has-drop-cap`-regel (styles.css) och i exportens `dropCapCss()`
+(manuscriptExport.ts, HTML/ePub). ODT berörs inte — den använder ODF:s
+egna `style:drop-cap`-element, inget CSS-trick, så den hade aldrig
+buggen. Testade om samma Playwright-scenario efter fixen: full rund
+topp på "O", ingen klippning, inget överdrivet tomrum. Kommentarerna i
+båda filerna uppdaterade för att förklara VARFÖR `line-height` måste
+vara ≥ 1 — annars är det lätt att någon (inklusive jag själv) återgår
+till en "snyggare" liten decimal nästa gång utan att komma ihåg varför
+det klipper.
+
+`tsc --noEmit`, hela testsviten (905 tester, oförändrat — inga
+assertions bröts, de kollar bara på `font-size`-prefixet i CSS-
+strängen) och `npm run build` gröna.
+
+v1.0.71 → v1.0.72.
 
 ---
 

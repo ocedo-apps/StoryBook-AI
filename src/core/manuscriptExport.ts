@@ -183,11 +183,13 @@ const HTML_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
  * 1.8em-per-line multiplier is the same calibrated approximation the live
  * editor preview uses (styles.css, .prose.has-drop-cap), so the exported
  * book roughly matches what the author already saw while writing.
+ * line-height stays at 1 for the same reason it does there: anything
+ * tighter makes the line box shorter than the glyph and clips its top.
  */
 function dropCapCss(lines: number): string {
   if (lines <= 0) return "";
   const size = (lines * 1.8).toFixed(2);
-  return `.has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:${size}em;line-height:0.82;padding:0.05em 0.08em 0 0}`;
+  return `.has-drop-cap p.drop-cap::first-letter{float:left;font-weight:700;font-size:${size}em;line-height:1;padding:0.05em 0.08em 0 0}`;
 }
 
 function base64FromBytes(bytes: Uint8Array): string {
