@@ -103,7 +103,8 @@ export function ProseCanvas({
   darlings = [],
   onDarlingsChange,
   onCutToDarling,
-  dropCapLines = 0
+  dropCapLines = 0,
+  bodyFontStack
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -163,6 +164,8 @@ export function ProseCanvas({
   onCutToDarling?: (span: TextSpan) => void;
   /** Drop-cap ("anfang") height in lines for the opening letter of the first paragraph — 0 (the default) renders plainly. Chapter prose only; Synopsis and Brainstorm never pass this. */
   dropCapLines?: number;
+  /** CSS font-family stack for the manuscript's chosen body typeface (Settings → Typography → Font). Omitted keeps the app's own default prose font — Synopsis and Brainstorm never pass this, only chapter prose does. */
+  bodyFontStack?: string;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -614,7 +617,12 @@ export function ProseCanvas({
       <div
         ref={areaRef}
         className={dropCapLines > 0 ? "prose has-drop-cap" : "prose"}
-        style={dropCapLines > 0 ? ({ "--drop-cap-lines": dropCapLines } as React.CSSProperties) : undefined}
+        style={
+          {
+            ...(dropCapLines > 0 ? { "--drop-cap-lines": dropCapLines } : {}),
+            ...(bodyFontStack ? { fontFamily: bodyFontStack } : {})
+          } as React.CSSProperties
+        }
         contentEditable={!disabled}
         role="textbox"
         aria-multiline="true"

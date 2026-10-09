@@ -12,6 +12,7 @@ import { DEFAULT_WRITING_PRIMER } from "@core/writingPrimer";
 import { MIN_PROSE_HISTORY_LIMIT, MAX_PROSE_HISTORY_LIMIT } from "@core/proseHistory";
 import { READER_CATEGORIES, READER_TIER_AGE, applyReaderAge, readerCategory, type ReaderCategory } from "@core/reader";
 import { findStyleByPromptText, ILLUSTRATION_ORIENTATIONS, type IllustrationStyle } from "@core/illustrationStyle";
+import { PUBLISH_FONTS } from "@core/publishFonts";
 import type { Book } from "@core/BookSchema";
 import type { LlmEngine } from "@llm/provider";
 import { MIN_CONTEXT_WINDOW, MAX_CONTEXT_WINDOW } from "@llm/contextWindow";
@@ -237,6 +238,23 @@ export function SettingsPanel({
             <section className="settings-block">
               <h2 className="settings-heading">{m.editor.typographyHeading}</h2>
               <div className="craft-fields">
+                <label className="craft-field">
+                  <span className="field-label-row">
+                    {m.editor.bodyFontLabel}
+                    <HelpTip body={m.editor.bodyFontLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.bodyFontLabel })} />
+                  </span>
+                  <select
+                    value={book.body_font}
+                    onChange={(event) => onPatch((current) => ({ ...current, body_font: event.target.value as Book["body_font"] }))}
+                    aria-label={m.editor.bodyFontLabel}
+                  >
+                    {PUBLISH_FONTS.map((font) => (
+                      <option key={font.id} value={font.id}>
+                        {font.id === "system" ? m.publish.systemFont : font.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label className="craft-field">
                   <span className="field-label-row">
                     {m.editor.dropCapLabel}

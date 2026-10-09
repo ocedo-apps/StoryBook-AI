@@ -44,6 +44,73 @@
   src: url("/fonts/ibm-plex-mono-500.woff2") format("woff2");
 }
 
+/*
+ * Body-text typeface choices (Settings → Typography → Font, BookSchema's
+ * body_font) — the same TTF files Publish already embeds into HTML/ePub/
+ * ODT/PDF exports (publishFonts.ts), reused here so the live editor can
+ * actually render them instead of only knowing their names. Same local-
+ * bundle, no-network-request reasoning as the fonts above; TTF rather
+ * than woff2 only because that's the format already bundled for export
+ * embedding, and duplicating each as a second, smaller woff2 just for
+ * this wasn't worth the build complexity.
+ */
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/lora/Lora-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/lora/Lora-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Literata";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/literata/Literata-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Literata";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/literata/Literata-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/source-serif-4/SourceSerif4-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/source-serif-4/SourceSerif4-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Asap";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/asap/Asap-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Asap";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/asap/Asap-Bold.ttf") format("truetype");
+}
+
 /* Crossfades Home <-> Editor and the editor's rail surfaces (see withViewTransition in BookStore.tsx, which sets --vt-duration per call). Browsers without support just skip straight to the new page. */
 ::view-transition-old(root),
 ::view-transition-new(root) {

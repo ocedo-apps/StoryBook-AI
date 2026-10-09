@@ -125,6 +125,9 @@ export const sv: Messages = {
       "En stor begynnelsebokstav på varje kapitels första stycke, som sträcker sig över valt antal rader. Visas direkt i skrivytan och följer med till Publish-export (HTML, ePub, RTF, ODT; PDF inte än).",
     dropCapOff: "Av",
     dropCapLines: "{n} rader",
+    bodyFontLabel: "Typsnitt",
+    bodyFontLede:
+      "Typsnittet för manusets brödtext — i själva redigeraren, och med i varje export från Publish, så det blir ett val istället för ett separat, osparat val varje gång.",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -932,6 +935,7 @@ export const sv: Messages = {
     format: "Format",
     font: "Typsnitt",
     systemFont: "Standardserif (Times/Georgia)",
+    fontSetInSettings: "ställs in i Settings → Typography",
     paragraphStyle: "Styckeformat",
     paragraphStyleSpaced: "Tom rad mellan stycken",
     paragraphStyleIndented: "Indrag, ingen tom rad (klassiskt bokformat)",

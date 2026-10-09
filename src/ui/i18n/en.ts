@@ -423,6 +423,9 @@ export const en = {
       'A large opening letter for each chapter\'s first paragraph, spanning the chosen number of lines — sometimes called an "anfang". Shows live in the editor and carries into Publish exports (HTML, ePub, RTF, ODT; PDF not yet).',
     dropCapOff: "Off",
     dropCapLines: "{n} lines",
+    bodyFontLabel: "Font",
+    bodyFontLede:
+      "The typeface for the manuscript's prose — in the editor itself, and carried into every Publish export, so there's one choice instead of a separate, unsaved pick each time.",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -942,6 +945,7 @@ export const en = {
     format: "Format",
     font: "Font",
     systemFont: "System serif (Times/Georgia)",
+    fontSetInSettings: "set in Settings → Typography",
     paragraphStyle: "Paragraph style",
     paragraphStyleSpaced: "Blank line between paragraphs",
     paragraphStyleIndented: "Indented, no blank line (classic book style)",

@@ -6,6 +6,7 @@ import { EntityKindSchema } from "./bibleGroups";
 import { EntityMediaSchema, EntityPictureSchema } from "./entityMedia";
 import { EntityTrackingSchema } from "./entityTracking";
 import { ILLUSTRATION_ORIENTATIONS } from "./illustrationStyle";
+import { PUBLISH_FONT_IDS } from "./publishFonts";
 import { newId, nowIso, slugify } from "./ids";
 import { NarrativeFactSchema, type NarrativeFact } from "./NarrativeFact";
 import { ensureBrainstormNotes, NOTE_COLORS } from "./brainstormNotes";
@@ -203,6 +204,18 @@ export const BookSchema = z.object({
    */
   drop_cap_lines: z.number().int().min(0).max(5).default(0),
   /**
+   * Body-text typeface — the first piece of a larger Typography settings
+   * group (roadmap-ideas.md, 2026-10-09: weight/size/color and a matching
+   * heading typeface are follow-ups). One manuscript-wide choice drives
+   * both the live editor and Publish's exports, instead of Publish having
+   * its own separate, unsaved font picker the way it used to (an author
+   * had to re-pick a font on every export, and never saw it while
+   * writing). Missing on older saves — "literata" is the editor's new
+   * default serif, chosen for this since the previous hardcoded editor
+   * font (Newsreader) isn't one of Publish's embeddable choices.
+   */
+  body_font: z.enum(PUBLISH_FONT_IDS).default("literata"),
+  /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
    */
@@ -345,6 +358,7 @@ export function createBook(title: string): Book {
     illustration_style: "",
     illustration_orientation: "landscape",
     drop_cap_lines: 0,
+    body_font: "literata",
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],

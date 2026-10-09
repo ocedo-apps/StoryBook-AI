@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.74] - 2026-10-09
+
+### Changed
+- The manuscript's font is now one setting, not a separate pick on every export. Settings → Typography gets a Font choice (System serif, Lora, Literata, Source Serif 4, or Asap — Literata by default) that drives the live editor and every Publish export, so you see what you'll get before you export it. Publish's own font picker is gone — it shows the chosen font as a note instead.
+
 ## [1.0.73] - 2026-10-09
 
 ### Changed

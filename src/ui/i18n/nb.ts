@@ -125,6 +125,9 @@ export const nb: Messages = {
       "En stor forbokstav på hvert kapittels første avsnitt, som strekker seg over valgt antall linjer. Vises direkte i skriveflaten og følger med til Publish-eksport (HTML, ePub, RTF, ODT; PDF ikke ennå).",
     dropCapOff: "Av",
     dropCapLines: "{n} linjer",
+    bodyFontLabel: "Skrift",
+    bodyFontLede:
+      "Skrifttypen for manusets brødtekst — i selve redigeringen, og med i hver eksport fra Publish, så det blir ett valg istedenfor et separat, ulagret valg hver gang.",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
@@ -932,6 +935,7 @@ export const nb: Messages = {
     format: "Format",
     font: "Skrift",
     systemFont: "Standardserif (Times/Georgia)",
+    fontSetInSettings: "stilles inn i Settings → Typography",
     paragraphStyle: "Avsnittsformat",
     paragraphStyleSpaced: "Tom linje mellom avsnitt",
     paragraphStyleIndented: "Innrykk, ingen tom linje (klassisk bokstil)",

@@ -48,7 +48,7 @@ import {
   type ParagraphStyle
 } from "@core/manuscriptExport";
 import { manuscriptAppExportFilename, packManuscriptExport } from "@core/manuscriptAppExport";
-import { PUBLISH_FONTS, publishFontById, loadPublishFontEmbed, type PublishFontId } from "@core/publishFonts";
+import { publishFontById, loadPublishFontEmbed } from "@core/publishFonts";
 import {
   addChapter,
   clearWritingGoal,
@@ -445,7 +445,6 @@ export function Editor() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishFilename, setPublishFilename] = useState("");
   const [publishFormat, setPublishFormat] = useState<"md" | "txt" | "rtf" | "odt" | "html" | "epub" | "pdf">("md");
-  const [publishFontId, setPublishFontId] = useState<PublishFontId>("system");
   const [publishParagraphStyle, setPublishParagraphStyle] = useState<ParagraphStyle>("spaced");
   const [findOpen, setFindOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -547,9 +546,9 @@ export function Editor() {
     if (!book) return;
     const packed = packManuscriptBackup(book);
     const doc = buildManuscriptExport(book, packed.note, packed.exportedAt);
-    const fontOption = publishFontById(publishFontId);
+    const fontOption = publishFontById(book.body_font);
     const plain = kind === "md" || kind === "txt";
-    const embed = plain ? undefined : await loadPublishFontEmbed(publishFontId);
+    const embed = plain ? undefined : await loadPublishFontEmbed(book.body_font);
     const font = plain ? undefined : { name: fontOption.name, stack: fontOption.stack, ...(embed ? { embed } : {}) };
     if (kind === "md") {
       downloadText(ensureDownloadFilename(publishFilename, "md"), formatManuscriptMarkdown(packed), "text/markdown");
@@ -1591,6 +1590,7 @@ export function Editor() {
               onDarlingsChange={(next) => void store.patchBook((current) => updateChapter(current, chapter.id, { darlings: next }))}
               onCutToDarling={(span) => void store.cutChapterDarling(span)}
               dropCapLines={book.drop_cap_lines}
+              bodyFontStack={publishFontById(book.body_font).stack}
               placeholder={chapter.brief.trim() || m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}
@@ -2050,21 +2050,12 @@ export function Editor() {
               <option value="epub">{m.publish.epub}</option>
               <option value="pdf">{m.publish.pdf}</option>
             </select>
-            <label className="field-label" htmlFor="publish-font">
-              {m.publish.font}
-            </label>
-            <select
-              id="publish-font"
-              value={publishFontId}
-              onChange={(event) => setPublishFontId(event.target.value as PublishFontId)}
-              disabled={publishFormat === "md" || publishFormat === "txt"}
-            >
-              {PUBLISH_FONTS.map((font) => (
-                <option key={font.id} value={font.id}>
-                  {font.id === "system" ? m.publish.systemFont : font.label}
-                </option>
-              ))}
-            </select>
+            <span className="field-label">{m.publish.font}</span>
+            <p className="quiet">
+              {publishFontById(book.body_font).id === "system" ? m.publish.systemFont : publishFontById(book.body_font).label}
+              {" — "}
+              {m.publish.fontSetInSettings}
+            </p>
             <label className="field-label" htmlFor="publish-paragraph-style">
               {m.publish.paragraphStyle}
             </label>

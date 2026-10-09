@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.73
+Status: living document, v1.0.74
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2447,6 +2447,69 @@ Vikt/Färg för Anfang, tvåfärgsschemat för mörkt/ljust) är INTE gjort
 än — nästa uppföljning.
 
 v1.0.72 → v1.0.73.
+
+---
+
+**Ändringslogg v1.0.73 → v1.0.74 (2026-10-09):** Steg 2 av Typografi-
+visionen. Mats kom tillbaka med hela listan: samma typsnitt vid
+Publish som man valt när man skriver, och en bädd på 13 typsnitt —
+Alegreya, Fraunces, Source Serif Pro, Literata, Lora, Libron (finns
+inte på Google Fonts, fri licens, låg på GIT — "jag har en ZIP om det
+hjälper"), Spectral, PT Serif (serifer); PT Sans, Chivo, Asap, Open
+Sans, Rubik (sans serif/groteskerna). Ställde tre uppföljningsfrågor
+(Libron-filen, Regular/Bold-räcker-granularitet, byggordning) via
+samma AskUserQuestion-mönster som förra steget — den här gången
+avfärdade Mats alla tre utan att svara, och skickade istället
+`Libron.zip` rakt in i tråden som sitt faktiska svar på fontfrågan.
+Tolkade det som: sluta fråga, kör. Verifierade filerna ändå innan
+något antogs — `fontTools` (Python, `name`-tabellen) bekräftar
+familjen "Libron", v0.31, OFL 1.1, designer Nico Verbruggen, Reserved
+Font Name (hindrar inte oförändrad paketering). Extraherade till
+scratchpad men VÄVDE INTE IN dem än — det hör till fontbiblioteks-
+utbyggnaden, ett eget uppföljningssteg.
+
+**Smalnade själv av det här inkrementet** till bara Brödtext-Font,
+med det befintliga 5-fonts-katalog (`PUBLISH_FONTS` i
+`publishFonts.ts`: System/Lora/Literata/Source Serif 4/Asap) — inte
+nämnt för Mats som en fråga, utan sagt rakt ut som min egen plan
+("Sätter igång med Brödtext nu") och sedan körd. Vikt/Punktstorlek/
+Färg, Rubrik-typografi, Anfangs egna Font/Vikt/Färg, och fontbiblio-
+teks-utbyggnaden (9 nya fonts + Libron) är uttryckligen EJ med i detta
+steg.
+
+**Byggt:** nytt schemafält `body_font` i `BookSchema.ts`
+(`z.enum(PUBLISH_FONT_IDS).default("literata")`, plus literal i
+`createBook()`) — default "literata" eftersom redigerarens gamla
+hårdkodade font (Newsreader) inte finns bland Publish's exporterbara
+val. `styles.css` fick 8 nya `@font-face`-regler (Lora/Literata/
+Source Serif 4/Asap × 400/700) som återanvänder EXAKT samma TTF-filer
+som redan buntas för export-inbäddning — ingen ny fontdata, bara
+samma filer nu även laddade live i webbläsaren. `ProseCanvas.tsx`
+fick en ny valfri `bodyFontStack`-prop som sätter `fontFamily` inline
+på `.prose`-diven (bara för kapitelprosan, inte Synopsis/Brainstorm).
+`Editor.tsx`: tog bort det gamla, flyktiga `publishFontId`-useState:t
+i Publish-dialogen helt, kopplade kapitel-`ProseCanvas` till
+`book.body_font` via `publishFontById(...).stack`, och `saveExport()`
+läser nu `book.body_font` istället för det borttagna lokala valet.
+Publish-dialogens interaktiva `<select>` ersatt med en skrivskyddad
+rad: "Literata — ställs in i Settings → Typography" (ny i18n-nyckel
+`fontSetInSettings` i alla tre språk). Ny `<select>` i Settings →
+Typography, före Drop cap, byggd på exakt samma mönster
+(`PUBLISH_FONTS.map(...)`, `HelpTip` med ny `bodyFontLede`-text).
+
+**Verifierat live, inte bara tsc/vitest.** Startade dev-servern,
+skapade en bok: redigerarens `.prose` hade `font-family: Literata,
+Georgia, serif` innan något ändrats (rätt default). Öppnade Settings,
+bytte Font till Asap, stängde — `.prose` blev omedelbart `Asap, Arial,
+sans-serif`, och `document.fonts` bekräftade att Asap verkligen laddat
+(status "loaded", inte bara begärd). Öppnade Publish-dialogen: Font-
+fältet visar nu "Literata — set in Settings → Typography" som ren
+text, ingen `<select>` kvar. `tsc --noEmit` rent, alla 905 tester
+gröna (oförändrat antal — ingen ny testad logik, bara prop-/schema-
+plumbing), `npm run build` grön (de 4 export-TTF:erna syns fortfarande
+i `dist/assets` som förut, nu dessutom refererade från `index.css`).
+
+v1.0.73 → v1.0.74.
 
 ---
 
