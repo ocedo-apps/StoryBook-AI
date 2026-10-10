@@ -433,6 +433,10 @@ export const en = {
       "How heavy the manuscript's prose sits on the page — in the editor itself, and carried into every Publish export, same as Font. Only Regular and Bold because that's what each bundled typeface actually ships.",
     bodyWeightRegular: "Regular",
     bodyWeightBold: "Bold",
+    bodyColorDarkLabel: "Color (dark mode)",
+    bodyColorLightLabel: "Color (light mode)",
+    bodyColorLede:
+      "The manuscript's prose color — one for the app's dark theme, one for light, so it stays legible and intentional in both instead of one color picked for whichever theme you happened to be in. Publish exports always use the light-mode color — a static page has no theme toggle of its own, same convention every export already used (dark text on a light page) before this setting existed.",
     uiLanguageStays: "The page language stays in the header.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

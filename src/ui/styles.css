@@ -1761,6 +1761,38 @@ button:disabled {
   padding-right: 1.7rem;
 }
 
+/*
+ * A native <input type="color"> ignores text padding the way a <select>
+ * or typed <input> does — its swatch fills the available box instead of
+ * leaving room above it for the floating label, so it rendered squashed
+ * and overlapping "COLOR (DARK MODE)" when it shared the usual .craft-
+ * field grid-overlap trick (confirmed live: the label text sat directly
+ * on top of a half-height sliver of color). Dropped the overlap entirely
+ * for just this control — label above, swatch below, like .voice-field's
+ * plain block stacking — rather than trying to force a text-input
+ * pattern onto a control that doesn't lay out like one.
+ */
+.craft-field:has(> input[type="color"]) {
+  display: block;
+}
+
+.craft-field:has(> input[type="color"]) > span:first-child {
+  position: static;
+  padding: 0 0 0.35rem;
+  pointer-events: auto;
+}
+
+.craft-field input[type="color"] {
+  display: block;
+  width: 100%;
+  height: 2.3rem;
+  padding: 3px 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--paper);
+  cursor: pointer;
+}
+
 /* Inherit choice is a selected option, not a placeholder — match the empty fields. */
 .craft-field select:has(option[value=""]:checked) {
   color: var(--text-faint);
@@ -3219,6 +3251,22 @@ button:disabled {
   font-size: 1.2rem;
   line-height: 1.65;
   padding: 0.2rem 0 1rem;
+  color: var(--prose-body-color-dark, var(--text));
+}
+
+/*
+ * Body-text color (Settings → Typography → Color, BookSchema's
+ * body_color_dark/body_color_light) — two values instead of one because
+ * the app itself has a dark and a light theme and a single color would
+ * look wrong in one of them. ProseCanvas sets both as inline custom
+ * properties on .prose; this rule picks the light one specifically when
+ * [data-theme="light"] is active, same override pattern the rest of the
+ * app's theming already uses. Falls back to the app's own --text (the
+ * color prose already had before this setting existed) when a value is
+ * missing, so an unset custom property never renders invisible text.
+ */
+[data-theme="light"] .prose {
+  color: var(--prose-body-color-light, var(--text));
 }
 
 /*

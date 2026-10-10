@@ -218,13 +218,14 @@ function bytesFromDataUrl(dataUrl: string): Uint8Array {
   return bytes;
 }
 
-function htmlFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight): string {
+function htmlFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight, bodyColor: string | undefined): string {
   const stack = font?.stack ?? HTML_DEFAULT_STACK;
   const faces = font?.embed
     ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.regular)}) format('truetype')}` +
       `@font-face{font-family:'${font.name}';font-weight:700;src:url(data:font/ttf;base64,${base64FromBytes(font.embed.bold)}) format('truetype')}`
     : "";
-  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}}`;
+  const color = bodyColor ? `;color:${bodyColor}` : "";
+  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}${color}}`;
 }
 
 function htmlParagraphs(text: string, paragraphStyle: ParagraphStyle, dropCap: boolean): string {
@@ -253,7 +254,8 @@ export function formatExportHtml(
   doc: ManuscriptExport,
   font?: PublishFont,
   paragraphStyle: ParagraphStyle = "spaced",
-  bodyWeight: BodyWeight = "regular"
+  bodyWeight: BodyWeight = "regular",
+  bodyColor?: string
 ): string {
   const body: string[] = [`<h1>${xmlEscape(doc.title)}</h1>`, `<p class="meta">${xmlEscape(doc.exportedLabel)}</p>`];
   if (doc.note) body.push(`<p class="meta">${xmlEscape(doc.note)}</p>`);
@@ -290,7 +292,7 @@ export function formatExportHtml(
 <head>
 <meta charset="utf-8"/>
 <title>${xmlEscape(doc.title)}</title>
-<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${dropCapCss(doc.dropCapLines)}${htmlFontCss(font, bodyWeight)}</style>
+<style>${HTML_EXPORT_CSS_BASE}${INDENTED_PARAGRAPHS_CSS}${dropCapCss(doc.dropCapLines)}${htmlFontCss(font, bodyWeight, bodyColor)}</style>
 </head>
 <body${bodyClasses.length > 0 ? ` class="${bodyClasses.join(" ")}"` : ""}>
 ${body.join("\n")}
@@ -311,12 +313,14 @@ export function formatExportRtf(
   doc: ManuscriptExport,
   font?: PublishFont,
   paragraphStyle: ParagraphStyle = "spaced",
-  bodyWeight: BodyWeight = "regular"
+  bodyWeight: BodyWeight = "regular",
+  bodyColor?: string
 ): string {
   const parts: string[] = [
     "{\\rtf1\\ansi\\ansicpg1252\\deff0",
     `{\\fonttbl{\\f0\\froman ${rtfEscape(font?.name ?? "Times New Roman")};}}`,
-    bodyWeight === "bold" ? "\\f0\\fs24\\b" : "\\f0\\fs24",
+    ...(bodyColor ? [`{\\colortbl;${rtfColor(bodyColor)};}`] : []),
+    [bodyWeight === "bold" ? "\\f0\\fs24\\b" : "\\f0\\fs24", bodyColor ? "\\cf1" : ""].join(""),
     `{\\fs40\\b ${rtfEscape(doc.title)}}\\par`,
     "\\par",
     `${rtfEscape(doc.exportedLabel)}\\par`
@@ -353,12 +357,13 @@ export function packOdt(
   doc: ManuscriptExport,
   font?: PublishFont,
   paragraphStyle: ParagraphStyle = "spaced",
-  bodyWeight: BodyWeight = "regular"
+  bodyWeight: BodyWeight = "regular",
+  bodyColor?: string
 ): Uint8Array {
   return zipStore([
     { name: "mimetype", data: utf8("application/vnd.oasis.opendocument.text") },
     { name: "content.xml", data: utf8(odtContentXml(doc, paragraphStyle)) },
-    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif", doc.dropCapLines, bodyWeight)) },
+    { name: "styles.xml", data: utf8(odtStyles(font?.name ?? "Liberation Serif", doc.dropCapLines, bodyWeight, bodyColor)) },
     { name: "META-INF/manifest.xml", data: utf8(ODT_MANIFEST) }
   ]);
 }
@@ -366,13 +371,14 @@ export function packOdt(
 const EPUB_CSS_BASE = `body{line-height:1.6;margin:1.25em}h1{font-size:1.6em}h2{font-size:1.3em}.meta{color:#555;font-size:0.9em}`;
 const EPUB_DEFAULT_STACK = `Georgia, "Times New Roman", serif`;
 
-function epubFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight): string {
+function epubFontCss(font: PublishFont | undefined, bodyWeight: BodyWeight, bodyColor: string | undefined): string {
   const stack = font?.stack ?? EPUB_DEFAULT_STACK;
   const faces = font?.embed
     ? `@font-face{font-family:'${font.name}';font-weight:400;src:url(../fonts/regular.ttf) format('truetype')}` +
       `@font-face{font-family:'${font.name}';font-weight:700;src:url(../fonts/bold.ttf) format('truetype')}`
     : "";
-  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}}`;
+  const color = bodyColor ? `;color:${bodyColor}` : "";
+  return `${faces}body{font-family:${stack};font-weight:${bodyWeight === "bold" ? 700 : 400}${color}}`;
 }
 
 type EpubPage = { id: string; file: string; title: string; body: string; bodyClass?: string };
@@ -394,7 +400,8 @@ export function packEpub(
   doc: ManuscriptExport,
   font?: PublishFont,
   paragraphStyle: ParagraphStyle = "spaced",
-  bodyWeight: BodyWeight = "regular"
+  bodyWeight: BodyWeight = "regular",
+  bodyColor?: string
 ): Uint8Array {
   const pages: EpubPage[] = [];
   const images: EpubImage[] = [];
@@ -515,7 +522,7 @@ ${navList}
     { name: "OEBPS/nav.xhtml", data: utf8(nav) },
     {
       name: "OEBPS/styles/stylesheet.css",
-      data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + dropCapCss(doc.dropCapLines) + epubFontCss(font, bodyWeight))
+      data: utf8(EPUB_CSS_BASE + INDENTED_PARAGRAPHS_CSS + dropCapCss(doc.dropCapLines) + epubFontCss(font, bodyWeight, bodyColor))
     },
     ...images.map((image) => ({ name: `OEBPS/images/${image.name}`, data: image.data })),
     ...(font?.embed
@@ -537,14 +544,16 @@ class PdfWriter {
   private readonly pdf: PDFDocument;
   private readonly body: PDFFont;
   private readonly bold: PDFFont;
+  private readonly color: ReturnType<typeof rgb> | undefined;
   private readonly maxWidth = PDF_PAGE_WIDTH - PDF_MARGIN * 2;
   private page: PDFPage;
   private y: number;
 
-  constructor(pdf: PDFDocument, body: PDFFont, bold: PDFFont) {
+  constructor(pdf: PDFDocument, body: PDFFont, bold: PDFFont, color?: ReturnType<typeof rgb>) {
     this.pdf = pdf;
     this.body = body;
     this.bold = bold;
+    this.color = color;
     this.page = pdf.addPage([PDF_PAGE_WIDTH, PDF_PAGE_HEIGHT]);
     this.y = PDF_PAGE_HEIGHT - PDF_MARGIN;
   }
@@ -580,7 +589,7 @@ class PdfWriter {
     const lineHeight = size * 1.25;
     for (const line of this.wrap(text, this.bold, size, this.maxWidth)) {
       this.ensureSpace(lineHeight);
-      this.page.drawText(line, { x: PDF_MARGIN, y: this.y, size, font: this.bold });
+      this.page.drawText(line, { x: PDF_MARGIN, y: this.y, size, font: this.bold, ...(this.color ? { color: this.color } : {}) });
       this.y -= lineHeight;
     }
     this.y -= size * 0.35;
@@ -602,7 +611,7 @@ class PdfWriter {
           y: this.y,
           size,
           font,
-          ...(opts.meta ? { color: PDF_META_COLOR } : {})
+          ...(opts.meta ? { color: PDF_META_COLOR } : this.color ? { color: this.color } : {})
         });
         this.y -= lineHeight;
       }
@@ -622,7 +631,7 @@ class PdfWriter {
       this.wrap(paragraph, font, size, this.maxWidth).forEach((line, lineIndex) => {
         this.ensureSpace(lineHeight);
         const x = index > 0 && lineIndex === 0 ? PDF_MARGIN + indent : PDF_MARGIN;
-        this.page.drawText(line, { x, y: this.y, size, font });
+        this.page.drawText(line, { x, y: this.y, size, font, ...(this.color ? { color: this.color } : {}) });
         this.y -= lineHeight;
       });
     });
@@ -637,7 +646,8 @@ class PdfWriter {
         x: PDF_MARGIN + indent,
         y: this.y,
         size,
-        font: this.body
+        font: this.body,
+        ...(this.color ? { color: this.color } : {})
       });
       this.y -= lineHeight;
     });
@@ -675,7 +685,8 @@ export async function packPdf(
   doc: ManuscriptExport,
   font?: PublishFont,
   paragraphStyle: ParagraphStyle = "spaced",
-  bodyWeight: BodyWeight = "regular"
+  bodyWeight: BodyWeight = "regular",
+  bodyColor?: string
 ): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(doc.title);
@@ -691,7 +702,7 @@ export async function packPdf(
     body = await pdf.embedFont(StandardFonts.TimesRoman);
     bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   }
-  const writer = new PdfWriter(pdf, bodyWeight === "bold" ? bold : body, bold);
+  const writer = new PdfWriter(pdf, bodyWeight === "bold" ? bold : body, bold, bodyColor ? pdfRgb(bodyColor) : undefined);
 
   writer.heading(doc.title, 22);
   writer.lines(doc.exportedLabel, { size: 9, meta: true });
@@ -739,6 +750,21 @@ function rtfBlock(text: string, paragraphStyle: ParagraphStyle): string {
       .join("\n");
   }
   return text.split(/\r\n|\n|\r/).map((line) => `${rtfEscape(line)}\\par`).join("\n");
+}
+
+/** Parses a BookSchema-validated "#RRGGBB" string (the schema's regex already guarantees this shape) into 0-255 channel ints. */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  return { r: parseInt(hex.slice(1, 3), 16), g: parseInt(hex.slice(3, 5), 16), b: parseInt(hex.slice(5, 7), 16) };
+}
+
+function rtfColor(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  return `\\red${r}\\green${g}\\blue${b}`;
+}
+
+function pdfRgb(hex: string): ReturnType<typeof rgb> {
+  const { r, g, b } = hexToRgb(hex);
+  return rgb(r / 255, g / 255, b / 255);
 }
 
 function rtfEscape(text: string): string {
@@ -829,7 +855,7 @@ function odtContentXml(doc: ManuscriptExport, paragraphStyle: ParagraphStyle): s
 `;
 }
 
-function odtStyles(fontName: string, dropCapLines = 0, bodyWeight: BodyWeight = "regular"): string {
+function odtStyles(fontName: string, dropCapLines = 0, bodyWeight: BodyWeight = "regular", bodyColor?: string): string {
   const dropCapStyles =
     dropCapLines > 0
       ? `
@@ -846,7 +872,7 @@ function odtStyles(fontName: string, dropCapLines = 0, bodyWeight: BodyWeight = 
     <style:style style:name="Standard" style:family="paragraph">
       <style:text-properties style:font-name="${xmlEscape(fontName)}" fo:font-size="12pt"${
         bodyWeight === "bold" ? ` fo:font-weight="bold"` : ""
-      }/>
+      }${bodyColor ? ` fo:color="${bodyColor}"` : ""}/>
     </style:style>
     <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard">
       <style:text-properties fo:font-size="22pt" fo:font-weight="bold"/>

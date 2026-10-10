@@ -105,7 +105,9 @@ export function ProseCanvas({
   onCutToDarling,
   dropCapLines = 0,
   bodyFontStack,
-  bodyFontWeight
+  bodyFontWeight,
+  bodyColorDark,
+  bodyColorLight
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -169,6 +171,10 @@ export function ProseCanvas({
   bodyFontStack?: string;
   /** Body text weight (Settings → Typography → Weight). Omitted keeps the normal weight — Synopsis and Brainstorm never pass this, only chapter prose does. */
   bodyFontWeight?: "regular" | "bold";
+  /** Body text color for the app's dark theme (Settings → Typography → Color). Omitted keeps the app's own --text color — Synopsis and Brainstorm never pass this, only chapter prose does. */
+  bodyColorDark?: string;
+  /** Body text color for the app's light theme (Settings → Typography → Color). Omitted keeps the app's own --text color — Synopsis and Brainstorm never pass this, only chapter prose does. */
+  bodyColorLight?: string;
 }) {
   const { messages: m } = useLocale();
   const rewriteTitle = instructTitle ?? m.canvas.rewriteTitle;
@@ -624,7 +630,9 @@ export function ProseCanvas({
           {
             ...(dropCapLines > 0 ? { "--drop-cap-lines": dropCapLines } : {}),
             ...(bodyFontStack ? { fontFamily: bodyFontStack } : {}),
-            ...(bodyFontWeight === "bold" ? { fontWeight: 700 } : {})
+            ...(bodyFontWeight === "bold" ? { fontWeight: 700 } : {}),
+            ...(bodyColorDark ? { "--prose-body-color-dark": bodyColorDark } : {}),
+            ...(bodyColorLight ? { "--prose-body-color-light": bodyColorLight } : {})
           } as React.CSSProperties
         }
         contentEditable={!disabled}

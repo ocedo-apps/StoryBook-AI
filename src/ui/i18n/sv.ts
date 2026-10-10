@@ -135,6 +135,10 @@ export const sv: Messages = {
       "Hur tung manusets brödtext ligger på sidan — i själva redigeraren, och med i varje export från Publish, precis som Font. Bara Normal och Fet eftersom det är vad varje bundlat typsnitt faktiskt levererar.",
     bodyWeightRegular: "Normal",
     bodyWeightBold: "Fet",
+    bodyColorDarkLabel: "Färg (mörkt läge)",
+    bodyColorLightLabel: "Färg (ljust läge)",
+    bodyColorLede:
+      "Manusets textfärg — en för appens mörka tema, en för ljust, så den förblir läsbar och medveten i båda istället för en färg vald för vilket tema man råkade vara i. Publish-exporter använder alltid färgen för ljust läge — en statisk sida har inget eget temaval, samma princip (mörk text på ljus sida) som alla exporter redan hade innan den här inställningen fanns.",
     uiLanguageStays: "Sidans språk ligger kvar i headern.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",

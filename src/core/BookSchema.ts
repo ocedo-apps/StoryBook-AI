@@ -226,6 +226,28 @@ export const BookSchema = z.object({
    */
   body_font_weight: z.enum(["regular", "bold"]).default("regular"),
   /**
+   * Body-text color — two values, not one, because the editor itself has
+   * a dark and a light theme (Settings → General has no toggle for this;
+   * it's the header's own Light/Dark switch) and Mats asked for the
+   * prose to stay legible and intentional in both rather than picking a
+   * single color that would look wrong in one of them. Defaults match
+   * today's actual rendered color in each theme (styles.css's --text:
+   * #f3eadc dark / #2a2218 light), so choosing custom colors is opt-in —
+   * nothing changes on an existing manuscript until the author picks one.
+   * Exports (HTML/ePub/ODT/RTF/PDF) are static, theme-less documents, so
+   * they always use body_color_light — the printed-page convention of
+   * dark text on a light background, same choice already made for every
+   * export's own CSS/style defaults before this field existed.
+   */
+  body_color_dark: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#f3eadc"),
+  body_color_light: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#2a2218"),
+  /**
    * Language the sentences are written in. Writing instruction, not a world fact.
    * Missing or empty on older saves — Draft infers from the manuscript.
    */
@@ -370,6 +392,8 @@ export function createBook(title: string): Book {
     drop_cap_lines: 0,
     body_font: "literata",
     body_font_weight: "regular",
+    body_color_dark: "#f3eadc",
+    body_color_light: "#2a2218",
     prose_language: "",
     brainstorm: "",
     brainstorm_notes: [],

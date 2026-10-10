@@ -285,6 +285,36 @@ export function SettingsPanel({
                 </label>
                 <label className="craft-field">
                   <span className="field-label-row">
+                    {m.editor.bodyColorDarkLabel}
+                    <HelpTip
+                      body={m.editor.bodyColorLede}
+                      ariaLabel={format(m.common.infoAbout, { field: m.editor.bodyColorDarkLabel })}
+                    />
+                  </span>
+                  <input
+                    type="color"
+                    value={book.body_color_dark}
+                    onChange={(event) => onPatch((current) => ({ ...current, body_color_dark: event.target.value }))}
+                    aria-label={m.editor.bodyColorDarkLabel}
+                  />
+                </label>
+                <label className="craft-field">
+                  <span className="field-label-row">
+                    {m.editor.bodyColorLightLabel}
+                    <HelpTip
+                      body={m.editor.bodyColorLede}
+                      ariaLabel={format(m.common.infoAbout, { field: m.editor.bodyColorLightLabel })}
+                    />
+                  </span>
+                  <input
+                    type="color"
+                    value={book.body_color_light}
+                    onChange={(event) => onPatch((current) => ({ ...current, body_color_light: event.target.value }))}
+                    aria-label={m.editor.bodyColorLightLabel}
+                  />
+                </label>
+                <label className="craft-field">
+                  <span className="field-label-row">
                     {m.editor.dropCapLabel}
                     <HelpTip body={m.editor.dropCapLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.dropCapLabel })} />
                   </span>

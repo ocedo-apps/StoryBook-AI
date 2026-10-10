@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.78] - 2026-10-10
+
+### Added
+- Settings → Typography gets a Color choice for the prose — one for the app's dark theme, one for light, so it stays legible and intentional in both instead of one color picked for whichever theme you happened to be in. Live in the editor; Publish exports (HTML, ePub, ODT, RTF, PDF) always use the light-mode color, the usual dark-text-on-a-light-page convention for a static document.
+
 ## [1.0.77] - 2026-10-09
 
 ### Fixed

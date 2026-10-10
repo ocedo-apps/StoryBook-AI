@@ -561,31 +561,31 @@ export function Editor() {
     } else if (kind === "rtf") {
       downloadText(
         ensureDownloadFilename(publishFilename, "rtf"),
-        formatExportRtf(doc, font, publishParagraphStyle, book.body_font_weight),
+        formatExportRtf(doc, font, publishParagraphStyle, book.body_font_weight, book.body_color_light),
         "application/rtf"
       );
     } else if (kind === "odt") {
       downloadBytes(
         ensureDownloadFilename(publishFilename, "odt"),
-        packOdt(doc, font, publishParagraphStyle, book.body_font_weight),
+        packOdt(doc, font, publishParagraphStyle, book.body_font_weight, book.body_color_light),
         "application/vnd.oasis.opendocument.text"
       );
     } else if (kind === "html") {
       downloadText(
         ensureDownloadFilename(publishFilename, "html"),
-        formatExportHtml(doc, font, publishParagraphStyle, book.body_font_weight),
+        formatExportHtml(doc, font, publishParagraphStyle, book.body_font_weight, book.body_color_light),
         "text/html"
       );
     } else if (kind === "epub") {
       downloadBytes(
         ensureDownloadFilename(publishFilename, "epub"),
-        packEpub(doc, font, publishParagraphStyle, book.body_font_weight),
+        packEpub(doc, font, publishParagraphStyle, book.body_font_weight, book.body_color_light),
         "application/epub+zip"
       );
     } else {
       downloadBytes(
         ensureDownloadFilename(publishFilename, "pdf"),
-        await packPdf(doc, font, publishParagraphStyle, book.body_font_weight),
+        await packPdf(doc, font, publishParagraphStyle, book.body_font_weight, book.body_color_light),
         "application/pdf"
       );
     }
@@ -1592,6 +1592,8 @@ export function Editor() {
               dropCapLines={book.drop_cap_lines}
               bodyFontStack={publishFontById(book.body_font).stack}
               bodyFontWeight={book.body_font_weight}
+              bodyColorDark={book.body_color_dark}
+              bodyColorLight={book.body_color_light}
               placeholder={chapter.brief.trim() || m.editor.chapterPlaceholder}
               disabled={busy !== null}
               highlightRare={highlightRare}

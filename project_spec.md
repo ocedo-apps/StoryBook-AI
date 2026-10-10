@@ -1,6 +1,6 @@
 # Project Spec — Open Source Narrative Engine (RPG + Bokverktyg)
 
-Status: living document, v1.0.77
+Status: living document, v1.0.78
 Relaterade dokument: `narrative-core-addendum.md` (v0.2-beslut),
 `roadmap-ideas.md` (idéer och prioritering för Scene, Context
 Inspector, Ask Manuscript m.fl. — v1.0, 2026-09-24)
@@ -2728,6 +2728,99 @@ bekräftar en ren, odragen anfang. `tsc --noEmit` rent, alla 910
 tester gröna, `npm run build` grön.
 
 v1.0.76 → v1.0.77.
+
+---
+
+**Ändringslogg v1.0.77 → v1.0.78 (2026-10-10):** Mats frågade "Vad är
+nästa steg för typografin" — svarade enligt hans egen ursprungliga
+ordning (Punktstorlek härnäst för Brödtext). Han följde upp med en
+teknisk fråga istället: är det svårt att läsa av vilka vikter ett
+typsnitt faktiskt har (många har 300/500/600/800, inte bara 400/700)
+och låta användaren välja bland dem?
+
+**Testade mot Google Fonts CSS2-API innan jag svarade** (samma API som
+redan används för att hämta fonterna): att SE vilka vikter som finns
+är trivialt, men resultatet varierar rejält mellan de 13 typsnitten —
+Fraunces/Chivo/Asap har 9 vikter, Lora bara 4, PT Serif/PT Sans bara
+de två vi redan har. Den riktiga svårigheten är inte detektering utan
+arkitekturen: Vikt-väljaren skulle behöva gå från en fast global lista
+till en som ändras per valt Font, och export-sidan skulle behöva
+bädda in fler filer per familj. Mats: "Vi avvaktar... en mer avancerad
+typografi kan vara ett framtida projekt" — sparat som idé #42 i
+`roadmap-ideas.md`, pushat separat, inte en del av det pågående
+Typography-arbetet. Sedan: "kör vi med färgerna" — hoppade uttryckligen
+över Punktstorlek för nu och gick direkt på Färg.
+
+**Design, byggt på tidigare bekräftat mönster.** Mats hade redan (ett
+tidigare steg i den här sessionen) bekräftat att TVÅ färger — en för
+appens mörka tema, en för ljust — är den arkitektoniskt korrekta
+lösningen, inte en genväg, eftersom appens eget tema redan har exakt
+det `[data-theme="light"]`-mönstret. Nya fält `body_color_dark`/
+`body_color_light` i `BookSchema.ts` (hex, regexvaliderat), med
+defaultvärden satta till EXAKT de färger `.prose` redan rent faktiskt
+renderas i idag (`--text: #f3eadc` mörkt / `#2a2218` ljust, lästa
+direkt ur `styles.css` snarare än gissade) — så att välja en egen färg
+är opt-in, ingenting ändras på ett obeört manus.
+
+**Live-redigeraren:** `ProseCanvas` sätter båda färgerna som CSS
+custom properties (`--prose-body-color-dark`/`-light`) på `.prose`;
+en ny CSS-regel `[data-theme="light"] .prose { color: var(--prose-
+body-color-light, var(--text)) }` väljer rätt en beroende på appens
+aktiva tema, och `.prose` själv faller tillbaka på den mörka
+variabeln (med `var(--text)` som sista skyddsnät om variabeln någon
+gång saknas). Verifierat live: bytte mörkt-läges-färgen, bekräftade
+att bara mörkt tema påverkades (`getComputedStyle` före/efter), växlade
+sedan till ljust tema och bekräftade att den OPÅVERKADE ljus-färgen
+fortfarande gällde där.
+
+**Export — en explicit designavvägning, inte en fråga till Mats:**
+publicerade dokument (HTML/ePub/ODT/RTF/PDF) har inget eget temaval,
+så de använder alltid `body_color_light` — "mörk text på ljus sida"
+är redan den konvention varje exportformats egen standardfärg följde
+innan den här inställningen fanns (HTML_EXPORT_CSS_BASE:s
+`color:#1a1a1a`, PDF:ens svarta standardtext). Trådat genom alla fem
+format: HTML/ePub får `color:` i sin delade `body{...}`-regel (ärvs av
+rubriker eftersom `color` är en nedärvd CSS-egenskap utan UA-
+motstående regel på h1–h3); ODT får `fo:color` på "Standard"-stycket
+(samma nedärvningsresonemang till Title/Heading-stilarna); RTF fick
+sin första egna färgtabell (`{\colortbl;\red R\green G\blue B;}`) och
+`\cf1` satt dokumentbrett, samma globala-tillämpning-mönster som Vikt
+fick förra steget; PDF-skrivarens `PdfWriter` fick en valfri `color`-
+parameter applicerad på alla icke-meta textritningar (meta-texten
+behåller sin egen gråa `PDF_META_COLOR`, orörd).
+
+**En verklig UI-bugg hittad och fixad under verifieringen, inte
+gissad.** Första versionen återanvände `.craft-field`s "etikett
+flyter ovanpå fältet"-grid-trick (samma som Font/Vikt redan använder)
+— men en `<input type="color">` respekterar inte text-padding som en
+`<select>` gör; swatchen fyllde hela boxen och klämdes ihop till en
+tunn strimma UNDER etikett-texten istället för att synas separat.
+Upptäckt via en live-skärmdump (inte antaget), inte via kodläsning.
+Löst genom att helt hoppa av grid-overlap-mönstret för just
+färgfälten (`.craft-field:has(> input[type="color"])` byter till
+vanlig block-stapling, etikett ovanför, swatch under — samma enkla
+mönster som `.voice-field` redan använder för textarean).
+
+**Verifierat live, flera lager.** Live-redigeraren: default-färg
+matchar exakt dagens `--text` (`rgb(243,234,220)`), ändring av
+mörkt-läges-färgen slår igenom omedelbart och ENDAST i mörkt tema.
+Settings-UI:t: skärmdump efter CSS-fixen visar två rena, tydliga
+färgrutor (inte den trasiga versionen). Export: laddade ner en RIKTIG
+HTML-export med en vald anpassad färg (`#114477`), bekräftade att
+`body{...}`-regeln (den sista, vinnande i cascade) innehåller
+`color:#114477`, och tog en skärmdump av den faktiskt renderade
+exportfilen — rubrik, brödtext och kapitelrubrik i vald färg, medan
+den gråa metaraden ("Exported...") orörd. `tsc --noEmit` rent, 915
+tester gröna (910 + 5 nya för `describe("body text color", ...)` i
+`manuscript-export.test.ts`, samma mönster som Vikt-testerna), `npm
+run build` grön.
+
+**Kvar, uttryckligen inte med i detta steg:** Punktstorlek för
+Brödtext (hoppades över på Mats uttryckliga begäran, inte glömt),
+hela Rubrik-typografin, Anfangs egna Font/Vikt/Färg, och den sparade
+men avsiktligt uppskjutna idén om riktiga per-font-vikter (#42).
+
+v1.0.77 → v1.0.78.
 
 ---
 

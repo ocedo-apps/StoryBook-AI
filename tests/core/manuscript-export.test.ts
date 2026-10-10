@@ -529,3 +529,55 @@ describe("body text weight", () => {
     expect(boldPdf.getPageCount()).toBeGreaterThan(0);
   });
 });
+
+describe("body text color", () => {
+  function bookForColor() {
+    let book = createBook("Night Keys");
+    book = updateChapter(book, book.chapters[0]!.id, { title: "The quay", prose: "Emma locked the door." });
+    return book;
+  }
+
+  it("adds no color override to HTML/ePub/ODT when omitted", () => {
+    const doc = buildManuscriptExport(bookForColor());
+    expect(formatExportHtml(doc, LORA)).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
+    const epubText = new TextDecoder().decode(packEpub(doc, LORA));
+    expect(epubText).toContain("body{font-family:Lora, Georgia, serif;font-weight:400}");
+    const odtText = new TextDecoder().decode(packOdt(doc, LORA));
+    expect(odtText).not.toContain("fo:color");
+  });
+
+  it("sets body{...;color:#2a2218} in HTML and ePub when given", () => {
+    const doc = buildManuscriptExport(bookForColor());
+    expect(formatExportHtml(doc, LORA, "spaced", "regular", "#2a2218")).toContain(
+      "body{font-family:Lora, Georgia, serif;font-weight:400;color:#2a2218}"
+    );
+    const epubText = new TextDecoder().decode(packEpub(doc, LORA, "spaced", "regular", "#2a2218"));
+    expect(epubText).toContain("body{font-family:Lora, Georgia, serif;font-weight:400;color:#2a2218}");
+  });
+
+  it('adds fo:color="#2a2218" to ODT\'s Standard style when given', () => {
+    const doc = buildManuscriptExport(bookForColor());
+    const odtText = new TextDecoder().decode(packOdt(doc, LORA, "spaced", "regular", "#2a2218"));
+    expect(odtText).toContain('style:font-name="Lora" fo:font-size="12pt" fo:color="#2a2218"/>');
+  });
+
+  it("adds a colortbl and \\cf1 in RTF when given, leaving a colorless export without either", () => {
+    const doc = buildManuscriptExport(bookForColor());
+    const colorless = formatExportRtf(doc, LORA);
+    expect(colorless).not.toContain("colortbl");
+    expect(colorless).not.toContain("\\cf1");
+    const colored = formatExportRtf(doc, LORA, "spaced", "regular", "#2a2218");
+    expect(colored).toContain("{\\colortbl;\\red42\\green34\\blue24;}");
+    expect(colored).toContain("\\cf1");
+    expect(colored).toContain("Emma locked the door.");
+  });
+
+  it("produces different PDF bytes for a colored export, still valid", async () => {
+    const doc = buildManuscriptExport(bookForColor());
+    const colorlessBytes = await packPdf(doc, LORA);
+    const coloredBytes = await packPdf(doc, LORA, "spaced", "regular", "#2a2218");
+    expect(coloredBytes).not.toEqual(colorlessBytes);
+    const coloredPdf = await PDFDocument.load(coloredBytes);
+    expect(coloredPdf.getPageCount()).toBeGreaterThan(0);
+  });
+});

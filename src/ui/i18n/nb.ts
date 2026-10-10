@@ -135,6 +135,10 @@ export const nb: Messages = {
       "Hvor tung manusets brødtekst ligger på siden — i selve redigeringen, og med i hver eksport fra Publish, akkurat som Font. Bare Normal og Fet fordi det er det hver bundlede skrifttype faktisk leverer.",
     bodyWeightRegular: "Normal",
     bodyWeightBold: "Fet",
+    bodyColorDarkLabel: "Farge (mørk modus)",
+    bodyColorLightLabel: "Farge (lys modus)",
+    bodyColorLede:
+      "Manusets tekstfarge — en for appens mørke tema, en for lyst, så den forblir lesbar og bevisst i begge istedenfor en farge valgt for det temaet du tilfeldigvis var i. Publish-eksporter bruker alltid fargen for lyst modus — en statisk side har ingen egen temabryter, samme prinsipp (mørk tekst på lys side) som alle eksporter allerede hadde før denne innstillingen fantes.",
     uiLanguageStays: "Sidens språk blir liggende i hodet.",
     brainstorm: "Brainstorm",
     synopsis: "Synopsis",
