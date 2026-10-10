@@ -1748,6 +1748,45 @@ Settings-sektion.
 
 ---
 
+### 42. Riktiga typsnittsvikter per font (inte bara Regular/Bold) — framtida, större typografi-projekt
+
+Dagens Vikt-val (v1.0.76) är binärt: Normal/Fet, eftersom varje
+bundlat typsnitt bara har två inbäddade vikter (400/700). Mats
+frågade om det är svårt att istället läsa av vilka vikter ett
+typsnitt FAKTISKT har (många har 300/500/600/800 också) och låta
+användaren välja bland dem.
+
+**Testat mot Google Fonts CSS2-API innan svar gavs** (samma API som
+redan används för att hämta fonterna, se v1.0.74–75): att SE vilka
+vikter som finns är trivialt, en förfrågan per familj räcker. Resultatet
+varierar dock rejält mellan de 13 bundlade typsnitten:
+
+- 9 vikter (100–900): Fraunces, Chivo, Asap
+- 6–7 vikter: Spectral, Open Sans, Rubik, Literata, Source Serif 4
+- 4 vikter: Lora (400/500/600/700)
+- Bara 2 vikter: PT Serif, PT Sans (samma som idag)
+- Libron (Mats egen fil): begränsad till vad zippen innehöll —
+  bara Regular/Bold om inte fler vikter tillhandahålls
+
+**Den riktiga svårigheten är inte detektering utan arkitekturen:**
+Vikt-väljaren skulle gå från en fast Normal/Fet-lista (samma för alla
+typsnitt) till en lista som ändras beroende på vilket Font som är
+valt — Settings-UI:t måste känna till och visa ETT typsnitts faktiska
+vikter, inte en global konstant. Export-sidan (`publishFonts.ts`s
+`PUBLISH_FONT_FILES`, idag ett fast `{regular, bold}`-par per font)
+skulle behöva bädda in fler filer per familj istället för två, vilket
+växer appens buntade storlek rejält (redan ~3.5MB TTF:er för 26 filer;
+en fullständig vikt-uppsättning för alla 13 typsnitt hade varit
+betydligt mer).
+
+**Status: inte påbörjad, bara en snabb genomförbarhetskoll.** Mats:
+"en mer avancerad typografi kan vara ett framtida projekt" — sparat
+som en egen, större, medvetet separat idé från det pågående
+Typography steg 2-arbetet (som fortsätter med Färg för Brödtext
+härnäst), inte en uppföljning till Vikt-fältet i sig.
+
+---
+
 ## Medvetet nedprioriterat just nu (inte avvisat)
 
 - **Mer polish på illustrationsbiblioteket och Publish-exporterna.**
