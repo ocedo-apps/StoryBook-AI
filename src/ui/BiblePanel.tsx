@@ -48,7 +48,14 @@ import { manuscriptNameHits, renameEntityLabel, replaceNameInManuscript } from "
 import { deleteEntity } from "@core/deleteEntity";
 import { applyMerge, buildMergeProposal, canMergeEntities, type MergeChoice } from "@core/mergeEntities";
 import { storyTimeRankByChapterId } from "@core/timeline";
-import { entityIsHidden, nextPositionOverride, setFactHidden, setFactPositionOverride, toggleHiddenEntity } from "@core/visibility";
+import {
+  entityIsHidden,
+  nextPositionOverride,
+  setFactHidden,
+  setFactPositionOverride,
+  toggleHiddenEntity,
+  visibleLockedFacts
+} from "@core/visibility";
 import { addAlias, trackingFor, upsertEntityTracking, type EntityTracking, type EntityTrackingInput } from "@core/entityTracking";
 import { count, format, useLocale } from "./i18n";
 import { picturesFromFile, EntityImageError } from "./entityImage";
@@ -97,11 +104,24 @@ export function BiblePanel({
   onResizeHandleDown: (event: React.PointerEvent) => void;
   resizing: boolean;
 }) {
-  const { book, approve, reject, keepSeparate, addFact, reviseFact, retractFact, patchBook, setChapterId, seriesFacts, mirrorRelationshipFact } =
-    useBookStore();
-  const { promoteBookFact } = useSeriesStore();
+  const {
+    book,
+    approve,
+    reject,
+    keepSeparate,
+    addFact,
+    reviseFact,
+    retractFact,
+    patchBook,
+    setChapterId,
+    setBookSeries,
+    seriesFacts,
+    mirrorRelationshipFact
+  } = useBookStore();
+  const { createSeries, promoteBookFact } = useSeriesStore();
   const { messages: m } = useLocale();
   const [kind, setKind] = useState<BibleKind>("characters");
+  const [creatingSeries, setCreatingSeries] = useState(false);
   const [query, setQuery] = useState("");
   const [overlay, setOverlay] = useState<Overlay | null>(null);
   const [asOfChapterId, setAsOfChapterId] = useState<string | null>(null);
@@ -147,6 +167,38 @@ export function BiblePanel({
       return;
     }
     void finalizeMergeFact(fact, targetRef, targetLabel, "replace");
+  }
+
+  /**
+   * "Create series from this book" (Mats, 2026-10-31: "Kan jag på nåt sätt
+   * skapa en serie utifrån boken men de fakta om världen som bör följa
+   * med?") - the one-click version of what was otherwise three manual
+   * steps: create a series, assign this book to it, then promote every
+   * locked fact up to series level one "Send to series" click at a time.
+   * Here all of a standalone book's own currently-visible locked facts
+   * (same set `formatBibleForPrompt` treats as this book's canon -
+   * `visibleLockedFacts` excludes anything hidden from the model) go up
+   * in one pass, reusing `promoteBookFact`'s own author-wins merge logic
+   * per fact exactly like the single-fact button does. New series starts
+   * named after the book; rename it afterward from the Series workspace
+   * if "X series" isn't what's wanted.
+   */
+  async function createSeriesFromBook() {
+    if (!book) return;
+    setCreatingSeries(true);
+    try {
+      const created = await createSeries(book.title);
+      await setBookSeries(book.id, created.id);
+      for (const fact of visibleLockedFacts(book.facts, book.hidden_entities)) {
+        const chapterTitle = fact.chapter_id ? book.chapters.find((chapter) => chapter.id === fact.chapter_id)?.title : undefined;
+        await promoteBookFact(
+          { entity_ref: fact.entity_ref, entity_label: fact.entity_label, predicate: fact.predicate, value: fact.value },
+          { book_id: book.id, book_title: book.title, ...(chapterTitle ? { chapter_title: chapterTitle } : {}) }
+        );
+      }
+    } finally {
+      setCreatingSeries(false);
+    }
   }
 
   /**
@@ -355,6 +407,17 @@ export function BiblePanel({
         {asOfChapter || merging || !hasAnyEntities ? null : (
           <button type="button" className="text-button" onClick={() => setMerging(true)}>
             {m.bible.mergeStart}
+          </button>
+        )}
+        {asOfChapter || book.series_id ? null : (
+          <button
+            type="button"
+            className="text-button"
+            disabled={creatingSeries}
+            title={m.bible.createSeriesFromBookTitle}
+            onClick={() => void createSeriesFromBook()}
+          >
+            {creatingSeries ? m.bible.creatingSeriesFromBook : m.bible.createSeriesFromBook}
           </button>
         )}
       </div>

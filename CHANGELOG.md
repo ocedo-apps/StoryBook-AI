@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.242] - 2026-10-31
+
+### Added
+- "Create series from this book" in the Story Bible — turns a finished standalone book into the first book of a brand-new series in one click: creates the series (named after the book), assigns the book to it, and promotes every one of the book's locked facts up to series canon, instead of doing those three steps by hand one fact at a time.
+
 ## [1.0.241] - 2026-10-31
 
 ### Changed

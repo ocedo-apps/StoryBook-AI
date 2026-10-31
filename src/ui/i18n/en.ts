@@ -1573,6 +1573,10 @@ export const en = {
     addChoiceKeepBoth: "Add as another",
     addChoiceReplace: "Replace the existing one",
     mergeStart: "Merge cards…",
+    createSeriesFromBook: "Create series from this book",
+    creatingSeriesFromBook: "Creating series…",
+    createSeriesFromBookTitle:
+      "Creates a new series named after this book, assigns the book to it, and promotes every one of its locked facts up to the series as established canon.",
     mergeSelectedCount: { one: "{count} card selected", other: "{count} cards selected" },
     mergeAction: "Merge ({count})",
     mergeKindMismatch: "These cards are different kinds (a character and a location, say) — merging only works within one kind.",

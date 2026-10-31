@@ -11625,6 +11625,45 @@ tester gröna (en ny).
 
 v1.0.240 → v1.0.241.
 
+**Ändringslogg v1.0.241 → v1.0.242 (2026-10-31): "Create series from
+this book".** Mats: "Om jag har en bok som jag är färdig med och
+känner att jag vill ska utgöra första boken i en serie. Kan jag på
+nåt sätt skapa en serie utifrån boken men de fakta om världen som bör
+följa med?" Research (subagent) bekräftade: nej, inget sånt flöde
+fanns. Tre separata manuella steg - skapa serie, koppla boken via
+assign-to-series-dropdownen (bara `series_id`, rör aldrig bokens egna
+`facts`), och sen "Send to series" en fakta i taget i Story Bible
+(`promoteBookFact` i `SeriesStore.tsx`, inget bulk-läge). Mats: "Ja
+det känns viktigt."
+
+**Byggt:** en ny knapp "Create series from this book" i
+`BiblePanel.tsx`s head-tools-rad (samma rad som "Merge cards…"),
+synlig bara för en bok som ännu inte har `series_id`. Ett klick:
+1. `createSeries(book.title)` - ny serie uppkallad efter boken.
+2. `setBookSeries(book.id, created.id)` - kopplar boken.
+3. Loop över `visibleLockedFacts(book.facts, book.hidden_entities)`
+   (samma mängd fakta som räknas som bokens "canon" vid promptbygge -
+   exkluderar sånt författaren gömt från modellen) - varje fakta skickas
+   upp med `promoteBookFact`, exakt samma anrop den befintliga
+   en-i-taget-knappen redan gjorde, bara i en loop istället för ett
+   klick per fakta.
+
+Ingen ny mekanism uppfanns - all logik (författarens fakta vinner,
+canon-spårning "Established in: Bok, Kapitel N") återanvänds rakt av
+från den befintliga "Send to series"-vägen. Serien börjar uppkallad
+efter boken; döp om efteråt i Series-vyn om "X series" inte passar.
+
+**Verifiering:** riktig Playwright-körning genom hela flödet - nytt
+manus, ny karaktär med en låst fakta via Story Bible-formuläret,
+klick på "Create series from this book", sen kontrollerat att (a)
+knappen försvinner (boken har nu `series_id`, "Merge cards…" tar dess
+plats i samma rad), (b) seriens egen Story Bible-flik visar fakta
+"Aria" märkt "Established in: Seriestest, Chapter 1", (c) seriens
+Books-flik listar boken med "1 chapter · 1 locked fact". `tsc
+--noEmit` rent, `npm run build` rent, 1241/1241 tester gröna.
+
+v1.0.241 → v1.0.242.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se

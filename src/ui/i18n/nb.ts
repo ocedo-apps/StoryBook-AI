@@ -1560,6 +1560,10 @@ export const nb: Messages = {
     addChoiceKeepBoth: "Legg til som enda en",
     addChoiceReplace: "Erstatt den eksisterende",
     mergeStart: "Slå sammen kort…",
+    createSeriesFromBook: "Gjør til serie",
+    creatingSeriesFromBook: "Oppretter serie…",
+    createSeriesFromBookTitle:
+      "Oppretter en ny serie med samme navn som boken, knytter boken til den, og sender opp hver eneste låste fakta i boken til serien som fastslått kanon.",
     mergeSelectedCount: { one: "{count} kort valgt", other: "{count} kort valgt" },
     mergeAction: "Slå sammen ({count})",
     mergeKindMismatch: "Disse kortene er ulike typer (f.eks. en karakter og et sted) — sammenslåing fungerer bare innenfor samme type.",
