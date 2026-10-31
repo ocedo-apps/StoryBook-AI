@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.244] - 2026-10-31
+
+### Changed
+- The speech bubble's tail sits 25px lower (closer to the mascot's mouth), and the bubble itself never drops below 75px tall, even for a one-line tip.
+
 ## [1.0.243] - 2026-10-31
 
 ### Changed

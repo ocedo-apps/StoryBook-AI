@@ -1163,6 +1163,7 @@ button:disabled {
   position: relative;
   box-sizing: border-box;
   min-width: 4rem;
+  min-height: 75px;
   max-width: 23.75rem;
   width: fit-content;
   margin-top: 0.25rem;
@@ -1198,14 +1199,14 @@ button:disabled {
 
 .mascot-tip-bubbles > .mascot-bubble:first-child::before {
   left: -14px;
-  top: 14px;
+  top: 39px;
   border-width: 9px 14px 9px 0;
   border-color: transparent #e4d8c8 transparent transparent;
 }
 
 .mascot-tip-bubbles > .mascot-bubble:first-child::after {
   left: -12.5px;
-  top: 15.5px;
+  top: 40.5px;
   border-width: 7.5px 12.5px 7.5px 0;
   border-color: transparent #fffdf8 transparent transparent;
 }

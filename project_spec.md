@@ -11707,6 +11707,23 @@ pixligt sönderfall. Introbubblan bredvid har korrekt ingen egen svans.
 
 v1.0.242 → v1.0.243.
 
+**Ändringslogg v1.0.243 → v1.0.244 (2026-10-31): svansens position +
+minsta bubbelhöjd.** Mats, efter att ha sett svansen: "Det blev ju
+super bra. Flytta ner svansen 25 px och låt den starta där jämnt. Om
+texten bara är en rad så måste bubblan alltid vara minst 75 px hög."
+
+Två raka justeringar i `styles.css`: svansens `top` på både `::before`
+och `::after` höjt med exakt 25px (14px→39px, 15.5px→40.5px - samma
+25px-förskjutning på båda så 1.5px-ringen förblir perfekt centrerad).
+`.mascot-bubble` fick `min-height: 75px`.
+
+**Verifiering:** `getComputedStyle(bubble, '::before').top` läst direkt
+i Playwright efter ändringen - bekräftat `39px`, exakt 25px mer än
+tidigare `14px`. `tsc --noEmit` rent, `npm run build` rent, 1241/1241
+tester gröna.
+
+v1.0.243 → v1.0.244.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se
