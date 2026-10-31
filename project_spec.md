@@ -11664,6 +11664,49 @@ Books-flik listar boken med "1 chapter · 1 locked fact". `tsc
 
 v1.0.241 → v1.0.242.
 
+**Ändringslogg v1.0.242 → v1.0.243 (2026-10-31): riktig CSS-svans på
+pratbubblan.** Mats, medan vi väntade på en CI-körning, länkade
+Nicolas Gallaghers klassiska pure-CSS speech bubble-teknik: "Kanske
+kan vi snygga till vår pratbubbla trots allt? Med en 'svans' på
+sidan av bubblan?"
+
+**Vad som fanns innan:** `.has-point` hade bara
+`border-bottom-left-radius: 2px` - ett fyrkantigt hörn som ANTYDDE en
+spets, ingen riktig triangel. Dessutom upptäcktes under arbetet att
+den enda bubblan som faktiskt syns i appen idag (Home's Guide-tips)
+alltid har en `action`-knapp, alltså `.has-action` - `.has-point`
+users aldrig live. Mats egen efterfrågan gällde bubblan han faktiskt
+ser, så lösningen fick täcka båda varianterna, inte bara den oanvända.
+
+**Byggt:** Gallaghers två-triangel-trick (`::before` i bubblans
+ramfärg `#e4d8c8`, något mindre `::after` i bubblans egen fyllnadsfärg
+`#fffdf8` ovanpå, förskjuten med exakt ramens 1.5px tjocklek) på BÅDA
+bubbelformerna, inte bara `.has-point`. Krävde en strukturändring:
+radklippningen (`max-height`/`overflow: hidden`) flyttades från
+bubblans egen box till en ny inre `.mascot-bubble-content`-wrapper
+(`MascotTip.tsx`) - annars hade bubblans eget `overflow: hidden`
+klippt bort svansens pseudo-element, som sitter UTANFÖR boxen via
+negativt `left`. Svansen själv scopead till
+`.mascot-tip-bubbles > .mascot-bubble:first-child` - annars hade en
+eventuell andra bubbla bredvid (introbubblan från v1.0.241) också
+fått en svans, pekandes meningslöst in i den första bubblan istället
+för mot maskoten.
+
+Den gamla motiveringen för att `.has-action` skulle hoppa över
+spetsen helt ("en 3+ rader hög bubbla gör att hörn-hacket hamnar för
+långt från munnen") gäller inte längre - en riktig svans ankras med
+`top` på ett fast avstånd från bubblans egen överkant, oavsett hur
+hög bubblan växer nedåt.
+
+**Verifiering:** Playwright-skärmdumpar i både ljust och mörkt tema
+(bubblan är ju alltid ljus sen v1.0.238) - svansen syns tydligt,
+pekar mot Kaamillas mun, 1.5px ramring runt hela triangeln matchar
+bubblans egen ram exakt. Närbild bekräftar skarp, prydlig kant utan
+pixligt sönderfall. Introbubblan bredvid har korrekt ingen egen svans.
+`tsc --noEmit` rent, `npm run build` rent, 1241/1241 tester gröna.
+
+v1.0.242 → v1.0.243.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se

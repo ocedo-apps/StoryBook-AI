@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.243] - 2026-10-31
+
+### Changed
+- The mascot's speech bubble now has a real pointed tail toward her mouth (a proper CSS triangle, not just a squared-off corner), on every bubble shape — including the ones with a docked button inside, which previously skipped it.
+
 ## [1.0.242] - 2026-10-31
 
 ### Added

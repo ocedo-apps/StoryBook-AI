@@ -1106,13 +1106,21 @@ button:disabled {
 }
 
 /*
- * The mascot's own speech bubbles (MascotTip.tsx). Two shapes:
- * .has-point for a short, action-less tip, capped at ~2 lines so the
- * pointed corner - anchored near the top, where the mascot's mouth is,
- * growing down - never drifts far from it. .has-action skips the point
- * entirely: a docked button inside the bubble makes it long enough
- * (3+ lines) that the point would land nowhere near the mouth anyway, so
- * it's a plain rounded card instead (Mats, 2026-10-30/31 design pass).
+ * The mascot's own speech bubbles (MascotTip.tsx). Two shapes, both now
+ * with a real triangular tail pointing back at the mascot's mouth (Mats,
+ * 2026-10-31, after Nicolas Gallagher's pure-CSS speech-bubble technique:
+ * https://nicolasgallagher.com/pure-css-speech-bubbles/ - two stacked
+ * border-triangles, the larger one in the bubble's border color, a
+ * smaller one inset on top in the bubble's own fill color, so the tail
+ * reads as a seamless extension of the bubble's own outline instead of a
+ * flat-colored wedge). .has-point is a short, action-less tip capped at
+ * ~2 lines; .has-action is a taller card with a docked button, capped at
+ * 4 lines + the button row. Both anchor the tail at a fixed offset from
+ * the bubble's own top edge, near the mouth, regardless of how tall the
+ * bubble grows below it - the earlier version of this (a squared corner,
+ * not a real tail) could only do that for the short .has-point shape,
+ * which is why .has-action skipped the point entirely; a tail pinned by
+ * `top` rather than drawn into a corner has no such limit.
  */
 .mascot-tip {
   display: flex;
@@ -1152,6 +1160,7 @@ button:disabled {
    "Pratbubblan borde nog vara ljus även med Dark theme") - fixed colors
    instead of the --paper/--text theme tokens, which flip dark. */
 .mascot-bubble {
+  position: relative;
   box-sizing: border-box;
   min-width: 4rem;
   max-width: 23.75rem;
@@ -1167,14 +1176,53 @@ button:disabled {
   color: #2a2218;
 }
 
-.mascot-bubble.has-point {
-  border-bottom-left-radius: 2px;
-  max-height: calc(1.45em * 2 + 1.5rem);
+/* The tail: two stacked CSS border-triangles (Nicolas Gallagher's
+   technique), pointing left at the mascot's mouth - only on the bubble
+   actually next to the avatar (`:first-child`); a second, intro bubble
+   beside it (see .mascot-tip-bubbles above) sits further from the mascot
+   and would otherwise grow a tail pointing nonsensically into the first
+   bubble instead of at anything. ::before is the larger, outline-colored
+   triangle; ::after sits inset by exactly the bubble's own border
+   thickness (1.5px) in the matching fill color, so only a 1.5px ring of
+   ::before peeks out - the same border the bubble's own box already has,
+   just carried onto the tail instead of two different line weights
+   meeting at an odd angle. */
+.mascot-tip-bubbles > .mascot-bubble:first-child::before,
+.mascot-tip-bubbles > .mascot-bubble:first-child::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.mascot-tip-bubbles > .mascot-bubble:first-child::before {
+  left: -14px;
+  top: 14px;
+  border-width: 9px 14px 9px 0;
+  border-color: transparent #e4d8c8 transparent transparent;
+}
+
+.mascot-tip-bubbles > .mascot-bubble:first-child::after {
+  left: -12.5px;
+  top: 15.5px;
+  border-width: 7.5px 12.5px 7.5px 0;
+  border-color: transparent #fffdf8 transparent transparent;
+}
+
+/* The line-clamp lives on this inner wrapper (MascotTip.tsx), not the
+   bubble itself, so the bubble's own box can stay `overflow: visible` -
+   needed for the tail above, whose pseudo-elements sit outside the
+   bubble's box via negative `left` and would otherwise be clipped along
+   with the text. No padding in here; the bubble's own padding already
+   accounts for it, unlike the old max-height formulas below. */
+.mascot-bubble.has-point .mascot-bubble-content {
+  max-height: calc(1.45em * 2);
   overflow: hidden;
 }
 
-.mascot-bubble.has-action {
-  max-height: calc(1.45em * 4 + 1.5rem + 2.8rem);
+.mascot-bubble.has-action .mascot-bubble-content {
+  max-height: calc(1.45em * 4 + 2.8rem);
   overflow: hidden;
   display: flex;
   flex-direction: column;

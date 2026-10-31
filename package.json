@@ -1,6 +1,6 @@
 {
   "name": "storybook-ai",
-  "version": "1.0.242",
+  "version": "1.0.243",
   "description": "kaampi Write — local-first prose tool. The Story Bible holds truth. The model drafts. You decide.",
   "type": "module",
   "private": true,
