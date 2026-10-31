@@ -11535,6 +11535,48 @@ kodläsning av kastkedjan, inte bara teori). Efter fixen: ingen
 
 v1.0.238 → v1.0.239.
 
+**Ändringslogg v1.0.239 → v1.0.240 (2026-10-31): Kaambot + visuell
+maskot-väljare.** Mats skickade tre bilder av en ny karaktär, Kaambot
+(en liten robot), och en egen mockup av Settings → Assistant: fyra
+bildkort (Kaamilla/Kaamy/Kaambot/None) istället för dropdownen som
+fanns sen v1.0.230.
+
+**Kaambot:** tre bilder sparade i `public/mascots/` -
+`kaambot.png` (stående, 188×400), `kaambot-books.png` (bär böcker,
+241×356), `kaambot-thumbsup.png` (inzoomat ansikte, tumme upp -
+levererad som .webp, konverterad till PNG och nedskalad från
+1086×1448 till 300×400 för att matcha de andra karaktärernas
+filstorlek). `MascotId`, `MASCOT_IDS`, `MASCOT_POSES`,
+`MASCOT_NAMES` och `parseMascot` i `mascot.ts` utökade - samma
+mönster som Kaamy fick i v1.0.232, inga nya systembeteenden.
+
+**Väljaren:** `AppSettingsDialog.tsx`s `<select>` ersatt med en egen
+`.mascot-picker` - ett `role="radiogroup"` av `<button role="radio">`,
+en per karaktär plus "None", var och en med sin bild (standardposen)
+och sitt namn, vald karaktär markerad med en kantlinje
+(`aria-checked`). Flyttad till en egen sektion "ASSISTANT" (tidigare
+en rad inuti "EDITOR"), med en alltid synlig beskrivningstext ovanför
+korten istället för gömd i en HelpTip-tooltip - Mats: "Jag tänker en
+text ovanför 'korten' som beskriver vad assistenten är och när den
+dyker upp samt att man kan ändra inställningen när som helst."
+Textsträngen (alla tre språk) skriven om för att uttryckligen säga
+det.
+
+**Pixelprecision (Mats bad uttryckligen om det):** den nya
+`<p className="mascot-picker-lede">` hade annars fått webbläsarens
+standard-`<p>`-marginal (~1em) ovanpå `.settings-block`s egna grid-gap
+(0.75rem) - dubbel luft, inte avsiktlig. Nollställde paragrafens egen
+marginal så att precis EN sak styr avståndet (grid-gapet). Uppmätt
+med Playwright efteråt: 12px mellan rubrik→text och text→kortrad,
+exakt samma 12px på båda - ingen dubblering.
+
+**Verifiering:** `tsc --noEmit` rent, `npm run build` rent, 1240/1240
+tester gröna. Playwright-skärmdump av hela Settings-dialogen jämförd
+mot Mats egen mockup - fyra kort, vald karaktär markerad, text ovanför
+synlig.
+
+v1.0.239 → v1.0.240.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se

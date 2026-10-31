@@ -279,12 +279,14 @@ export const sv: Messages = {
     },
     mascotLabel: "Maskot",
     mascotLede:
-      "En följeslagare som dyker upp med tips då och då, som att peka ut Guiden på en ny startsida. Helt valfritt — av som standard. Gäller hela appen, inte bara det här manuset.",
+      "En följeslagare som dyker upp med tips då och då, som att peka ut Guiden på en ny startsida. Välj en nedan, eller låt den vara av — du kan ändra dig när som helst. Gäller hela appen, inte bara det här manuset.",
     mascotOptions: {
       none: "Av",
       kaamilla: "Kaamilla",
-      kaamy: "Kaamy"
+      kaamy: "Kaamy",
+      kaambot: "Kaambot"
     },
+    assistantHeading: "Assistent",
     dropCapLabel: "Anfang",
     dropCapLede:
       "En stor begynnelsebokstav på varje kapitels första stycke, som sträcker sig över valt antal rader. Visas direkt i skrivytan och följer med till Publish-export (HTML, ePub, RTF, ODT; PDF inte än).",

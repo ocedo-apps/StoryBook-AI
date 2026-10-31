@@ -9,6 +9,14 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.240] - 2026-10-31
+
+### Added
+- A third mascot, Kaambot, alongside Kaamilla and Kaamy.
+
+### Changed
+- The mascot picker in Settings is now a visual card grid (your own mockup, Mats) instead of a dropdown — a picture and name per option, including "None," with the selected one highlighted. The description above it now says outright that you can change it anytime, instead of hiding that in a tooltip.
+
 ## [1.0.239] - 2026-10-31
 
 ### Fixed

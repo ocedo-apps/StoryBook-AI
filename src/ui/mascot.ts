@@ -2,14 +2,10 @@
  * App-wide, localStorage-backed - same pattern as theme.ts. Per-app, not
  * per-manuscript (Mats: "Kanske ska inställningen vara per app?") - Home's
  * own tips need it before any manuscript exists.
- *
- * Kaamilla and Kaamy have real art now; Kaambot doesn't yet. Add it here
- * (and to MASCOT_IDS/MASCOT_POSES) once that art lands, rather than
- * offering a picker option with nothing behind it.
  */
-export type MascotId = "none" | "kaamilla" | "kaamy";
+export type MascotId = "none" | "kaamilla" | "kaamy" | "kaambot";
 
-export const MASCOT_IDS: MascotId[] = ["none", "kaamilla", "kaamy"];
+export const MASCOT_IDS: MascotId[] = ["none", "kaamilla", "kaamy", "kaambot"];
 
 /**
  * Several poses per character so the same mascot doesn't always show the
@@ -31,7 +27,8 @@ export const MASCOT_POSES: Record<Exclude<MascotId, "none">, string[]> = {
     "/mascots/kaamy-thumbsup.png",
     "/mascots/kaamy-coffee.png",
     "/mascots/kaamy-thinking.png"
-  ]
+  ],
+  kaambot: ["/mascots/kaambot.png", "/mascots/kaambot-thumbsup.png", "/mascots/kaambot-books.png"]
 };
 
 export function pickMascotPose(mascot: Exclude<MascotId, "none">): string {
@@ -42,13 +39,14 @@ export function pickMascotPose(mascot: Exclude<MascotId, "none">): string {
 /** Proper names, same in every language - like the app's own name, not translated. */
 export const MASCOT_NAMES: Record<Exclude<MascotId, "none">, string> = {
   kaamilla: "Kaamilla",
-  kaamy: "Kaamy"
+  kaamy: "Kaamy",
+  kaambot: "Kaambot"
 };
 
 const MASCOT_KEY = "storybook-ai.mascot";
 
 export function parseMascot(value: string | null | undefined): MascotId {
-  return value === "kaamilla" || value === "kaamy" ? value : "none";
+  return value === "kaamilla" || value === "kaamy" || value === "kaambot" ? value : "none";
 }
 
 export function readMascot(): MascotId {

@@ -2918,6 +2918,61 @@ button:disabled {
   gap: 0.35rem;
 }
 
+/*
+ * Settings → Assistant: a visual card picker instead of a <select>, one
+ * card per mascot plus "None" (Mats's own mockup, 2026-10-31) - the whole
+ * feature is picture-first, so choosing it should be too. Each card is a
+ * <button role="radio"> rather than a native radio input, since the
+ * clickable area is the whole card (image + name), not a small dot next
+ * to text.
+ */
+/* Browser default <p> margin would stack on top of .settings-block's own
+   grid `gap`, doubling the space above and below this line - zeroed so
+   the gap between heading/lede/cards is controlled by exactly one thing. */
+.mascot-picker-lede {
+  margin: 0;
+}
+
+.mascot-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.mascot-picker-option {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  width: 6.5rem;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.mascot-picker-option[aria-checked="true"] {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.mascot-picker-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+}
+
+.mascot-picker-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 .field-label-row .guide-help-button {
   width: 1rem;
   height: 1rem;

@@ -279,12 +279,14 @@ export const nb: Messages = {
     },
     mascotLabel: "Maskot",
     mascotLede:
-      "En følgesvenn som dukker opp med tips innimellom, som å peke ut Guiden på en ny startskjerm. Helt valgfritt — av som standard. Gjelder hele appen, ikke bare dette manuset.",
+      "En følgesvenn som dukker opp med tips innimellom, som å peke ut Guiden på en ny startskjerm. Velg en nedenfor, eller la den stå av — du kan endre dette når som helst. Gjelder hele appen, ikke bare dette manuset.",
     mascotOptions: {
       none: "Av",
       kaamilla: "Kaamilla",
-      kaamy: "Kaamy"
+      kaamy: "Kaamy",
+      kaambot: "Kaambot"
     },
+    assistantHeading: "Assistent",
     dropCapLabel: "Anfang",
     dropCapLede:
       "En stor forbokstav på hvert kapittels første avsnitt, som strekker seg over valgt antall linjer. Vises direkte i skriveflaten og følger med til Publish-eksport (HTML, ePub, RTF, ODT; PDF ikke ennå).",

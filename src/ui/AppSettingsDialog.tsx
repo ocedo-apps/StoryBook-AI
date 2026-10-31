@@ -14,7 +14,7 @@ import {
 } from "@llm/connectionPresets";
 import { ModelSelect } from "./SettingsPanel";
 import { applyPaper, parsePaper, readPaper, PAPERS } from "./paper";
-import { MASCOT_IDS, readMascot, setMascot, type MascotId } from "./mascot";
+import { MASCOT_IDS, MASCOT_POSES, readMascot, setMascot, type MascotId } from "./mascot";
 import {
   detectGpuSuggestion,
   isDesktopApp,
@@ -301,27 +301,31 @@ export function AppSettingsDialog({
                     ))}
                   </select>
                 </label>
-                <label className="reader-field">
-                  <span className="field-label-row">
-                    {m.editor.mascotLabel}
-                    <HelpTip body={m.editor.mascotLede} ariaLabel={format(m.common.infoAbout, { field: m.editor.mascotLabel })} />
-                  </span>
-                  <select
-                    value={mascot}
-                    aria-label={m.editor.mascotLabel}
-                    onChange={(event) => {
-                      const next = event.target.value as MascotId;
-                      setMascot(next);
-                      setMascotState(next);
+              </div>
+            </section>
+
+            <section className="settings-block">
+              <h2 className="settings-heading">{m.editor.assistantHeading}</h2>
+              <p className="quiet mascot-picker-lede">{m.editor.mascotLede}</p>
+              <div className="mascot-picker" role="radiogroup" aria-label={m.editor.mascotLabel}>
+                {MASCOT_IDS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className="mascot-picker-option"
+                    role="radio"
+                    aria-checked={mascot === option}
+                    onClick={() => {
+                      setMascot(option);
+                      setMascotState(option);
                     }}
                   >
-                    {MASCOT_IDS.map((option) => (
-                      <option key={option} value={option}>
-                        {m.editor.mascotOptions[option]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    <span className="mascot-picker-thumb">
+                      {option === "none" ? null : <img src={MASCOT_POSES[option][0]} alt="" />}
+                    </span>
+                    <span>{m.editor.mascotOptions[option]}</span>
+                  </button>
+                ))}
               </div>
             </section>
           </div>
