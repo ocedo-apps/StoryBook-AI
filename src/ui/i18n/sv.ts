@@ -73,6 +73,9 @@ export const sv: Messages = {
     importManuscriptCardAction: "Välj en fil",
     guideCardLede: "Osäker på var du ska börja? Guiden går igenom varje del av appen.",
     guideCardAction: "Öppna Guiden",
+    mascotIntroText:
+      "Det här är Kaamilla, din assistent. Hon dyker upp då och då med tips och info. Du kan stänga av henne i Inställningar, eller byta till Kaamy eller Kaambot där.",
+    mascotIntroUnderstood: "Förstått",
     codexCard: "kaampi Codex",
     codexConnected: "Ansluten — säkerhetskopior och delning med dina andra kaampi-appar är på.",
     codexOffline: "Parkopplad, men går inte att nå just nu. Ditt arbete sparas fortsatt lokalt.",

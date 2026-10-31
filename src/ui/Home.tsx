@@ -8,7 +8,14 @@ import { checkForUpdates, isDesktopApp, type UpdateStatus } from "./desktopBridg
 import { UpdateCheckDialog } from "./UpdateCheckDialog";
 import { ImportManuscriptCard } from "./ImportManuscriptCard";
 import { MascotTip } from "./MascotTip";
-import { MASCOT_NAMES, readMascot, subscribeMascot } from "./mascot";
+import {
+  dismissMascotIntro,
+  MASCOT_NAMES,
+  readMascot,
+  readMascotIntroSeen,
+  subscribeMascot,
+  subscribeMascotIntroSeen
+} from "./mascot";
 
 export function Home({
   guideOpen,
@@ -29,6 +36,8 @@ export function Home({
   const [importOpen, setImportOpen] = useState(false);
   const [mascot, setMascotValue] = useState(readMascot);
   useEffect(() => subscribeMascot(setMascotValue), []);
+  const [mascotIntroSeen, setMascotIntroSeen] = useState(readMascotIntroSeen);
+  useEffect(() => subscribeMascotIntroSeen(() => setMascotIntroSeen(true)), []);
   const fileRef = useRef<HTMLInputElement>(null);
   const standaloneSummaries = summaries.filter((item) => !item.series_id);
   const filteredSummaries = standaloneSummaries.filter((item) => item.title.toLowerCase().includes(search.trim().toLowerCase()));
@@ -102,6 +111,9 @@ export function Home({
             name={MASCOT_NAMES[mascot]}
             text={m.home.guideCardLede}
             action={{ label: `${m.home.guideCardAction} →`, onClick: onOpenGuide }}
+            {...(mascot === "kaamilla" && !mascotIntroSeen
+              ? { intro: { text: m.home.mascotIntroText, actionLabel: m.home.mascotIntroUnderstood, onDismiss: dismissMascotIntro } }
+              : {})}
           />
         ) : null}
         <div className="home-start-cards">

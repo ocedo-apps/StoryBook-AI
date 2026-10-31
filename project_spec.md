@@ -11577,6 +11577,54 @@ synlig.
 
 v1.0.239 → v1.0.240.
 
+**Ändringslogg v1.0.240 → v1.0.241 (2026-10-31): Kaamilla default +
+engångs-introbubbla.** Mats: "Jag föreslåt att Kaamilla är default.
+Och när hon dyker upp på startsidan första gången så står det [...]
+I en bubbla till höger om hennes tips om guiden [...] RUtan ska inte
+dyka upp om man har ändrat assistent eller slagit av den funktionen."
+
+**Default:** `readMascot()` i `mascot.ts` skilde tidigare inte på
+"aldrig satt" och "uttryckligen satt till none" - båda gav samma
+resultat (`"none"`). Nu: `localStorage.getItem(MASCOT_KEY) === null`
+(aldrig rört) ger `DEFAULT_MASCOT = "kaamilla"`; ett uttryckligt
+sparat `"none"` ger fortfarande av, precis som förut. Avgörande
+skillnad - annars skulle en författare som medvetet stängt av
+assistenten se henne komma tillbaka.
+
+**Introbubblan:** ny `MASCOT_INTRO_KEY`
+(`storybook-ai.mascot-intro-seen`) i `mascot.ts`, separat flagga från
+själva maskotvalet. `MascotTip.tsx` fick en ny valfri `intro`-prop -
+en andra pratbubbla bredvid den befintliga Guide-bubblan (samma rad,
+delar `.mascot-tip-bubbles`-wrappern, radbryter på smal skärm). Visas
+i `Home.tsx` bara när `mascot === "kaamilla" && !mascotIntroSeen`.
+Texten (alla tre språk): "This is Kaamilla, your assistant. She'll
+occasionally pop up with tips and info. You can turn her off in
+Settings, or switch to Kaamy or Kaambot there." + knapp "Understood".
+
+**Permanent avstängning, båda vägarna Mats bad om:** `dismissMascotIntro()`
+anropas dels direkt av "Understood"-knappen, dels automatiskt inuti
+`setMascot()` självt - varje uttryckligt val i Settings (inklusive att
+välja Kaamilla igen, eller stänga av helt) räknas som att författaren
+redan känner till inställningen, så introt pensioneras även om man
+aldrig sett eller klickat bort det. Testat uttryckligen: byt till Kaamy
+och sen tillbaka till Kaamilla → introt kommer INTE tillbaka (författaren
+har bevisligen redan rört inställningen).
+
+**Verifiering:** ny `tests/ui/mascot.test.ts` för den rena
+`parseMascot`-logiken (projektets vitest-miljö är `"node"`, utan DOM/
+localStorage, så själva localStorage-beteendet - standardvalet,
+introbubblan, permanent avstängning - verifierades istället med
+Playwright, samma mönster som resten av appens localStorage-drivna UI
+i den här loggen). Tre körningar: (1) tom localStorage → `null`
+sparat värde, Kaamilla ändå default, introbubblan syns med båda
+bubblorna sida vid sida; (2) klick på "Understood" → bubblan försvinner
+direkt, flaggan sparas, borta även efter omladdning; (3) väljer "None"
+i Settings innan introt någonsin synts → `mascot-intro-seen` ändå satt
+till `"1"`. `tsc --noEmit` rent, `npm run build` rent, 1241/1241
+tester gröna (en ny).
+
+v1.0.240 → v1.0.241.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se

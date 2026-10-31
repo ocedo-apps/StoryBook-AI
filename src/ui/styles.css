@@ -1120,6 +1120,18 @@ button:disabled {
   gap: 0.875rem;
 }
 
+/* Holds the mascot's own bubble plus, when present, the one-time intro
+   bubble beside it (Mats, 2026-10-31: the intro sits "till höger om
+   hennes tips om guiden" - to the right of her existing one, not instead
+   of it). Wraps to a second row on a narrow window rather than forcing
+   the bubbles to shrink past readable width. */
+.mascot-tip-bubbles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
 /* width/height both auto + align-items: stretch above - the image's own
    aspect ratio sets its width as its stretched height changes, so Kaamilla
    scales up for a taller (e.g. has-action) bubble without distorting

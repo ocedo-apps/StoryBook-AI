@@ -45,15 +45,25 @@ export const MASCOT_NAMES: Record<Exclude<MascotId, "none">, string> = {
 
 const MASCOT_KEY = "storybook-ai.mascot";
 
+/**
+ * Kaamilla by default (Mats, 2026-10-31: "Jag föreslåt att Kaamilla är
+ * default") - but only for someone who has never touched this setting at
+ * all. A stored value of "none" (the author explicitly turned the
+ * assistant off) must stay off, so the no-value and explicit-"none" cases
+ * can't share one fallback the way they used to.
+ */
+const DEFAULT_MASCOT: MascotId = "kaamilla";
+
 export function parseMascot(value: string | null | undefined): MascotId {
   return value === "kaamilla" || value === "kaamy" || value === "kaambot" ? value : "none";
 }
 
 export function readMascot(): MascotId {
   try {
-    return parseMascot(localStorage.getItem(MASCOT_KEY));
+    const stored = localStorage.getItem(MASCOT_KEY);
+    return stored === null ? DEFAULT_MASCOT : parseMascot(stored);
   } catch {
-    return "none";
+    return DEFAULT_MASCOT;
   }
 }
 
@@ -66,6 +76,14 @@ export function readMascot(): MascotId {
  */
 const listeners = new Set<(mascot: MascotId) => void>();
 
+/**
+ * Any EXPLICIT choice in Settings - including picking Kaamilla again,
+ * since that's still the author deliberately touching the control - also
+ * retires the one-time intro bubble below. Mats: the intro "ska inte
+ * dyka upp om man har ändrat assistent eller slagit av den funktionen" -
+ * once the author has shown they know the setting exists, by using it, the
+ * intro has nothing left to teach them, whatever character they land on.
+ */
 export function setMascot(mascot: MascotId): void {
   try {
     localStorage.setItem(MASCOT_KEY, mascot);
@@ -73,9 +91,42 @@ export function setMascot(mascot: MascotId): void {
     /* private mode */
   }
   listeners.forEach((listener) => listener(mascot));
+  dismissMascotIntro();
 }
 
 export function subscribeMascot(listener: (mascot: MascotId) => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+const MASCOT_INTRO_KEY = "storybook-ai.mascot-intro-seen";
+
+/**
+ * Kaamilla's one-time "This is Kaamilla, your assistant..." bubble, shown
+ * only the first time the default-on Kaamilla appears on Home for someone
+ * who has never touched the Assistant setting (see setMascot above for
+ * the other way this gets retired - an explicit choice in Settings).
+ */
+export function readMascotIntroSeen(): boolean {
+  try {
+    return localStorage.getItem(MASCOT_INTRO_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+const introListeners = new Set<() => void>();
+
+export function dismissMascotIntro(): void {
+  try {
+    localStorage.setItem(MASCOT_INTRO_KEY, "1");
+  } catch {
+    /* private mode */
+  }
+  introListeners.forEach((listener) => listener());
+}
+
+export function subscribeMascotIntroSeen(listener: () => void): () => void {
+  introListeners.add(listener);
+  return () => introListeners.delete(listener);
 }

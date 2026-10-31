@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.241] - 2026-10-31
+
+### Changed
+- Kaamilla is now the default assistant for anyone who's never touched the setting (previously off by default). The first time she appears on Home this way, a one-time bubble next to her existing tip introduces her and explains how to turn her off or switch characters in Settings — it never reappears once dismissed, or once the assistant setting has been changed at all (including turning it off before ever seeing the bubble).
+
 ## [1.0.240] - 2026-10-31
 
 ### Added
