@@ -11724,6 +11724,74 @@ tester gröna.
 
 v1.0.243 → v1.0.244.
 
+**Ändringslogg v1.0.244 → v1.0.245 (2026-10-31): "Import Codex book".**
+Mats, efter ett resonemang om varför JSON-import hör hemma på Home
+men Codex-versionshistorik inte gör det (den kräver redan ett känt
+`project_id`): "Ja det kan vi göra. Skapa en Import Codex book (eller
+vad vi ska kalla det) för böcker man inte redan har på
+installationen." Täcker scenariot `corePrivateVersions` aldrig kunde:
+en ny maskin, eller en ominstallation, utan en enda bok lokalt alls -
+inget `project_id` att ens fråga om.
+
+**Två repon, tre lager:**
+
+1. **kaampi/Codex** (`packages/service/core.mjs`) - nytt
+   `GET /v1/private-manuscripts`, bara för storybook-appen: listar
+   `projectId`/`title`/`revision`/`updatedAt` för varje privat
+   snapshot, MEDVETET utan själva bokkroppen (kan vara 50MB per bok,
+   listan ska vara billig även med många böcker). Återanvänder exakt
+   samma mönster som det befintliga `listSharedManuscripts` redan
+   gjorde för titel-extraktion (`JSON.parse(row.body).title`). Nytt
+   test: tom lista, 403 för andra appar, sortering efter senast
+   sparad (inte bara revisionsnummer - en omsparning av en oförändrad
+   bok ska ändå flytta den till toppen). `packages/service`s version
+   bumpad 0.2.0→0.3.0 för en egen GitHub Release, samma mönster som
+   adminlösenords-commiten (132fa97). Alla 22 service-tester + hela
+   rotpaketets testsvit gröna.
+
+2. **Tauri-bryggan** (`src-tauri/src/core_bridge.rs` + `lib.rs`) - nytt
+   `core_private_manuscripts`-kommando, samma `ureq`+bearer-token-
+   mönster som de befintliga private-manuscript-kommandona. `cargo
+   check`/`cargo test` gröna (7 Rust-tester).
+
+3. **Write-sidan:**
+   - `CoreDesktopTransport.ts`: `corePrivateManuscripts()` +
+     `CorePrivateManuscript`-typ, samma valideringsstil som
+     `corePrivateVersions`.
+   - `coreRestoreWorkflow.ts`: ny `persistCoreImport()` - motsvarigheten
+     till den befintliga `persistCoreRestore()` men utan ett öppet
+     `currentBook` att återställa in i. Återanvänder
+     `prepareCoreBookRestore(source, "same-book")` utan `currentBook`-
+     option, vilket (redan existerande beteende, bara aldrig anropat
+     på det sättet förut) lämnar bokens ursprungliga id/
+     translation_group_id/series_id orörda - en riktig import, inte
+     en avskild fork som "new-book"-läget hade gett.
+   - `BookStore.tsx`: ny `importCoreManuscript(projectId)` - hämtar
+     senaste revisionen via de redan befintliga
+     `corePrivateVersions`/`corePrivateRevision`, kör `persistCoreImport`,
+     öppnar sen boken direkt (samma svans som JSON-importens egen
+     `importManuscript`).
+   - Ny `ImportCodexBookCard.tsx` - tredje kortet på Home, bredvid
+     Import backup/Import manuscript, bara i skrivbordsappen. Listar
+     Codex-böcker som INTE redan finns lokalt (`localIds`-filtret),
+     med titel+datum och en Import-knapp per rad.
+
+**Verifiering:** `tests/core/core-restore-workflow.test.ts` fick två
+nya tester för `persistCoreImport` (vägrar importera en bok som redan
+finns lokalt; importerar med bevarad original-identitet, inklusive
+`translation_group_id`/`series_id`). Playwright, hela vägen: en riktig
+bok skapad via UI:t, dumpad från IndexedDB som fixture, återanvänd som
+en förfalskad Codex-backup (`window.isTauri=true` +
+`window.__TAURI_INTERNALS__.invoke`-stub) - klick på "Import Codex
+book", listan visar boken med titel+datum, klick på "Import", boken
+öppnas med rätt titel, kapitel och en tom Story Bible redo att fyllas
+på, "Create series from this book" synlig (bekräftar att den importerats
+utan `series_id`). Körd tre gånger i rad för att utesluta flakighet.
+`tsc --noEmit` rent, `npm run build` rent, 1243/1243 tester gröna (två
+nya).
+
+v1.0.244 → v1.0.245.
+
 
 **Ändringslogg v1.0.34 → v1.0.35 (2026-10-02):** StoryCore — första
 riktiga byggsteget, efter flera rundors arkitekturdiskussion (se

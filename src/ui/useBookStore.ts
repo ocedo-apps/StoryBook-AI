@@ -97,6 +97,7 @@ export type BookStoreValue = {
   /** Flush local edits, then queue an explicit owner-only Core checkpoint. */
   checkpointBook: () => Promise<void>;
   restoreCoreRevision: (source: CoreBookRevision, mode: "same-book" | "new-book") => Promise<boolean>;
+  importCoreManuscript: (projectId: string) => Promise<void>;
   importManuscript: (file: File) => Promise<void>;
   /** Assigns, or (with `undefined`) clears, which Series a book belongs to — works on any book, not just the open one. */
   setBookSeries: (bookId: string, seriesId: string | undefined) => Promise<void>;

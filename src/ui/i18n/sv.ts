@@ -71,6 +71,16 @@ export const sv: Messages = {
     importManuscriptButton: "Importera manus (textfil)",
     importManuscriptCardLede: "Starta från en vanlig text- eller Markdown-export från ett annat skrivverktyg.",
     importManuscriptCardAction: "Välj en fil",
+    importCodexBook: "Importera Codex-bok",
+    importCodexBookCardLede: "Hämta ett manus kaampi Codex har en privat backup av, men som den här installationen inte har än.",
+    importCodexBookCardAction: "Bläddra bland Codex-backuper",
+    importCodexBookTitle: "Importera en bok från kaampi Codex",
+    importCodexBookLede:
+      "Varje manus kaampi Codex har en privat backup av, som inte redan finns i den här installationen. Att välja ett tar in det med sin egen ursprungliga historik - kapitel, Story Bible, allt - precis som Codex senast såg det.",
+    importCodexBookLoading: "Kollar kaampi Codex…",
+    importCodexBookEmpty: "Inget att importera - antingen har kaampi Codex inga privata backuper, eller så finns de redan alla i den här installationen.",
+    importCodexBookImport: "Importera",
+    importCodexBookImporting: "Importerar…",
     guideCardLede: "Osäker på var du ska börja? Guiden går igenom varje del av appen.",
     guideCardAction: "Öppna Guiden",
     mascotIntroText:

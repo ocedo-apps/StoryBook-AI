@@ -9,6 +9,11 @@ history before that — every incremental step, in detail — lives in
 `project_spec.md`'s changelog (in Swedish; it's the project's internal
 working log).
 
+## [1.0.245] - 2026-10-31
+
+### Added
+- "Import Codex book" on Home — browse every manuscript kaampi Codex privately backs up that this installation doesn't have locally yet (a new machine, a fresh install), and bring one in with its original chapters, Story Bible and history, no exported JSON file needed. Requires a new kaampi Codex server release (0.3.0+) for the manuscript-list endpoint this depends on.
+
 ## [1.0.244] - 2026-10-31
 
 ### Changed

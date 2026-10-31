@@ -156,6 +156,24 @@ pub async fn core_save_private(book: Value) -> Result<(), String> {
     }).await.map_err(|_| "Core private snapshot failed".to_string())?
 }
 
+/// Every book Codex has a private snapshot of, titled and dated but
+/// without the book bodies - the "Import Codex book" picker on Home, for
+/// a machine that doesn't know any of these project IDs yet (unlike
+/// core_private_versions below, which needs one).
+#[tauri::command]
+pub async fn core_private_manuscripts() -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(|| {
+        let token = saved_token()?;
+        ureq::get(&format!("{CORE_URL}/v1/private-manuscripts"))
+            .header("Authorization", format!("Bearer {token}"))
+            .call()
+            .map_err(|_| "Cannot list private Core manuscripts".to_string())?
+            .body_mut()
+            .read_json()
+            .map_err(|_| "Invalid Core manuscript list response".to_string())
+    }).await.map_err(|_| "Core manuscript list request failed".to_string())?
+}
+
 #[tauri::command]
 pub async fn core_private_versions(project_id: String) -> Result<Value, String> {
     tauri::async_runtime::spawn_blocking(move || {

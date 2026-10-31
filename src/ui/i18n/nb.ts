@@ -71,6 +71,16 @@ export const nb: Messages = {
     importManuscriptButton: "Importer manuskript (tekstfil)",
     importManuscriptCardLede: "Start fra en vanlig tekst- eller Markdown-eksport fra et annet skriveverktøy.",
     importManuscriptCardAction: "Velg en fil",
+    importCodexBook: "Importer Codex-bok",
+    importCodexBookCardLede: "Hent et manuskript kaampi Codex har en privat backup av, men som denne installasjonen ikke har ennå.",
+    importCodexBookCardAction: "Bla gjennom Codex-backuper",
+    importCodexBookTitle: "Importer en bok fra kaampi Codex",
+    importCodexBookLede:
+      "Hvert manuskript kaampi Codex har en privat backup av, som ikke allerede finnes i denne installasjonen. Å velge en henter den inn med sin egen opprinnelige historikk - kapitler, Story Bible, alt - akkurat slik Codex sist så den.",
+    importCodexBookLoading: "Sjekker kaampi Codex…",
+    importCodexBookEmpty: "Ingenting å importere - enten har kaampi Codex ingen private backuper, eller så finnes de allerede alle i denne installasjonen.",
+    importCodexBookImport: "Importer",
+    importCodexBookImporting: "Importerer…",
     guideCardLede: "Usikker på hvor du skal begynne? Guiden går gjennom hver del av appen.",
     guideCardAction: "Åpne Guiden",
     mascotIntroText:

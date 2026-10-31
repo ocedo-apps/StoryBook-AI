@@ -7,6 +7,7 @@ import { count, format, translateError, useLocale } from "./i18n";
 import { checkForUpdates, isDesktopApp, type UpdateStatus } from "./desktopBridge";
 import { UpdateCheckDialog } from "./UpdateCheckDialog";
 import { ImportManuscriptCard } from "./ImportManuscriptCard";
+import { ImportCodexBookCard } from "./ImportCodexBookCard";
 import { MascotTip } from "./MascotTip";
 import {
   dismissMascotIntro,
@@ -26,14 +27,24 @@ export function Home({
   onOpenGuide: () => void;
   onCloseGuide: () => void;
 }) {
-  const { summaries, newBook, openBook, deleteBook, setBookSeries, importManuscript, importMarkdownManuscript, error } =
-    useBookStore();
+  const {
+    summaries,
+    newBook,
+    openBook,
+    deleteBook,
+    setBookSeries,
+    importManuscript,
+    importMarkdownManuscript,
+    importCoreManuscript,
+    error
+  } = useBookStore();
   const { summaries: seriesSummaries, createSeries, openSeries } = useSeriesStore();
   const { messages: m } = useLocale();
   const [title, setTitle] = useState("");
   const [newSeriesTitle, setNewSeriesTitle] = useState("");
   const [search, setSearch] = useState("");
   const [importOpen, setImportOpen] = useState(false);
+  const [importCodexOpen, setImportCodexOpen] = useState(false);
   const [mascot, setMascotValue] = useState(readMascot);
   useEffect(() => subscribeMascot(setMascotValue), []);
   const [mascotIntroSeen, setMascotIntroSeen] = useState(readMascotIntroSeen);
@@ -131,6 +142,15 @@ export function Home({
               <span className="home-start-card-action">{m.home.importManuscriptCardAction} →</span>
             </span>
           </button>
+          {isDesktopApp() ? (
+            <button type="button" className="home-start-card" onClick={() => setImportCodexOpen(true)}>
+              <span className="home-start-card-copy">
+                <strong>{m.home.importCodexBook}</strong>
+                <span>{m.home.importCodexBookCardLede}</span>
+                <span className="home-start-card-action">{m.home.importCodexBookCardAction} →</span>
+              </span>
+            </button>
+          ) : null}
           {mascot === "none" ? (
             <button type="button" className="home-start-card" onClick={onOpenGuide}>
               <span className="home-start-card-copy">
@@ -335,6 +355,14 @@ export function Home({
             void importMarkdownManuscript(importedTitle, chapters);
             setImportOpen(false);
           }}
+        />
+      ) : null}
+
+      {importCodexOpen ? (
+        <ImportCodexBookCard
+          localIds={new Set(summaries.map((item) => item.id))}
+          onImport={importCoreManuscript}
+          onClose={() => setImportCodexOpen(false)}
         />
       ) : null}
     </div>

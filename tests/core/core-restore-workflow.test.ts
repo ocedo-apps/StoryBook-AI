@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createBook, updateChapter, type Book } from "@core/BookSchema";
-import { persistCoreRestore } from "@core/coreRestoreWorkflow";
+import { persistCoreImport, persistCoreRestore } from "@core/coreRestoreWorkflow";
 import type { CoreBookRevision } from "@core/coreRevisionRestore";
 
 function fixture() {
@@ -57,5 +57,31 @@ describe("private Core restore persistence", () => {
     expect(saved?.id).toBe("fresh");
     expect(created.id).toBe("fresh");
     expect(current.id).toBe("original");
+  });
+});
+
+describe("private Core import persistence (\"Import Codex book\", no manuscript open at all)", () => {
+  it("refuses to import a manuscript already present locally", async () => {
+    const { source } = fixture();
+    await expect(
+      persistCoreImport(source, { idExists: async () => true, save: async () => { throw new Error("must not save"); } })
+    ).rejects.toThrow("already in your library");
+  });
+
+  it("imports the manuscript with its own original identity, not a fresh fork", async () => {
+    const { old, source } = fixture();
+    const linkedSource: CoreBookRevision = {
+      ...source,
+      revision: { ...source.revision, body: { ...old, translation_group_id: "family-a", series_id: "series-a" } }
+    };
+    let saved: Book | undefined;
+    const imported = await persistCoreImport(linkedSource, {
+      idExists: async () => false,
+      save: async (book) => { saved = book; }
+    });
+    expect(imported.id).toBe("original");
+    expect(imported.translation_group_id).toBe("family-a");
+    expect(imported.series_id).toBe("series-a");
+    expect(saved).toEqual(imported);
   });
 });

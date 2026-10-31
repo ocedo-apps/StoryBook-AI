@@ -129,7 +129,8 @@ import { withReasoningHeadroom } from "@llm/tokenBudget";
 import { BookNotFoundError, BookRepository } from "@persistence/Repository";
 import { coreBookSink, coreSnapshotOutbox, flushCoreSnapshots } from "@persistence/CoreSharingRuntime";
 import type { CoreBookRevision } from "@core/coreRevisionRestore";
-import { persistCoreRestore } from "@core/coreRestoreWorkflow";
+import { persistCoreImport, persistCoreRestore } from "@core/coreRestoreWorkflow";
+import { corePrivateRevision, corePrivateVersions } from "@persistence/CoreDesktopTransport";
 import { SeriesRepository } from "@persistence/SeriesRepository";
 import {
   ManuscriptBackupError,
@@ -603,6 +604,56 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     try { await flushCoreSnapshots(); } catch { /* locally restored; queued for retry */ }
     return true;
   }, [busy, flushSave, repo, seriesRepo]);
+
+  /**
+   * "Import Codex book" (Mats, 2026-10-31: a machine that doesn't have the
+   * manuscript locally at all, as opposed to restoreCoreRevision above,
+   * which only ever touches the already-open book). Pulls the latest
+   * revision for a project_id picked from corePrivateManuscripts and
+   * brings it in with its own original identity, same tail as
+   * importManuscript's JSON-file path: save, refresh the shelf, open it.
+   */
+  const importCoreManuscript = useCallback(
+    async (projectId: string) => {
+      try {
+        const versions = await corePrivateVersions(projectId);
+        const latest = versions.revisions[0];
+        if (!versions.workspace || !latest) {
+          setError("This manuscript is no longer available in kaampi Codex");
+          return;
+        }
+        const revision = await corePrivateRevision(latest.id);
+        const imported = await persistCoreImport(
+          { workspace: versions.workspace, revision },
+          {
+            idExists: (id) =>
+              repo.get(id).then(
+                () => true,
+                (error) => {
+                  if (error instanceof BookNotFoundError) return false;
+                  throw error;
+                }
+              ),
+            save: (book) => repo.save(book)
+          }
+        );
+        setSummaries(await repo.list());
+        const remembered = readLastPosition(imported);
+        withViewTransition(() => {
+          setBook(imported);
+          setChapterIdState(remembered?.chapterId ?? sortedChapters(imported)[0]?.id ?? null);
+          setSurface(remembered?.surface ?? openingSurface(imported));
+          setChapterFeedback(null);
+          setCriticFeedback(null);
+        });
+        localStorage.setItem(LAST_BOOK_KEY, imported.id);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : STORE_ERROR.shelfUnreadable);
+      }
+    },
+    [repo]
+  );
 
   const persistProseWrite = useCallback(
     async (
@@ -3485,6 +3536,7 @@ export function BookStoreProvider({ children }: { children: React.ReactNode }) {
     loadBook,
     checkpointBook,
     restoreCoreRevision,
+    importCoreManuscript,
     importManuscript,
     importMarkdownManuscript,
     deleteBook,

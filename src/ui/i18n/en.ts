@@ -499,6 +499,16 @@ export const en = {
     importManuscriptButton: "Import manuscript (text file)",
     importManuscriptCardLede: "Start from a plain text or Markdown export of another writing tool.",
     importManuscriptCardAction: "Choose a file",
+    importCodexBook: "Import Codex book",
+    importCodexBookCardLede: "Bring in a manuscript kaampi Codex has a private backup of, but this installation doesn't have yet.",
+    importCodexBookCardAction: "Browse Codex backups",
+    importCodexBookTitle: "Import a book from kaampi Codex",
+    importCodexBookLede:
+      "Every manuscript kaampi Codex holds a private backup of, that isn't already in this installation. Picking one brings it in with its own original history — chapters, Story Bible, everything — exactly as Codex last saw it.",
+    importCodexBookLoading: "Checking kaampi Codex…",
+    importCodexBookEmpty: "Nothing to import — either kaampi Codex has no private backups, or this installation already has them all.",
+    importCodexBookImport: "Import",
+    importCodexBookImporting: "Importing…",
     guideCardLede: "Not sure where to start? The Guide walks through every part of the app.",
     guideCardAction: "Open the Guide",
     mascotIntroText:

@@ -10,6 +10,7 @@ export type CorePrivateVersions = {
   workspace: { id: string; owner_app: "storybook"; kind: "private-snapshot"; project_id: string } | null;
   revisions: { id: string; workspace_id: string; number: number; created_at: string; deleted: boolean }[];
 };
+export type CorePrivateManuscript = { projectId: string; title: string; revision: number; updatedAt: string };
 
 /** Credentials stay in the native bridge; the webview only sends the filtered publication. */
 export const coreDesktopTransport: CoreSharingTransport = {
@@ -41,6 +42,30 @@ export async function coreSharedAccess(projectId: string): Promise<CoreSharedAcc
 export async function saveCorePrivateBook(book: Book): Promise<void> {
   if (!isTauri()) throw new Error("Core private snapshots require the desktop app");
   await invoke("core_save_private", { book: parseBook(book) });
+}
+
+/**
+ * "Import Codex book" on Home (Mats, 2026-10-31): a picker for a machine
+ * that doesn't have the manuscript locally at all, so unlike
+ * corePrivateVersions below there's no project_id to ask about yet.
+ */
+export async function corePrivateManuscripts(): Promise<CorePrivateManuscript[]> {
+  if (!isTauri()) throw new Error("Core private manuscripts require the desktop app");
+  const value = await invoke<CorePrivateManuscript[]>("core_private_manuscripts");
+  if (
+    !Array.isArray(value) ||
+    value.some(
+      (entry) =>
+        !entry ||
+        typeof entry.projectId !== "string" ||
+        typeof entry.title !== "string" ||
+        !Number.isSafeInteger(entry.revision) ||
+        typeof entry.updatedAt !== "string"
+    )
+  ) {
+    throw new Error("Invalid Core manuscript list response");
+  }
+  return value;
 }
 
 export async function corePrivateVersions(projectId: string): Promise<CorePrivateVersions> {

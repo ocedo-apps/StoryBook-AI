@@ -36,3 +36,23 @@ export async function persistCoreRestore(
   await options.save(prepared.backup.book);
   return prepared.backup.book;
 }
+
+/**
+ * "Import Codex book" (Mats, 2026-10-31) - the counterpart to
+ * persistCoreRestore above for a manuscript with no local copy at all, so
+ * there's no `currentBook` to restore into or compare against. Reuses
+ * `prepareCoreBookRestore`'s own "same-book" branch for its real effect
+ * here: with no `currentBook` option, that mode leaves the book's
+ * original id/translation group/series untouched - a straight import of
+ * what Codex has, not a detached fork the way "new-book" mode would be.
+ */
+export async function persistCoreImport(
+  source: CoreBookRevision,
+  options: { idExists: (id: string) => Promise<boolean>; save: (book: Book) => Promise<void> }
+): Promise<Book> {
+  if (!source.workspace.project_id) throw new Error("The Core manuscript is missing its own ID");
+  if (await options.idExists(source.workspace.project_id)) throw new Error("This manuscript is already in your library");
+  const prepared = prepareCoreBookRestore(source, "same-book");
+  await options.save(prepared.backup.book);
+  return prepared.backup.book;
+}
